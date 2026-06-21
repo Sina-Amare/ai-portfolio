@@ -79,11 +79,47 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${vazirmatn.variable} h-full antialiased`}
     >
       <body className="bg-bg text-text font-sans flex min-h-dvh flex-col">
+        <a
+          href="#content"
+          className="focus:bg-accent sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+        >
+          Skip to content
+        </a>
         <MotionProvider>
           <Nav />
-          <main className="flex-1">{children}</main>
+          <main id="content" className="flex-1">
+            {children}
+          </main>
           <Footer />
         </MotionProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              name: site.name,
+              jobTitle: "Software Developer — Backend & AI",
+              url: site.url,
+              email: site.email,
+              sameAs: [site.socials.github, site.socials.linkedin],
+              knowsAbout: [
+                "Python",
+                "FastAPI",
+                "Django",
+                "RAG",
+                "LLM application engineering",
+                "PostgreSQL",
+                "Docker",
+              ],
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Tehran",
+                addressCountry: "IR",
+              },
+            }),
+          }}
+        />
       </body>
     </html>
   );

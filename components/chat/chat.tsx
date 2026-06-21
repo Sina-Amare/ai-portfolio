@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { StickToBottom } from "use-stick-to-bottom";
@@ -43,18 +43,10 @@ function LangToggle({
 
 export function Chat() {
   const [lang, setLang] = useState<Lang>("en");
-  const langRef = useRef(lang);
-  langRef.current = lang;
   const [input, setInput] = useState("");
 
   const transport = useMemo(
-    () =>
-      new DefaultChatTransport({
-        api: "/api/chat",
-        prepareSendMessagesRequest: ({ messages }) => ({
-          body: { messages, lang: langRef.current },
-        }),
-      }),
+    () => new DefaultChatTransport({ api: "/api/chat" }),
     [],
   );
 
@@ -71,7 +63,7 @@ export function Chat() {
     const v = text.trim();
     if (!v || isStreaming) return;
     setInput("");
-    void sendMessage({ text: v });
+    void sendMessage({ text: v }, { body: { lang } });
   }
 
   return (
@@ -148,7 +140,7 @@ export function Chat() {
         {hasMessages && status === "ready" && lastIsAssistant && (
           <button
             type="button"
-            onClick={() => regenerate()}
+            onClick={() => regenerate({ body: { lang } })}
             className="text-muted-2 hover:text-text mb-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs transition-colors"
           >
             <RotateCcw className="h-3 w-3" /> {t.regenerate}

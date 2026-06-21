@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FileText, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
@@ -18,11 +18,6 @@ const links = [
 export function Nav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-
-  // Close the mobile menu on route change.
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
@@ -77,6 +72,7 @@ export function Nav() {
                 <Link
                   key={l.href}
                   href={l.href}
+                  onClick={() => setOpen(false)}
                   className="text-muted hover:text-text rounded-lg px-2 py-2.5 text-sm transition-colors"
                 >
                   {l.label}
@@ -86,6 +82,7 @@ export function Nav() {
                 href={site.resume}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
                 className="text-text mt-1 inline-flex items-center gap-2 rounded-lg px-2 py-2.5 text-sm"
               >
                 <FileText className="h-4 w-4" /> Résumé
