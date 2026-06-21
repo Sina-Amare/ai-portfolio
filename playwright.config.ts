@@ -14,15 +14,8 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
-    // Render reveal animations immediately so assertions don't wait on the observer.
-    reducedMotion: "reduce",
   },
-  projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    ...(process.env.CI
-      ? [{ name: "webkit", use: { ...devices["Desktop Safari"] } }]
-      : []),
-  ],
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",

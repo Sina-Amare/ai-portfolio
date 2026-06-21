@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "embed": "tsx --env-file=.env.local scripts/embed.ts",
-    "eval": "tsx --env-file=.env.local scripts/rag-eval.ts"
+    "eval": "tsx --env-file=.env.local scripts/rag-eval.ts",
+    "eval:ci": "tsx scripts/rag-eval.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.83",
