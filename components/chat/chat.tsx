@@ -137,6 +137,25 @@ export function Chat() {
 
       {/* Input */}
       <div className="border-t border-border p-3">
+        {status === "error" && (
+          <div
+            dir={dir}
+            role="alert"
+            className={cn(
+              "mb-2 flex items-center justify-between gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm",
+              dir === "rtl" && "font-fa",
+            )}
+          >
+            <span className="text-red-300">{t.errorTitle}</span>
+            <button
+              type="button"
+              onClick={() => regenerate({ body: { lang } })}
+              className="text-text shrink-0 font-medium underline-offset-2 hover:underline"
+            >
+              {t.retry}
+            </button>
+          </div>
+        )}
         {hasMessages && status === "ready" && lastIsAssistant && (
           <button
             type="button"

@@ -1,0 +1,30 @@
+{
+  "_comment": "Golden set for the RAG retrieval gate. In-scope items must NOT be refused (top score >= threshold); items with expectSource must surface that source in top-k. Out-of-scope items MUST be refused.",
+  "inScope": [
+    { "q": "What did you build at Dekamond?" },
+    { "q": "How much professional experience do you have?" },
+    { "q": "What is your core tech stack?" },
+    { "q": "Are you available for hire?" },
+    { "q": "Do you work remotely?" },
+    { "q": "What databases do you know?" },
+    { "q": "What's your strongest skill?" },
+    { "q": "Where did you study?" },
+    { "q": "Tell me about a hard problem you solved" },
+    { "q": "Tell me about ScrapeGPT", "expectSource": "Project: ScrapeGPT" },
+    { "q": "What is SakaiBot?", "expectSource": "Project: SakaiBot" },
+    { "q": "Explain the GitHub Code Review project", "expectSource": "Project: GitHub Code Review" },
+    { "q": "تو دکاموند چی کار کردی؟" },
+    { "q": "مهارت‌های اصلیت چیه؟" },
+    { "q": "آیا برای کار جدید در دسترس هستی؟" }
+  ],
+  "outOfScope": [
+    "What's the weather today?",
+    "Write me a poem about cats",
+    "Who is the president of France?",
+    "What is the capital of Japan?",
+    "Can you help me debug my Rust code?",
+    "What is 2 plus 2?",
+    "Tell me a joke",
+    "نظرت درباره‌ی سیاست چیه؟"
+  ]
+}
