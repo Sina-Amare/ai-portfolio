@@ -1,20 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Vazirmatn } from "next/font/google";
+import { Bricolage_Grotesque, Inter_Tight, JetBrains_Mono, Vazirmatn } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { MotionProvider } from "@/components/motion/motion-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
+  weight: ["600", "700"],
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -64,8 +74,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#08090a",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0b" },
+    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
+  ],
 };
 
 export default function RootLayout({
@@ -77,22 +89,24 @@ export default function RootLayout({
       dir="ltr"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${vazirmatn.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${interTight.variable} ${jetbrainsMono.variable} ${vazirmatn.variable} h-full antialiased`}
     >
       <body className="bg-bg text-text font-sans flex min-h-dvh flex-col">
         <a
           href="#content"
-          className="focus:bg-accent sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+          className="focus:bg-accent focus:text-accent-contrast sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:px-4 focus:py-2 focus:text-sm"
         >
           Skip to content
         </a>
-        <MotionProvider>
-          <Nav />
-          <main id="content" className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </MotionProvider>
+        <ThemeProvider>
+          <MotionProvider>
+            <Nav />
+            <main id="content" className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </MotionProvider>
+        </ThemeProvider>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

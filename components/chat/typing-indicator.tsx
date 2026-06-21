@@ -5,9 +5,9 @@ export function TypingIndicator({ label }: { label?: string }) {
       role="status"
       aria-label={label ?? "Thinking"}
     >
-      <span className="typing-dot bg-accent-2 inline-block h-1.5 w-1.5 rounded-full" />
-      <span className="typing-dot bg-accent-2 inline-block h-1.5 w-1.5 rounded-full" />
-      <span className="typing-dot bg-accent-2 inline-block h-1.5 w-1.5 rounded-full" />
+      <span className="typing-dot bg-accent inline-block h-1.5 w-1.5 rounded-full" />
+      <span className="typing-dot bg-accent inline-block h-1.5 w-1.5 rounded-full" />
+      <span className="typing-dot bg-accent inline-block h-1.5 w-1.5 rounded-full" />
     </div>
   );
 }

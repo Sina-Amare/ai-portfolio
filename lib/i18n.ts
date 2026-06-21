@@ -20,6 +20,9 @@ export const ui = {
     chatTitle: "Ask me anything",
     chatSubtitle:
       "An AI that answers in Sina's own voice — grounded in his real CV & projects, so no made-up answers.",
+    heroHeadline: "Ask me anything about my work.",
+    heroSubtitle:
+      "A real RAG chatbot grounded in my CV and projects — with multi-provider failover, in English or فارسی. Try a question below.",
     placeholder: "Ask about my experience, projects, or stack…",
     send: "Send",
     stop: "Stop",
@@ -46,6 +49,9 @@ export const ui = {
     chatTitle: "هرچی دوست داری از من بپرس",
     chatSubtitle:
       "یه هوش مصنوعی که از زبون خودِ سینا جواب می‌ده — بر پایه‌ی رزومه و پروژه‌های واقعیش.",
+    heroHeadline: "هرچی دوست داری از کارهام بپرس.",
+    heroSubtitle:
+      "یه چت‌بات واقعی که روی رزومه و پروژه‌هام سواره — با جابه‌جایی خودکار بین مدل‌ها، به فارسی یا انگلیسی. یه سوال بپرس.",
     placeholder: "درباره‌ی تجربه، پروژه‌ها یا مهارت‌هایم بپرسید…",
     send: "ارسال",
     stop: "توقف",

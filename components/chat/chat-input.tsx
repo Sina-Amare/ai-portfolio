@@ -14,6 +14,7 @@ export function ChatInput({
   dir,
   sendLabel,
   stopLabel,
+  large = false,
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -24,16 +25,18 @@ export function ChatInput({
   dir: "ltr" | "rtl";
   sendLabel: string;
   stopLabel: string;
+  large?: boolean;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-grow up to a cap.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     el.style.height = "0px";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 168)}px`;
   }, [value]);
+
+  const btnSize = large ? "h-10 w-10" : "h-9 w-9";
 
   return (
     <form
@@ -41,7 +44,7 @@ export function ChatInput({
         e.preventDefault();
         onSubmit();
       }}
-      className="glass-strong flex items-end gap-2 rounded-2xl border border-border p-2 transition-colors focus-within:border-accent/50"
+      className={cn("chat-input-box flex items-end gap-2", large ? "p-2.5" : "p-2")}
     >
       <textarea
         ref={ref}
@@ -57,7 +60,8 @@ export function ChatInput({
           }
         }}
         className={cn(
-          "text-text placeholder:text-muted-2 max-h-40 flex-1 resize-none bg-transparent px-2 py-1.5 text-[15px] focus:outline-none",
+          "text-text placeholder:text-muted flex-1 resize-none bg-transparent px-2 focus:outline-none",
+          large ? "max-h-44 py-2.5 text-[15px]" : "max-h-40 py-1.5 text-[15px]",
           dir === "rtl" && "font-fa",
         )}
         aria-label={placeholder}
@@ -67,7 +71,10 @@ export function ChatInput({
           type="button"
           onClick={onStop}
           aria-label={stopLabel}
-          className="text-text inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border-strong transition-colors hover:border-accent/60"
+          className={cn(
+            "text-text inline-flex shrink-0 items-center justify-center rounded-xl border border-border-strong transition-colors hover:border-accent/60",
+            btnSize,
+          )}
         >
           <Square className="h-4 w-4 fill-current" />
         </button>
@@ -76,9 +83,12 @@ export function ChatInput({
           type="submit"
           disabled={!value.trim()}
           aria-label={sendLabel}
-          className="bg-accent inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white shadow-[0_8px_24px_-10px_var(--accent-glow)] transition-all hover:bg-accent-2 disabled:opacity-40"
+          className={cn(
+            "bg-accent text-accent-contrast inline-flex shrink-0 items-center justify-center rounded-xl shadow-[0_8px_20px_-10px_var(--accent-glow)] transition-all hover:-translate-y-px hover:bg-accent-hover disabled:translate-y-0 disabled:opacity-40",
+            btnSize,
+          )}
         >
-          <ArrowUp className="h-4 w-4" />
+          <ArrowUp className="h-[18px] w-[18px]" />
         </button>
       )}
     </form>

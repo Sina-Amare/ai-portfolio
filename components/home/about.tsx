@@ -72,7 +72,7 @@ export function About() {
                     {g.items.map((s) => (
                       <span
                         key={s}
-                        className="font-mono text-muted rounded-full border border-border bg-white/[0.02] px-2.5 py-1 text-[11px]"
+                        className="font-mono text-muted rounded-full border border-border px-2.5 py-1 text-[11px]"
                       >
                         {s}
                       </span>
@@ -101,9 +101,9 @@ export function About() {
                   <div className="flex items-baseline justify-between gap-3">
                     <h3 className="text-sm font-medium">
                       {e.role}{" "}
-                      <span className="text-accent-2">· {e.org}</span>
+                      <span className="text-accent">· {e.org}</span>
                     </h3>
-                    <span className="text-muted-2 font-mono shrink-0 text-[11px]">
+                    <span className="text-muted font-mono shrink-0 text-[11px]">
                       {e.period}
                     </span>
                   </div>
@@ -120,11 +120,11 @@ export function About() {
                 <div key={e.degree} className="border-s border-border ps-4">
                   <div className="flex items-baseline justify-between gap-3">
                     <h3 className="text-sm font-medium">{e.degree}</h3>
-                    <span className="text-muted-2 font-mono shrink-0 text-[11px]">
+                    <span className="text-muted font-mono shrink-0 text-[11px]">
                       {e.period}
                     </span>
                   </div>
-                  <p className="text-muted-2 mt-1 text-[13px]">{e.org}</p>
+                  <p className="text-muted mt-1 text-[13px]">{e.org}</p>
                 </div>
               ))}
             </div>

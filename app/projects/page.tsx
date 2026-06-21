@@ -45,10 +45,10 @@ export default function ProjectsPage() {
               className="group glass flex h-full flex-col justify-between gap-4 rounded-[var(--radius-card)] border-accent/15 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40"
             >
               <div className="flex items-center justify-between">
-                <div className="bg-accent/15 text-accent-2 grid h-10 w-10 place-items-center rounded-full">
+                <div className="bg-accent/15 text-accent grid h-10 w-10 place-items-center rounded-full">
                   <GitHubIcon className="h-5 w-5" />
                 </div>
-                <ArrowUpRight className="text-muted-2 group-hover:text-accent-2 h-5 w-5 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                <ArrowUpRight className="text-muted group-hover:text-accent h-5 w-5 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">

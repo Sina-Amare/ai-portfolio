@@ -35,7 +35,7 @@ export default async function ProjectPage({ params }: Params) {
       <Container>
         <Link
           href="/projects"
-          className="text-muted-2 hover:text-text inline-flex items-center gap-1.5 text-sm transition-colors"
+          className="text-muted hover:text-text inline-flex items-center gap-1.5 text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> All projects
         </Link>
@@ -45,7 +45,7 @@ export default async function ProjectPage({ params }: Params) {
           <article className="min-w-0">
             <Reveal>
               <div className="flex items-center gap-3">
-                <span className="text-accent-2 font-mono text-xs">
+                <span className="text-accent font-mono text-xs">
                   {project.year}
                 </span>
                 <span className="eyebrow">{project.tagline}</span>
@@ -103,7 +103,7 @@ export default async function ProjectPage({ params }: Params) {
               <ul className="mt-4 space-y-2.5">
                 {project.outcomes.map((o) => (
                   <li key={o} className="flex gap-2.5">
-                    <Check className="text-accent-2 mt-0.5 h-4 w-4 shrink-0" />
+                    <Check className="text-accent mt-0.5 h-4 w-4 shrink-0" />
                     <span className="text-muted text-[15px] leading-relaxed">
                       {o}
                     </span>

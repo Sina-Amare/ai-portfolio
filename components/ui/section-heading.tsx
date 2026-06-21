@@ -17,7 +17,7 @@ export function SectionHeading({
     <div className={cn("max-w-2xl", className)}>
       <div className="flex items-center gap-3">
         {number && (
-          <span className="text-accent-2 font-mono text-xs">{number}</span>
+          <span className="text-accent font-mono text-xs">{number}</span>
         )}
         {eyebrow && <span className="eyebrow">{eyebrow}</span>}
       </div>

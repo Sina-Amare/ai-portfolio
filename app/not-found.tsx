@@ -15,7 +15,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
-          className="bg-accent hover:bg-accent-2 mt-8 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-white transition-colors"
+          className="bg-accent text-accent-contrast hover:bg-accent-hover mt-8 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Back home
         </Link>

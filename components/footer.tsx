@@ -15,13 +15,13 @@ export function Footer() {
     <footer className="mt-24 border-t border-border">
       <Container className="flex flex-col gap-8 py-12 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-sm">
-          <div className="font-mono text-sm font-semibold">
-            sina<span className="text-accent-2">.</span>amareh
+          <div className="text-heading font-mono text-sm font-semibold">
+            sina<span className="text-accent">.</span>amareh
           </div>
           <p className="text-muted mt-3 text-sm leading-relaxed">
             {site.tagline} · {site.location} ({site.timezone}).
           </p>
-          <p className="text-muted-2 mt-4 text-xs">
+          <p className="text-muted mt-4 text-xs opacity-80">
             Built with Next.js & a live multi-provider RAG assistant — the chatbot
             on this site runs on my own code.
           </p>
@@ -42,7 +42,7 @@ export function Footer() {
               </a>
             ))}
           </div>
-          <p className="text-muted-2 text-xs">
+          <p className="text-muted text-xs opacity-80">
             © {year} {site.name}. All rights reserved.
           </p>
         </div>

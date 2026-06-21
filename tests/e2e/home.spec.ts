@@ -10,8 +10,9 @@ test("home renders the hero and nav with no console errors", async ({ page }) =>
 
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Sina Amareh", level: 1 }),
+    page.getByRole("heading", { name: /Ask me anything/i, level: 1 }),
   ).toBeVisible();
+  await expect(page.getByText("Sina Amareh").first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Projects" }).first()).toBeVisible();
   expect(errors).toEqual([]);
 });

@@ -19,7 +19,7 @@ export function Suggestions({
           type="button"
           dir={dir}
           onClick={() => onPick(s)}
-          className="glass text-muted hover:text-text rounded-full border border-border px-3 py-1.5 text-[13px] transition-colors hover:border-accent/40"
+          className="text-muted hover:text-text hover:bg-accent-soft rounded-full border border-border px-3 py-1.5 text-[13px] transition-colors hover:border-accent/50"
         >
           {s}
         </button>

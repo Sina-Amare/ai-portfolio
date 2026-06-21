@@ -11,7 +11,7 @@ const components: Components = {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-accent-2 hover:text-accent underline underline-offset-2"
+      className="text-accent-text hover:text-accent underline underline-offset-2"
     >
       {children}
     </a>
@@ -33,7 +33,7 @@ const components: Components = {
       return <code className="font-mono text-[0.85em]">{children}</code>;
     }
     return (
-      <code className="text-accent-2 font-mono rounded bg-white/[0.06] px-1.5 py-0.5 text-[0.85em]">
+      <code className="text-accent-text bg-accent-soft font-mono rounded px-1.5 py-0.5 text-[0.85em]">
         {children}
       </code>
     );

@@ -41,26 +41,26 @@ export const Message = memo(function Message({
       <div
         dir={dir}
         className={cn(
-          "max-w-[88%] rounded-2xl px-4 py-2.5 text-[15px]",
+          "text-[15px] leading-relaxed",
           isUser
-            ? "border border-accent/25 bg-accent/12 text-text"
-            : "glass text-text",
+            ? "text-text max-w-[85%] rounded-2xl border border-border bg-surface px-4 py-2.5"
+            : "text-text max-w-full",
           dir === "rtl" && "font-fa",
         )}
       >
         {isUser ? (
-          <p className="leading-relaxed whitespace-pre-wrap">{text}</p>
+          <p className="whitespace-pre-wrap">{text}</p>
         ) : (
           <Markdown content={text} />
         )}
 
         {sources.length > 0 && (
-          <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-border pt-2">
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
             <span className="eyebrow text-[10px]">{sourcesLabel}</span>
             {sources.map((s) => (
               <span
                 key={s}
-                className="text-muted font-mono rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px]"
+                className="text-muted font-mono rounded-full border border-border px-2 py-0.5 text-[10px]"
               >
                 {s}
               </span>
