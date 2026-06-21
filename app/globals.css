@@ -184,22 +184,10 @@ h3 {
   outline: none;
 }
 
-/* Soft fade mask for the scrolling transcript */
+/* Soft fade at the top of the scrolling transcript only */
 .transcript-mask {
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    #000 18px,
-    #000 calc(100% - 8px),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    #000 18px,
-    #000 calc(100% - 8px),
-    transparent 100%
-  );
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 100%);
 }
 
 /* Translucent sticky nav */

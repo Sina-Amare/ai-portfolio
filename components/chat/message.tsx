@@ -1,7 +1,8 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import type { UIMessage } from "ai";
+import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { detectDir } from "@/lib/i18n";
 import { Markdown } from "./markdown";
@@ -27,17 +28,32 @@ function uniqueSourcesOf(message: UIMessage): string[] {
 export const Message = memo(function Message({
   message,
   sourcesLabel,
+  copyLabel = "Copy",
+  copiedLabel = "Copied",
 }: {
   message: UIMessage;
   sourcesLabel: string;
+  copyLabel?: string;
+  copiedLabel?: string;
 }) {
+  const [copied, setCopied] = useState(false);
   const isUser = message.role === "user";
   const text = textOf(message);
   const dir = detectDir(text);
   const sources = isUser ? [] : uniqueSourcesOf(message);
 
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
   return (
-    <div className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}>
+    <div className={cn("group flex w-full", isUser ? "justify-end" : "justify-start")}>
       <div
         dir={dir}
         className={cn(
@@ -66,6 +82,25 @@ export const Message = memo(function Message({
               </span>
             ))}
           </div>
+        )}
+
+        {!isUser && text && (
+          <button
+            type="button"
+            onClick={copy}
+            aria-label={copied ? copiedLabel : copyLabel}
+            className="text-muted hover:text-text mt-2 inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+          >
+            {copied ? (
+              <>
+                <Check className="h-3 w-3" /> {copiedLabel}
+              </>
+            ) : (
+              <>
+                <Copy className="h-3 w-3" /> {copyLabel}
+              </>
+            )}
+          </button>
         )}
       </div>
     </div>

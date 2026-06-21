@@ -9,13 +9,24 @@
     { "q": "What databases do you know?" },
     { "q": "What's your strongest skill?" },
     { "q": "Where did you study?" },
+    { "q": "What's your educational background?" },
+    { "q": "What was your undergraduate research about?" },
+    { "q": "Have you won any awards?" },
+    { "q": "What languages do you speak?" },
+    { "q": "What did you do at Arnikup?" },
+    { "q": "What's your experience with Docker?" },
+    { "q": "Do you write tests?" },
+    { "q": "Why should we hire you?" },
+    { "q": "What is Kaleri.ai?" },
+    { "q": "What is RAG?" },
     { "q": "Tell me about a hard problem you solved" },
     { "q": "Tell me about ScrapeGPT", "expectSource": "Project: ScrapeGPT" },
     { "q": "What is SakaiBot?", "expectSource": "Project: SakaiBot" },
     { "q": "Explain the GitHub Code Review project", "expectSource": "Project: GitHub Code Review" },
     { "q": "تو دکاموند چی کار کردی؟" },
     { "q": "مهارت‌های اصلیت چیه؟" },
-    { "q": "آیا برای کار جدید در دسترس هستی؟" }
+    { "q": "آیا برای کار جدید در دسترس هستی؟" },
+    { "q": "کجا درس خوندی؟" }
   ],
   "outOfScope": [
     "What's the weather today?",
@@ -25,6 +36,7 @@
     "Can you help me debug my Rust code?",
     "What is 2 plus 2?",
     "Tell me a joke",
+    "What's the meaning of life?",
     "نظرت درباره‌ی سیاست چیه؟"
   ]
 }

@@ -111,7 +111,7 @@ export async function POST(req: Request) {
   let scored: ScoredChunk[];
   try {
     const queryEmbedding = await embedText(question, "RETRIEVAL_QUERY", req.signal);
-    scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, 5);
+    scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, 6);
   } catch {
     return cannedResponse(errorMessage(lang));
   }
@@ -146,8 +146,8 @@ export async function POST(req: Request) {
             model: provider.model,
             system,
             messages: modelMessages,
-            temperature: 0.3,
-            maxOutputTokens: 700,
+            temperature: 0.5,
+            maxOutputTokens: 1000,
             abortSignal: req.signal,
             experimental_transform: smoothStream({ chunking: "word", delayInMs: 12 }),
           });

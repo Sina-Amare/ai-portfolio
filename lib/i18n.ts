@@ -22,7 +22,7 @@ export const ui = {
       "An AI that answers in Sina's own voice — grounded in his real CV & projects, so no made-up answers.",
     heroHeadline: "Ask me anything about my work.",
     heroSubtitle:
-      "A real RAG chatbot grounded in my CV and projects — with multi-provider failover, in English or فارسی. Try a question below.",
+      "From multi-provider RAG systems to crash-tolerant backends — ask me about anything I've built.",
     placeholder: "Ask about my experience, projects, or stack…",
     send: "Send",
     stop: "Stop",
@@ -35,6 +35,9 @@ export const ui = {
     errorBody: "The assistant couldn't respond. Please try again.",
     retry: "Retry",
     sources: "Sources",
+    scrollLatest: "Jump to latest",
+    copy: "Copy",
+    copied: "Copied",
     poweredBy: "Live RAG over my CV · multi-provider failover",
     suggestions: [
       "What did you build at Dekamond?",
@@ -51,7 +54,7 @@ export const ui = {
       "یه هوش مصنوعی که از زبون خودِ سینا جواب می‌ده — بر پایه‌ی رزومه و پروژه‌های واقعیش.",
     heroHeadline: "هرچی دوست داری از کارهام بپرس.",
     heroSubtitle:
-      "یه چت‌بات واقعی که روی رزومه و پروژه‌هام سواره — با جابه‌جایی خودکار بین مدل‌ها، به فارسی یا انگلیسی. یه سوال بپرس.",
+      "از سیستم‌های RAG چند-ارائه‌دهنده تا بک‌اندهای مقاوم در برابر خرابی — دربارهٔ هر چیزی که ساختم بپرس.",
     placeholder: "درباره‌ی تجربه، پروژه‌ها یا مهارت‌هایم بپرسید…",
     send: "ارسال",
     stop: "توقف",
@@ -64,6 +67,9 @@ export const ui = {
     errorBody: "دستیار نتوانست پاسخ دهد. لطفاً دوباره تلاش کنید.",
     retry: "تلاش دوباره",
     sources: "منابع",
+    scrollLatest: "رفتن به آخرین پیام",
+    copy: "کپی",
+    copied: "کپی شد",
     poweredBy: "RAG زنده روی رزومه‌ی من · جابه‌جایی خودکار بین ارائه‌دهنده‌ها",
     suggestions: [
       "تو دکاموند چی ساختی؟",

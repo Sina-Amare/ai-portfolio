@@ -16,6 +16,7 @@ import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { ChatInput } from "@/components/chat/chat-input";
 import { Suggestions } from "@/components/chat/suggestions";
 import { LangToggle } from "@/components/chat/lang-toggle";
+import { ScrollToBottom } from "@/components/chat/scroll-to-bottom";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -56,7 +57,7 @@ export function ChatHero() {
   return (
     <section className="relative isolate overflow-hidden">
       <div aria-hidden className="hero-bg pointer-events-none absolute inset-0 -z-10" />
-      <Container className="flex min-h-[88svh] flex-col items-center justify-center py-28 sm:py-32">
+      <Container className="flex min-h-[92svh] flex-col items-center justify-center py-24">
         {/* Identity */}
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 8 }}
@@ -112,9 +113,12 @@ export function ChatHero() {
         </AnimatePresence>
 
         {/* Chat column */}
-        <div className="w-full max-w-[720px]">
-          {active && (
-            <div className="mb-3 flex items-center justify-between">
+        {active ? (
+          <div
+            className="flex w-full max-w-[720px] flex-col"
+            style={{ height: "min(74svh, 760px)" }}
+          >
+            <div className="mb-3 flex shrink-0 items-center justify-between">
               <button
                 type="button"
                 onClick={reset}
@@ -124,17 +128,21 @@ export function ChatHero() {
               </button>
               <LangToggle lang={lang} onChange={setLang} />
             </div>
-          )}
 
-          {active && (
             <StickToBottom
-              className="transcript-mask mb-3 max-h-[min(54vh,520px)] overflow-y-auto"
+              className="transcript-mask relative min-h-0 flex-1 overflow-y-auto overscroll-contain"
               resize="smooth"
               initial="smooth"
             >
               <StickToBottom.Content className="flex flex-col gap-5 px-0.5 py-2">
                 {messages.map((m) => (
-                  <Message key={m.id} message={m} sourcesLabel={t.sources} />
+                  <Message
+                    key={m.id}
+                    message={m}
+                    sourcesLabel={t.sources}
+                    copyLabel={t.copy}
+                    copiedLabel={t.copied}
+                  />
                 ))}
                 {status === "submitted" && (
                   <div className="text-muted flex justify-start px-1">
@@ -142,61 +150,75 @@ export function ChatHero() {
                   </div>
                 )}
               </StickToBottom.Content>
+              <ScrollToBottom label={t.scrollLatest} />
             </StickToBottom>
-          )}
 
-          <ChatInput
-            value={input}
-            onChange={setInput}
-            onSubmit={() => send(input)}
-            onStop={stop}
-            isStreaming={isStreaming}
-            placeholder={t.placeholder}
-            dir={dir}
-            sendLabel={t.send}
-            stopLabel={t.stop}
-            large
-          />
-
-          {status === "error" && (
-            <div
-              dir={dir}
-              role="alert"
-              className={cn(
-                "mt-3 flex items-center justify-between gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm",
-                dir === "rtl" && "font-fa",
-              )}
-            >
-              <span className="text-red-500">{t.errorTitle}</span>
-              <button
-                type="button"
-                onClick={() => regenerate({ body: { lang } })}
-                className="text-text shrink-0 font-medium underline-offset-2 hover:underline"
+            {status === "error" && (
+              <div
+                dir={dir}
+                role="alert"
+                className={cn(
+                  "mt-3 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm",
+                  dir === "rtl" && "font-fa",
+                )}
               >
-                {t.retry}
-              </button>
-            </div>
-          )}
+                <span className="text-red-500">{t.errorTitle}</span>
+                <button
+                  type="button"
+                  onClick={() => regenerate({ body: { lang } })}
+                  className="text-text shrink-0 font-medium underline-offset-2 hover:underline"
+                >
+                  {t.retry}
+                </button>
+              </div>
+            )}
 
-          {!active && (
+            <div className="mt-3 shrink-0">
+              <ChatInput
+                value={input}
+                onChange={setInput}
+                onSubmit={() => send(input)}
+                onStop={stop}
+                isStreaming={isStreaming}
+                placeholder={t.placeholder}
+                dir={dir}
+                sendLabel={t.send}
+                stopLabel={t.stop}
+                large
+              />
+              {status === "ready" && lastIsAssistant && (
+                <div className="mt-2 flex">
+                  <button
+                    type="button"
+                    onClick={() => regenerate({ body: { lang } })}
+                    className="text-muted hover:text-text inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs transition-colors"
+                  >
+                    <RotateCcw className="h-3 w-3" /> {t.regenerate}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="w-full max-w-[720px]">
+            <ChatInput
+              value={input}
+              onChange={setInput}
+              onSubmit={() => send(input)}
+              onStop={stop}
+              isStreaming={isStreaming}
+              placeholder={t.placeholder}
+              dir={dir}
+              sendLabel={t.send}
+              stopLabel={t.stop}
+              large
+            />
             <div className="mt-5 flex flex-col items-center gap-4">
               <Suggestions items={t.suggestions} onPick={send} dir={dir} />
               <LangToggle lang={lang} onChange={setLang} />
             </div>
-          )}
-
-          {active && status === "ready" && lastIsAssistant && (
-            <div className="mt-2 flex">
-              <button
-                type="button"
-                onClick={() => regenerate({ body: { lang } })}
-                className="text-muted hover:text-text inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs transition-colors"
-              >
-                <RotateCcw className="h-3 w-3" /> {t.regenerate}
-              </button>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </Container>
     </section>
   );
