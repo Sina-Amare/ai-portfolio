@@ -15,6 +15,7 @@ export function ChatInput({
   sendLabel,
   stopLabel,
   large = false,
+  autoFocus = false,
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -26,6 +27,7 @@ export function ChatInput({
   sendLabel: string;
   stopLabel: string;
   large?: boolean;
+  autoFocus?: boolean;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
@@ -51,6 +53,8 @@ export function ChatInput({
         value={value}
         dir={dir}
         rows={1}
+        maxLength={600}
+        autoFocus={autoFocus}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {

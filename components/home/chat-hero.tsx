@@ -134,7 +134,12 @@ export function ChatHero() {
               resize="smooth"
               initial="smooth"
             >
-              <StickToBottom.Content className="flex flex-col gap-5 px-0.5 py-2">
+              <StickToBottom.Content
+                role="log"
+                aria-live="polite"
+                aria-atomic="false"
+                className="flex flex-col gap-5 px-0.5 py-2"
+              >
                 {messages.map((m) => (
                   <Message
                     key={m.id}
@@ -185,6 +190,7 @@ export function ChatHero() {
                 sendLabel={t.send}
                 stopLabel={t.stop}
                 large
+                autoFocus
               />
               {status === "ready" && lastIsAssistant && (
                 <div className="mt-2 flex">

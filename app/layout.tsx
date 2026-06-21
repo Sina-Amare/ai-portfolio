@@ -33,6 +33,8 @@ const vazirmatn = Vazirmatn({
   variable: "--font-vazirmatn",
   subsets: ["arabic", "latin"],
   display: "swap",
+  // Only needed when a visitor switches to Persian — don't block initial load.
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -131,6 +133,17 @@ export default function RootLayout({
                 "LLM application engineering",
                 "PostgreSQL",
                 "Docker",
+              ],
+              knowsLanguage: ["English", "Persian"],
+              alumniOf: [
+                {
+                  "@type": "CollegeOrUniversity",
+                  name: "University of Guilan",
+                },
+                {
+                  "@type": "CollegeOrUniversity",
+                  name: "Islamic Azad University",
+                },
               ],
               address: {
                 "@type": "PostalAddress",
