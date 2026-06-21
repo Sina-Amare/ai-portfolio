@@ -10,18 +10,21 @@ deployed 100% free on Vercel.
 
 ## Highlights
 
-- **Live RAG chatbot** — answers questions about me in my own first-person voice, streamed
-  token-by-token. Grounded in a curated knowledge base; it never makes things up.
-- **Bilingual + RTL** — viewer-selectable English / Persian, with a proper Vazirmatn font,
-  right-to-left layout, and warm, colloquial Persian answers.
-- **Multi-provider failover** — Gemini 2.5 Flash → Gemini Flash-Lite → OpenRouter free models,
-  with key rotation (the same resilience pattern from my CV).
+- **Chatbot-as-hero** — the homepage centerpiece is a real RAG chatbot (Firecrawl-playground
+  style): ask anything and it answers in my own first-person voice, streamed token-by-token
+  with low latency. Grounded in a curated knowledge base; it never makes things up.
+- **Bilingual + RTL** — viewer-selectable English / Persian (Vazirmatn font, right-to-left
+  layout, warm colloquial Persian answers).
+- **Dark + light** — a refined "Warm Slate + Amber" theme with a toggle; Bricolage Grotesque
+  display + Inter body; surgical motion that respects `prefers-reduced-motion`.
+- **Multi-provider failover** — Gemini 2.5 Flash-Lite → Flash → OpenRouter free models, with
+  key rotation (the resilience pattern from my CV); ~1.2s time-to-first-token.
 - **Structurally anti-hallucination** — three guards: a retrieval threshold gate (refuses
   out-of-scope questions with no LLM call), a strict grounded prompt, and a jailbreak pre-filter.
-- **Premium, restrained design** — dark glassmorphism, a single violet accent, Geist type,
-  surgical motion that respects `prefers-reduced-motion`.
-- **Tested** — 42 unit/component/route tests, 7 Playwright E2E specs (LLM mocked), and a
-  23-item RAG retrieval gate (100% refusal on out-of-scope).
+- **Thoughtful details** — ⌘K command palette, cursor-spotlight cards, a scroll-aware nav,
+  copy-to-clipboard, an auto-scrolling transcript, and a contact CTA.
+- **Tested** — 49 unit/component/route tests, 9 Playwright E2E specs (LLM mocked), and a
+  35-item RAG retrieval gate (100% refusal on out-of-scope).
 
 ## Stack
 
