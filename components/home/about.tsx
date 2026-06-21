@@ -128,6 +128,20 @@ export function About() {
                 </div>
               ))}
             </div>
+
+            <div className="eyebrow mt-8 text-[10px]">Recognition &amp; languages</div>
+            <ul className="mt-4 space-y-2 text-[13px] leading-relaxed">
+              <li className="text-muted">
+                <span className="text-text font-medium">2nd place</span> — team
+                Python programming competition, University of Guilan (2023)
+              </li>
+              <li className="text-muted">
+                Undergraduate research on Particle Swarm Optimization
+              </li>
+              <li className="text-muted">
+                English (professional working proficiency) · Persian (native)
+              </li>
+            </ul>
           </Reveal>
         </div>
       </Container>

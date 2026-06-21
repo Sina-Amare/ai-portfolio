@@ -191,6 +191,20 @@ h3 {
   mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 100%);
 }
 
+/* Command palette (cmdk) */
+[cmdk-group-heading] {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 12px 4px;
+}
+[cmdk-item][data-selected="true"],
+[cmdk-item][aria-selected="true"] {
+  background: var(--accent-soft);
+}
+
 /* Cursor-follow spotlight on cards (Linear-style) */
 .spotlight {
   position: absolute;

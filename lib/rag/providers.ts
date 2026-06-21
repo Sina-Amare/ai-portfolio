@@ -17,15 +17,16 @@ export function chatLadder(): ChatProvider[] {
   const ladder: ChatProvider[] = [];
 
   if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    ladder.push({
-      id: "gemini-2.5-flash",
-      label: "Gemini 2.5 Flash",
-      model: google("gemini-2.5-flash"),
-    });
+    // Flash-Lite first for low, consistent time-to-first-token; Flash as a quality fallback.
     ladder.push({
       id: "gemini-2.5-flash-lite",
       label: "Gemini 2.5 Flash-Lite",
       model: google("gemini-2.5-flash-lite"),
+    });
+    ladder.push({
+      id: "gemini-2.5-flash",
+      label: "Gemini 2.5 Flash",
+      model: google("gemini-2.5-flash"),
     });
   }
 

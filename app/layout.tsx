@@ -6,6 +6,7 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { CommandPalette } from "@/components/command-palette";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -109,6 +110,7 @@ export default function RootLayout({
             </main>
             <Footer />
           </MotionProvider>
+          <CommandPalette />
         </ThemeProvider>
         <script
           type="application/ld+json"

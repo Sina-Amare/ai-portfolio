@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FileText, Menu, X } from "lucide-react";
+import { FileText, Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
 import { Container } from "./ui/container";
@@ -13,6 +13,7 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/projects", label: "Projects" },
   { href: "/#about", label: "About" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export function Nav() {
@@ -64,6 +65,15 @@ export function Nav() {
             >
               <FileText className="h-3.5 w-3.5" /> Résumé
             </a>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("toggle-command"))}
+              aria-label="Open command menu"
+              className="text-muted hover:text-text ml-1 hidden items-center gap-1.5 rounded-full border border-border px-2.5 py-1.5 text-xs transition-colors hover:border-accent/40 lg:inline-flex"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <kbd className="font-mono text-[10px] tracking-wide">⌘K</kbd>
+            </button>
             <ThemeToggle className="ml-1" />
           </nav>
 

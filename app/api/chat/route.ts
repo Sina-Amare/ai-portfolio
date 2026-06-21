@@ -135,8 +135,6 @@ export async function POST(req: Request) {
   const stream = createUIMessageStream({
     onError: () => errorMessage(lang),
     execute: async ({ writer }) => {
-      writer.write({ type: "data-sources", id: "sources", data: sources });
-
       const id = "0";
       let started = false;
 
@@ -162,6 +160,9 @@ export async function POST(req: Request) {
 
           if (started) {
             writer.write({ type: "text-end", id });
+            // Sources go LAST so the "thinking" indicator stays until real text
+            // arrives (avoids an empty message during the model's time-to-first-token).
+            writer.write({ type: "data-sources", id: "sources", data: sources });
             return; // success
           }
           // Provider produced no text → fall through to the next one.
