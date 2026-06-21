@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Inter_Tight, JetBrains_Mono, Vazirmatn } from "next/font/google";
+import { Bricolage_Grotesque, Inter, JetBrains_Mono, Vazirmatn } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import { Nav } from "@/components/nav";
@@ -14,8 +14,8 @@ const bricolage = Bricolage_Grotesque({
   display: "swap",
 });
 
-const interTight = Inter_Tight({
-  variable: "--font-inter-tight",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
@@ -89,7 +89,7 @@ export default function RootLayout({
       dir="ltr"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${bricolage.variable} ${interTight.variable} ${jetbrainsMono.variable} ${vazirmatn.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable} ${vazirmatn.variable} h-full antialiased`}
     >
       <body
         suppressHydrationWarning

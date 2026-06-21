@@ -37,9 +37,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# local screenshot artifacts (dev QA)
+# local screenshot artifacts + QA scripts (dev only)
 /shot-*.png
 /shot.png
+/scripts/shot.mjs
+/scripts/chatshot.mjs
 
 # vercel
 .vercel

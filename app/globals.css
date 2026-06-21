@@ -11,9 +11,9 @@
   --card-hover: #202024;
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.15);
-  --muted: #9a9aa2;
-  --text: #e6e6e9;
-  --heading: #fafafa;
+  --muted: #9d9da6;
+  --text: #dcdce2;
+  --heading: #f6f6f8;
   --accent: #f5b544;
   --accent-hover: #ffc869;
   --accent-contrast: #1a1206;
@@ -32,9 +32,9 @@
   --card-hover: #faf8f3;
   --border: rgba(20, 18, 12, 0.1);
   --border-strong: rgba(20, 18, 12, 0.18);
-  --muted: #6b6862;
-  --text: #2a2823;
-  --heading: #15130f;
+  --muted: #5f5c54;
+  --text: #292621;
+  --heading: #14120d;
   --accent: #e0951a;
   --accent-hover: #c9820f;
   --accent-contrast: #1f1505;
@@ -62,7 +62,7 @@
   --color-accent-text: var(--accent-text);
   --color-accent-soft: var(--accent-soft);
 
-  --font-sans: var(--font-inter-tight);
+  --font-sans: var(--font-inter);
   --font-display: var(--font-bricolage);
   --font-mono: var(--font-jetbrains);
   --font-fa: var(--font-vazirmatn);
@@ -84,7 +84,8 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   min-height: 100dvh;
-  line-height: 1.6;
+  line-height: 1.65;
+  letter-spacing: -0.005em;
 }
 
 h1,
@@ -188,6 +189,36 @@ h3 {
 .transcript-mask {
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 100%);
   mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 100%);
+}
+
+/* Cursor-follow spotlight on cards (Linear-style) */
+.spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    240px circle at var(--x, 50%) var(--y, 0%),
+    var(--accent-soft),
+    transparent 60%
+  );
+  transition: opacity 0.3s ease;
+}
+.group:hover .spotlight {
+  opacity: 1;
+}
+
+/* Animated underline for links */
+.link-underline {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 1.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.25s ease;
+}
+.link-underline:hover {
+  background-size: 100% 1.5px;
 }
 
 /* Translucent sticky nav */

@@ -53,7 +53,7 @@ export default async function ProjectPage({ params }: Params) {
               <h1 className="text-gradient mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
                 {project.name}
               </h1>
-              <p className="text-muted mt-5 max-w-2xl text-lg leading-relaxed">
+              <p className="text-text mt-5 max-w-2xl text-lg leading-relaxed">
                 {project.summary}
               </p>
             </Reveal>
@@ -61,7 +61,7 @@ export default async function ProjectPage({ params }: Params) {
             {/* Problem */}
             <Reveal delay={0.05} className="mt-12">
               <h2 className="eyebrow">The problem</h2>
-              <p className="text-muted mt-3 max-w-2xl leading-relaxed">
+              <p className="text-text mt-3 max-w-2xl leading-[1.75]">
                 {project.problem}
               </p>
             </Reveal>
@@ -69,7 +69,7 @@ export default async function ProjectPage({ params }: Params) {
             {/* Role */}
             <Reveal delay={0.05} className="mt-10">
               <h2 className="eyebrow">My role</h2>
-              <p className="text-muted mt-3 max-w-2xl leading-relaxed">
+              <p className="text-text mt-3 max-w-2xl leading-[1.75]">
                 {project.role}
               </p>
             </Reveal>
@@ -104,7 +104,7 @@ export default async function ProjectPage({ params }: Params) {
                 {project.outcomes.map((o) => (
                   <li key={o} className="flex gap-2.5">
                     <Check className="text-accent mt-0.5 h-4 w-4 shrink-0" />
-                    <span className="text-muted text-[15px] leading-relaxed">
+                    <span className="text-text text-[15px] leading-relaxed">
                       {o}
                     </span>
                   </li>

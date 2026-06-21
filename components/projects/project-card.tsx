@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
 import type { Project } from "@/lib/projects";
 import { cn } from "@/lib/utils";
@@ -10,15 +13,28 @@ export function ProjectCard({
   project: Project;
   className?: string;
 }) {
+  const ref = useRef<HTMLAnchorElement>(null);
+
+  function onMove(e: React.MouseEvent) {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--x", `${e.clientX - r.left}px`);
+    el.style.setProperty("--y", `${e.clientY - r.top}px`);
+  }
+
   return (
     <Link
+      ref={ref}
       href={`/projects/${project.slug}`}
+      onMouseMove={onMove}
       className={cn(
         "group glass hover:bg-card-hover relative flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong",
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-3">
+      <span aria-hidden className="spotlight" />
+      <div className="relative flex items-start justify-between gap-3">
         <div>
           <div className="eyebrow text-[10px]">{project.year}</div>
           <h3 className="mt-1.5 text-lg font-semibold tracking-tight">
@@ -28,10 +44,10 @@ export function ProjectCard({
         </div>
         <ArrowUpRight className="text-muted group-hover:text-accent h-5 w-5 shrink-0 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
       </div>
-      <p className="text-muted mt-4 flex-1 text-sm leading-relaxed">
+      <p className="text-muted relative mt-4 flex-1 text-sm leading-relaxed">
         {project.summary}
       </p>
-      <div className="mt-5 flex flex-wrap gap-1.5">
+      <div className="relative mt-5 flex flex-wrap gap-1.5">
         {project.stack.map((s) => (
           <span
             key={s}

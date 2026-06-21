@@ -54,7 +54,7 @@ export function About() {
         <div className="mt-10 grid gap-12 md:grid-cols-[1fr_1fr] md:gap-16">
           {/* Left: bio + stack */}
           <Reveal>
-            <p className="text-muted text-[15px] leading-relaxed">
+            <p className="text-text text-base leading-[1.75]">
               I&rsquo;m a Python developer with a Computer Science degree and
               around a year of professional experience, focused on backend
               services and LLM-powered applications. I learn mainly by building —
