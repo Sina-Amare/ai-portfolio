@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion, type HTMLMotionProps } from "motion/react";
+import { motion, type HTMLMotionProps } from "motion/react";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -11,13 +11,16 @@ type RevealProps = {
   className?: string;
 } & Omit<HTMLMotionProps<"div">, "children">;
 
-/** Fade-up on scroll-into-view, once. Respects prefers-reduced-motion. */
+/**
+ * Fade-up on scroll-into-view, once. `initial` is identical on server and client
+ * (no reduced-motion branch) to avoid hydration mismatches; reduced motion is
+ * handled app-wide by <MotionConfig reducedMotion="user">, which skips transforms.
+ */
 export function Reveal({ children, delay = 0, y = 20, className, ...rest }: RevealProps) {
-  const reduce = useReducedMotion();
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y }}
+      initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.5, delay, ease: EASE }}
@@ -38,11 +41,10 @@ export function RevealGroup({
   className?: string;
   stagger?: number;
 }) {
-  const reduce = useReducedMotion();
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : "hidden"}
+      initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.15 }}
       variants={{
