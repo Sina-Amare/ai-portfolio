@@ -92,7 +92,7 @@ export default function RootLayout({
       dir="ltr"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable} ${vazirmatn.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable} ${vazirmatn.variable} h-full`}
     >
       <body
         suppressHydrationWarning

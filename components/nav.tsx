@@ -31,11 +31,12 @@ export function Nav() {
     <header className="fixed inset-x-0 top-0 z-50">
       <div
         className={cn(
-          "nav-blur border-b transition-colors duration-300",
+          "relative border-b transition-colors duration-300",
           scrolled || open ? "border-border" : "border-transparent",
         )}
       >
-        <Container className="flex h-14 items-center justify-between">
+        <div aria-hidden className="nav-blur absolute inset-0" />
+        <Container className="relative flex h-14 items-center justify-between">
           <Link
             href="/"
             className="text-heading font-mono text-sm font-semibold tracking-tight"
@@ -92,7 +93,7 @@ export function Nav() {
         </Container>
 
         {open && (
-          <div className="border-t border-border md:hidden">
+          <div className="relative border-t border-border md:hidden">
             <Container className="flex flex-col py-3">
               {links.map((l) => (
                 <Link

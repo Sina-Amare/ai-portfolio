@@ -81,7 +81,6 @@ body {
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-sans), system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   min-height: 100dvh;
   line-height: 1.65;
@@ -255,20 +254,60 @@ h3 {
   -webkit-mask-image: radial-gradient(72% 60% at 50% 26%, #000 0%, transparent 78%);
   mask-image: radial-gradient(72% 60% at 50% 26%, #000 0%, transparent 78%);
 }
-[data-theme="dark"] .hero-bg::after,
-:root .hero-bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    44rem 30rem at 50% -6%,
-    var(--accent-soft),
-    transparent 62%
-  );
-  pointer-events: none;
+/* Slow-drifting amber "aurora" orbs — minimal, felt, theme-aware */
+@keyframes float-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(3%, -4%) scale(1.05);
+  }
+  66% {
+    transform: translate(-2%, 3%) scale(0.97);
+  }
 }
-[data-theme="light"] .hero-bg::after {
-  background: none;
+@keyframes float-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-4%, 5%) scale(1.08);
+  }
+}
+.bg-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(72px);
+  will-change: transform;
+}
+.bg-orb--1 {
+  width: 36rem;
+  height: 36rem;
+  top: -14rem;
+  right: -6rem;
+  background: radial-gradient(circle, rgba(245, 181, 68, 0.2), transparent 68%);
+  animation: float-a 26s ease-in-out infinite;
+}
+.bg-orb--2 {
+  width: 28rem;
+  height: 28rem;
+  bottom: -12rem;
+  left: -8rem;
+  background: radial-gradient(circle, rgba(255, 170, 80, 0.14), transparent 68%);
+  animation: float-b 32s ease-in-out infinite;
+}
+[data-theme="light"] .bg-orb--1 {
+  background: radial-gradient(circle, rgba(224, 149, 26, 0.1), transparent 68%);
+}
+[data-theme="light"] .bg-orb--2 {
+  background: radial-gradient(circle, rgba(224, 149, 26, 0.07), transparent 68%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-orb {
+    animation: none;
+  }
 }
 
 /* Theme toggle icon visibility */

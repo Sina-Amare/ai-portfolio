@@ -3,20 +3,20 @@
 import { useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { StickToBottom } from "use-stick-to-bottom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RefreshCcw, RotateCcw } from "lucide-react";
 import { ui, type Lang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
 import { Container } from "@/components/ui/container";
+import { AnimatedBackground } from "@/components/animated-background";
 import { Avatar } from "@/components/avatar";
 import { Message } from "@/components/chat/message";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { ChatInput } from "@/components/chat/chat-input";
 import { Suggestions } from "@/components/chat/suggestions";
 import { LangToggle } from "@/components/chat/lang-toggle";
-import { ScrollToBottom } from "@/components/chat/scroll-to-bottom";
+import { Transcript } from "@/components/chat/transcript";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -56,6 +56,7 @@ export function ChatHero() {
 
   return (
     <section className="relative isolate overflow-hidden">
+      <AnimatedBackground />
       <div aria-hidden className="hero-bg pointer-events-none absolute inset-0 -z-10" />
       <Container className="flex min-h-[92svh] flex-col items-center justify-start pt-24 pb-16 sm:justify-center sm:py-24">
         {/* Identity */}
@@ -129,34 +130,22 @@ export function ChatHero() {
               <LangToggle lang={lang} onChange={setLang} />
             </div>
 
-            <StickToBottom
-              className="transcript-mask relative min-h-0 flex-1 overflow-y-auto overscroll-contain"
-              resize="smooth"
-              initial="smooth"
-            >
-              <StickToBottom.Content
-                role="log"
-                aria-live="polite"
-                aria-atomic="false"
-                className="flex flex-col gap-5 px-0.5 py-2"
-              >
-                {messages.map((m) => (
-                  <Message
-                    key={m.id}
-                    message={m}
-                    sourcesLabel={t.sources}
-                    copyLabel={t.copy}
-                    copiedLabel={t.copied}
-                  />
-                ))}
-                {status === "submitted" && (
-                  <div className="text-muted flex justify-start px-1">
-                    <TypingIndicator label={t.thinking} />
-                  </div>
-                )}
-              </StickToBottom.Content>
-              <ScrollToBottom label={t.scrollLatest} />
-            </StickToBottom>
+            <Transcript scrollLabel={t.scrollLatest}>
+              {messages.map((m) => (
+                <Message
+                  key={m.id}
+                  message={m}
+                  sourcesLabel={t.sources}
+                  copyLabel={t.copy}
+                  copiedLabel={t.copied}
+                />
+              ))}
+              {status === "submitted" && (
+                <div className="text-muted flex justify-start px-1">
+                  <TypingIndicator label={t.thinking} />
+                </div>
+              )}
+            </Transcript>
 
             {status === "error" && (
               <div

@@ -43,11 +43,15 @@ export function CommandPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-start justify-center bg-black/50 p-4 pt-[15vh] backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex items-start justify-center p-4 pt-[15vh]"
       onClick={() => setOpen(false)}
       role="presentation"
     >
-      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-[560px]">
+      <div aria-hidden className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-[560px]"
+      >
         <Command
           label="Command menu"
           className="glass-strong overflow-hidden rounded-2xl shadow-[0_24px_70px_-20px_rgba(0,0,0,0.6)]"
