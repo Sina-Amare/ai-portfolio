@@ -17,9 +17,9 @@ export const ui = {
   en: {
     dir: "ltr",
     label: "EN",
-    chatTitle: "Ask my AI assistant",
+    chatTitle: "Ask me anything",
     chatSubtitle:
-      "Grounded in my real CV & projects — it won't make things up.",
+      "An AI that answers in Sina's own voice — grounded in his real CV & projects, so no made-up answers.",
     placeholder: "Ask about my experience, projects, or stack…",
     send: "Send",
     stop: "Stop",
@@ -34,18 +34,18 @@ export const ui = {
     sources: "Sources",
     poweredBy: "Live RAG over my CV · multi-provider failover",
     suggestions: [
-      "What did Sina build at Dekamond?",
-      "Explain one of his RAG projects",
-      "What's his strongest tech stack?",
-      "Is he available for hire?",
+      "What did you build at Dekamond?",
+      "Walk me through a RAG project",
+      "What's your strongest tech stack?",
+      "Are you open to new roles?",
     ],
   },
   fa: {
     dir: "rtl",
     label: "فا",
-    chatTitle: "از دستیار هوش مصنوعی من بپرسید",
+    chatTitle: "هرچی دوست داری از من بپرس",
     chatSubtitle:
-      "بر پایه‌ی رزومه و پروژه‌های واقعی من — چیزی از خودش نمی‌سازد.",
+      "یه هوش مصنوعی که از زبون خودِ سینا جواب می‌ده — بر پایه‌ی رزومه و پروژه‌های واقعیش.",
     placeholder: "درباره‌ی تجربه، پروژه‌ها یا مهارت‌هایم بپرسید…",
     send: "ارسال",
     stop: "توقف",
@@ -60,10 +60,10 @@ export const ui = {
     sources: "منابع",
     poweredBy: "RAG زنده روی رزومه‌ی من · جابه‌جایی خودکار بین ارائه‌دهنده‌ها",
     suggestions: [
-      "سینا در دکاموند چه چیزی ساخت؟",
-      "یکی از پروژه‌های RAG او را توضیح بده",
-      "قوی‌ترین مهارت‌های فنی او چیست؟",
-      "آیا برای همکاری در دسترس است؟",
+      "تو دکاموند چی ساختی؟",
+      "یه پروژه‌ی RAG رو برام توضیح بده",
+      "قوی‌ترین مهارت‌های فنیت چیه؟",
+      "برای کار جدید پایه‌ای؟",
     ],
   },
 } as const;
