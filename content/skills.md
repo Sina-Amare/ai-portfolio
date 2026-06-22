@@ -10,7 +10,7 @@ A recurring theme in Sina's work is resilience for LLM systems. Providers go dow
 Sina builds resilient backend services: asynchronous APIs, retries, and graceful degradation under rate limits. He has implemented background-job crash recovery using lease/watchdog patterns, where a long-running job that crashes can be safely detected and resumed rather than lost or duplicated.
 
 ## Web data extraction
-Sina has built web data-extraction systems. This includes SSRF-safe fetching — validating outbound requests so a malicious URL can't make the server reach internal or cloud-metadata addresses — anti-bot challenge handling (working through Cloudflare and CAPTCHA), and scope-controlled crawling with per-field quality scoring. ScrapeGPT is his main project in this area.
+Sina has built web data-extraction systems. This includes SSRF-safe fetching — validating outbound requests so a malicious URL can't make the server reach internal or cloud-metadata addresses — anti-bot challenge handling (for example, waiting out Cloudflare JS challenges — it does not solve CAPTCHAs), and scope-controlled crawling with per-field quality scoring. ScrapeGPT is his main project in this area.
 
 ## Secure-by-default handling
 Security is a default for Sina, not an afterthought. He uses encrypted credential storage with Fernet (symmetric encryption) so users can bring their own provider keys without storing them in plaintext, JWT authentication for APIs, and secret redaction in logs so sensitive values don't leak into log output.

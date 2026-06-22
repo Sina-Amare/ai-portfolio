@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
 import { useLocale } from "@/components/locale-provider";
 import { Container } from "@/components/ui/container";
+import { AnimatedText } from "@/components/motion/animated-text";
 import { Avatar } from "@/components/avatar";
 import { Message } from "@/components/chat/message";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
@@ -93,7 +94,7 @@ export function ChatHero() {
 
   const eyebrow =
     dir === "rtl"
-      ? "بک‌اند پایتون · مهندس هوش مصنوعی"
+      ? "بک‌اند Python · مهندس AI / LLM"
       : "Python backend · AI / LLM engineer";
 
   return (
@@ -140,7 +141,7 @@ export function ChatHero() {
                   dir === "rtl" && "font-fa",
                 )}
               >
-                {t.heroHeadline}
+                <AnimatedText key={t.heroHeadline} text={t.heroHeadline} delay={0.15} />
               </h1>
               <p
                 className={cn(

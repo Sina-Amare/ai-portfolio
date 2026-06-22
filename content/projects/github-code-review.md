@@ -1,22 +1,25 @@
-# GitHub Code Review
+# RubricEval
 
-## What GitHub Code Review is
-GitHub Code Review is an AI technical-screening system Sina built in Python. A hiring manager drives it through a Telegram bot: they send a candidate's GitHub repository URL and pick a role (Backend or Frontend), and within minutes get back a structured, scored hiring report — per-criterion scores, a HIRE / NO-HIRE / REVIEW decision, strengths, weaknesses, and detailed feedback. It solves the problem of scaling and standardizing first-pass code review: replacing slow, inconsistent manual repo-reading with a repeatable, criteria-driven evaluation.
+## What RubricEval is
+RubricEval is a rubric-driven code-evaluation platform Sina built — a full-stack web app (Next.js + TypeScript frontend, FastAPI + async SQLAlchemy backend). Its repository is github.com/Sina-Amare/github-code-review (it started life as a GitHub code-review bot and grew into this platform). You define a rubric — a versioned set of weighted, gated criteria — then submit a GitHub repository URL or a ZIP upload; an LLM grades each criterion against the real code, and a deterministic policy in code makes the final accept / review / reject decision. It's aimed at standardizing and scaling the first-pass technical evaluation of code submissions (for example, candidate take-home repos).
 
-## Clean architecture (ports and adapters)
-Its standout quality is the architecture: a clean hexagonal / ports-and-adapters design. A pure domain core (dataclasses and enums, no I/O) sits behind four abstract ports — repository, analyzer, storage, and notification — with concrete adapters for GitHub, OpenRouter, SQLite, and Telegram. That means the LLM provider, the repo host, the database, or the chat channel can each be swapped without touching the business logic. It's a genuinely textbook example of swappable, testable design (~168 tests across unit and integration).
+## The problem it solves
+Most "AI code reviewers" tangle three different jobs together: what to evaluate, how to judge it, and how to decide. That makes their output unreproducible — one prompt tweak can silently flip every result, and the model's mood decides who passes. RubricEval deliberately separates the three: the rubric is data (not code), the LLM only grades each criterion against the actual files, and a pure policy function makes the decision. So every result is reproducible and auditable.
 
-## Fitting large repos into context
-Rather than blind chunking or embedding, it uses token budgeting. It priority-tags source files (critical, important, useful), then greedily packs the most important code until a token budget is hit, counting tokens exactly with tiktoken and truncating the last overflowing file to the model's context window rather than dropping it. A second pass re-fits the content to whichever model is being used.
+## The model grades, code decides
+The single most important design choice: the LLM never makes the final call. For each criterion the model returns a structured judgment (verdict, score, confidence, rationale, and evidence), but a pure, exhaustively unit-tested policy function decides the outcome — any failed gate means reject, an errored gate forces review, otherwise a weighted mean of the scores is compared to accept/review thresholds. Because the decision is plain deterministic code, it's reproducible and never at the mercy of LLM nondeterminism.
 
-## Trustworthy decisions (code overrides the model)
-The system does not blindly trust the LLM. A two-phase deterministic decision runs on top of the model's output: it fails the candidate if any mandatory requirement is missing, rejects if the penalty total crosses a threshold, and otherwise scores by average — explicitly overriding an LLM "accept" to "reject" (or vice versa) when the objective requirement counts disagree. Role-awareness is real: Backend and Frontend each load a different scoring rubric, file-exclusion patterns, and mandatory-requirement checklist from external prompt files.
+## Evidence verified against the real files
+Every citation the model makes is checked against the actual code: the file path must exist, the line range must be in bounds, and any quoted snippet must really appear at those lines. Citations that fail are tagged as unverified and kept but never trusted. This directly defuses LLM hallucination — fabricated evidence can't masquerade as proof.
 
-## Anti-hallucination guardrails
-Because LLM output is probabilistic, the system verifies it. Every piece of evidence the model cites (file and line) is cross-checked against the real cloned files — the line must exist and the referenced code must actually be there. Invented evidence is dropped and, importantly, never used to penalize the candidate; severe hallucination lowers confidence and can force a retry on the next model in the fallback chain. There's also a JSON-recovery layer that salvages malformed or partial LLM output so the pipeline degrades gracefully instead of crashing.
+## Rubrics are versioned, content-hashed data
+Each rubric is canonicalized and content-hashed (SHA-256), and every review records the rubric hash, the model id, and the prompt version. So a published rubric can't silently change underneath you, any past result is fully reproducible, and adding a new evaluation is a matter of authoring data rather than changing code.
 
-## How the pipeline runs
-The flow is: the manager sends a GitHub URL and role → the repo is shallow-cloned to a temp dir (rejected if over a size cap) → source files are priority-extracted and token-budgeted → the role's rubric is loaded → an ordered multi-model fallback chain (with rate-limit and retry handling) runs the role-specific evaluation → the JSON is parsed/recovered, evidence is verified against real files, and the two-phase decision produces the result → the report is saved to SQLite and rendered back into Telegram, with history queryable later.
+## Built to run reliably
+RubricEval is engineered like production software: ingestion guards against zip-slip and zip-bombs and against malicious git protocols; a durable leased job queue (Postgres FOR UPDATE SKIP LOCKED, with a SQLite fallback and boot-time orphan reclaim) means reviews survive crashes and scale across workers; results stream live to the browser over SSE with a durable, replayable event log; a FakeLLM port lets the whole engine run deterministically offline and in CI; and a golden-set regression harness measures every prompt or model change instead of guessing.
 
-## GitHub Code Review tech stack
-Python, python-telegram-bot, the OpenRouter API for multi-model LLM access, tiktoken for exact token counting, GitPython for shallow cloning, SQLAlchemy + SQLite for persistence, Pydantic for config, and pytest for the test suite, with a multi-stage Docker build and a systemd unit for deployment. It's the project that best shows Sina's clean-architecture and reliability engineering.
+## Architecture
+RubricEval uses a clean ports-and-adapters design: the engine depends only on an LLM port, with a LiteLLM adapter (provider-agnostic, bring-your-own-key) for real runs and a FakeLLM adapter for offline/CI. BYO keys are Fernet-encrypted at rest (only ciphertext and a short fingerprint are stored), and the LLM client is hardened for cheap, JSON-shaky models — it embeds the schema in the prompt, toggles JSON mode per model, and recovers/repairs malformed JSON.
+
+## RubricEval tech stack
+Backend: Python 3.11, FastAPI, async SQLAlchemy 2 over PostgreSQL or SQLite, Alembic, Pydantic v2, LiteLLM (provider-agnostic), GitPython, Fernet encryption, and SSE. Frontend: Next.js 14 (App Router) + TypeScript, Tailwind, a Monaco code viewer that highlights cited lines, and TanStack Query, with Playwright for end-to-end tests; deployed via Docker Compose. It's the project that best shows Sina's clean-architecture, determinism, and reliability engineering.

@@ -1,7 +1,7 @@
 # Sina Amareh — Profile
 
 ## Summary
-Sina Amareh is a Python developer with a Computer Science degree and around a year of professional experience, focused on backend services and LLM-powered applications. He is comfortable with Django/DRF and FastAPI, and learns mainly by building — his open-source projects are where ideas get tested and pushed toward production quality. He is early in his career and still growing, but steady about shipping, writing tests, and seeing work through. He is based in Tehran, Iran and works remotely (UTC+3:30).
+Sina Amareh is a Python developer with a Computer Science degree and around a year of professional experience, focused on backend services and LLM-powered applications. He is comfortable with Django/DRF and FastAPI, and learns mainly by building — his open-source projects are where ideas get tested and pushed toward production quality. He is early in his career and still growing, but steady about shipping, writing tests, and seeing work through. He is based in Tehran, Iran, and works remotely (UTC+3:30).
 
 ## Experience — Software Developer at Dekamond (2025, 6 months)
 At Dekamond (Valiasr Square, Tehran · hybrid), Sina built AI and automation features for Kaleri.ai across business-intelligence tooling, RAG systems, and internal developer tools. He developed multi-provider LLM workflows using LangGraph and RAG behind FastAPI services, integrating OpenRouter and Google AI. He cut LLM running costs by roughly 70% through model routing, caching, and prompt optimization.

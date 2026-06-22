@@ -73,7 +73,7 @@ export const projects: Project[] = [
         body: "Detects on-page controls (toggles, dropdowns like Metric/Imperial), drives a real browser to flip them, and captures each variant — not just static HTML.",
       },
       {
-        title: "Safe by default",
+        title: "Secure by default",
         body: "SSRF hardening (per-redirect-hop checks and connected-IP pinning against DNS rebinding) plus bring-your-own provider keys stored Fernet-encrypted.",
       },
     ],
@@ -92,22 +92,22 @@ export const projects: Project[] = [
     fa: {
       problem:
         "اسکریپرهایی که روی selectorهای دستی ساخته می‌شن خیلی شکننده‌ان — یه تغییر کوچیک تو ظاهر صفحه و دیگه بی‌صدا هیچی برنمی‌گردونن. ScrapeGPT می‌ذاره یه LLM خودِ selectorها رو از صفحه پیدا کنه، بعد استخراج رو مقاوم می‌کنه: هر selector رو روی HTML واقعی دوباره چک می‌کنه، اون‌هایی که جواب نمی‌دن رو خودش ترمیم می‌کنه، و چند استراتژیِ پشتیبان داره تا حتی اگه حدسِ AI غلط بود بازم داده در بیاد.",
-      role: "کل استک رو طراحی و ساختم — بک‌اند FastAPI + PostgreSQL، یه لایهٔ provider-agnostic برای LLM (با LiteLLM) که کلیدهای خود کاربر رو رمزنگاری‌شده نگه می‌داره، و یه رابط کاربری React/TypeScript.",
+      role: "کل استک رو طراحی کردم و ساختم — بک‌اند FastAPI + PostgreSQL، یه لایهٔ provider-agnostic برای LLM (با LiteLLM) که کلیدهای خود کاربر رو رمزنگاری‌شده نگه می‌داره، و یه رابط کاربری React/TypeScript.",
       highlights: [
         {
           title: "AI پیشنهاد می‌ده، کد تأیید می‌کنه",
           body: "یه LLM یه خلاصهٔ تمیز از DOM (نه HTML خام) رو می‌خونه و selectorهای آیتم‌تکرارشونده و هر فیلد رو پیشنهاد می‌ده — و سیستم هیچ‌وقت کورکورانه بهشون اعتماد نمی‌کنه.",
         },
         {
-          title: "selectorهای خودترمیم",
+          title: "selectorهای self-healing",
           body: "هر selector روی صفحهٔ واقعی دوباره اجرا می‌شه؛ اون‌هایی که چیزی نمی‌گیرن آزادتر یا کم‌اهمیت می‌شن و یه fallback مبتنی بر ساختار جدول هم هست، پس یه حدسِ ناقص بازم داده در میاره.",
         },
         {
-          title: "داینامیک و حساس به تعامل",
+          title: "داینامیک و interaction-aware",
           body: "کنترل‌های روی صفحه (مثل toggle یا منوهای Metric/Imperial) رو تشخیص می‌ده، یه مرورگر واقعی رو می‌چرخونه تا عوضشون کنه و هر حالت رو جدا می‌گیره — نه فقط HTML ساکن.",
         },
         {
-          title: "امن به‌صورت پیش‌فرض",
+          title: "Secure by default",
           body: "محافظت در برابر SSRF (چکِ هر redirect و pin کردن IP واقعی در برابر DNS rebinding) به‌علاوهٔ کلیدهای اختصاصیِ کاربر که Fernet-رمزنگاری‌شده ذخیره می‌شن.",
         },
       ],
@@ -160,8 +160,8 @@ export const projects: Project[] = [
         body: "Rotates across multiple API keys, fails over Gemini → OpenRouter, and drops from the Pro to the Flash tier when a model is exhausted — with circuit breakers and per-user rate limiting.",
       },
       {
-        title: "Persian-first details",
-        body: "RTL-aware formatting, message pagination around Telegram's 4096-char limit, queued image generation, and partial voice-chunk retries.",
+        title: "A local web control panel",
+        body: "A loopback-only FastAPI panel (bearer-token auth) reuses the same Telethon session, so you can browse chats and run every command from a browser — and it's read-only toward Telegram, so no accidental sends.",
       },
     ],
     outcomes: [
@@ -178,14 +178,14 @@ export const projects: Project[] = [
     fa: {
       problem:
         "تلگرام AI داخلی نداره. SakaiBot به‌صورت یوزربات روی اکانتِ خودت اجرا می‌شه (با Telethon)، پس فقط با تایپِ یه دستور می‌تونی AI رو بیاری وسطِ هر گفت‌وگویی — خصوصی یا گروهی — به‌جای این‌که هی کپی‌پیست کنی تو یه اپ دیگه.",
-      role: "یوزربات رو از صفر تا صد با Python و روی Telethon ساختم — مسیریابیِ دستورها، هندلرهای چندرسانه‌ای و لایهٔ مقاومت.",
+      role: "یوزربات رو از صفر تا صد با Python و روی Telethon ساختم — مسیریابیِ دستورها، هندلرهای multi-modal و لایهٔ resilience.",
       highlights: [
         {
           title: "روی اکانت خودت اجرا می‌شه",
           body: "یه یوزرباتِ Telethon، نه باتِ Bot API — پس دستورها تو هر چتی که توش هستی کار می‌کنن و جواب رو همون‌جا روی پیامِ خودت ویرایش می‌کنه.",
         },
         {
-          title: "یه جعبه‌ابزار از دستورها",
+          title: "یه toolbox از دستورها",
           body: "‏/prompt (با حالت‌های استدلالِ عمیق و وب‌گراند)، /translate (با تلفظ فارسی)، /analyze و /tellme روی تاریخچهٔ اخیرِ چت، /image، و کار صوتیِ دوطرفه (/tts و /stt).",
         },
         {
@@ -193,8 +193,8 @@ export const projects: Project[] = [
           body: "بین چند کلیدِ API می‌چرخه، از Gemini به OpenRouter سوییچ می‌کنه و وقتی یه مدل تموم می‌شه از Pro به Flash میاد پایین — با circuit breaker و محدودیتِ نرخِ per-user.",
         },
         {
-          title: "جزئیاتِ فارسی‌محور",
-          body: "فرمت‌دهیِ RTL، تکه‌کردنِ پیام‌های بلندتر از سقفِ ۴۰۹۶ کاراکترِ تلگرام، صف برای تولیدِ تصویر، و retry روی تکه‌های صوتی.",
+          title: "یه control panel وب محلی",
+          body: "یه پنل FastAPI که فقط روی loopback بالا میاد (با احراز هویت bearer-token) از همون session تلگرام استفاده می‌کنه، پس می‌تونی از مرورگر چت‌ها رو ببینی و همهٔ دستورها رو اجرا کنی — و نسبت به تلگرام read-only هست، پس هیچ پیامی اشتباهی فرستاده نمی‌شه.",
         },
       ],
       outcomes: [
@@ -216,89 +216,89 @@ export const projects: Project[] = [
   },
   {
     slug: "github-code-review",
-    name: "GitHub Code Review",
-    tagline: "Automated, role-aware technical screening",
-    taglineFa: "بررسی فنیِ خودکار و متناسب با نقش",
+    name: "RubricEval",
+    tagline: "A rubric-driven code-evaluation platform",
+    taglineFa: "یه پلتفرمِ ارزیابیِ کد بر پایهٔ rubric",
     year: "2025",
-    stack: ["Python", "OpenRouter", "Telegram", "SQLite"],
+    stack: ["Next.js", "FastAPI", "LiteLLM", "PostgreSQL"],
     repo: "https://github.com/Sina-Amare/github-code-review",
     featured: true,
     span: "normal",
     summary:
-      "Send a candidate's GitHub repo and a role; it reads the real code and returns a scored hire / no-hire report — with deterministic rules that override the LLM and guardrails that reject hallucinated evidence.",
+      "Define a versioned rubric of weighted, gated criteria; an LLM grades a submitted GitHub repo or ZIP against the real code, but a deterministic policy in code makes the final accept / review / reject call — reproducible and auditable.",
     summaryFa:
-      "یه ریپوی GitHub کاندیدا و یه نقش بهش می‌دی؛ کدِ واقعی رو می‌خونه و یه گزارشِ امتیازدارِ استخدام/عدم‌استخدام برمی‌گردونه — با قوانینِ قطعی که حرفِ LLM رو override می‌کنن و محافظ‌هایی که شواهدِ توهمیِ مدل رو رد می‌کنن.",
+      "یه rubric نسخه‌دار از معیارهای وزن‌دار و gate-دار تعریف می‌کنی؛ یه LLM یه ریپوی GitHub یا فایل ZIP رو روی کدِ واقعی نمره می‌ده، ولی یه policyِ قطعی توی کد تصمیمِ نهاییِ قبول / بازبینی / رد رو می‌گیره — تکرارپذیر و قابلِ ممیزی.",
     problem:
-      "First-pass code review of candidates is slow and inconsistent. This reads a real repository through a Telegram bot and turns it into a repeatable, criteria-driven, role-aware evaluation a hiring manager can trust.",
-    role: "Designed the architecture and built it in Python — a clean ports-and-adapters core with a Telegram front end on OpenRouter.",
+      "Most 'AI code reviewers' tangle three things together: what to evaluate, how to judge it, and how to decide. RubricEval separates them — the rubric is versioned data, the LLM only grades each criterion against the real files, and a pure policy function makes the decision — so one prompt tweak can't silently flip every result, and every decision is reproducible.",
+    role: "Designed and built the full-stack platform — a FastAPI + async SQLAlchemy backend with a durable job queue, behind a Next.js / TypeScript frontend.",
     highlights: [
       {
-        title: "Ports-and-adapters architecture",
-        body: "A pure domain core behind four ports (repo, analyzer, storage, notification), so the LLM, VCS, DB, or chat channel can each be swapped without touching the logic.",
+        title: "The model grades, code decides",
+        body: "An LLM scores each criterion, but a pure, exhaustively-tested policy function makes the accept / review / reject call — so decisions are reproducible and never at the mercy of LLM nondeterminism.",
       },
       {
-        title: "Fits big repos into context",
-        body: "Priority-tags files and token-budgets them with tiktoken — packing the most important code and truncating exactly to the model's window, instead of blind chunking.",
+        title: "Evidence verified against real files",
+        body: "Every citation the model makes (path, line range, quote) is checked against the actual code and flagged if it can't be verified — fabricated evidence can't masquerade as proof.",
       },
       {
-        title: "Code overrides the model",
-        body: "A two-phase deterministic decision: fail on any missing mandatory requirement, reject past a penalty threshold, else score — overriding an LLM 'accept' when the objective counts disagree.",
+        title: "Rubrics are versioned data",
+        body: "Each rubric is canonicalized and content-hashed; every review records the rubric hash, model, and prompt version, so a published rubric can't silently change and any result is reproducible.",
       },
       {
-        title: "Rejects hallucinated evidence",
-        body: "Every cited file:line is checked against the real cloned files; invented evidence is dropped (and never penalizes the candidate), with multi-model fallback behind it.",
+        title: "Built to run reliably",
+        body: "A durable leased job queue (survives crashes, scales across workers), live replayable SSE streaming, a FakeLLM port for offline/CI runs, and a golden-set regression harness.",
       },
     ],
     outcomes: [
-      "Produces a scored, role-aware hire / no-hire / review report from any public candidate repo.",
-      "Stays reliable and honest on large codebases — token-budgeted, multi-model, and hallucination-checked.",
+      "Turns code review into a repeatable, auditable, rubric-driven decision — not a one-off LLM opinion.",
+      "Runs the whole engine deterministically offline (FakeLLM) and measures every prompt/model change against a golden set.",
     ],
     architecture: [
-      "GitHub URL + role",
-      "Shallow clone",
-      "Priority + token budget",
-      "Role-aware eval",
+      "Repo or ZIP",
+      "Ingest + normalize",
+      "Grade per criterion",
       "Verify evidence",
-      "Scored report",
+      "Deterministic policy",
+      "Streamed report",
     ],
     fa: {
       problem:
-        "بررسیِ اولیهٔ کدِ کاندیداها کند و ناهماهنگه. این ابزار از طریقِ یه باتِ تلگرام یه ریپوی واقعی رو می‌خونه و تبدیلش می‌کنه به یه ارزیابیِ تکرارپذیر، معیارمحور و متناسب با نقش که یه مدیرِ استخدام بتونه بهش تکیه کنه.",
-      role: "معماری‌اش رو طراحی کردم و با Python ساختمش — یه هستهٔ تمیزِ ports-and-adapters با یه رابطِ تلگرام روی OpenRouter.",
+        "بیشترِ «ریویوئرهای کدِ AI» سه چیز رو قاطیِ هم می‌کنن: این‌که چی رو ارزیابی کنن، چطور قضاوت کنن، و چطور تصمیم بگیرن. RubricEval این‌ها رو جدا می‌کنه — rubric یه دادهٔ نسخه‌داره، LLM فقط هر معیار رو روی کدِ واقعی نمره می‌ده، و یه policyِ خالص تصمیم می‌گیره — پس یه تغییرِ کوچیک تو prompt نمی‌تونه بی‌صدا همهٔ نتیجه‌ها رو عوض کنه و هر تصمیم تکرارپذیره.",
+      role: "کلِ پلتفرمِ full-stack رو طراحی کردم و ساختم — یه بک‌اند FastAPI + async SQLAlchemy با یه صفِ کارِ بادوام، پشتِ یه فرانت‌اند Next.js / TypeScript.",
       highlights: [
         {
-          title: "معماری ports-and-adapters",
-          body: "یه هستهٔ دامنهٔ خالص پشتِ چهار port (ریپو، تحلیل‌گر، ذخیره‌سازی، اعلان)، پس LLM، سیستمِ نسخه، دیتابیس یا کانالِ چت هرکدوم بدونِ دست‌زدن به منطق قابل‌تعویض‌ان.",
+          title: "مدل نمره می‌ده، کد تصمیم می‌گیره",
+          body: "یه LLM به هر معیار نمره می‌ده، ولی یه policyِ خالص و کاملاً تست‌شده تصمیمِ قبول / بازبینی / رد رو می‌گیره — پس تصمیم‌ها تکرارپذیرن و هیچ‌وقت اسیرِ بی‌ثباتیِ LLM نیستن.",
         },
         {
-          title: "ریپوهای بزرگ رو تو context جا می‌ده",
-          body: "فایل‌ها رو اولویت‌بندی می‌کنه و با tiktoken بودجهٔ token می‌بنده — مهم‌ترین کدها رو می‌چینه و دقیقاً به اندازهٔ پنجرهٔ مدل کوتاه می‌کنه، نه تکه‌کردنِ کور.",
+          title: "شواهد روی فایل‌های واقعی تأیید می‌شن",
+          body: "هر ارجاعی که مدل می‌ده (مسیر، بازهٔ خط، نقل‌قول) با کدِ واقعی چک می‌شه و اگه قابلِ تأیید نباشه علامت می‌خوره — شواهدِ ساختگی نمی‌تونن خودشون رو جای مدرک جا بزنن.",
         },
         {
-          title: "کد، حرفِ مدل رو override می‌کنه",
-          body: "یه تصمیمِ قطعیِ دومرحله‌ای: اگه هر شرطِ الزامی نباشه رد می‌کنه، از یه آستانهٔ جریمه که رد شد رد می‌کنه، وگرنه امتیاز می‌ده — و وقتی شمارشِ عینی خلافش رو بگه «قبولِ» LLM رو override می‌کنه.",
+          title: "rubricها دادهٔ نسخه‌دارن",
+          body: "هر rubric، canonical و content-hash می‌شه؛ هر ارزیابی هشِ rubric و مدل و نسخهٔ prompt رو ثبت می‌کنه، پس یه rubricِ منتشرشده بی‌صدا عوض نمی‌شه و هر نتیجه تکرارپذیره.",
         },
         {
-          title: "شواهدِ توهمی رو رد می‌کنه",
-          body: "هر file:lineِ ارجاع‌شده با فایل‌های واقعیِ clone‌شده چک می‌شه؛ شواهدِ ساختگی حذف می‌شن (و هیچ‌وقت کاندیدا رو جریمه نمی‌کنن)، با fallback چندمدلی پشتش.",
+          title: "ساخته‌شده برای اجرای مطمئن",
+          body: "یه صفِ کارِ بادوام (از crash جون سالم به در می‌بره و بین چند worker مقیاس می‌خوره)، استریمِ زندهٔ SSE با قابلیتِ replay، یه پورتِ FakeLLM برای اجرای offline/CI، و یه harnessِ رگرسیون با golden-set.",
         },
       ],
       outcomes: [
-        "از هر ریپوی عمومیِ کاندیدا یه گزارشِ امتیازدارِ متناسب با نقش (استخدام / عدم‌استخدام / بازبینی) می‌سازه.",
-        "روی کدبیس‌های بزرگ، قابل‌اعتماد و صادق می‌مونه — با بودجهٔ token، چندمدلی و چک‌شده در برابرِ توهم.",
+        "ریویوِ کد رو به یه تصمیمِ تکرارپذیر، قابلِ ممیزی و مبتنی بر rubric تبدیل می‌کنه — نه یه نظرِ یک‌بارهٔ LLM.",
+        "کلِ موتور رو به‌صورتِ قطعی و offline (با FakeLLM) اجرا می‌کنه و هر تغییرِ prompt/مدل رو با یه golden-set می‌سنجه.",
       ],
       architecture: [
-        "URLِ گیت‌هاب + نقش",
-        "clone سطحی",
-        "اولویت + بودجهٔ token",
-        "ارزیابیِ متناسب با نقش",
+        "ریپو یا ZIP",
+        "ingest + نرمال‌سازی",
+        "نمره به هر معیار",
         "تأییدِ شواهد",
-        "گزارشِ امتیازدار",
+        "policyِ قطعی",
+        "گزارشِ استریم‌شده",
       ],
     },
     media: [
-      { type: "image", src: "/projects/github-code-review/preview-1.svg", caption: "Scored, role-aware hiring report" },
-      { type: "image", src: "/projects/github-code-review/preview-2.svg", caption: "Reads a real candidate repository" },
+      { type: "image", src: "/projects/github-code-review/preview-1.svg", caption: "Rubric-driven, reproducible decision" },
+      { type: "image", src: "/projects/github-code-review/preview-2.svg", caption: "Evidence verified against the real code" },
     ],
   },
 ];

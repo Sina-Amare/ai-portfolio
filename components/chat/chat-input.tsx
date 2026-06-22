@@ -97,7 +97,7 @@ export function ChatInput({
             btnSize,
           )}
         >
-          <ArrowUp className="h-[18px] w-[18px]" />
+          <ArrowUp className="h-[18px] w-[18px] -translate-y-[0.5px]" />
         </button>
       )}
     </form>
