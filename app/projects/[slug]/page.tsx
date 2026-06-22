@@ -118,10 +118,6 @@ export default async function ProjectPage({ params }: Params) {
             <div className="glass rounded-[var(--radius-card)] p-5">
               <dl className="space-y-4 text-sm">
                 <div>
-                  <dt className="eyebrow text-[10px]">Role</dt>
-                  <dd className="mt-1.5">Designer & developer</dd>
-                </div>
-                <div>
                   <dt className="eyebrow text-[10px]">Year</dt>
                   <dd className="mt-1.5">{project.year}</dd>
                 </div>

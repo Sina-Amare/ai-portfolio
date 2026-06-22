@@ -89,7 +89,7 @@ export const Message = memo(function Message({
             type="button"
             onClick={copy}
             aria-label={copied ? copiedLabel : copyLabel}
-            className="text-muted hover:text-text mt-2 inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+            className="text-muted hover:text-text mt-2 inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-70"
           >
             {copied ? (
               <>

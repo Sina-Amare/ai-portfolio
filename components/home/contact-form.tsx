@@ -24,6 +24,20 @@ export function ContactForm() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (status === "submitting") return;
+    // Client-side guard so empty/invalid input fails instantly, not after a round-trip.
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const message = form.message.trim();
+    if (!name || !email || !message) {
+      setError("Please add your name, email, and a message.");
+      setStatus("error");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("That email doesn't look right — mind double-checking it?");
+      setStatus("error");
+      return;
+    }
     setStatus("submitting");
     setError("");
     try {
@@ -94,6 +108,7 @@ export function ContactForm() {
           <input
             type="text"
             required
+            maxLength={100}
             value={form.name}
             onChange={set("name")}
             disabled={submitting}
@@ -107,6 +122,7 @@ export function ContactForm() {
           <input
             type="email"
             required
+            maxLength={160}
             value={form.email}
             onChange={set("email")}
             disabled={submitting}
@@ -123,6 +139,7 @@ export function ContactForm() {
         </span>
         <input
           type="text"
+          maxLength={120}
           value={form.contact}
           onChange={set("contact")}
           disabled={submitting}
@@ -136,6 +153,7 @@ export function ContactForm() {
         <textarea
           required
           rows={4}
+          maxLength={3000}
           value={form.message}
           onChange={set("message")}
           disabled={submitting}

@@ -12,7 +12,7 @@ export function Featured() {
       <Container>
         <Reveal>
           <SectionHeading
-            number="02"
+            number="01"
             eyebrow="Selected work"
             title="Things I've built"
             description="Production-minded open-source projects where backend resilience meets LLM engineering."

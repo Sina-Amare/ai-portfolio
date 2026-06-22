@@ -83,7 +83,7 @@ export function Nav() {
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
-              className="text-muted hover:text-text inline-flex h-9 w-9 items-center justify-center rounded-full"
+              className="text-muted hover:text-text inline-flex h-11 w-11 items-center justify-center rounded-full"
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
             >

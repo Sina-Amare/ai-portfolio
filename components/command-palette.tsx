@@ -39,6 +39,19 @@ export function CommandPalette() {
     fn();
   };
 
+  // Jump to an on-page section: smooth-scroll if it's already on this route,
+  // otherwise navigate home with the hash (App Router scrolls on arrival).
+  const goSection = (id: string) => () => {
+    setOpen(false);
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+      history.replaceState(null, "", `/#${id}`);
+    } else {
+      router.push(`/#${id}`);
+    }
+  };
+
   if (!open) return null;
 
   return (
@@ -76,11 +89,11 @@ export function CommandPalette() {
               >
                 <FolderGit2 className="h-4 w-4" /> Projects
               </Command.Item>
-              <Command.Item
-                className={itemCls}
-                onSelect={run(() => router.push("/#about"))}
-              >
+              <Command.Item className={itemCls} onSelect={goSection("about")}>
                 <User className="h-4 w-4" /> About
+              </Command.Item>
+              <Command.Item className={itemCls} onSelect={goSection("contact")}>
+                <Mail className="h-4 w-4" /> Contact
               </Command.Item>
             </Command.Group>
 

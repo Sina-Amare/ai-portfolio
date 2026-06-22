@@ -387,22 +387,6 @@ h3 {
   animation: progress-sweep 1.1s ease-in-out infinite;
 }
 
-@keyframes caret {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-.stream-caret::after {
-  content: "▍";
-  margin-inline-start: 1px;
-  color: var(--accent);
-  animation: caret 1s steps(1) infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

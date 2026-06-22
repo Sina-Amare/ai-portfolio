@@ -15,8 +15,8 @@ export default function Image() {
           flexDirection: "column",
           justifyContent: "center",
           padding: 80,
-          background: "#08090a",
-          color: "#f4f4f5",
+          background: "#0a0a0b",
+          color: "#f6f6f8",
           position: "relative",
         }}
       >
@@ -25,14 +25,14 @@ export default function Image() {
             position: "absolute",
             inset: 0,
             backgroundImage:
-              "radial-gradient(900px 600px at 85% -10%, rgba(124,92,252,0.40), transparent 60%)",
+              "radial-gradient(900px 600px at 85% -10%, rgba(245,181,68,0.38), transparent 60%)",
           }}
         />
         <div
           style={{
             fontSize: 26,
             letterSpacing: 8,
-            color: "#a78bfa",
+            color: "#f5b544",
             textTransform: "uppercase",
             fontFamily: "monospace",
           }}
@@ -57,7 +57,7 @@ export default function Image() {
           style={{
             marginTop: 44,
             fontSize: 26,
-            color: "#a78bfa",
+            color: "#f5b544",
             fontFamily: "monospace",
           }}
         >

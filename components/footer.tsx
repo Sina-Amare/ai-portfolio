@@ -10,7 +10,7 @@ const socials = [
 ];
 
 export function Footer() {
-  const year = 2026;
+  const year = new Date().getFullYear();
   return (
     <footer className="mt-24 border-t border-border">
       <Container className="flex flex-col gap-8 py-12 sm:flex-row sm:items-end sm:justify-between">

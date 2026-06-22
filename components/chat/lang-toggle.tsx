@@ -26,7 +26,7 @@ export function LangToggle({
           onClick={() => onChange(l)}
           aria-pressed={lang === l}
           className={cn(
-            "rounded-full px-3 py-1 font-mono text-[11px] transition-colors",
+            "rounded-full px-3.5 py-1.5 font-mono text-[11px] transition-colors",
             lang === l
               ? "bg-accent-soft text-accent-text"
               : "text-muted hover:text-text",

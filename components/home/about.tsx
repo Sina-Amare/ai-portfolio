@@ -45,7 +45,7 @@ export function About() {
       <Container>
         <Reveal>
           <SectionHeading
-            number="03"
+            number="02"
             eyebrow="About"
             title="A bit about me"
           />
