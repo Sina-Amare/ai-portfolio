@@ -23,6 +23,10 @@ export const site = {
     github: "https://github.com/Sina-Amare",
     linkedin: "https://www.linkedin.com/in/sina-amareh-909987286",
     email: "mailto:sinaamareh0263@gmail.com",
+    // Opens Gmail's compose window pre-addressed — avoids the OS "pick an app"
+    // dialog that a bare mailto: triggers on many machines.
+    emailCompose:
+      "https://mail.google.com/mail/?view=cm&fs=1&to=sinaamareh0263@gmail.com",
   },
 } as const;
 

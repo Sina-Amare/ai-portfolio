@@ -105,7 +105,7 @@ export function CommandPalette() {
               </Command.Item>
               <Command.Item
                 className={itemCls}
-                onSelect={run(() => window.location.assign(site.socials.email))}
+                onSelect={run(() => window.open(site.socials.emailCompose, "_blank"))}
               >
                 <Mail className="h-4 w-4" /> Email me
               </Command.Item>

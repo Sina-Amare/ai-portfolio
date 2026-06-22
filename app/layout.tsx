@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CommandPalette } from "@/components/command-palette";
+import { AnimatedBackground } from "@/components/animated-background";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -105,6 +106,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <ThemeProvider>
+          <AnimatedBackground />
           <MotionProvider>
             <Nav />
             <main id="content" className="flex-1">

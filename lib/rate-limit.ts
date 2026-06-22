@@ -35,6 +35,27 @@ export function rateLimit(
   return { ok: true, retryAfter: 0 };
 }
 
+/** Separate, stricter limiter for the contact form (default 5 per 10 minutes). */
+const CONTACT_WINDOW_MS = 600_000;
+const CONTACT_MAX = Number(process.env.CONTACT_MAX_PER_WINDOW ?? "5");
+const contactBuckets = new Map<string, Bucket>();
+
+export function contactRateLimit(
+  ip: string,
+  now = Date.now(),
+): { ok: boolean; retryAfter: number } {
+  const b = contactBuckets.get(ip);
+  if (!b || now > b.reset) {
+    contactBuckets.set(ip, { count: 1, reset: now + CONTACT_WINDOW_MS });
+    return { ok: true, retryAfter: 0 };
+  }
+  if (b.count >= CONTACT_MAX) {
+    return { ok: false, retryAfter: Math.ceil((b.reset - now) / 1000) };
+  }
+  b.count += 1;
+  return { ok: true, retryAfter: 0 };
+}
+
 /** Global daily counter; once exhausted we degrade to the canned refusal. */
 export function globalDailyOk(now = Date.now()): boolean {
   if (now > dayReset) {

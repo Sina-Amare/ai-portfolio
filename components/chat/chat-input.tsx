@@ -38,6 +38,12 @@ export function ChatInput({
     el.style.height = `${Math.min(el.scrollHeight, 168)}px`;
   }, [value]);
 
+  // Focus without the browser scrolling the input into view — scrolling the
+  // window on activation is what made the chat "jump" away from the viewer.
+  useEffect(() => {
+    if (autoFocus) ref.current?.focus({ preventScroll: true });
+  }, [autoFocus]);
+
   const btnSize = large ? "h-10 w-10" : "h-9 w-9";
 
   return (
@@ -54,7 +60,6 @@ export function ChatInput({
         dir={dir}
         rows={1}
         maxLength={600}
-        autoFocus={autoFocus}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {

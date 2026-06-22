@@ -1,9 +1,9 @@
 import { Mail } from "lucide-react";
 import { site } from "@/lib/site";
 import { Container } from "../ui/container";
-import { ButtonLink } from "../ui/button";
 import { Reveal } from "../motion/reveal";
 import { GitHubIcon, LinkedInIcon } from "../icons";
+import { ContactForm } from "./contact-form";
 
 const socials = [
   { href: site.socials.github, label: "GitHub", Icon: GitHubIcon },
@@ -14,42 +14,51 @@ export function Contact() {
   return (
     <section id="contact" className="scroll-mt-24 py-20 sm:py-28">
       <Container>
-        <Reveal>
-          <div className="glass relative overflow-hidden rounded-[var(--radius-card)] px-6 py-12 text-center sm:px-12 sm:py-16">
-            <span
-              aria-hidden
-              className="hero-bg pointer-events-none absolute inset-0 -z-10 opacity-60"
-            />
-            <span className="eyebrow">Get in touch</span>
-            <h2 className="text-gradient mx-auto mt-4 max-w-xl text-3xl font-semibold tracking-tight sm:text-[2.5rem] sm:leading-[1.1]">
-              Let&rsquo;s build something together
-            </h2>
-            <p className="text-muted mx-auto mt-4 max-w-md leading-relaxed">
-              I&rsquo;m open to backend &amp; AI engineering roles and interesting
-              collaborations. The fastest way to reach me is email — I&rsquo;ll get
-              back to you.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <ButtonLink href={site.socials.email} external size="lg">
-                <Mail className="h-4 w-4" /> {site.email}
-              </ButtonLink>
-              <div className="flex items-center gap-2">
-                {socials.map(({ href, label, Icon }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className="text-muted hover:text-text inline-flex h-11 w-11 items-center justify-center rounded-full border border-border transition-colors hover:border-accent/50"
-                  >
-                    <Icon className="h-[18px] w-[18px]" />
-                  </a>
-                ))}
+        <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
+          {/* Left — the pitch + direct links */}
+          <Reveal>
+            <div>
+              <span className="eyebrow">Get in touch</span>
+              <h2 className="text-gradient mt-4 max-w-md text-3xl font-semibold tracking-tight sm:text-[2.6rem] sm:leading-[1.08]">
+                Let&rsquo;s build something together
+              </h2>
+              <p className="text-muted mt-5 max-w-md leading-relaxed">
+                I&rsquo;m open to backend &amp; AI engineering roles and interesting
+                collaborations. Send a note — it reaches me instantly — or email me
+                directly.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <a
+                  href={site.socials.emailCompose}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border-border-strong text-text hover:border-accent/60 hover:bg-accent-soft inline-flex h-11 items-center gap-2 rounded-full border px-5 text-sm font-medium transition-colors"
+                >
+                  <Mail className="h-4 w-4" /> {site.email}
+                </a>
+                <div className="flex items-center gap-2">
+                  {socials.map(({ href, label, Icon }) => (
+                    <a
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="text-muted hover:text-text border-border hover:border-accent/50 inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors"
+                    >
+                      <Icon className="h-[18px] w-[18px]" />
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+
+          {/* Right — the form (delivers straight to my Telegram inbox) */}
+          <Reveal>
+            <ContactForm />
+          </Reveal>
+        </div>
       </Container>
     </section>
   );

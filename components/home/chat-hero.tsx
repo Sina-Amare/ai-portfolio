@@ -9,7 +9,6 @@ import { ui, type Lang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
 import { Container } from "@/components/ui/container";
-import { AnimatedBackground } from "@/components/animated-background";
 import { Avatar } from "@/components/avatar";
 import { Message } from "@/components/chat/message";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
@@ -40,6 +39,11 @@ export function ChatHero() {
   function send(text: string) {
     const v = text.trim();
     if (!v || isStreaming) return;
+    // Activating the chat collapses the headline and reflows the hero; pin the
+    // view to the top so the conversation stays framed instead of jumping away.
+    if (messages.length === 0 && typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
     setInput("");
     void sendMessage({ text: v }, { body: { lang } });
   }
@@ -56,7 +60,6 @@ export function ChatHero() {
 
   return (
     <section className="relative isolate overflow-hidden">
-      <AnimatedBackground />
       <div aria-hidden className="hero-bg pointer-events-none absolute inset-0 -z-10" />
       <Container className="flex min-h-[92svh] flex-col items-center justify-start pt-24 pb-16 sm:justify-center sm:py-24">
         {/* Identity */}

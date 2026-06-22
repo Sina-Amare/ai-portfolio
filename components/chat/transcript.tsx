@@ -62,7 +62,7 @@ export function Transcript({
     <div className="relative min-h-0 flex-1">
       <div
         ref={containerRef}
-        className="transcript-mask h-full overflow-y-auto overscroll-contain"
+        className="transcript-mask h-full overflow-y-auto overscroll-auto"
       >
         <div className="flex min-h-full flex-col justify-end">
           <div
