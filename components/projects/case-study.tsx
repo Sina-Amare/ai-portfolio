@@ -6,6 +6,7 @@ import type { Project } from "@/lib/projects";
 import { useLocale } from "@/components/locale-provider";
 import { Container } from "@/components/ui/container";
 import { ArchDiagram } from "@/components/projects/arch-diagram";
+import { MediaGallery } from "@/components/projects/media-gallery";
 import { Reveal } from "@/components/motion/reveal";
 import { GitHubIcon } from "@/components/icons";
 
@@ -18,6 +19,8 @@ export function CaseStudy({ project }: { project: Project }) {
   const p = t.projects;
   const tagline = locale === "fa" ? project.taglineFa : project.tagline;
   const summary = locale === "fa" ? project.summaryFa : project.summary;
+  // Deep content (problem/role/highlights/outcomes/architecture) localized too.
+  const c = locale === "fa" ? project.fa : project;
 
   return (
     <section className="pt-28 pb-24 sm:pt-32">
@@ -43,27 +46,33 @@ export function CaseStudy({ project }: { project: Project }) {
               <p className="text-text mt-5 max-w-2xl text-lg leading-relaxed">{summary}</p>
             </Reveal>
 
+            {project.media && project.media.length > 0 && (
+              <Reveal delay={0.05} className="mt-10">
+                <MediaGallery items={project.media} label={p.gallery} />
+              </Reveal>
+            )}
+
             <Reveal delay={0.05} className="mt-12">
               <h2 className="eyebrow">{p.problem}</h2>
-              <p className="text-text mt-3 max-w-2xl leading-[1.75]">{project.problem}</p>
+              <p className="text-text mt-3 max-w-2xl leading-[1.75]">{c.problem}</p>
             </Reveal>
 
             <Reveal delay={0.05} className="mt-10">
               <h2 className="eyebrow">{p.myRole}</h2>
-              <p className="text-text mt-3 max-w-2xl leading-[1.75]">{project.role}</p>
+              <p className="text-text mt-3 max-w-2xl leading-[1.75]">{c.role}</p>
             </Reveal>
 
             <Reveal delay={0.05} className="mt-10">
               <h2 className="eyebrow">{p.howItWorks}</h2>
               <div className="mt-4 overflow-x-auto pb-2">
-                <ArchDiagram steps={project.architecture} />
+                <ArchDiagram steps={c.architecture} />
               </div>
             </Reveal>
 
             <Reveal delay={0.05} className="mt-12">
               <h2 className="eyebrow">{p.highlights}</h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {project.highlights.map((h) => (
+                {c.highlights.map((h) => (
                   <div key={h.title} className="glass rounded-xl p-5">
                     <h3 className="text-sm font-semibold">{h.title}</h3>
                     <p className="text-muted mt-1.5 text-[13px] leading-relaxed">{h.body}</p>
@@ -75,7 +84,7 @@ export function CaseStudy({ project }: { project: Project }) {
             <Reveal delay={0.05} className="mt-12">
               <h2 className="eyebrow">{p.outcomes}</h2>
               <ul className="mt-4 space-y-2.5">
-                {project.outcomes.map((o) => (
+                {c.outcomes.map((o) => (
                   <li key={o} className="flex gap-2.5">
                     <Check className="text-accent mt-0.5 h-4 w-4 shrink-0" />
                     <span className="text-text text-[15px] leading-relaxed">{o}</span>

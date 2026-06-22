@@ -22,6 +22,7 @@ import {
   sanitizeInput,
 } from "@/lib/rag/prompt";
 import { chatLadder } from "@/lib/rag/providers";
+import { answerCache, embedCache, normalizeQuery } from "@/lib/rag/cache";
 import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -100,6 +101,23 @@ function cannedResponse(text: string) {
   return createUIMessageStreamResponse({ stream });
 }
 
+/** Fake-stream a cached answer with its sources — instant first token, no LLM. */
+function cachedResponse(text: string, sources: Source[]) {
+  const stream = createUIMessageStream({
+    execute: async ({ writer }) => {
+      const id = "0";
+      writer.write({ type: "text-start", id });
+      for (const word of text.split(/(\s+)/)) {
+        if (word) writer.write({ type: "text-delta", id, delta: word });
+        await new Promise((r) => setTimeout(r, 8));
+      }
+      writer.write({ type: "text-end", id });
+      writer.write({ type: "data-sources", id: "sources", data: sources });
+    },
+  });
+  return createUIMessageStreamResponse({ stream });
+}
+
 export async function POST(req: Request) {
   let raw: unknown;
   try {
@@ -125,12 +143,27 @@ export async function POST(req: Request) {
   // Global daily cap → degrade gracefully to protect free-tier quota.
   if (!globalDailyOk()) return cannedResponse(refusalMessage(lang));
 
+  // Answer cache (first-turn only): an identical question — e.g. a suggested
+  // chip — is served instantly with the same grounded answer, skipping the
+  // embedding call and the LLM entirely.
+  const firstTurn = messages.length === 1;
+  const cacheKey = `${lang}:${normalizeQuery(question)}`;
+  if (firstTurn) {
+    const hit = answerCache.get(cacheKey);
+    if (hit) return cachedResponse(hit.text, hit.sources);
+  }
+
   // Retrieve from the knowledge base — using the conversation-aware query so
   // follow-up questions keep their context.
   let scored: ScoredChunk[];
   try {
     const query = sanitizeInput(retrievalQuery(messages)) || question;
-    const queryEmbedding = await embedText(query, "RETRIEVAL_QUERY", req.signal);
+    const normQuery = normalizeQuery(query);
+    let queryEmbedding = embedCache.get(normQuery);
+    if (!queryEmbedding) {
+      queryEmbedding = await embedText(query, "RETRIEVAL_QUERY", req.signal);
+      embedCache.set(normQuery, queryEmbedding);
+    }
     scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, 8);
   } catch {
     return cannedResponse(errorMessage(lang));
@@ -157,6 +190,7 @@ export async function POST(req: Request) {
     execute: async ({ writer }) => {
       const id = "0";
       let started = false;
+      let full = "";
 
       for (const provider of ladder) {
         try {
@@ -175,6 +209,7 @@ export async function POST(req: Request) {
               writer.write({ type: "text-start", id });
               started = true;
             }
+            full += delta;
             writer.write({ type: "text-delta", id, delta });
           }
 
@@ -183,6 +218,10 @@ export async function POST(req: Request) {
             // Sources go LAST so the "thinking" indicator stays until real text
             // arrives (avoids an empty message during the model's time-to-first-token).
             writer.write({ type: "data-sources", id: "sources", data: sources });
+            // Cache the completed first-turn answer for instant future replays.
+            if (firstTurn && full.trim()) {
+              answerCache.set(cacheKey, { text: full, sources });
+            }
             return; // success
           }
           // Provider produced no text → fall through to the next one.

@@ -1,3 +1,12 @@
+/** A screenshot or video shown in the case-study gallery. Drop files in
+ *  public/projects/<slug>/ and reference them here. Videos use a poster image. */
+export type MediaItem = {
+  type: "image" | "video";
+  src: string;
+  poster?: string;
+  caption?: string;
+};
+
 export type Project = {
   slug: string;
   name: string;
@@ -20,6 +29,16 @@ export type Project = {
   outcomes: string[];
   /** Steps rendered as a CSS/SVG pipeline diagram on the case study. */
   architecture: string[];
+  /** Persian versions of the deep case-study content (tech terms stay Latin). */
+  fa: {
+    problem: string;
+    role: string;
+    highlights: { title: string; body: string }[];
+    outcomes: string[];
+    architecture: string[];
+  };
+  /** Optional screenshots / videos for the case-study gallery. */
+  media?: MediaItem[];
 };
 
 export const projects: Project[] = [
@@ -70,6 +89,45 @@ export const projects: Project[] = [
       "Preview fields",
       "Structured data",
     ],
+    fa: {
+      problem:
+        "اسکریپ‌کردن سایت‌های مختلف برای دادهٔ ساختارمند کارِ شکننده‌ایه: صفحه‌ها با بات‌ها می‌جنگن، سرور رو می‌شه گول زد و به SSRF کشوند، و crawlهای طولانی وسطِ کار crash می‌کنن. ScrapeGPT استخراج رو امن، هدایت‌شده و قابل‌ادامه می‌کنه.",
+      role: "کل استک رو طراحی و ساختم — یه بک‌اند FastAPI، لایهٔ ماندگاری با SQLAlchemy و یه رابط کاربری با React/TypeScript.",
+      highlights: [
+        {
+          title: "دریافت امن در برابر SSRF",
+          body: "همهٔ درخواست‌های خروجی اعتبارسنجی می‌شن تا به آدرس‌های داخلی و metadata نرسن؛ این‌طوری یه URL مخرب نمی‌تونه به شبکهٔ داخلی نفوذ کنه.",
+        },
+        {
+          title: "عبور از سیستم‌های ضدبات",
+          body: "چالش‌های Cloudflare و CAPTCHA رو تشخیص می‌ده و ازشون رد می‌شه، به‌جای این‌که بی‌صدا شکست بخوره.",
+        },
+        {
+          title: "crawlِ مقاوم در برابر خرابی",
+          body: "crawlهای طولانی از restart جون سالم به در می‌برن و از همون‌جا که مونده بودن ادامه می‌دن.",
+        },
+        {
+          title: "کلید اختصاصی و رمزنگاری‌شده",
+          body: "کاربرها کلید سرویس‌دهندهٔ خودشون رو می‌دن که رمزنگاری‌شده ذخیره می‌شه — هیچ‌وقت به‌صورت plaintext.",
+        },
+      ],
+      outcomes: [
+        "یه جریان کاری هدایت‌شده — analyze، preview و extract — که صفحه‌های خام رو به فیلدهای تمیز و typed تبدیل می‌کنه.",
+        "امنیت در حد یه محصول واقعی: محافظ SSRF، عبور از ضدبات و crawlِ قابل‌ادامه.",
+      ],
+      architecture: [
+        "ورودی URL",
+        "دریافت SSRF-safe",
+        "عبور از ضدبات",
+        "تحلیل schema با LLM",
+        "پیش‌نمایش فیلدها",
+        "دادهٔ ساختارمند",
+      ],
+    },
+    media: [
+      { type: "image", src: "/projects/scrapegpt/preview-1.svg", caption: "Guided analyze → preview → extract flow" },
+      { type: "image", src: "/projects/scrapegpt/preview-2.svg", caption: "Clean, typed structured output" },
+    ],
   },
   {
     slug: "sakaibot",
@@ -113,6 +171,40 @@ export const projects: Project[] = [
       "LLM · STT · TTS · image",
       "Reply",
     ],
+    fa: {
+      problem:
+        "بات‌های LLM همون لحظه‌ای که یه سرویس‌دهنده rate-limit می‌کنه یا یه کلید می‌میره از کار می‌افتن. SakaiBot طوری ساخته شده که این اتفاق هیچ‌وقت زمینش نزنه.",
+      role: "بات رو از صفر تا صد با Python و روی Telethon ساختم.",
+      highlights: [
+        {
+          title: "چرخش خودکار کلیدها",
+          body: "بین کلیدها می‌چرخه تا یه کلیدِ تموم‌شده هیچ‌وقت بات رو متوقف نکنه.",
+        },
+        {
+          title: "جابه‌جایی بین سرویس‌دهنده‌ها و مدل‌ها",
+          body: "بین سرویس‌دهنده‌ها و مدل‌ها جابه‌جا می‌شه تا بدون restart از خطاهای 429 و قطعی‌ها رد بشه.",
+        },
+        {
+          title: "چندرسانه‌ای",
+          body: "توی هر چت خلاصه می‌کنه، ترجمه و تحلیل می‌کنه، تصویر می‌سازه و کارهای speech-to-text و text-to-speech انجام می‌ده.",
+        },
+      ],
+      outcomes: [
+        "زیر فشار rate limit سرویس‌دهنده‌ها بدون restart دستی سرپا می‌مونه.",
+        "بیش از پنج قابلیت AI رو به گروه‌ها و چت‌های خصوصی میاره.",
+      ],
+      architecture: [
+        "پیام تلگرام",
+        "تشخیص نیت",
+        "انتخاب کلید / سرویس‌دهنده",
+        "LLM · STT · TTS · تصویر",
+        "پاسخ",
+      ],
+    },
+    media: [
+      { type: "image", src: "/projects/sakaibot/preview-1.svg", caption: "Multi-modal commands in any chat" },
+      { type: "image", src: "/projects/sakaibot/preview-2.svg", caption: "Stays alive through provider rate limits" },
+    ],
   },
   {
     slug: "github-code-review",
@@ -155,6 +247,40 @@ export const projects: Project[] = [
       "Token-budget chunks",
       "Role-aware LLM eval",
       "Scored report",
+    ],
+    fa: {
+      problem:
+        "غربال‌کردن دستی کاندیداهای مهندسی مقیاس‌پذیر نیست. این ابزار یه ریپازیتوری واقعی رو می‌خونه و تبدیلش می‌کنه به یه ارزیابی ساختارمند و متناسب با نقش.",
+      role: "معماری‌اش رو طراحی کردم و با Python روی OpenRouter ساختمش.",
+      highlights: [
+        {
+          title: "معماری ports-and-adapters",
+          body: "یه هستهٔ hexagonalِ تمیز باعث می‌شه LLM، سیستم کنترل نسخه و گزارش‌گیری قابل‌تعویض و قابل‌تست بمونن.",
+        },
+        {
+          title: "جابه‌جایی بین چند مدل",
+          body: "بین مدل‌ها جابه‌جا می‌شه تا یه مشکل کوچیک از سمت سرویس‌دهنده یه بررسی رو خراب نکنه.",
+        },
+        {
+          title: "مدیریت بودجهٔ token",
+          body: "ریپازیتوری‌های بزرگ رو با مدیریت دقیق token توی context window مدل جا می‌ده.",
+        },
+      ],
+      outcomes: [
+        "از هر ریپازیتوری کاندیدا یه گزارش استخدامیِ امتیازدار می‌سازه.",
+        "روی کدبیس‌های بزرگ، قابل‌اعتماد و با هزینهٔ کنترل‌شده باقی می‌مونه.",
+      ],
+      architecture: [
+        "ریپازیتوری کاندیدا",
+        "clone و ایندکس",
+        "تکه‌بندی با بودجهٔ token",
+        "ارزیابی LLM متناسب با نقش",
+        "گزارش امتیازدار",
+      ],
+    },
+    media: [
+      { type: "image", src: "/projects/github-code-review/preview-1.svg", caption: "Scored, role-aware hiring report" },
+      { type: "image", src: "/projects/github-code-review/preview-2.svg", caption: "Reads a real candidate repository" },
     ],
   },
 ];

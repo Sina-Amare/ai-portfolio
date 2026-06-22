@@ -182,7 +182,7 @@ export function ChatHero() {
                 />
               ))}
               {status === "submitted" && (
-                <div className="text-muted flex justify-start px-1">
+                <div dir="ltr" className="text-muted flex justify-start px-1">
                   <TypingIndicator label={t.thinking} />
                 </div>
               )}

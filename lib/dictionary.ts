@@ -107,6 +107,8 @@ export const dict = {
         errEmail: "That email doesn't look right — mind double-checking it?",
         errGeneric: "Something went wrong. Please try again.",
         errNetwork: "Network error. Please try again.",
+        errRate: "Too many messages — please try again in a few minutes.",
+        errConfig: "The contact channel isn't set up yet — please email me directly.",
       },
     },
     footer: {
@@ -131,6 +133,7 @@ export const dict = {
       howItWorks: "How it works",
       highlights: "Engineering highlights",
       outcomes: "Outcomes",
+      gallery: "Gallery",
     },
   },
 
@@ -231,6 +234,8 @@ export const dict = {
         errEmail: "ایمیل درست به‌نظر نمی‌رسه — یه بار دیگه چکش می‌کنی؟",
         errGeneric: "یه مشکلی پیش اومد. لطفاً دوباره امتحان کن.",
         errNetwork: "مشکل شبکه. لطفاً دوباره تلاش کن.",
+        errRate: "یه‌کم تند فرستادی! چند دقیقه صبر کن و دوباره امتحان کن.",
+        errConfig: "کانال تماس هنوز آماده نیست — لطفاً مستقیم بهم ایمیل بزن.",
       },
     },
     footer: {
@@ -255,6 +260,7 @@ export const dict = {
       howItWorks: "چطور کار می‌کنه",
       highlights: "نکته‌های مهندسی",
       outcomes: "نتیجه",
+      gallery: "تصاویر و ویدیوها",
     },
   },
 };

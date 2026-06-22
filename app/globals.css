@@ -234,11 +234,12 @@ h3 {
   background-size: 100% 1.5px;
 }
 
-/* Translucent sticky nav */
+/* Translucent sticky nav — opaque enough that scrolled content doesn't read
+   messily through it, with a soft blur for depth. */
 .nav-blur {
-  background: color-mix(in oklab, var(--bg) 82%, transparent);
-  backdrop-filter: blur(12px) saturate(1.4);
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  background: color-mix(in oklab, var(--bg) 94%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
 }
 
 /* Hero background: faint grid + dots, masked to center */

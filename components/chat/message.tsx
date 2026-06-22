@@ -53,7 +53,13 @@ export const Message = memo(function Message({
   }
 
   return (
-    <div className={cn("group flex w-full", isUser ? "justify-end" : "justify-start")}>
+    // Force LTR positioning so the bubble side (user = right, assistant = left)
+    // stays consistent even when the page is RTL; the bubble itself still uses
+    // the message's own text direction.
+    <div
+      dir="ltr"
+      className={cn("group flex w-full", isUser ? "justify-end" : "justify-start")}
+    >
       <div
         dir={dir}
         className={cn(

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
 
 type Status = "idle" | "submitting" | "success" | "error";
+type ErrKey = "" | "required" | "email" | "rate" | "config" | "generic" | "network";
 
 const EMPTY = { name: "", email: "", contact: "", message: "", company: "" };
 
@@ -17,12 +18,29 @@ export function ContactForm() {
   const f = t.contact.form;
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState("");
+  // Store an error *key*, not the resolved string, so the message re-localizes
+  // instantly when the visitor switches language instead of getting stuck.
+  const [errorKey, setErrorKey] = useState<ErrKey>("");
+
+  const errorText: Record<Exclude<ErrKey, "">, string> = {
+    required: f.errRequired,
+    email: f.errEmail,
+    rate: f.errRate,
+    config: f.errConfig,
+    generic: f.errGeneric,
+    network: f.errNetwork,
+  };
+  const error = errorKey ? errorText[errorKey] : "";
 
   const set =
     (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  function fail(key: Exclude<ErrKey, "">) {
+    setErrorKey(key);
+    setStatus("error");
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,18 +49,11 @@ export function ContactForm() {
     const name = form.name.trim();
     const email = form.email.trim();
     const message = form.message.trim();
-    if (!name || !email || !message) {
-      setError(f.errRequired);
-      setStatus("error");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError(f.errEmail);
-      setStatus("error");
-      return;
-    }
+    if (!name || !email || !message) return fail("required");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("email");
+
     setStatus("submitting");
-    setError("");
+    setErrorKey("");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -53,13 +64,10 @@ export function ContactForm() {
         setForm(EMPTY);
         setStatus("success");
       } else {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(data.error ?? f.errGeneric);
-        setStatus("error");
+        fail(res.status === 429 ? "rate" : res.status === 503 ? "config" : "generic");
       }
     } catch {
-      setError(f.errNetwork);
-      setStatus("error");
+      fail("network");
     }
   }
 
