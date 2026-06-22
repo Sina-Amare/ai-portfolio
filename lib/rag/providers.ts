@@ -1,4 +1,5 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { LanguageModel } from "ai";
 
@@ -13,6 +14,7 @@ function parseKeys(name: string): string[] {
 }
 
 // One provider instance per key, created once at module load.
+const groqProviders = parseKeys("GROQ_API_KEY").map((apiKey) => createGroq({ apiKey }));
 const googleProviders = parseKeys("GOOGLE_GENERATIVE_AI_API_KEY").map((apiKey) =>
   createGoogleGenerativeAI({ apiKey }),
 );
@@ -20,6 +22,12 @@ const openrouterProviders = parseKeys("OPENROUTER_API_KEY").map((apiKey) =>
   createOpenRouter({ apiKey }),
 );
 
+// Groq's LPU gives the fastest time-to-first-token, so it leads the ladder when
+// a key is configured. Falls through to Gemini → OpenRouter on rate limit.
+const GROQ_MODELS = [
+  { id: "llama-3.3-70b-versatile", label: "Llama 3.3 70B · Groq" },
+  { id: "llama-3.1-8b-instant", label: "Llama 3.1 8B · Groq" },
+];
 const GEMINI_MODELS = [
   { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite" },
   { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
@@ -46,6 +54,12 @@ export function chatLadder(): ChatProvider[] {
   const by = rr++;
   const ladder: ChatProvider[] = [];
 
+  // Groq first (fastest first-token) across all Groq keys, when configured.
+  for (const m of GROQ_MODELS) {
+    rotate(groqProviders, by).forEach((p, ki) =>
+      ladder.push({ id: `groq:${m.id}#${ki}`, label: m.label, model: p(m.id) }),
+    );
+  }
   // Fastest model across all Gemini keys first, then the quality model.
   for (const m of GEMINI_MODELS) {
     rotate(googleProviders, by).forEach((p, ki) =>
