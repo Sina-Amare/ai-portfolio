@@ -4,16 +4,15 @@
 
 **A premium, bilingual developer portfolio whose centerpiece is a _real_ RAG chatbot — not a mockup.**
 
-Ask it anything about my work and it answers in my own first-person voice, grounded in my actual
-CV and projects, streamed token-by-token. It runs on the same multi-provider failover pattern I
-build into production systems — so the site itself is a live demo of the craft it describes.
+Ask it anything about my work and it answers in my own first-person voice, grounded in my actual CV
+and projects, streamed token-by-token. It runs on the same multi-provider failover pattern I build
+into production systems — so the site itself is a live demo of the craft it describes.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-000?logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Vercel AI SDK](https://img.shields.io/badge/Vercel%20AI%20SDK-v6-000?logo=vercel&logoColor=white)](https://sdk.vercel.ai)
-[![Tests](https://img.shields.io/badge/tests-49%20unit%20%2B%209%20e2e%20%2B%20RAG%20eval-3FB950)](#-testing)
 
 **Live:** _coming soon on `*.vercel.app`_
 
@@ -28,76 +27,26 @@ build into production systems — so the site itself is a live demo of the craft
 ## Why this is different
 
 Most portfolios _describe_ what someone can do. This one **proves it on the homepage**: the hero
-isn't a tagline, it's a working retrieval-augmented chatbot. Visitors (and recruiters) type a real
-question — _"Are you open to new roles?"_, _"Walk me through a RAG project"_ — and get a grounded,
-human answer with citation chips back to the source. Out-of-scope questions are refused cleanly with
-**no LLM call**, so it never makes things up.
-
-<table>
-<tr>
-<td width="50%"><img src="docs/screenshots/chat-dark.png" alt="Grounded English answer with source chips"></td>
-<td width="50%"><img src="docs/screenshots/chat-persian.png" alt="Colloquial Persian answer, right-to-left"></td>
-</tr>
-<tr>
-<td align="center"><em>Grounded answer + source chips + cited contact</em></td>
-<td align="center"><em>Bilingual — colloquial Persian, full RTL</em></td>
-</tr>
-</table>
-
-<table>
-<tr>
-<td width="50%"><img src="docs/screenshots/projects.png" alt="Projects bento grid"></td>
-<td width="50%"><img src="docs/screenshots/case-study.png" alt="Editorial case study with architecture flow"></td>
-</tr>
-<tr>
-<td align="center"><em>Projects — bento grid</em></td>
-<td align="center"><em>Editorial case studies with an architecture flow</em></td>
-</tr>
-</table>
-
-<p align="center">
-  <img src="docs/screenshots/command-palette.png" alt="Command palette" width="70%"><br>
-  <em>⌘K command palette · also: dark/light theme (below)</em>
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/hero-light.png" alt="Light theme" width="100%"><br>
-  <em>Refined light theme — one toggle away</em>
-</p>
-
----
+isn't a tagline, it's a working retrieval-augmented chatbot. Visitors type a real question and get a
+grounded, human answer with citation chips back to the source. Out-of-scope questions are refused
+cleanly with **no LLM call**, so it never makes things up.
 
 ## Highlights
 
 - **Chatbot-as-hero** — a real RAG chatbot is the homepage centerpiece. Answers stream in my own
-  first-person voice with low latency (~1.2s to first token) and source-citation chips.
+  first-person voice (~1.2s to first token) with source-citation chips.
 - **Structurally anti-hallucination** — three guards: a retrieval **threshold gate** (refuses
   off-topic questions with no LLM call), a **strict grounded prompt**, and a **jailbreak pre-filter**.
 - **Multi-provider failover** — Gemini 2.5 Flash-Lite → Flash → OpenRouter free models. If one
   provider errors, times out, or hits quota, the next takes over automatically and invisibly.
 - **Bilingual + RTL** — viewer-selectable English / فارسی (Vazirmatn font, right-to-left layout,
   warm colloquial Persian — not stiff machine translation).
-- **Dark + light** — a refined "Warm Slate + Amber" palette with a toggle; Bricolage Grotesque
-  display + Inter body; a subtle ambient background; motion that respects `prefers-reduced-motion`.
-- **Thoughtful details** — ⌘K command palette, cursor-spotlight cards, scroll-aware nav,
-  copy-to-clipboard, an auto-scrolling transcript, and a contact CTA.
+- **Dark + light** — a refined "Warm Slate + Amber" palette with a toggle, a subtle ambient
+  background, and motion that respects `prefers-reduced-motion`.
+- **Polished details** — ⌘K command palette, cursor-spotlight cards, scroll-aware nav, an
+  auto-scrolling transcript, and a contact CTA.
 - **Tested** — 49 unit/component/route tests, 9 Playwright E2E specs (LLM mocked), and a 35-item RAG
   retrieval gate (100% refusal on out-of-scope).
-
----
-
-## Tech stack
-
-| Layer | Choice |
-| --- | --- |
-| Framework | **Next.js 16** (App Router, React Server Components, React Compiler, Turbopack) |
-| Language | **TypeScript** · **React 19** |
-| Styling | **Tailwind CSS v4** (CSS-first `@theme`) · **Motion** for animation |
-| Chat / streaming | **Vercel AI SDK v6** (`ai`, `@ai-sdk/react`, `@ai-sdk/google`, `@openrouter/ai-sdk-provider`) |
-| LLM providers | **Google Gemini** (chat + embeddings) · **OpenRouter** (free-model fallback) |
-| Retrieval | **In-memory cosine** over a committed `kb.json` — no vector DB, sub-millisecond lookups |
-| Testing | **Vitest** · **Testing Library** · **Playwright** · custom RAG eval |
-| Hosting | **Vercel** (Hobby / free tier) |
 
 ---
 
@@ -116,16 +65,30 @@ Browser ── React UI (useChat) ──▶ /api/chat  (Node serverless route)
 content/*.md ──(npm run embed)──▶ lib/kb.json   (committed; deploys never re-embed)
 ```
 
-**The failover ladder** (in [`lib/rag/providers.ts`](lib/rag/providers.ts)) tries providers in
-order and only includes ones whose API key is present:
+<p align="center">
+  <img src="docs/screenshots/chat-dark.png" alt="A grounded answer with source chips" width="70%"><br>
+  <em>A grounded answer — first-person voice, citation chips, no hallucination.</em>
+</p>
 
-1. **Gemini 2.5 Flash-Lite** — primary (lowest latency)
-2. **Gemini 2.5 Flash** — fallback
-3. **OpenRouter — Qwen3-Next-80B** (free)
-4. **OpenRouter — Llama-3.3-70B** (free)
+The failover ladder (in [`lib/rag/providers.ts`](lib/rag/providers.ts)) tries providers in order and
+only includes ones whose API key is present: **Gemini 2.5 Flash-Lite → Gemini 2.5 Flash → OpenRouter
+Qwen3-Next-80B → OpenRouter Llama-3.3-70B**. Your API keys are **server-side only** and never reach
+the browser — the client only ever calls our own `/api/chat`.
 
-Your API keys are **server-side only** and never reach the browser — the client only ever calls our
-own `/api/chat`.
+---
+
+## Tech stack
+
+| Layer | Choice |
+| --- | --- |
+| Framework | **Next.js 16** (App Router, RSC, React Compiler, Turbopack) |
+| Language | **TypeScript** · **React 19** |
+| Styling | **Tailwind CSS v4** (CSS-first `@theme`) · **Motion** |
+| Chat / streaming | **Vercel AI SDK v6** (`ai`, `@ai-sdk/react`, `@ai-sdk/google`, `@openrouter/ai-sdk-provider`) |
+| LLM providers | **Google Gemini** (chat + embeddings) · **OpenRouter** (free-model fallback) |
+| Retrieval | **In-memory cosine** over a committed `kb.json` — no vector DB |
+| Testing | **Vitest** · **Testing Library** · **Playwright** · custom RAG eval |
+| Hosting | **Vercel** (Hobby / free tier) |
 
 ---
 
@@ -133,8 +96,8 @@ own `/api/chat`.
 
 ### Prerequisites
 
-- **[Node.js 20+](https://nodejs.org)** (check with `node -v`) and npm (ships with Node).
-- **Two free API keys** (no credit card required):
+- **[Node.js 20+](https://nodejs.org)** (check with `node -v`) and npm.
+- **Two free API keys** (no credit card):
   - **Google AI Studio** — chat + embeddings → <https://aistudio.google.com/app/apikey>
   - **OpenRouter** — free-model fallback → <https://openrouter.ai/keys>
 
@@ -148,14 +111,9 @@ npm install
 
 ### 2 · Add your API keys
 
-Copy the template to a local env file:
-
 ```bash
-# macOS / Linux
-cp .env.example .env.local
-
-# Windows (PowerShell)
-Copy-Item .env.example .env.local
+cp .env.example .env.local        # macOS / Linux
+# Copy-Item .env.example .env.local   # Windows (PowerShell)
 ```
 
 Then open `.env.local` and paste your keys:
@@ -175,54 +133,31 @@ npm run dev
 
 Open **<http://localhost:3000>** and ask the chatbot anything. 🎉
 
-### 4 · (Optional) Production build
-
-```bash
-npm run build   # compile an optimized production build
-npm start       # serve it at http://localhost:3000
-```
-
 ### Common scripts
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Start the dev server (hot reload) |
-| `npm run build` | Production build |
-| `npm start` | Serve the production build |
+| `npm run dev` | Dev server with hot reload |
+| `npm run build` / `npm start` | Production build / serve it |
 | `npm test` | Unit + component + route tests (Vitest) |
-| `npm run test:e2e` | End-to-end tests (Playwright, LLM mocked — no keys needed) |
+| `npm run test:e2e` | Playwright E2E (LLM mocked — no keys needed) |
 | `npm run eval` | RAG retrieval gate (needs the Google key) |
-| `npm run embed` | Re-build `lib/kb.json` from `content/` after editing the knowledge base |
-| `npm run typecheck` | TypeScript check |
-| `npm run lint` | ESLint |
+| `npm run embed` | Rebuild `lib/kb.json` from `content/` after editing the knowledge base |
+| `npm run typecheck` / `npm run lint` | TypeScript / ESLint |
 
 ---
 
 ## Editing the knowledge base
 
-The chatbot answers from markdown in [`content/`](content/) — your CV, an FAQ, and one file per
-project. After editing any of it, re-embed:
+The chatbot answers from markdown in [`content/`](content/) — CV, FAQ, and one file per project.
+After editing, re-embed:
 
 ```bash
 npm run embed   # re-chunks + re-embeds → lib/kb.json (commit the result)
 ```
 
-`kb.json` is committed, so deploys never need to re-embed. **Anything in it is publicly answerable
-once deployed** — review before committing.
-
----
-
-## 🧪 Testing
-
-```bash
-npm test          # 49 unit + component + route tests (Vitest)
-npm run test:e2e  # 9 Playwright E2E specs — LLM mocked, deterministic, no keys
-npm run eval      # 35-item RAG retrieval gate (100% refusal on out-of-scope)
-```
-
-E2E specs mock the LLM with a deterministic SSE payload, so they're fast and never flaky on
-wording. CI runs lint → typecheck → unit → e2e on every push
-([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
+`kb.json` is committed, so deploys never re-embed. **Anything in it is publicly answerable once
+deployed** — review before committing.
 
 ---
 
@@ -238,22 +173,18 @@ components/
   chat/                    # transcript, input, message, suggestions, lang toggle
   ...                      # nav, footer, command palette, theme, motion, ui/
 content/                   # the knowledge base (markdown → kb.json)
-lib/
-  rag/                     # chunker, cosine, retrieve, threshold, prompt, providers
-  kb.json                  # built artifact (committed)
+lib/rag/                   # chunker, cosine, retrieve, threshold, prompt, providers
 scripts/embed.ts           # content/*.md → lib/kb.json
 tests/                     # unit · component · e2e
-docs/screenshots/          # the images in this README
 ```
 
 ---
 
 ## Deploy (Vercel, free)
 
-1. Push this repo to GitHub.
-2. Import it at **[vercel.com/new](https://vercel.com/new)** (auto-detected as Next.js).
-3. Add the environment variables under **Project → Settings → Environment Variables**.
-4. Deploy. The chatbot works immediately — `kb.json` ships with the build, so there's no embedding
+1. Push to GitHub and import at **[vercel.com/new](https://vercel.com/new)** (auto-detected as Next.js).
+2. Add the environment variables under **Project → Settings → Environment Variables**.
+3. Deploy. The chatbot works immediately — `kb.json` ships with the build, so there's no embedding
    step at deploy time.
 
 ---
