@@ -2,6 +2,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { LanguageModel } from "ai";
+import type { Lang } from "@/lib/i18n";
 
 export type ChatProvider = { id: string; label: string; model: LanguageModel };
 
@@ -47,30 +48,36 @@ function rotate<T>(arr: T[], by: number): T[] {
 
 /**
  * Ordered failover ladder (the multi-provider + multi-key resilience pattern
- * from Sina's CV). For each model, every configured key is tried before falling
- * to the next model, then to OpenRouter. Total capacity ≈ the sum of all keys.
+ * from Sina's CV). Each model is tried across every configured key before
+ * falling to the next; total capacity ≈ the sum of all keys.
+ *
+ * The order is language-aware: Llama (Groq) is fast but weak at Persian, while
+ * Gemini handles Persian well. So Persian leads with Gemini and keeps Groq as a
+ * last resort; English leads with Groq for the fastest first-token.
  */
-export function chatLadder(): ChatProvider[] {
+export function chatLadder(lang: Lang = "en"): ChatProvider[] {
   const by = rr++;
-  const ladder: ChatProvider[] = [];
 
-  // Groq first (fastest first-token) across all Groq keys, when configured.
+  const groq: ChatProvider[] = [];
   for (const m of GROQ_MODELS) {
     rotate(groqProviders, by).forEach((p, ki) =>
-      ladder.push({ id: `groq:${m.id}#${ki}`, label: m.label, model: p(m.id) }),
+      groq.push({ id: `groq:${m.id}#${ki}`, label: m.label, model: p(m.id) }),
     );
   }
-  // Fastest model across all Gemini keys first, then the quality model.
+  const gemini: ChatProvider[] = [];
   for (const m of GEMINI_MODELS) {
     rotate(googleProviders, by).forEach((p, ki) =>
-      ladder.push({ id: `${m.id}#${ki}`, label: m.label, model: p(m.id) }),
+      gemini.push({ id: `${m.id}#${ki}`, label: m.label, model: p(m.id) }),
     );
   }
-  // Free OpenRouter models across all OpenRouter keys.
+  const openrouter: ChatProvider[] = [];
   for (const m of OPENROUTER_MODELS) {
     rotate(openrouterProviders, by).forEach((p, ki) =>
-      ladder.push({ id: `or:${m.id}#${ki}`, label: m.label, model: p.chat(m.id) }),
+      openrouter.push({ id: `or:${m.id}#${ki}`, label: m.label, model: p.chat(m.id) }),
     );
   }
-  return ladder;
+
+  return lang === "fa"
+    ? [...gemini, ...openrouter, ...groq] // Persian: quality first, Groq last
+    : [...groq, ...gemini, ...openrouter]; // English: fastest first-token first
 }

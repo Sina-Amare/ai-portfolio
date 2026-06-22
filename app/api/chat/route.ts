@@ -201,7 +201,7 @@ export async function POST(req: Request) {
     }))
     .filter((m) => m.parts.length > 0);
   const modelMessages = await convertToModelMessages(cleaned);
-  const ladder = chatLadder();
+  const ladder = chatLadder(lang);
   if (ladder.length === 0) return cannedResponse(errorMessage(lang));
 
   const stream = createUIMessageStream({

@@ -76,7 +76,11 @@ export function buildSystemPrompt(lang: Lang, scored: ScoredChunk[]): string {
   const language = lang === "fa" ? "Persian (فارسی)" : "English";
   const styleLine =
     lang === "fa"
-      ? `- Write in friendly, natural, everyday COLLOQUIAL Persian (فارسی محاوره‌ای و صمیمی) — the way a real person actually chats, warm and personable. Avoid stiff, bookish, or overly formal written Persian.`
+      ? [
+          `- Write in friendly, natural, everyday COLLOQUIAL Persian (فارسی محاوره‌ای و صمیمی) — the way a real Iranian developer actually chats, warm and personable. Avoid stiff, bookish, or overly formal written Persian.`,
+          `- Keep ALL technical terms, tool names, frameworks, and job titles in English/Latin script — e.g. open-source, backend, web scraping, RAG, FastAPI, LLM, prompt. NEVER translate them into Persian calques (never «بازمتن»، «وب‌خراشی»، «پس‌کرانه» and the like). Mix the Latin terms naturally into Persian sentences, exactly how developers in Iran really talk.`,
+          `- Grammar must be correct and natural. You are Sina speaking as «من»; you address the visitor as «تو». Keep verb persons right — e.g. ask «دوست داری بیشتر بدونی؟», never the broken «بدونم». Don't produce malformed words or wrong suffixes.`,
+        ].join("\n")
       : `- Keep the English natural, warm, and personable — like a friendly chat, not a formal résumé.`;
   return [
     `You are ${site.name}'s personal AI assistant on his portfolio website, and you speak in Sina's OWN first-person voice — warm, friendly, conversational, and genuinely engaging, as if Sina himself is chatting with the visitor.`,
