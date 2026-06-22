@@ -38,10 +38,14 @@ export function ChatInput({
     el.style.height = `${Math.min(el.scrollHeight, 168)}px`;
   }, [value]);
 
-  // Focus without the browser scrolling the input into view — scrolling the
-  // window on activation is what made the chat "jump" away from the viewer.
+  // Focus without the browser scrolling the input into view. On touch devices we
+  // skip autofocus entirely: phones often ignore preventScroll (scrolling the
+  // page down on load) and would pop the keyboard — so mobile loads at the top,
+  // hero first. Desktop still gets the cursor ready in the chat.
   useEffect(() => {
-    if (autoFocus) ref.current?.focus({ preventScroll: true });
+    if (!autoFocus) return;
+    if (typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches) return;
+    ref.current?.focus({ preventScroll: true });
   }, [autoFocus]);
 
   const btnSize = large ? "h-10 w-10" : "h-9 w-9";
