@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { FileText, Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
+import { scrollToSectionId } from "@/lib/scroll";
 import { useLocale } from "./locale-provider";
 import { Container } from "./ui/container";
 import { ThemeToggle } from "./theme-toggle";
@@ -24,39 +25,20 @@ export function Nav() {
     { href: "/#contact", label: t.nav.contact },
   ];
 
-  // Same-page hash links: scroll so the section's CONTENT (its heading) lands
-  // just below the fixed nav — exactly, on the FIRST click.
-  //
-  // We measure with offsetTop (cumulative, up the offset-parent chain) instead
-  // of getBoundingClientRect(): the section content is wrapped in <Reveal>, a
-  // motion.div that animates translateY on scroll-in. getBoundingClientRect()
-  // returns the mid-animation *visual* position, so the first click reads a
-  // moving target and lands wrong (hence the old "click twice"). offsetTop is a
-  // pure layout value, unaffected by transforms, so one click is always exact.
+  // Hash links. Same-page (already on home): intercept and scroll precisely
+  // ourselves. Cross-page (/#about from another route): let the Link navigate —
+  // ScrollToHash on the home page does the precise scroll once it mounts.
   const onNav = (e: React.MouseEvent, href: string) => {
-    if (!href.startsWith("/#") || pathname !== "/") {
-      setOpen(false);
-      return;
-    }
-    const el = document.getElementById(href.slice(2));
-    if (!el) {
-      setOpen(false);
-      return;
-    }
-    e.preventDefault();
     setOpen(false);
-    // Defer one frame so a closing mobile menu has collapsed before we measure
-    // (its height change would otherwise shift the target between read & scroll).
+    if (!href.startsWith("/#") || pathname !== "/") return;
+    const id = href.slice(2);
+    // Defer one frame so a closing mobile menu has collapsed before we measure.
     requestAnimationFrame(() => {
-      const target = (el.firstElementChild as HTMLElement | null) ?? el;
-      let y = 0;
-      for (let node: HTMLElement | null = target; node; node = node.offsetParent as HTMLElement | null) {
-        y += node.offsetTop;
+      if (scrollToSectionId(id, true)) {
+        window.history.replaceState(null, "", href);
       }
-      const navH = document.querySelector("header")?.getBoundingClientRect().height ?? 56;
-      window.scrollTo({ top: Math.max(0, y - navH - 16), behavior: "smooth" });
-      window.history.replaceState(null, "", href);
     });
+    if (document.getElementById(id)) e.preventDefault();
   };
 
   useEffect(() => {
@@ -88,6 +70,7 @@ export function Nav() {
               <Link
                 key={l.href}
                 href={l.href}
+                scroll={l.href.startsWith("/#") ? false : undefined}
                 onClick={(e) => onNav(e, l.href)}
                 className={cn(
                   "link-underline text-muted hover:text-text rounded-full px-3 py-1.5 text-sm transition-colors",
@@ -140,6 +123,7 @@ export function Nav() {
                 <Link
                   key={l.href}
                   href={l.href}
+                  scroll={l.href.startsWith("/#") ? false : undefined}
                   onClick={(e) => onNav(e, l.href)}
                   className="text-muted hover:text-text rounded-lg px-2 py-2.5 text-sm transition-colors"
                 >
