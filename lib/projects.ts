@@ -27,7 +27,7 @@ export const projects: Project[] = [
     slug: "scrapegpt",
     name: "ScrapeGPT",
     tagline: "Self-hosted AI web data-extraction",
-    taglineFa: "استخراج دادهٔ وب با AI، به‌صورت self-hosted",
+    taglineFa: "استخراج دادهٔ وب با AI — self-hosted",
     year: "2025",
     stack: ["FastAPI", "SQLAlchemy", "React", "TypeScript"],
     repo: "https://github.com/Sina-Amare/ScrapeGpt",
@@ -36,7 +36,7 @@ export const projects: Project[] = [
     summary:
       "Turns any URL into structured data through a guided analyze → preview → extract flow.",
     summaryFa:
-      "هر URL را با یک جریان هدایت‌شده — analyze، preview و extract — به دادهٔ ساختارمند تبدیل می‌کند.",
+      "هر URL رو با یه جریان ساده — analyze، preview و extract — به دادهٔ ساختارمند تبدیل می‌کنه.",
     problem:
       "Scraping arbitrary sites for structured data is brittle: pages fight bots, servers can be tricked into SSRF, and long crawls crash halfway. ScrapeGPT makes extraction safe, guided, and resumable.",
     role: "Designed and built the full stack — a FastAPI backend, SQLAlchemy persistence, and a React/TypeScript UI.",
@@ -75,7 +75,7 @@ export const projects: Project[] = [
     slug: "sakaibot",
     name: "SakaiBot",
     tagline: "Resilient multi-LLM Telegram userbot",
-    taglineFa: "یوزربات تلگرام، چند-LLM و مقاوم",
+    taglineFa: "ربات تلگرام با چند LLM، مقاوم و سرپا",
     year: "2024",
     stack: ["Python", "Telethon"],
     repo: "https://github.com/Sina-Amare/SakaiBot",
@@ -84,7 +84,7 @@ export const projects: Project[] = [
     summary:
       "Summarization, translation, analysis, image generation, and voice for any Telegram chat — kept alive through rate limits.",
     summaryFa:
-      "خلاصه‌سازی، ترجمه، تحلیل، تولید تصویر و صدا برای هر چت تلگرام — حتی زیر فشار rate limit سرپا می‌ماند.",
+      "خلاصه‌سازی، ترجمه، تحلیل، تولید تصویر و کار صوتی توی هر چت تلگرام — حتی زیر فشار rate limit هم سرپا می‌مونه.",
     problem:
       "LLM bots fall over the moment a provider rate-limits or a key dies. SakaiBot is built so that never takes it down.",
     role: "Built the bot end-to-end in Python on Telethon.",
@@ -118,7 +118,7 @@ export const projects: Project[] = [
     slug: "github-code-review",
     name: "GitHub Code Review",
     tagline: "Automated technical-screening bot",
-    taglineFa: "بات خودکار غربالگری فنی",
+    taglineFa: "ربات خودکار بررسی فنی",
     year: "2025",
     stack: ["Python", "OpenRouter"],
     repo: "https://github.com/Sina-Amare/github-code-review",
@@ -127,7 +127,7 @@ export const projects: Project[] = [
     summary:
       "Clones a candidate's repository and produces a role-aware, scored hiring report.",
     summaryFa:
-      "ریپازیتوری کاندیدا را clone می‌کند و یک گزارش استخدامِ امتیازدار و متناسب با نقش می‌سازد.",
+      "ریپازیتوری کاندیدا رو clone می‌کنه و یه گزارش استخدامی امتیازدار و متناسب با نقش می‌سازه.",
     problem:
       "Screening engineering candidates by hand doesn't scale. This reads a real repository and turns it into a structured, role-aware evaluation.",
     role: "Designed the architecture and built it in Python on OpenRouter.",

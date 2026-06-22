@@ -370,6 +370,20 @@ h3 {
   letter-spacing: 0.04em;
   text-transform: none;
 }
+/* Vazirmatn reads slightly thin/small next to Latin — give Persian a touch more
+   weight and breathing room so it feels like a polished native site. */
+[data-locale="fa"] body {
+  font-weight: 450;
+  line-height: 1.95;
+}
+[data-locale="fa"] p {
+  line-height: 2;
+}
+[data-locale="fa"] h1,
+[data-locale="fa"] h2,
+[data-locale="fa"] h3 {
+  line-height: 1.5;
+}
 
 /* Smooth crossfade when switching language (LTR↔RTL reflow). */
 #content,
