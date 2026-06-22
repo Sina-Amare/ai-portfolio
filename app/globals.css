@@ -351,6 +351,38 @@ h3 {
   line-height: 1.9;
 }
 
+/* Whole-site Persian mode: use Vazirmatn for headings/eyebrows too, and kill
+   letter-spacing — negative/positive tracking breaks Persian letter-joining. */
+[data-locale="fa"] body,
+[data-locale="fa"] h1,
+[data-locale="fa"] h2,
+[data-locale="fa"] h3,
+[data-locale="fa"] .eyebrow {
+  font-family: var(--font-fa), var(--font-sans), sans-serif;
+}
+[data-locale="fa"] body,
+[data-locale="fa"] h1,
+[data-locale="fa"] h2,
+[data-locale="fa"] h3 {
+  letter-spacing: normal;
+}
+[data-locale="fa"] .eyebrow {
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+/* Smooth crossfade when switching language (LTR↔RTL reflow). */
+#content,
+header,
+footer {
+  transition: opacity 0.22s ease;
+}
+html.locale-switching #content,
+html.locale-switching header,
+html.locale-switching footer {
+  opacity: 0.35;
+}
+
 /* Typing indicator + streaming caret */
 @keyframes blink {
   0%,

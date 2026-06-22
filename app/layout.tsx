@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter, JetBrains_Mono, Vazirmatn } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 import { site } from "@/lib/site";
+import { dirOf, type Locale } from "@/lib/dictionary";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LocaleProvider } from "@/components/locale-provider";
 import { CommandPalette } from "@/components/command-palette";
 import { AnimatedBackground } from "@/components/animated-background";
 
@@ -84,13 +87,16 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const cookieStore = await cookies();
+  const locale: Locale = cookieStore.get("locale")?.value === "fa" ? "fa" : "en";
   return (
     <html
-      lang="en"
-      dir="ltr"
+      lang={locale}
+      dir={dirOf(locale)}
+      data-locale={locale}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable} ${vazirmatn.variable} h-full`}
@@ -106,15 +112,17 @@ export default function RootLayout({
           Skip to content
         </a>
         <ThemeProvider>
-          <AnimatedBackground />
-          <MotionProvider>
-            <Nav />
-            <main id="content" className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </MotionProvider>
-          <CommandPalette />
+          <LocaleProvider initial={locale}>
+            <AnimatedBackground />
+            <MotionProvider>
+              <Nav />
+              <main id="content" className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </MotionProvider>
+            <CommandPalette />
+          </LocaleProvider>
         </ThemeProvider>
         <script
           type="application/ld+json"

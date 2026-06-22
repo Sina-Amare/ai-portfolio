@@ -1,5 +1,8 @@
+"use client";
+
 import { Mail } from "lucide-react";
 import { site } from "@/lib/site";
+import { useLocale } from "../locale-provider";
 import { Container } from "../ui/container";
 import { Reveal } from "../motion/reveal";
 import { GitHubIcon, LinkedInIcon } from "../icons";
@@ -11,6 +14,7 @@ const socials = [
 ];
 
 export function Contact() {
+  const { t } = useLocale();
   return (
     <section id="contact" className="scroll-mt-24 py-20 sm:py-28">
       <Container>
@@ -18,14 +22,12 @@ export function Contact() {
           {/* Left — the pitch + direct links */}
           <Reveal>
             <div>
-              <span className="eyebrow">Get in touch</span>
+              <span className="eyebrow">{t.contact.eyebrow}</span>
               <h2 className="text-gradient mt-4 max-w-md text-3xl font-semibold tracking-tight sm:text-[2.6rem] sm:leading-[1.08]">
-                Let&rsquo;s build something together
+                {t.contact.title}
               </h2>
               <p className="text-muted mt-5 max-w-md leading-relaxed">
-                I&rsquo;m open to backend &amp; AI engineering roles and interesting
-                collaborations. Send a note — it reaches me instantly — or email me
-                directly.
+                {t.contact.pitch}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <a

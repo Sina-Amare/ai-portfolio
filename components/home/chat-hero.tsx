@@ -8,6 +8,7 @@ import { RefreshCcw, RotateCcw } from "lucide-react";
 import { ui, type Lang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
+import { useLocale } from "@/components/locale-provider";
 import { Container } from "@/components/ui/container";
 import { Avatar } from "@/components/avatar";
 import { Message } from "@/components/chat/message";
@@ -21,7 +22,8 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 const CHAT_STORAGE_KEY = "sina-chat:v1";
 
 export function ChatHero() {
-  const [lang, setLang] = useState<Lang>("en");
+  const { locale, setLocale, t: dt } = useLocale();
+  const lang = locale as Lang;
   const [input, setInput] = useState("");
   const transport = useMemo(
     () => new DefaultChatTransport({ api: "/api/chat" }),
@@ -40,12 +42,8 @@ export function ChatHero() {
     try {
       const raw = sessionStorage.getItem(CHAT_STORAGE_KEY);
       if (!raw) return;
-      const saved = JSON.parse(raw) as { messages?: typeof messages; lang?: Lang };
+      const saved = JSON.parse(raw) as { messages?: typeof messages };
       if (saved.messages?.length) setMessages(saved.messages);
-      // Hydrating client-only storage on mount is the correct place for this
-      // setState (doing it during render would cause an SSR mismatch).
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (saved.lang === "en" || saved.lang === "fa") setLang(saved.lang);
     } catch {
       /* ignore corrupt storage */
     }
@@ -113,7 +111,7 @@ export function ChatHero() {
           <span className="text-text text-sm font-medium">{site.name}</span>
           <span className="text-muted inline-flex items-center gap-1.5 font-mono text-[11px]">
             <span className="bg-accent inline-block h-1.5 w-1.5 rounded-full" />
-            available
+            {dt.hero.available}
           </span>
         </motion.div>
 
@@ -170,7 +168,7 @@ export function ChatHero() {
               >
                 <RefreshCcw className="h-3.5 w-3.5" /> {t.newChat}
               </button>
-              <LangToggle lang={lang} onChange={setLang} />
+              <LangToggle lang={lang} onChange={setLocale} />
             </div>
 
             <Transcript scrollLabel={t.scrollLatest}>
@@ -253,7 +251,7 @@ export function ChatHero() {
             />
             <div className="mt-5 flex flex-col items-center gap-4">
               <Suggestions items={t.suggestions} onPick={send} dir={dir} />
-              <LangToggle lang={lang} onChange={setLang} />
+              <LangToggle lang={lang} onChange={setLocale} />
             </div>
           </div>
         )}

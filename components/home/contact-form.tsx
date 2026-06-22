@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowRight, Check, Loader2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/components/locale-provider";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -12,6 +13,8 @@ const fieldCls =
   "w-full rounded-xl border border-border bg-surface/60 px-4 py-3 text-[15px] text-text placeholder:text-muted outline-none transition-colors focus:border-accent/60 focus:bg-surface focus:ring-2 focus:ring-accent-soft";
 
 export function ContactForm() {
+  const { t } = useLocale();
+  const f = t.contact.form;
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -29,12 +32,12 @@ export function ContactForm() {
     const email = form.email.trim();
     const message = form.message.trim();
     if (!name || !email || !message) {
-      setError("Please add your name, email, and a message.");
+      setError(f.errRequired);
       setStatus("error");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("That email doesn't look right — mind double-checking it?");
+      setError(f.errEmail);
       setStatus("error");
       return;
     }
@@ -51,11 +54,11 @@ export function ContactForm() {
         setStatus("success");
       } else {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(data.error ?? "Something went wrong. Please try again.");
+        setError(data.error ?? f.errGeneric);
         setStatus("error");
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError(f.errNetwork);
       setStatus("error");
     }
   }
@@ -69,19 +72,17 @@ export function ContactForm() {
         <span className="bg-accent-soft text-accent-text mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full">
           <Check className="h-6 w-6" />
         </span>
-        <p className="text-text text-lg font-semibold">Message sent.</p>
-        <p className="text-muted mt-1.5 max-w-xs text-sm leading-relaxed">
-          It landed straight in my inbox — I&rsquo;ll get back to you soon.
-        </p>
+        <p className="text-text text-lg font-semibold">{f.sent}</p>
+        <p className="text-muted mt-1.5 max-w-xs text-sm leading-relaxed">{f.sentNote}</p>
         <span className="text-muted/80 mt-3 font-mono text-[11px] tracking-wide">
-          200 · delivered
+          200 · {f.delivered}
         </span>
         <button
           type="button"
           onClick={() => setStatus("idle")}
           className="text-muted hover:text-text mt-5 inline-flex items-center gap-1.5 text-sm transition-colors"
         >
-          <RotateCcw className="h-3.5 w-3.5" /> Send another
+          <RotateCcw className="h-3.5 w-3.5" /> {f.another}
         </button>
       </div>
     );
@@ -104,7 +105,7 @@ export function ContactForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className="text-muted mb-1.5 block text-xs font-medium">Name</span>
+          <span className="text-muted mb-1.5 block text-xs font-medium">{f.name}</span>
           <input
             type="text"
             required
@@ -112,13 +113,13 @@ export function ContactForm() {
             value={form.name}
             onChange={set("name")}
             disabled={submitting}
-            placeholder="Your name"
+            placeholder={f.namePh}
             autoComplete="name"
             className={fieldCls}
           />
         </label>
         <label className="block">
-          <span className="text-muted mb-1.5 block text-xs font-medium">Email</span>
+          <span className="text-muted mb-1.5 block text-xs font-medium">{f.email}</span>
           <input
             type="email"
             required
@@ -126,7 +127,7 @@ export function ContactForm() {
             value={form.email}
             onChange={set("email")}
             disabled={submitting}
-            placeholder="you@company.com"
+            placeholder={f.emailPh}
             autoComplete="email"
             className={fieldCls}
           />
@@ -135,7 +136,7 @@ export function ContactForm() {
 
       <label className="mt-4 block">
         <span className="text-muted mb-1.5 block text-xs font-medium">
-          Phone / Telegram <span className="opacity-60">(optional)</span>
+          {f.contact} <span className="opacity-60">{f.optional}</span>
         </span>
         <input
           type="text"
@@ -143,13 +144,13 @@ export function ContactForm() {
           value={form.contact}
           onChange={set("contact")}
           disabled={submitting}
-          placeholder="Another way to reach you"
+          placeholder={f.contactPh}
           className={fieldCls}
         />
       </label>
 
       <label className="mt-4 block">
-        <span className="text-muted mb-1.5 block text-xs font-medium">Message</span>
+        <span className="text-muted mb-1.5 block text-xs font-medium">{f.message}</span>
         <textarea
           required
           rows={4}
@@ -157,7 +158,7 @@ export function ContactForm() {
           value={form.message}
           onChange={set("message")}
           disabled={submitting}
-          placeholder="What would you like to talk about?"
+          placeholder={f.messagePh}
           className={cn(fieldCls, "resize-none")}
         />
       </label>
@@ -186,11 +187,11 @@ export function ContactForm() {
       >
         {submitting ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Sending…
+            <Loader2 className="h-4 w-4 animate-spin" /> {f.sending}
           </>
         ) : (
           <>
-            Send message <ArrowRight className="h-4 w-4" />
+            {f.send} <ArrowRight className="h-4 w-4 rtl:-scale-x-100" />
           </>
         )}
       </button>

@@ -1,5 +1,8 @@
+"use client";
+
 import { Mail } from "lucide-react";
 import { site } from "@/lib/site";
+import { useLocale } from "./locale-provider";
 import { Container } from "./ui/container";
 import { GitHubIcon, LinkedInIcon } from "./icons";
 
@@ -10,6 +13,7 @@ const socials = [
 ];
 
 export function Footer() {
+  const { t } = useLocale();
   const year = new Date().getFullYear();
   return (
     <footer className="mt-24 border-t border-border">
@@ -18,13 +22,8 @@ export function Footer() {
           <div className="text-heading font-mono text-sm font-semibold">
             sina<span className="text-accent">.</span>amareh
           </div>
-          <p className="text-muted mt-3 text-sm leading-relaxed">
-            {site.tagline} · {site.location} ({site.timezone}).
-          </p>
-          <p className="text-muted mt-4 text-xs opacity-80">
-            Built with Next.js & a live multi-provider RAG assistant — the chatbot
-            on this site runs on my own code.
-          </p>
+          <p className="text-muted mt-3 text-sm leading-relaxed">{t.footer.tagline}</p>
+          <p className="text-muted mt-4 text-xs opacity-80">{t.footer.builtWith}</p>
         </div>
 
         <div className="flex flex-col gap-4 sm:items-end">
@@ -43,7 +42,7 @@ export function Footer() {
             ))}
           </div>
           <p className="text-muted text-xs opacity-80">
-            © {year} {site.name}. All rights reserved.
+            © {year} {site.name}. {t.footer.rights}
           </p>
         </div>
       </Container>
