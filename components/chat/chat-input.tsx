@@ -52,7 +52,7 @@ export function ChatInput({
         e.preventDefault();
         onSubmit();
       }}
-      className={cn("chat-input-box flex items-end gap-2", large ? "p-2.5" : "p-2")}
+      className={cn("chat-input-box flex items-center gap-2", large ? "p-2.5" : "p-2")}
     >
       <textarea
         ref={ref}
@@ -97,7 +97,7 @@ export function ChatInput({
             btnSize,
           )}
         >
-          <ArrowUp className="h-[18px] w-[18px] -translate-y-[0.5px]" />
+          <ArrowUp className="h-[18px] w-[18px]" />
         </button>
       )}
     </form>

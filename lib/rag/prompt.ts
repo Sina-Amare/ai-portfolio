@@ -16,6 +16,35 @@ export function isAbusive(text: string): boolean {
   return JAILBREAK_RE.test(text);
 }
 
+// Small talk the relevance gate would wrongly refuse — handled with a fast
+// canned reply (no LLM). Tokens match at word/phrase boundaries so they don't
+// trigger inside other words.
+const THANKS_RE =
+  /(^|[\s,.!?؟،])(thanks|thank you|thx|tnx|ty|cheers|مرسی|ممنون|تشکر|سپاس|مچکرم|دمت گرم|دستت درد نکنه)([\s,.!?؟،]|$)/i;
+const GREETING_RE =
+  /(^|[\s,.!?؟،;:"'(])(hi|hey|hello|hiya|yo|sup|howdy|hola|greetings|bye|goodbye|salam|salaam|سلام|درود|علیک|چطوری|چطورین|چطوره|خوبی|خوبین|خداحافظ|خدافظ|بای)([\s,.!?؟،;:"')]|$)/i;
+const GREETING_PHRASE_RE =
+  /(how are you|how'?s it going|how do you do|what'?s up|whats up|good (morning|afternoon|evening|day)|nice to meet|who are you|what are you|what can you do|what can i ask|can you help|how can you help|حالت چطوره|حالتون چطوره|حال شما|چه خبر|چخبر|تو کی هستی|تو کی ای|کی هستی|چی کار می ?تونی|چیکار می ?تونی|چه کارایی|چی می ?تونم بپرسم|چی می ?تونم ازت بپرسم|می ?تونی کمکم کنی)/i;
+
+export function isThanks(text: string): boolean {
+  return THANKS_RE.test(text.trim());
+}
+export function isGreeting(text: string): boolean {
+  const t = text.trim();
+  return GREETING_RE.test(t) || GREETING_PHRASE_RE.test(t);
+}
+
+export function greetingMessage(lang: Lang): string {
+  return lang === "fa"
+    ? "سلام! 👋 من دستیارِ هوش مصنوعیِ سینام و می‌تونم درباره‌ی سابقه، مهارت‌ها و پروژه‌هاش باهات حرف بزنم. دوست داری از چی شروع کنیم؟"
+    : "Hey! 👋 I'm Sina's AI assistant — I can tell you about his background, skills, and projects. What would you like to know?";
+}
+export function thanksMessage(lang: Lang): string {
+  return lang === "fa"
+    ? "خواهش می‌کنم! 🙂 اگه سوال دیگه‌ای درباره‌ی سینا یا پروژه‌هاش داری، بپرس."
+    : "Anytime! 🙂 If you've got more questions about Sina or his projects, just ask.";
+}
+
 /** Deterministic refusal copy used by Guards 1 and 3 (no LLM call). First-person, warm. */
 export function refusalMessage(lang: Lang): string {
   if (lang === "fa") {

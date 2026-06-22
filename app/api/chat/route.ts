@@ -16,10 +16,14 @@ import type { ScoredChunk } from "@/lib/rag/types";
 import {
   buildSystemPrompt,
   errorMessage,
+  greetingMessage,
   isAbusive,
+  isGreeting,
+  isThanks,
   rateLimitMessage,
   refusalMessage,
   sanitizeInput,
+  thanksMessage,
 } from "@/lib/rag/prompt";
 import { chatLadder } from "@/lib/rag/providers";
 import { answerCache, embedCache, normalizeQuery } from "@/lib/rag/cache";
@@ -137,8 +141,13 @@ export async function POST(req: Request) {
   const question = sanitizeInput(lastUserText(messages));
   if (!question) return badRequest("Empty message");
 
-  // Guard 3: jailbreak / prompt-injection pre-filter (instant, no LLM).
+  // Red flag: jailbreak / prompt-injection pre-filter (instant, no LLM).
   if (isAbusive(question)) return cannedResponse(refusalMessage(lang));
+
+  // Small talk — answered warmly with no LLM call (and before retrieval), so a
+  // greeting or a "thanks" never trips the relevance gate.
+  if (isThanks(question)) return cannedResponse(thanksMessage(lang));
+  if (isGreeting(question)) return cannedResponse(greetingMessage(lang));
 
   // Global daily cap → degrade gracefully to protect free-tier quota.
   if (!globalDailyOk()) return cannedResponse(refusalMessage(lang));
@@ -169,10 +178,12 @@ export async function POST(req: Request) {
     return cannedResponse(errorMessage(lang));
   }
 
-  // Guard 1: relevance threshold gate → instant refusal, NO LLM call.
+  // Relevance gate — instant refusal for clearly off-topic asks, NO LLM call,
+  // so latency and the LLM quota are protected. Greetings/small-talk were
+  // already handled with a fast canned reply above, so this only fires for
+  // genuinely out-of-scope questions.
   if (!isInScope(scored)) return cannedResponse(refusalMessage(lang));
 
-  // Guard 2: grounded prompt + provenance, then stream with provider failover.
   const system = buildSystemPrompt(lang, scored);
   const sources = dedupeSources(scored);
   const cleaned = messages

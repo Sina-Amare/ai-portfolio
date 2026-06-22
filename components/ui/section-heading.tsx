@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { AnimatedText } from "@/components/motion/animated-text";
 
 export function SectionHeading({
   eyebrow,
@@ -23,7 +22,7 @@ export function SectionHeading({
         {eyebrow && <span className="eyebrow">{eyebrow}</span>}
       </div>
       <h2 className="text-gradient mt-3 text-3xl font-semibold tracking-tight sm:text-[2.5rem] sm:leading-[1.1]">
-        {typeof title === "string" ? <AnimatedText text={title} inView /> : title}
+        {title}
       </h2>
       {description && (
         <p className="text-muted mt-4 leading-relaxed">{description}</p>

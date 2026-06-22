@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
 import { useLocale } from "@/components/locale-provider";
 import { Container } from "@/components/ui/container";
-import { AnimatedText } from "@/components/motion/animated-text";
 import { Avatar } from "@/components/avatar";
 import { Message } from "@/components/chat/message";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
@@ -137,11 +136,11 @@ export function ChatHero() {
               </span>
               <h1
                 className={cn(
-                  "text-gradient max-w-2xl text-[2.4rem] leading-[1.04] font-semibold tracking-tight text-balance sm:text-[3.3rem]",
+                  "headline-sheen max-w-2xl text-[2.4rem] leading-[1.04] font-semibold tracking-tight text-balance sm:text-[3.3rem]",
                   dir === "rtl" && "font-fa",
                 )}
               >
-                <AnimatedText key={t.heroHeadline} text={t.heroHeadline} delay={0.15} />
+                {t.heroHeadline}
               </h1>
               <p
                 className={cn(

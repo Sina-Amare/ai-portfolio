@@ -24,6 +24,20 @@ export function Nav() {
     { href: "/#contact", label: t.nav.contact },
   ];
 
+  // Same-page hash links: smooth-scroll to the exact section (respecting its
+  // scroll-margin) instead of the browser's hash jump, which lands a bit off.
+  const onNav = (e: React.MouseEvent, href: string) => {
+    if (href.startsWith("/#") && pathname === "/") {
+      const el = document.getElementById(href.slice(2));
+      if (el) {
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth" });
+        window.history.replaceState(null, "", href);
+      }
+    }
+    setOpen(false);
+  };
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -53,8 +67,9 @@ export function Nav() {
               <Link
                 key={l.href}
                 href={l.href}
+                onClick={(e) => onNav(e, l.href)}
                 className={cn(
-                  "text-muted hover:text-text rounded-full px-3 py-1.5 text-sm transition-colors",
+                  "link-underline text-muted hover:text-text rounded-full px-3 py-1.5 text-sm transition-colors",
                   pathname === l.href && "text-text",
                 )}
               >
@@ -104,7 +119,7 @@ export function Nav() {
                 <Link
                   key={l.href}
                   href={l.href}
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => onNav(e, l.href)}
                   className="text-muted hover:text-text rounded-lg px-2 py-2.5 text-sm transition-colors"
                 >
                   {l.label}

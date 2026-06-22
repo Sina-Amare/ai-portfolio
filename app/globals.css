@@ -137,6 +137,39 @@ h3 {
   color: transparent;
 }
 
+/* Premium living headline: a faint amber sheen drifts across the text. The text
+   is always fully visible (no fade-in), so it never reads as a glitch. */
+.headline-sheen {
+  background: linear-gradient(
+    100deg,
+    var(--heading) 0%,
+    var(--heading) 38%,
+    color-mix(in oklab, var(--accent) 78%, var(--heading)) 50%,
+    var(--heading) 62%,
+    var(--heading) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 180% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: headline-sheen 7s ease-in-out infinite;
+}
+@keyframes headline-sheen {
+  0% {
+    background-position: 180% 0;
+  }
+  100% {
+    background-position: -60% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .headline-sheen {
+    animation: none;
+    background-position: 50% 0;
+  }
+}
+
 .eyebrow {
   font-family: var(--font-mono), monospace;
   font-size: 0.72rem;
