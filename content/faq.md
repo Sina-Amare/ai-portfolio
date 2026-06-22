@@ -71,3 +71,54 @@ By email at sinaamareh0263@gmail.com, on GitHub at github.com/Sina-Amare, or on 
 
 ## How does this chatbot work?
 It's a retrieval-augmented chatbot: it turns your question into an embedding, finds the most relevant pieces of Sina's CV and project notes, and answers only from those — with multi-provider failover behind it, the same resilience pattern Sina uses in his work. If a question is outside what it knows, it says so rather than guessing.
+
+## What is Sina's working style?
+Sina likes to own a feature end to end — API, data model, tests, and the UI parts that matter. He learns by building, ships steadily with meaningful commits, writes tests as part of the work, and refactors when it helps rather than leaving things half-finished. He cares most about reliability, security by default, and code that's maintainable.
+
+## How does Sina use AI in his work?
+Sina treats AI tools as a serious part of his engineering workflow — a reasoning partner, not a replacement for engineering judgment. He uses coding agents like Claude Code, Cursor, Codex, and Antigravity, and works deliberately: analyze the problem and its edge cases, write a short PRD and design the architecture, then build an MVP incrementally with continuous testing. He keeps things simple, digs for root causes instead of patching symptoms, and never blindly accepts a suggestion.
+
+## What is Sina like to work with?
+He's a relentless problem solver who hunts root causes, tool-agnostic and always learning, fast and creative with unconventional solutions, and patient with hard problems. His employer at Dekamond summed up his strength as: "Never had to explain something twice. Never came back empty-handed. Your biggest strength? Being a problem solver."
+
+## How quickly does Sina deliver and respond?
+Quickly on both. He's comfortable going from prototype to production in days rather than weeks, and he usually replies to messages within about a day.
+
+## What kind of work is Sina available for?
+Remote, hybrid, contract, or full-time. He's based in Tehran (UTC+3:30), is available for work now, and has prior remote experience, so working across time zones is familiar.
+
+## When can Sina start?
+He's currently available and open to new opportunities. The exact timing is easy to work out — the best next step is to email him at sinaamareh0263@gmail.com so he can talk through the specifics of the role.
+
+## What are Sina's salary or rate expectations?
+That really depends on the role, scope, and arrangement, so Sina prefers to discuss compensation directly rather than quote a fixed number up front. Reach out by email at sinaamareh0263@gmail.com and he's happy to talk it through.
+
+## Is Sina open to relocation?
+Sina is remote-first and based in Tehran, and he's open to discussing what a role needs. The best way to talk through specifics like location is by email at sinaamareh0263@gmail.com.
+
+## Can Sina work with US or European time zones?
+Yes. He's in the UTC+3:30 zone, which overlaps comfortably with European hours and the start of the US day, and he has remote experience working across a distributed team, so he's used to coordinating asynchronously.
+
+## Can Sina do frontend work?
+Sina is primarily a backend and AI engineer, but he's comfortable on the frontend when a project needs it — he's built UIs with React and TypeScript, including the ScrapeGPT interface. His center of gravity is backend services and LLM systems.
+
+## What is Sina focused on or learning right now?
+AI and LLM engineering is his main focus — multi-provider systems, RAG, and agent workflows — alongside his M.Sc. in Software Engineering, where he's going deeper on software architecture and AI systems.
+
+## Why does Sina work on AI and LLM systems?
+It fits how he thinks. He has an R&D mindset and enjoys problems where the ground shifts quickly, and he's drawn to the engineering challenges of making LLM systems reliable — failover across providers, cost control, and grounding answers so they stay accurate.
+
+## What was Sina's biggest achievement?
+At Dekamond he cut LLM running costs by roughly 70% through model routing, caching, and prompt optimization, while keeping multi-provider workflows reliable under rate limits.
+
+## Does Sina have teaching or mentoring experience?
+Yes — he taught English and Konkur (university-entrance) students, which sharpened how he explains technical ideas and works with people.
+
+## Can I see Sina's code or resume?
+His projects are open source on GitHub at github.com/Sina-Amare, and there's a downloadable résumé on this site. Feel free to dig in.
+
+## How is Sina's English?
+Professional working proficiency — he's comfortable interviewing, collaborating, and writing in English day to day. Persian is his native language.
+
+## What's the difference between Sina's two jobs?
+At Arnikup (2024) he was a Django backend developer on a food-delivery platform — REST APIs, PostgreSQL, Redis, Celery, Docker. At Dekamond (2025) he moved into AI/LLM engineering, building multi-provider LLM workflows with LangGraph and RAG behind FastAPI for Kaleri.ai. So the arc is backend foundations into applied AI.

@@ -45,6 +45,7 @@ yarn-error.log*
 /scripts/chatshot.mjs
 /scripts/ttft.mjs
 /scripts/readme-shots.mjs
+/scripts/chat-test.mjs
 
 # vercel
 .vercel

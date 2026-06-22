@@ -42,16 +42,34 @@ function badRequest(message: string) {
   });
 }
 
+function userText(m: UIMessage): string {
+  return (m.parts ?? [])
+    .filter((p): p is { type: "text"; text: string } => p.type === "text")
+    .map((p) => p.text)
+    .join(" ")
+    .trim();
+}
+
 function lastUserText(messages: UIMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i--) {
-    const m = messages[i];
-    if (m.role !== "user") continue;
-    return (m.parts ?? [])
-      .filter((p): p is { type: "text"; text: string } => p.type === "text")
-      .map((p) => p.text)
-      .join(" ");
+    if (messages[i].role === "user") return userText(messages[i]);
   }
   return "";
+}
+
+/**
+ * Build the retrieval query from the last up-to-two user turns, so short
+ * follow-ups ("and the challenges?", "tell me more") still retrieve the right
+ * context instead of embedding to nothing and getting wrongly refused.
+ */
+function retrievalQuery(messages: UIMessage[]): string {
+  const turns: string[] = [];
+  for (let i = messages.length - 1; i >= 0 && turns.length < 2; i--) {
+    if (messages[i].role !== "user") continue;
+    const t = userText(messages[i]);
+    if (t) turns.unshift(t);
+  }
+  return turns.join(" ");
 }
 
 function dedupeSources(scored: ScoredChunk[]): Source[] {
@@ -107,11 +125,13 @@ export async function POST(req: Request) {
   // Global daily cap → degrade gracefully to protect free-tier quota.
   if (!globalDailyOk()) return cannedResponse(refusalMessage(lang));
 
-  // Retrieve from the knowledge base.
+  // Retrieve from the knowledge base — using the conversation-aware query so
+  // follow-up questions keep their context.
   let scored: ScoredChunk[];
   try {
-    const queryEmbedding = await embedText(question, "RETRIEVAL_QUERY", req.signal);
-    scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, 6);
+    const query = sanitizeInput(retrievalQuery(messages)) || question;
+    const queryEmbedding = await embedText(query, "RETRIEVAL_QUERY", req.signal);
+    scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, 8);
   } catch {
     return cannedResponse(errorMessage(lang));
   }

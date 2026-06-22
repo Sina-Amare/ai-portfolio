@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -18,6 +18,7 @@ import { LangToggle } from "@/components/chat/lang-toggle";
 import { Transcript } from "@/components/chat/transcript";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+const CHAT_STORAGE_KEY = "sina-chat:v1";
 
 export function ChatHero() {
   const [lang, setLang] = useState<Lang>("en");
@@ -29,6 +30,40 @@ export function ChatHero() {
   const { messages, sendMessage, status, stop, regenerate, setMessages } =
     useChat({ transport });
   const reduce = useReducedMotion();
+  const hydrated = useRef(false);
+
+  // Keep the conversation across a page refresh (per browser tab). Without this
+  // the chat resets on reload, which surprises people mid-conversation.
+  useEffect(() => {
+    if (hydrated.current) return;
+    hydrated.current = true;
+    try {
+      const raw = sessionStorage.getItem(CHAT_STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as { messages?: typeof messages; lang?: Lang };
+      if (saved.messages?.length) setMessages(saved.messages);
+      // Hydrating client-only storage on mount is the correct place for this
+      // setState (doing it during render would cause an SSR mismatch).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (saved.lang === "en" || saved.lang === "fa") setLang(saved.lang);
+    } catch {
+      /* ignore corrupt storage */
+    }
+  }, [setMessages]);
+
+  // Persist only at rest (not on every streaming token), and clear when empty.
+  useEffect(() => {
+    if (!hydrated.current) return;
+    try {
+      if (messages.length && (status === "ready" || status === "error")) {
+        sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify({ messages, lang }));
+      } else if (!messages.length) {
+        sessionStorage.removeItem(CHAT_STORAGE_KEY);
+      }
+    } catch {
+      /* storage may be unavailable (private mode) — non-fatal */
+    }
+  }, [messages, status, lang]);
 
   const t = ui[lang];
   const dir = t.dir as "ltr" | "rtl";
@@ -51,6 +86,11 @@ export function ChatHero() {
   function reset() {
     setMessages([]);
     setInput("");
+    try {
+      sessionStorage.removeItem(CHAT_STORAGE_KEY);
+    } catch {
+      /* non-fatal */
+    }
   }
 
   const eyebrow =

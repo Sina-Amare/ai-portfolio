@@ -45,7 +45,7 @@ describe("prompt", () => {
     expect(en).toContain("CONTEXT:");
     expect(en).toContain("Sina is a Python developer.");
     expect(en).toContain("English");
-    expect(en).toContain("first person");
+    expect(en.toLowerCase()).toContain("first person");
 
     const fa = buildSystemPrompt("fa", scored);
     expect(fa).toContain("Persian");

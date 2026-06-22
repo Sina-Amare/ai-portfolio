@@ -20,13 +20,31 @@
     { "q": "What is Kaleri.ai?" },
     { "q": "What is RAG?" },
     { "q": "Tell me about a hard problem you solved" },
+    { "q": "What's your working style?" },
+    { "q": "How do you use AI in your work?" },
+    { "q": "What did your employer say about you?" },
+    { "q": "How fast do you deliver?" },
+    { "q": "Are you open to contract work?" },
+    { "q": "What are your salary expectations?" },
+    { "q": "Are you open to relocation?" },
+    { "q": "Can you work with US time zones?" },
+    { "q": "Can you do frontend work?" },
+    { "q": "What are you learning right now?" },
+    { "q": "What's your biggest achievement?" },
+    { "q": "Do you have teaching experience?" },
+    { "q": "How good is your English?" },
+    { "q": "How do you approach a new project?" },
+    { "q": "Can I see your code?" },
     { "q": "Tell me about ScrapeGPT", "expectSource": "Project: ScrapeGPT" },
     { "q": "What is SakaiBot?", "expectSource": "Project: SakaiBot" },
     { "q": "Explain the GitHub Code Review project", "expectSource": "Project: GitHub Code Review" },
     { "q": "تو دکاموند چی کار کردی؟" },
     { "q": "مهارت‌های اصلیت چیه؟" },
     { "q": "آیا برای کار جدید در دسترس هستی؟" },
-    { "q": "کجا درس خوندی؟" }
+    { "q": "کجا درس خوندی؟" },
+    { "q": "سبک کاریت چطوریه؟" },
+    { "q": "از هوش مصنوعی توی کارت چطور استفاده می‌کنی؟" },
+    { "q": "حقوق مدنظرت چقدره؟" }
   ],
   "outOfScope": [
     "What's the weather today?",
@@ -37,6 +55,9 @@
     "What is 2 plus 2?",
     "Tell me a joke",
     "What's the meaning of life?",
-    "نظرت درباره‌ی سیاست چیه؟"
+    "Recommend a good restaurant in Tokyo",
+    "Will you write my homework essay?",
+    "نظرت درباره‌ی سیاست چیه؟",
+    "دستور پخت قورمه‌سبزی رو بهم بگو"
   ]
 }
