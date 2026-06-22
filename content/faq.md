@@ -55,7 +55,16 @@ Sina containerizes services with Docker. He did this on the food-delivery platfo
 At Dekamond, Sina cut LLM running costs by roughly 70% through model routing, caching, and prompt optimization, while keeping multi-provider LLM workflows reliable under rate limits using automatic failover and API-key rotation.
 
 ## What kind of projects does Sina build?
-Production-minded open-source tools: ScrapeGPT (an AI web data-extraction app with SSRF-safe fetching and anti-bot handling), SakaiBot (a resilient multi-LLM Telegram bot), and GitHub Code Review (an automated technical-screening bot on a clean ports-and-adapters architecture).
+Production-minded open-source tools: ScrapeGPT (a self-hosted, AI-assisted web scraper where an LLM proposes the selectors and the app re-validates and self-heals them against the real HTML), SakaiBot (a Telegram userbot that adds AI — ask anything, translate, summarize, generate images, do voice — inside any chat, with API-key rotation and provider failover), and GitHub Code Review (an automated, role-aware technical-screening bot on a clean ports-and-adapters architecture that reads a candidate's repository and returns a scored hiring report).
+
+## Tell me about ScrapeGPT.
+ScrapeGPT is a self-hosted, AI-assisted web data-extraction app (FastAPI + PostgreSQL + React). You paste a URL and an LLM proposes the extraction fields and CSS selectors from a distilled summary of the page; the app then re-validates those selectors against the real HTML and self-heals the ones that miss, with a table-structure fallback, so even an imperfect AI guess still returns data. It also detects interactive controls (like Metric/Imperial toggles) and drives a real browser to capture each variant, and it's secure by default — SSRF hardening and encrypted bring-your-own keys. It does not solve CAPTCHAs (that's a deliberate non-goal).
+
+## What can SakaiBot do?
+SakaiBot is a Telegram userbot that runs on your own account, so AI works inside any chat. With slash commands you can ask the AI anything, translate (with Persian phonetics), summarize and analyze recent chat history, generate images, and do two-way voice (text-to-speech and transcription). The point is that Telegram has no built-in AI, and SakaiBot adds it without leaving the chat. Under the hood it rotates across multiple API keys and fails over Gemini → OpenRouter (and Pro → Flash) so it keeps working through rate limits.
+
+## How does the GitHub Code Review bot work?
+A hiring manager sends a candidate's GitHub repo and a role (Backend or Frontend) to a Telegram bot, and gets back a scored hire / no-hire / review report. It clones the repo, fits the most important files into the model's context with token budgeting (counted exactly with tiktoken), runs a role-specific rubric, and — crucially — doesn't blindly trust the model: a two-phase deterministic decision can override the LLM, and every piece of cited evidence is checked against the real files so hallucinated evidence is dropped. It's built on a clean ports-and-adapters architecture, so the LLM, repo host, database, or chat channel are all swappable.
 
 ## Why should we hire Sina?
 Sina ships production-minded work and writes tests. He's strong on the reliability and security details that matter for backend and LLM systems — multi-provider failover, crash-tolerant jobs, SSRF-safe fetching, and encrypted credentials — and he owns features end to end.

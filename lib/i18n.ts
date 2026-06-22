@@ -40,9 +40,9 @@ export const ui = {
     copied: "Copied",
     poweredBy: "Live RAG over my CV · multi-provider failover",
     suggestions: [
+      "What is ScrapeGPT?",
+      "What can SakaiBot do?",
       "What did you build at Dekamond?",
-      "Walk me through a RAG project",
-      "What's your strongest tech stack?",
       "Are you open to new roles?",
     ],
   },
@@ -72,9 +72,9 @@ export const ui = {
     copied: "کپی شد",
     poweredBy: "RAG زنده روی رزومه‌ی من · جابه‌جایی خودکار بین ارائه‌دهنده‌ها",
     suggestions: [
+      "ScrapeGPT چیه؟",
+      "ساکای‌بات چیکار می‌کنه؟",
       "تو دکاموند چی ساختی؟",
-      "یه پروژه‌ی RAG رو برام توضیح بده",
-      "قوی‌ترین مهارت‌های فنیت چیه؟",
       "برای کار جدید پایه‌ای؟",
     ],
   },
