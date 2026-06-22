@@ -52,6 +52,7 @@ vi.mock("ai", async (importOriginal) => {
 
 import { POST } from "@/app/api/chat/route";
 import { streamText } from "ai";
+import { answerCache } from "@/lib/rag/cache";
 
 let ip = 0;
 function userMessage(text: string) {
@@ -92,6 +93,7 @@ async function callChat(body: unknown) {
 beforeEach(() => {
   vi.clearAllMocks();
   capture.system = "";
+  answerCache.clear(); // isolate the module-scope answer cache between tests
 });
 
 describe("POST /api/chat", () => {
@@ -143,6 +145,42 @@ describe("POST /api/chat", () => {
       messages: [userMessage("What is Sina's tech stack?")],
       lang: "fa",
     });
+    expect(capture.system).toContain("Persian");
+  });
+
+  it("serves a semantically-similar repeat from cache WITHOUT a second LLM call", async () => {
+    const first = await callChat({
+      messages: [userMessage("What did Sina build at Dekamond?")],
+      lang: "en",
+    });
+    expect(first.text).toContain("Sina built");
+    expect(streamText).toHaveBeenCalledTimes(1);
+
+    // A paraphrase (same embedding cluster, same language) is served from the
+    // semantic cache — no new LLM call, sources still attached.
+    const repeat = await callChat({
+      messages: [userMessage("Tell me what Sina did at Dekamond")],
+      lang: "en",
+    });
+    expect(streamText).toHaveBeenCalledTimes(1); // still 1 — cache hit
+    expect(repeat.text).toContain("Sina built");
+    expect(repeat.raw).toContain("data-sources");
+  });
+
+  it("does NOT serve a cached answer across languages", async () => {
+    await callChat({
+      messages: [userMessage("What did Sina build at Dekamond?")],
+      lang: "en",
+    });
+    expect(streamText).toHaveBeenCalledTimes(1);
+
+    // Same embedding cluster but a different language → must re-answer, never
+    // serve the English answer to a Persian visitor.
+    await callChat({
+      messages: [userMessage("سینا تو دکاموند چی ساخت؟")],
+      lang: "fa",
+    });
+    expect(streamText).toHaveBeenCalledTimes(2);
     expect(capture.system).toContain("Persian");
   });
 });

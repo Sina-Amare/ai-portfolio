@@ -24,18 +24,39 @@ export function Nav() {
     { href: "/#contact", label: t.nav.contact },
   ];
 
-  // Same-page hash links: smooth-scroll to the exact section (respecting its
-  // scroll-margin) instead of the browser's hash jump, which lands a bit off.
+  // Same-page hash links: scroll so the section's CONTENT (its heading) lands
+  // just below the fixed nav — exactly, on the FIRST click.
+  //
+  // We measure with offsetTop (cumulative, up the offset-parent chain) instead
+  // of getBoundingClientRect(): the section content is wrapped in <Reveal>, a
+  // motion.div that animates translateY on scroll-in. getBoundingClientRect()
+  // returns the mid-animation *visual* position, so the first click reads a
+  // moving target and lands wrong (hence the old "click twice"). offsetTop is a
+  // pure layout value, unaffected by transforms, so one click is always exact.
   const onNav = (e: React.MouseEvent, href: string) => {
-    if (href.startsWith("/#") && pathname === "/") {
-      const el = document.getElementById(href.slice(2));
-      if (el) {
-        e.preventDefault();
-        el.scrollIntoView({ behavior: "smooth" });
-        window.history.replaceState(null, "", href);
-      }
+    if (!href.startsWith("/#") || pathname !== "/") {
+      setOpen(false);
+      return;
     }
+    const el = document.getElementById(href.slice(2));
+    if (!el) {
+      setOpen(false);
+      return;
+    }
+    e.preventDefault();
     setOpen(false);
+    // Defer one frame so a closing mobile menu has collapsed before we measure
+    // (its height change would otherwise shift the target between read & scroll).
+    requestAnimationFrame(() => {
+      const target = (el.firstElementChild as HTMLElement | null) ?? el;
+      let y = 0;
+      for (let node: HTMLElement | null = target; node; node = node.offsetParent as HTMLElement | null) {
+        y += node.offsetTop;
+      }
+      const navH = document.querySelector("header")?.getBoundingClientRect().height ?? 56;
+      window.scrollTo({ top: Math.max(0, y - navH - 16), behavior: "smooth" });
+      window.history.replaceState(null, "", href);
+    });
   };
 
   useEffect(() => {

@@ -165,17 +165,25 @@ export async function POST(req: Request) {
   // Retrieve from the knowledge base — using the conversation-aware query so
   // follow-up questions keep their context.
   let scored: ScoredChunk[];
+  let queryEmbedding: number[] = [];
   try {
     const query = sanitizeInput(retrievalQuery(messages)) || question;
     const normQuery = normalizeQuery(query);
-    let queryEmbedding = embedCache.get(normQuery);
-    if (!queryEmbedding) {
-      queryEmbedding = await embedText(query, "RETRIEVAL_QUERY", req.signal);
-      embedCache.set(normQuery, queryEmbedding);
-    }
+    const cached = embedCache.get(normQuery);
+    queryEmbedding = cached ?? (await embedText(query, "RETRIEVAL_QUERY", req.signal));
+    if (!cached) embedCache.set(normQuery, queryEmbedding);
     scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, 8);
   } catch {
     return cannedResponse(errorMessage(lang));
+  }
+
+  // Semantic answer cache (first-turn only): a *paraphrase* of an already-
+  // answered question — e.g. "what is ScrapeGPT" vs "tell me about ScrapeGPT" —
+  // is served from the same grounded answer, instantly, with no LLM call. The
+  // high threshold keeps it to genuine restatements, never a different question.
+  if (firstTurn) {
+    const near = answerCache.findSimilar(queryEmbedding, 0.94, `${lang}:`);
+    if (near) return cachedResponse(near.text, near.sources);
   }
 
   // Relevance gate — instant refusal for clearly off-topic asks, NO LLM call,
@@ -231,7 +239,7 @@ export async function POST(req: Request) {
             writer.write({ type: "data-sources", id: "sources", data: sources });
             // Cache the completed first-turn answer for instant future replays.
             if (firstTurn && full.trim()) {
-              answerCache.set(cacheKey, { text: full, sources });
+              answerCache.set(cacheKey, { text: full, sources, embedding: queryEmbedding });
             }
             return; // success
           }
