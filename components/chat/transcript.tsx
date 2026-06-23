@@ -4,15 +4,18 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
 
 /**
- * A reliable chat transcript:
- * - messages stick to the BOTTOM (short answers sit just above the input — no gap),
- * - auto-scrolls as content streams in (via ResizeObserver), but only while the
- *   user is already near the bottom, so scrolling up to read history isn't yanked back,
- * - shows a "jump to latest" button when scrolled up.
+ * Chat transcript.
  *
- * The scroll container is a normal block element (not flex) so overflowing content
- * never clips at the top; an inner `min-h-full justify-end` wrapper bottom-anchors
- * short content without breaking scroll.
+ * The scroll area is a plain block with its OWN max-height + overflow — not a
+ * flex child sized by the parent. That's deliberate: `max-height` on a flex
+ * container doesn't reliably shrink flex children (especially on mobile), which
+ * let long messages overflow and collide with the input. A block with
+ * max-height + overflow-y-auto always clips and scrolls. It also hugs its
+ * content when the chat is short, so there's no empty gap.
+ *
+ * - auto-scrolls as content streams in (ResizeObserver), but only while the user
+ *   is already near the bottom, so scrolling up to read history isn't yanked back,
+ * - shows a "jump to latest" button when scrolled up.
  */
 export function Transcript({
   children,
@@ -39,6 +42,7 @@ export function Transcript({
 
     const ro = new ResizeObserver(() => {
       if (stick.current) c.scrollTop = c.scrollHeight;
+      update();
     });
     ro.observe(content);
     c.addEventListener("scroll", update, { passive: true });
@@ -59,25 +63,20 @@ export function Transcript({
   }
 
   return (
-    // flex-auto (content-based basis), not flex-1 (basis 0): with the column now
-    // capped by max-height instead of a fixed height, this lets the transcript hug
-    // its content when the chat is short (no big top gap) and still shrink + scroll
-    // once the conversation fills the cap.
-    <div className="relative min-h-0 flex-auto">
+    <div className="relative">
       <div
         ref={containerRef}
-        className="transcript-mask h-full overflow-y-auto overscroll-auto"
+        className="transcript-mask overflow-y-auto overscroll-contain"
+        style={{ maxHeight: "min(60svh, 600px)" }}
       >
-        <div className="flex min-h-full flex-col justify-end">
-          <div
-            ref={contentRef}
-            role="log"
-            aria-live="polite"
-            aria-atomic="false"
-            className="flex flex-col gap-5 px-0.5 py-2"
-          >
-            {children}
-          </div>
+        <div
+          ref={contentRef}
+          role="log"
+          aria-live="polite"
+          aria-atomic="false"
+          className="flex flex-col gap-5 px-0.5 py-2"
+        >
+          {children}
         </div>
       </div>
 

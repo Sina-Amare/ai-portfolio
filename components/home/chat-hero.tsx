@@ -156,10 +156,7 @@ export function ChatHero() {
 
         {/* Chat column */}
         {active ? (
-          <div
-            className="flex w-full max-w-[720px] flex-col"
-            style={{ maxHeight: "min(74svh, 760px)" }}
-          >
+          <div className="flex w-full max-w-[720px] flex-col">
             <div className="mb-3 flex shrink-0 items-center justify-between">
               <button
                 type="button"
