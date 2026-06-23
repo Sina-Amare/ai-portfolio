@@ -34,19 +34,24 @@ cleanly with **no LLM call**, so it never makes things up.
 ## Highlights
 
 - **Chatbot-as-hero** — a real RAG chatbot is the homepage centerpiece. Answers stream in my own
-  first-person voice (~1.2s to first token) with source-citation chips.
+  first-person voice (sub-second to first token via Groq) with source-citation chips.
 - **Structurally anti-hallucination** — three guards: a retrieval **threshold gate** (refuses
   off-topic questions with no LLM call), a **strict grounded prompt**, and a **jailbreak pre-filter**.
-- **Multi-provider failover** — Gemini 2.5 Flash-Lite → Flash → OpenRouter free models. If one
-  provider errors, times out, or hits quota, the next takes over automatically and invisibly.
+- **Multi-provider failover + key rotation** — **Groq** (fastest first-token) → **Gemini 2.5 Flash**
+  → **OpenRouter** free models, and **language-aware** (Persian leads with Gemini for fluent output).
+  Each provider rotates across multiple comma-separated API keys; if one errors, times out, or hits
+  quota, the next key/provider takes over automatically and invisibly.
+- **Light LLM load** — greetings, thanks, and off-topic asks get instant canned replies with **no LLM
+  call**; a **semantic answer cache** serves paraphrases of already-answered questions without a new
+  model call; embeddings are cached and key-rotated too.
 - **Bilingual + RTL** — viewer-selectable English / فارسی (Vazirmatn font, right-to-left layout,
-  warm colloquial Persian — not stiff machine translation).
+  warm colloquial Persian — not stiff machine translation, tech terms kept in Latin).
 - **Dark + light** — a refined "Warm Slate + Amber" palette with a toggle, a subtle ambient
   background, and motion that respects `prefers-reduced-motion`.
-- **Polished details** — ⌘K command palette, cursor-spotlight cards, scroll-aware nav, an
-  auto-scrolling transcript, and a contact CTA.
-- **Tested** — 49 unit/component/route tests, 9 Playwright E2E specs (LLM mocked), and a 35-item RAG
-  retrieval gate (100% refusal on out-of-scope).
+- **Polished details** — ⌘K command palette, cursor-spotlight cards, precise scroll-to-section nav,
+  an auto-scrolling transcript, and a Telegram-delivered contact form.
+- **Tested** — 61 unit/component/route tests, Playwright E2E specs (LLM mocked), and a RAG retrieval
+  gate (100% refusal on out-of-scope).
 
 ---
 
@@ -54,12 +59,13 @@ cleanly with **no LLM call**, so it never makes things up.
 
 ```text
 Browser ── React UI (useChat) ──▶ /api/chat  (Node serverless route)
-                                     1. validate + rate-limit the input
-                                     2. embed the question (Gemini, 768-dim)
-                                     3. cosine vs kb.json (in-memory, <1ms)
-                                     4. THRESHOLD GATE ─ below 0.62? ▶ instant refusal, NO LLM call
-                                     5. build a grounded prompt from the top-k chunks
-                                     6. streamText() with the provider failover ladder
+                                     1. validate + rate-limit; canned reply for greeting/abuse (no LLM)
+                                     2. embed the question (Gemini, 768-dim, key-rotated + cached)
+                                     3. answer cache — exact + semantic paraphrase hit ▶ instant, no LLM
+                                     4. cosine vs kb.json (in-memory, <1ms)
+                                     5. THRESHOLD GATE ─ below 0.60? ▶ instant refusal, NO LLM call
+                                     6. build a grounded prompt from the top-k chunks
+                                     7. streamText() with the language-aware provider failover ladder
                                   SSE token stream ──▶ smooth render + source chips
 
 content/*.md ──(npm run embed)──▶ lib/kb.json   (committed; deploys never re-embed)
@@ -71,9 +77,12 @@ content/*.md ──(npm run embed)──▶ lib/kb.json   (committed; deploys ne
 </p>
 
 The failover ladder (in [`lib/rag/providers.ts`](lib/rag/providers.ts)) tries providers in order and
-only includes ones whose API key is present: **Gemini 2.5 Flash-Lite → Gemini 2.5 Flash → OpenRouter
-Qwen3-Next-80B → OpenRouter Llama-3.3-70B**. Your API keys are **server-side only** and never reach
-the browser — the client only ever calls our own `/api/chat`.
+only includes ones whose API key is present. It's **language-aware**: English leads with **Groq**
+(Llama 3.3 70B — fastest first-token), then **Gemini 2.5 Flash-Lite → Flash**, then **OpenRouter**
+(Qwen3-Next-80B → Llama-3.3-70B); Persian leads with **Gemini** (stronger Persian) and keeps Groq
+last. Every provider rotates across all of its comma-separated keys before falling through, so total
+capacity ≈ the sum of your keys. Your API keys are **server-side only** and never reach the browser —
+the client only ever calls our own `/api/chat`.
 
 ---
 
@@ -84,9 +93,10 @@ the browser — the client only ever calls our own `/api/chat`.
 | Framework | **Next.js 16** (App Router, RSC, React Compiler, Turbopack) |
 | Language | **TypeScript** · **React 19** |
 | Styling | **Tailwind CSS v4** (CSS-first `@theme`) · **Motion** |
-| Chat / streaming | **Vercel AI SDK v6** (`ai`, `@ai-sdk/react`, `@ai-sdk/google`, `@openrouter/ai-sdk-provider`) |
-| LLM providers | **Google Gemini** (chat + embeddings) · **OpenRouter** (free-model fallback) |
-| Retrieval | **In-memory cosine** over a committed `kb.json` — no vector DB |
+| Chat / streaming | **Vercel AI SDK v6** (`ai`, `@ai-sdk/react`, `@ai-sdk/groq`, `@ai-sdk/google`, `@openrouter/ai-sdk-provider`) |
+| LLM providers | **Groq** (Llama, fastest first-token) · **Google Gemini** (chat + embeddings) · **OpenRouter** (free-model fallback) — language-aware failover + multi-key rotation |
+| Retrieval | **In-memory cosine** over a committed `kb.json` — no vector DB, with exact + semantic answer caching |
+| Contact | **Telegram bot** delivery (server-side) |
 | Testing | **Vitest** · **Testing Library** · **Playwright** · custom RAG eval |
 | Hosting | **Vercel** (Hobby / free tier) |
 
@@ -97,9 +107,13 @@ the browser — the client only ever calls our own `/api/chat`.
 ### Prerequisites
 
 - **[Node.js 20+](https://nodejs.org)** (check with `node -v`) and npm.
-- **Two free API keys** (no credit card):
+- **Free API keys** (no credit card). Google is required (it also does embeddings); Groq and
+  OpenRouter are optional but recommended for speed and resilience:
   - **Google AI Studio** — chat + embeddings → <https://aistudio.google.com/app/apikey>
+  - **Groq** — fastest streaming, leads the ladder → <https://console.groq.com/keys>
   - **OpenRouter** — free-model fallback → <https://openrouter.ai/keys>
+  - _Tip:_ put **several keys comma-separated** in any one of these vars to multiply your quota — the
+    ladder rotates across them automatically.
 
 ### 1 · Clone & install
 
@@ -120,9 +134,14 @@ Then open `.env.local` and paste your keys:
 
 ```ini
 GOOGLE_GENERATIVE_AI_API_KEY=your-google-ai-studio-key
-OPENROUTER_API_KEY=your-openrouter-key
+GROQ_API_KEY=your-groq-key                 # optional, recommended (speed)
+OPENROUTER_API_KEY=your-openrouter-key     # optional (extra fallback)
+# Optional: the contact form delivers to Telegram
+# TELEGRAM_BOT_TOKEN=...
+# TELEGRAM_CHAT_ID=...
 ```
 
+> Any key var accepts **comma-separated** values for multi-key rotation.
 > `.env.local` is gitignored — secrets never get committed.
 
 ### 3 · Start the dev server
@@ -165,7 +184,8 @@ deployed** — review before committing.
 
 ```text
 app/
-  api/chat/route.ts        # RAG + provider failover + streaming
+  api/chat/route.ts        # RAG + language-aware provider failover + streaming
+  api/contact/route.ts     # contact form → Telegram (validated, rate-limited)
   page.tsx                 # home: chat hero + featured + about + contact
   projects/                # index + [slug] case studies
 components/
@@ -173,7 +193,7 @@ components/
   chat/                    # transcript, input, message, suggestions, lang toggle
   ...                      # nav, footer, command palette, theme, motion, ui/
 content/                   # the knowledge base (markdown → kb.json)
-lib/rag/                   # chunker, cosine, retrieve, threshold, prompt, providers
+lib/rag/                   # chunker, cosine, retrieve, threshold, prompt, providers, cache
 scripts/embed.ts           # content/*.md → lib/kb.json
 tests/                     # unit · component · e2e
 ```

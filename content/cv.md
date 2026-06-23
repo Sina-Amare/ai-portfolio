@@ -7,7 +7,7 @@ Sina Amareh is a Python developer with a Computer Science degree and around a ye
 At Dekamond (Valiasr Square, Tehran · hybrid), Sina built AI and automation features for Kaleri.ai across business-intelligence tooling, RAG systems, and internal developer tools. He developed multi-provider LLM workflows using LangGraph and RAG behind FastAPI services, integrating OpenRouter and Google AI. He cut LLM running costs by roughly 70% through model routing, caching, and prompt optimization.
 
 ## Experience — Django Developer (Backend) at Arnikup (2024, 6 months)
-At Arnikup (remote, including a two-month internship), Sina built REST APIs for a food-delivery platform as part of a five-person team (two backend, three frontend). He worked across Django REST Framework, PostgreSQL, Redis, and Celery, and containerized services with Docker. The team collaborated via GitLab and Trello, and tested with pytest and Postman.
+At Arnikup (remote, including a two-month internship), Sina built and maintained REST APIs for a food-delivery platform as part of a five-person team (two backend, three frontend). With Django REST Framework and PostgreSQL he modeled the catalog and order data; he offloaded background work like order processing and notifications to Celery, used Redis for caching and as the task broker, and containerized services with Docker. The team collaborated via GitLab and Trello, and tested with pytest and Postman.
 
 ## Skills — LLM application engineering
 Sina builds LLM applications with multi-provider integration, automatic failover, and API-key rotation. His work includes RAG (retrieval-augmented generation), prompt design, and token-budgeting to fit large inputs into model context windows.
