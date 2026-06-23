@@ -53,7 +53,7 @@ export const dict = {
           role: "Software Developer",
           org: "Dekamond",
           period: "2025 · 6 months",
-          note: "Built AI & automation for Kaleri.ai — multi-provider LLM workflows (LangGraph, RAG) behind FastAPI, and cut LLM running costs ~70% with model routing, caching, and prompt optimization.",
+          note: "Built AI & automation for Kaleri.ai — wrote multiple automation systems and data-scraping pipelines that collect and process data, plus multi-provider LLM workflows (LangGraph, RAG) behind FastAPI for BI tooling and internal developer tools, and cut LLM running costs ~70% with model routing, caching, and prompt optimization.",
         },
         {
           role: "Django Developer (Backend)",
@@ -180,7 +180,7 @@ export const dict = {
           role: "توسعه‌دهندهٔ نرم‌افزار",
           org: "Dekamond",
           period: "۲۰۲۵ · ۶ ماه",
-          note: "ساخت بخش‌های AI و اتوماسیون برای Kaleri.ai — جریان‌های کاری چند-LLM (با LangGraph و RAG) پشت FastAPI، و کم‌کردن حدود ۷۰٪ از هزینهٔ اجرای مدل‌ها با مسیریابی هوشمند مدل، caching و بهینه‌کردن prompt.",
+          note: "ساخت بخش‌های AI و اتوماسیون برای Kaleri.ai — نوشتن چندین سیستم automation و pipelineهای data scraping برای جمع‌آوری و پردازش داده، به‌علاوهٔ جریان‌های کاری چند-LLM (با LangGraph و RAG) پشت FastAPI برای ابزارهای business-intelligence و developer toolهای داخلی، و کم‌کردن حدود ۷۰٪ از هزینهٔ اجرای مدل‌ها با مسیریابی هوشمند مدل، caching و بهینه‌کردن prompt.",
         },
         {
           role: "توسعه‌دهندهٔ Django (بک‌اند)",

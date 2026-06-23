@@ -34,7 +34,7 @@ English at a professional working proficiency, and Persian as his native languag
 Primarily Python. He also uses TypeScript and JavaScript on the frontend (for example, React in ScrapeGPT), and works day to day on Linux with Git.
 
 ## What did Sina do at Dekamond?
-At Dekamond (2025, six months, Tehran, hybrid), Sina built AI and automation features for Kaleri.ai across business-intelligence tooling, RAG systems, and internal developer tools. He developed multi-provider LLM workflows using LangGraph and RAG behind FastAPI services, integrating OpenRouter and Google AI, and cut LLM running costs by roughly 70% through model routing, caching, and prompt optimization.
+At Dekamond (2025, six months, Tehran, hybrid), Sina built AI and automation features for Kaleri.ai across business-intelligence tooling, RAG systems, and internal developer tools. He wrote a number of automation systems and data-scraping pipelines to collect and process the data those features run on. He developed multi-provider LLM workflows using LangGraph and RAG behind FastAPI services, integrating OpenRouter and Google AI, and cut LLM running costs by roughly 70% through model routing, caching, and prompt optimization.
 
 ## What did Sina do at Arnikup?
 At Arnikup (2024, six months, remote, including a two-month internship), Sina built and maintained REST APIs for a food-delivery platform as part of a five-person team (two backend, three frontend). With Django REST Framework and PostgreSQL he modeled the catalog and order data; he offloaded background work like order processing and notifications to Celery, used Redis for caching and as the task broker, and containerized services with Docker. The team collaborated via GitLab and Trello, and tested with pytest and Postman.
