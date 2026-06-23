@@ -45,6 +45,7 @@ vi.mock("ai", async (importOriginal) => {
           yield "Sina built ";
           yield "RAG systems.";
         })(),
+        finishReason: Promise.resolve("stop"),
       };
     }),
   };
@@ -182,5 +183,33 @@ describe("POST /api/chat", () => {
     });
     expect(streamText).toHaveBeenCalledTimes(2);
     expect(capture.system).toContain("Persian");
+  });
+
+  it("does NOT cache a truncated answer (finishReason 'length')", async () => {
+    vi.mocked(streamText).mockImplementationOnce(
+      ((opts: { system: string }) => {
+        capture.system = opts.system;
+        return {
+          textStream: (async function* () {
+            yield "At Dekamond I ";
+          })(),
+          finishReason: Promise.resolve("length"),
+        };
+      }) as unknown as typeof streamText,
+    );
+
+    await callChat({
+      messages: [userMessage("What did Sina build at Dekamond?")],
+      lang: "en",
+    });
+    expect(streamText).toHaveBeenCalledTimes(1);
+
+    // The reply was cut off, so it must NOT be cached — the same question
+    // re-runs the LLM instead of replaying a half-answer forever.
+    await callChat({
+      messages: [userMessage("What did Sina build at Dekamond?")],
+      lang: "en",
+    });
+    expect(streamText).toHaveBeenCalledTimes(2);
   });
 });

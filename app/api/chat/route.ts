@@ -218,7 +218,14 @@ export async function POST(req: Request) {
             system,
             messages: modelMessages,
             temperature: 0.5,
-            maxOutputTokens: 1000,
+            maxOutputTokens: 1500,
+            // Gemini 2.5 counts "thinking" tokens against maxOutputTokens — left
+            // on, the model can spend its whole budget thinking and truncate the
+            // visible answer mid-sentence. We want fast, direct replies here, so
+            // turn it off. Groq/OpenRouter ignore the google namespace.
+            providerOptions: {
+              google: { thinkingConfig: { thinkingBudget: 0 } },
+            },
             abortSignal: req.signal,
             experimental_transform: smoothStream({ chunking: "word", delayInMs: 12 }),
           });
@@ -237,8 +244,10 @@ export async function POST(req: Request) {
             // Sources go LAST so the "thinking" indicator stays until real text
             // arrives (avoids an empty message during the model's time-to-first-token).
             writer.write({ type: "data-sources", id: "sources", data: sources });
-            // Cache the completed first-turn answer for instant future replays.
-            if (firstTurn && full.trim()) {
+            // Only cache a COMPLETE answer (finishReason "stop"). A truncated or
+            // interrupted reply must never get pinned in the cache and replayed.
+            const finishReason = await Promise.resolve(result.finishReason).catch(() => "unknown");
+            if (firstTurn && full.trim() && finishReason === "stop") {
               answerCache.set(cacheKey, { text: full, sources, embedding: queryEmbedding });
             }
             return; // success
