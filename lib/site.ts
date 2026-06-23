@@ -9,7 +9,6 @@ export const site = {
   shortBio:
     "I build resilient backend services and LLM-powered applications — multi-provider RAG systems, async APIs, and secure-by-default tooling.",
   email: "sinaamareh0263@gmail.com",
-  phone: "+98 938 516 5679",
   location: "Tehran, Iran",
   timezone: "UTC+3:30",
   availability: "Open to backend / AI engineering roles · Remote-friendly",

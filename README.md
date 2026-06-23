@@ -14,7 +14,7 @@ into production systems — so the site itself is a live demo of the craft it de
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Vercel AI SDK](https://img.shields.io/badge/Vercel%20AI%20SDK-v6-000?logo=vercel&logoColor=white)](https://sdk.vercel.ai)
 
-**Live:** _coming soon on `*.vercel.app`_
+**Live:** <https://ai-portfolio-livid-phi.vercel.app>
 
 </div>
 
