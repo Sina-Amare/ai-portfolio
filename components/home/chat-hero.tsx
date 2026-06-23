@@ -158,7 +158,7 @@ export function ChatHero() {
         {active ? (
           <div
             className="flex w-full max-w-[720px] flex-col"
-            style={{ height: "min(74svh, 760px)" }}
+            style={{ maxHeight: "min(74svh, 760px)" }}
           >
             <div className="mb-3 flex shrink-0 items-center justify-between">
               <button

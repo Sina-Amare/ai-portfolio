@@ -59,7 +59,11 @@ export function Transcript({
   }
 
   return (
-    <div className="relative min-h-0 flex-1">
+    // flex-auto (content-based basis), not flex-1 (basis 0): with the column now
+    // capped by max-height instead of a fixed height, this lets the transcript hug
+    // its content when the chat is short (no big top gap) and still shrink + scroll
+    // once the conversation fills the cap.
+    <div className="relative min-h-0 flex-auto">
       <div
         ref={containerRef}
         className="transcript-mask h-full overflow-y-auto overscroll-auto"
