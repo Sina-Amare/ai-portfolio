@@ -62,7 +62,7 @@ export function ProjectCard({
               rel="noopener noreferrer"
               aria-label={`${project.name} — ${repoLabel}`}
               title={repoLabel}
-              className="text-muted hover:text-text pointer-events-auto relative z-20 rounded-full border border-border p-1.5 transition-colors hover:border-accent/50"
+              className="text-muted hover:text-text pointer-events-auto relative z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border transition-colors hover:border-accent/50"
             >
               <GitHubIcon className="h-4 w-4" />
             </a>

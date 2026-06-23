@@ -84,7 +84,7 @@ export function Nav() {
               href={site.resume}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-text ml-2 inline-flex items-center gap-1.5 rounded-full border border-border-strong px-3 py-1.5 text-sm transition-colors hover:border-accent/60"
+              className="text-text ms-2 inline-flex items-center gap-1.5 rounded-full border border-border-strong px-3 py-1.5 text-sm transition-colors hover:border-accent/60"
             >
               <FileText className="h-3.5 w-3.5" /> {t.nav.resume}
             </a>
@@ -92,18 +92,18 @@ export function Nav() {
               type="button"
               onClick={() => window.dispatchEvent(new Event("toggle-command"))}
               aria-label={t.nav.command}
-              className="text-muted hover:text-text ml-1 hidden items-center gap-1.5 rounded-full border border-border px-2.5 py-1.5 text-xs transition-colors hover:border-accent/40 lg:inline-flex"
+              className="text-muted hover:text-text ms-1 hidden items-center gap-1.5 rounded-full border border-border px-2.5 py-1.5 text-xs transition-colors hover:border-accent/40 lg:inline-flex"
             >
               <Search className="h-3.5 w-3.5" />
               <kbd className="font-mono text-[10px] tracking-wide">⌘K</kbd>
             </button>
-            <LocaleToggle className="ml-1" />
-            <ThemeToggle className="ml-1" />
+            <LocaleToggle className="ms-1" />
+            <ThemeToggle className="ms-1" />
           </nav>
 
           <div className="flex items-center gap-1 md:hidden">
             <LocaleToggle />
-            <ThemeToggle />
+            <ThemeToggle className="h-11 w-11" />
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
@@ -139,6 +139,16 @@ export function Nav() {
               >
                 <FileText className="h-4 w-4" /> {t.nav.resume}
               </a>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  window.dispatchEvent(new Event("toggle-command"));
+                }}
+                className="text-muted hover:text-text inline-flex items-center gap-2 rounded-lg px-2 py-2.5 text-sm transition-colors"
+              >
+                <Search className="h-4 w-4" /> {t.nav.command}
+              </button>
             </Container>
           </div>
         )}

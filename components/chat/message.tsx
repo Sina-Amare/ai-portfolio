@@ -58,12 +58,14 @@ export const Message = memo(function Message({
     // the message's own text direction.
     <div
       dir="ltr"
-      className={cn("group flex w-full", isUser ? "justify-end" : "justify-start")}
+      className={cn("group flex w-full min-w-0", isUser ? "justify-end" : "justify-start")}
     >
       <div
         dir={dir}
         className={cn(
-          "text-[15px] leading-relaxed",
+          // min-w-0 lets the flex item shrink; overflow-wrap:anywhere breaks long
+          // unbreakable tokens (URLs, paths) instead of overflowing the chat.
+          "text-[15px] leading-relaxed min-w-0 wrap-anywhere",
           isUser
             ? "text-text max-w-[85%] rounded-2xl border border-border bg-surface px-4 py-2.5"
             : // Assistant text is borderless and must span the full width, otherwise

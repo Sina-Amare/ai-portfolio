@@ -24,7 +24,8 @@ export function LocaleToggle({ className }: { className?: string }) {
           onClick={() => setLocale(l)}
           aria-pressed={locale === l}
           className={cn(
-            "rounded-full px-2.5 py-1 font-mono text-[11px] transition-colors",
+            // Bigger tap target on touch/mobile (>=40px), compact on md+ desktop.
+            "inline-flex min-h-[40px] items-center justify-center rounded-full px-3 py-2 font-mono text-xs transition-colors md:min-h-0 md:px-2.5 md:py-1 md:text-[11px]",
             locale === l
               ? "bg-accent-soft text-accent-text"
               : "text-muted hover:text-text",
