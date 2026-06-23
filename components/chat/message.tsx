@@ -66,7 +66,11 @@ export const Message = memo(function Message({
           "text-[15px] leading-relaxed",
           isUser
             ? "text-text max-w-[85%] rounded-2xl border border-border bg-surface px-4 py-2.5"
-            : "text-text max-w-full",
+            : // Assistant text is borderless and must span the full width, otherwise
+              // it shrinks to its content and `dir`-based alignment is invisible
+              // (short Persian answers looked left-aligned). Full width → RTL aligns
+              // right, LTR aligns left.
+              "text-text w-full",
           dir === "rtl" && "font-fa",
         )}
       >
