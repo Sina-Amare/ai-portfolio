@@ -31,7 +31,7 @@ vi.mock("@/lib/rag/kb", () => ({
 }));
 
 vi.mock("@/lib/rag/providers", () => ({
-  chatLadder: () => [{ id: "mock", label: "Mock", model: {} }],
+  chatLadder: vi.fn(() => [{ id: "mock", label: "Mock", model: {} }]),
 }));
 
 vi.mock("ai", async (importOriginal) => {
@@ -54,6 +54,7 @@ vi.mock("ai", async (importOriginal) => {
 import { POST } from "@/app/api/chat/route";
 import { streamText } from "ai";
 import { answerCache } from "@/lib/rag/cache";
+import { chatLadder } from "@/lib/rag/providers";
 
 let ip = 0;
 function userMessage(text: string) {
@@ -74,6 +75,21 @@ function extractText(sse: string): string {
     }
   }
   return deltas.join("");
+}
+
+function extractErrors(sse: string): string[] {
+  const errors: string[] = [];
+  for (const line of sse.split("\n")) {
+    const m = line.match(/^data: (.+)$/);
+    if (!m) continue;
+    try {
+      const obj = JSON.parse(m[1]);
+      if (obj.type === "error") errors.push(obj.errorText);
+    } catch {
+      /* ignore non-JSON lines like [DONE] */
+    }
+  }
+  return errors;
 }
 
 async function callChat(body: unknown) {
@@ -198,10 +214,12 @@ describe("POST /api/chat", () => {
       }) as unknown as typeof streamText,
     );
 
-    await callChat({
+    const first = await callChat({
       messages: [userMessage("What did Sina build at Dekamond?")],
       lang: "en",
     });
+    expect(extractErrors(first.raw).join(" ")).toContain("couldn't answer");
+    expect(first.raw).not.toContain("data-sources");
     expect(streamText).toHaveBeenCalledTimes(1);
 
     // The reply was cut off, so it must NOT be cached — the same question
@@ -210,6 +228,60 @@ describe("POST /api/chat", () => {
       messages: [userMessage("What did Sina build at Dekamond?")],
       lang: "en",
     });
+    expect(streamText).toHaveBeenCalledTimes(2);
+  });
+
+  it("marks a provider stream error after partial text as failed", async () => {
+    vi.mocked(streamText).mockImplementationOnce(
+      ((opts: { system: string }) => {
+        capture.system = opts.system;
+        return {
+          textStream: (async function* () {
+            yield "At Dekamond I ";
+            throw new Error("upstream disconnected");
+          })(),
+          finishReason: Promise.resolve("error"),
+        };
+      }) as unknown as typeof streamText,
+    );
+
+    const partial = await callChat({
+      messages: [userMessage("What did Sina build at Dekamond?")],
+      lang: "en",
+    });
+
+    expect(partial.text).toBe("At Dekamond I ");
+    expect(extractErrors(partial.raw).join(" ")).toContain("couldn't answer");
+    expect(partial.raw).not.toContain("data-sources");
+  });
+
+  it("fails over to the next provider when the first yields no text", async () => {
+    vi.mocked(chatLadder).mockReturnValueOnce([
+      { id: "p1", label: "P1", model: {} },
+      { id: "p2", label: "P2", model: {} },
+    ] as unknown as ReturnType<typeof chatLadder>);
+
+    // First provider dies BEFORE emitting any text → the ladder must try the
+    // next one. The default mock answers the second call normally.
+    vi.mocked(streamText).mockImplementationOnce(
+      (() => ({
+        textStream: (async function* () {
+          throw new Error("first provider down");
+        })(),
+        finishReason: Promise.resolve("error"),
+      })) as unknown as typeof streamText,
+    );
+
+    const res = await callChat({
+      messages: [userMessage("What did Sina build at Dekamond?")],
+      lang: "en",
+    });
+
+    // The visitor gets the SECOND provider's complete answer — no error, sources
+    // attached — and both providers were attempted.
+    expect(res.text).toContain("Sina built");
+    expect(res.raw).toContain("data-sources");
+    expect(extractErrors(res.raw)).toHaveLength(0);
     expect(streamText).toHaveBeenCalledTimes(2);
   });
 });

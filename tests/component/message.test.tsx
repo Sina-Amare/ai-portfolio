@@ -33,6 +33,17 @@ describe("Message", () => {
     expect(screen.getByText("bold")).toBeInTheDocument();
   });
 
+  it("renders active streaming assistant text without markdown parsing", () => {
+    render(
+      <Message
+        message={mkMessage("assistant", "**bold** text")}
+        sourcesLabel="Sources"
+        streaming
+      />,
+    );
+    expect(screen.getByText("**bold** text")).toBeInTheDocument();
+  });
+
   it("shows source chips for assistant messages", () => {
     render(
       <Message

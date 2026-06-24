@@ -68,10 +68,29 @@ export function ChatHero() {
   const isStreaming = status === "submitted" || status === "streaming";
   const active = messages.length > 0;
   const lastIsAssistant = messages[messages.length - 1]?.role === "assistant";
+  const streamingMessageId =
+    status === "streaming" && lastIsAssistant ? messages[messages.length - 1]?.id : undefined;
+
+  // A transient mid-stream drop (flaky network / provider hiccup) now surfaces as
+  // an error instead of a silent half-answer. Auto-retry ONCE so a one-off cutoff
+  // recovers into a full answer on its own, instead of stranding the visitor on a
+  // truncated message + a manual retry button. The budget resets after every clean
+  // finish (and on each new question), so a genuinely failing turn still stops at
+  // one retry and shows the manual error UI.
+  const autoRetries = useRef(0);
+  useEffect(() => {
+    if (status === "ready") {
+      autoRetries.current = 0;
+    } else if (status === "error" && autoRetries.current < 2) {
+      autoRetries.current += 1;
+      regenerate({ body: { lang } });
+    }
+  }, [status, regenerate, lang]);
 
   function send(text: string) {
     const v = text.trim();
     if (!v || isStreaming) return;
+    autoRetries.current = 0; // new question → restore the auto-retry budget
     // Activating the chat collapses the headline and reflows the hero; pin the
     // view to the top so the conversation stays framed instead of jumping away.
     if (messages.length === 0 && typeof window !== "undefined") {
@@ -174,6 +193,7 @@ export function ChatHero() {
                   key={m.id}
                   message={m}
                   sourcesLabel={t.sources}
+                  streaming={m.id === streamingMessageId}
                   copyLabel={t.copy}
                   copiedLabel={t.copied}
                 />

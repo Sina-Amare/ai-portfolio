@@ -1,9 +1,11 @@
 import {
+  consumeStream,
   convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
   smoothStream,
   streamText,
+  type FinishReason,
   type UIMessage,
 } from "ai";
 import { z } from "zod";
@@ -39,6 +41,11 @@ const BodySchema = z.object({
 });
 
 type Source = { source: string; section: string };
+const COMPLETE_FINISH_REASONS = new Set<FinishReason>(["stop"]);
+
+function isCompleteFinish(reason: FinishReason | "unknown"): reason is FinishReason {
+  return COMPLETE_FINISH_REASONS.has(reason as FinishReason);
+}
 
 function badRequest(message: string) {
   return new Response(JSON.stringify({ error: message }), {
@@ -120,6 +127,14 @@ function cachedResponse(text: string, sources: Source[]) {
     },
   });
   return createUIMessageStreamResponse({ stream });
+}
+
+function chatStreamResponse(stream: ReadableStream) {
+  return createUIMessageStreamResponse({
+    stream,
+    consumeSseStream: consumeStream,
+    headers: { "X-Accel-Buffering": "no" },
+  });
 }
 
 export async function POST(req: Request) {
@@ -218,7 +233,7 @@ export async function POST(req: Request) {
             system,
             messages: modelMessages,
             temperature: 0.5,
-            maxOutputTokens: 1500,
+            maxOutputTokens: 2200,
             // Gemini 2.5 counts "thinking" tokens against maxOutputTokens — left
             // on, the model can spend its whole budget thinking and truncate the
             // visible answer mid-sentence. We want fast, direct replies here, so
@@ -227,7 +242,8 @@ export async function POST(req: Request) {
               google: { thinkingConfig: { thinkingBudget: 0 } },
             },
             abortSignal: req.signal,
-            experimental_transform: smoothStream({ chunking: "word", delayInMs: 12 }),
+            timeout: 45_000,
+            experimental_transform: smoothStream({ chunking: "word", delayInMs: 4 }),
           });
 
           for await (const delta of result.textStream) {
@@ -240,14 +256,20 @@ export async function POST(req: Request) {
           }
 
           if (started) {
+            const finishReason: FinishReason | "unknown" = await Promise.resolve(
+              result.finishReason,
+            ).catch(() => "unknown" as const);
             writer.write({ type: "text-end", id });
+
+            if (!isCompleteFinish(finishReason)) {
+              writer.write({ type: "error", errorText: errorMessage(lang) });
+              return;
+            }
+
             // Sources go LAST so the "thinking" indicator stays until real text
             // arrives (avoids an empty message during the model's time-to-first-token).
             writer.write({ type: "data-sources", id: "sources", data: sources });
-            // Only cache a COMPLETE answer (finishReason "stop"). A truncated or
-            // interrupted reply must never get pinned in the cache and replayed.
-            const finishReason = await Promise.resolve(result.finishReason).catch(() => "unknown");
-            if (firstTurn && full.trim() && finishReason === "stop") {
+            if (firstTurn && full.trim()) {
               answerCache.set(cacheKey, { text: full, sources, embedding: queryEmbedding });
             }
             return; // success
@@ -256,6 +278,7 @@ export async function POST(req: Request) {
         } catch {
           if (started) {
             writer.write({ type: "text-end", id });
+            writer.write({ type: "error", errorText: errorMessage(lang) });
             return; // partial answer already sent — stop here
           }
           // No text yet → try the next provider in the ladder.
@@ -274,8 +297,5 @@ export async function POST(req: Request) {
     },
   });
 
-  return createUIMessageStreamResponse({
-    stream,
-    headers: { "X-Accel-Buffering": "no" },
-  });
+  return chatStreamResponse(stream);
 }

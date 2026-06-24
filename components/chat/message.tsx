@@ -28,11 +28,13 @@ function uniqueSourcesOf(message: UIMessage): string[] {
 export const Message = memo(function Message({
   message,
   sourcesLabel,
+  streaming = false,
   copyLabel = "Copy",
   copiedLabel = "Copied",
 }: {
   message: UIMessage;
   sourcesLabel: string;
+  streaming?: boolean;
   copyLabel?: string;
   copiedLabel?: string;
 }) {
@@ -77,6 +79,8 @@ export const Message = memo(function Message({
         )}
       >
         {isUser ? (
+          <p className="whitespace-pre-wrap">{text}</p>
+        ) : streaming ? (
           <p className="whitespace-pre-wrap">{text}</p>
         ) : (
           <Markdown content={text} />
