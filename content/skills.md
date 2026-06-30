@@ -4,7 +4,7 @@
 Sina builds LLM-powered applications end to end. This includes integrating multiple model providers behind a single interface, with automatic failover between providers and models and API-key rotation, so a system keeps working when one provider rate-limits or a key is exhausted. He works with RAG (retrieval-augmented generation) — grounding model answers in a curated knowledge base so they stay accurate — and with prompt design and token budgeting, which means fitting large inputs into a model's limited context window by selecting and trimming the most relevant content.
 
 ## Multi-provider failover and API-key rotation
-A recurring theme in Sina's work is resilience for LLM systems. Providers go down or rate-limit, and keys hit quotas. Sina designs systems that automatically rotate API keys and fail over across providers and models, so the system keeps responding without manual restarts. He applied this pattern in SakaiBot and in his work at Dekamond — and this very portfolio chatbot uses the same approach.
+A recurring theme in Sina's work is resilience for LLM systems. Providers go down or rate-limit, and keys hit quotas. Sina designs systems that automatically rotate API keys and fail over across providers and models, so the system keeps responding without manual restarts. He applied this pattern in Aigram (formerly SakaiBot) and in his work at Dekamond — and this very portfolio chatbot uses the same approach.
 
 ## Resilient backend services
 Sina builds resilient backend services: asynchronous APIs, retries, and graceful degradation under rate limits. He has implemented background-job crash recovery using lease/watchdog patterns, where a long-running job that crashes can be safely detected and resumed rather than lost or duplicated.

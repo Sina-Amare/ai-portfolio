@@ -14,7 +14,7 @@ into production systems — so the site itself is a live demo of the craft it de
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Vercel AI SDK](https://img.shields.io/badge/Vercel%20AI%20SDK-v6-000?logo=vercel&logoColor=white)](https://sdk.vercel.ai)
 
-**Live:** <https://ai-portfolio-livid-phi.vercel.app>
+**Live:** <https://sinaamareh.ir>
 
 </div>
 
@@ -50,7 +50,7 @@ cleanly with **no LLM call**, so it never makes things up.
   background, and motion that respects `prefers-reduced-motion`.
 - **Polished details** — ⌘K command palette, cursor-spotlight cards, precise scroll-to-section nav,
   an auto-scrolling transcript, and a Telegram-delivered contact form.
-- **Tested** — 61 unit/component/route tests, Playwright E2E specs (LLM mocked), and a RAG retrieval
+- **Tested** — 64 unit/component/route tests, Playwright E2E specs (LLM mocked), and a RAG retrieval
   gate (100% refusal on out-of-scope).
 
 ---

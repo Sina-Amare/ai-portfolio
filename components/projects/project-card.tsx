@@ -49,6 +49,18 @@ export function ProjectCard({
       />
 
       <div className="pointer-events-none relative z-10 flex flex-1 flex-col">
+        {project.cover && (
+          <div className="border-border -mx-6 -mt-6 mb-5 aspect-video overflow-hidden border-b">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={project.cover}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
+            />
+          </div>
+        )}
+
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="eyebrow text-[10px]">{project.year}</div>

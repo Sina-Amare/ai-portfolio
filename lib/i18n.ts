@@ -41,7 +41,7 @@ export const ui = {
     poweredBy: "Live RAG over my CV · multi-provider failover",
     suggestions: [
       "What is ScrapeGPT?",
-      "What can SakaiBot do?",
+      "What can Aigram do?",
       "What did you build at Dekamond?",
       "Are you open to new roles?",
     ],
@@ -73,7 +73,7 @@ export const ui = {
     poweredBy: "RAG زنده روی رزومهٔ من · جابه‌جایی خودکار بین ارائه‌دهنده‌ها",
     suggestions: [
       "ScrapeGPT چیه؟",
-      "ساکای‌بات چیکار می‌کنه؟",
+      "Aigram چیکار می‌کنه؟",
       "تو دکاموند چی ساختی؟",
       "برای کار جدید پایه‌ای؟",
     ],
