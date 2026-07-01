@@ -12,7 +12,7 @@ import { z } from "zod";
 import type { Lang } from "@/lib/i18n";
 import { getKnowledgeBase } from "@/lib/rag/kb";
 import { embedText } from "@/lib/rag/embed";
-import { retrieve } from "@/lib/rag/retrieve";
+import { retrieve, RETRIEVAL_TOP_K } from "@/lib/rag/retrieve";
 import { isInScope } from "@/lib/rag/threshold";
 import type { ScoredChunk } from "@/lib/rag/types";
 import {
@@ -190,7 +190,7 @@ export async function POST(req: Request) {
     const cached = embedCache.get(normQuery);
     queryEmbedding = cached ?? (await embedText(query, "RETRIEVAL_QUERY", req.signal));
     if (!cached) embedCache.set(normQuery, queryEmbedding);
-    scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, 8);
+    scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, RETRIEVAL_TOP_K);
   } catch {
     return cannedResponse(errorMessage(lang));
   }
