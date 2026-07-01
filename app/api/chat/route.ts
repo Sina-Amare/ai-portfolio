@@ -237,6 +237,14 @@ export async function POST(req: Request) {
             messages: modelMessages,
             temperature: 0.5,
             maxOutputTokens: 2200,
+            // The ladder below IS our retry strategy: on a 503 / rate-limit we
+            // want to fail over to the next key/model immediately, not let the
+            // SDK burn ~2 backoff retries re-hitting the same struggling (or
+            // already-exhausted) endpoint first. That per-provider stall is what
+            // makes Persian feel like it hangs during a Gemini demand spike.
+            // (The client also auto-retries the whole request, so a transient
+            // blip still gets a second full pass.)
+            maxRetries: 0,
             // Gemini 2.5 counts "thinking" tokens against maxOutputTokens — left
             // on, the model can spend its whole budget thinking and truncate the
             // visible answer mid-sentence. We want fast, direct replies here, so
