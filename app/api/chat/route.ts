@@ -17,11 +17,10 @@ import { isInScope } from "@/lib/rag/threshold";
 import type { ScoredChunk } from "@/lib/rag/types";
 import {
   buildSystemPrompt,
+  detectSmallTalk,
   errorMessage,
   greetingMessage,
   isAbusive,
-  isGreeting,
-  isThanks,
   rateLimitMessage,
   refusalMessage,
   sanitizeInput,
@@ -160,9 +159,13 @@ export async function POST(req: Request) {
   if (isAbusive(question)) return cannedResponse(refusalMessage(lang));
 
   // Small talk — answered warmly with no LLM call (and before retrieval), so a
-  // greeting or a "thanks" never trips the relevance gate.
-  if (isThanks(question)) return cannedResponse(thanksMessage(lang));
-  if (isGreeting(question)) return cannedResponse(greetingMessage(lang));
+  // greeting or a "thanks" never trips the relevance gate. Fires ONLY when the
+  // message is nothing but a pleasantry; "hey, what did you build at Dekamond?"
+  // and the colloquial-Persian "چطوری X رو ساختی؟" fall through to real RAG.
+  const smallTalk = detectSmallTalk(question);
+  if (smallTalk === "thanks") return cannedResponse(thanksMessage(lang));
+  if (smallTalk === "greeting" || smallTalk === "capability")
+    return cannedResponse(greetingMessage(lang));
 
   // Global daily cap → degrade gracefully to protect free-tier quota.
   if (!globalDailyOk()) return cannedResponse(refusalMessage(lang));

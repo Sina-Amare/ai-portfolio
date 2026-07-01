@@ -17,21 +17,79 @@ export function isAbusive(text: string): boolean {
 }
 
 // Small talk the relevance gate would wrongly refuse — handled with a fast
-// canned reply (no LLM). Tokens match at word/phrase boundaries so they don't
-// trigger inside other words.
-const THANKS_RE =
-  /(^|[\s,.!?؟،])(thanks|thank you|thx|tnx|ty|cheers|مرسی|ممنون|تشکر|سپاس|مچکرم|دمت گرم|دستت درد نکنه)([\s,.!?؟،]|$)/i;
-const GREETING_RE =
-  /(^|[\s,.!?؟،;:"'(])(hi|hey|hello|hiya|yo|sup|howdy|hola|greetings|bye|goodbye|salam|salaam|سلام|درود|علیک|چطوری|چطورین|چطوره|خوبی|خوبین|خداحافظ|خدافظ|بای)([\s,.!?؟،;:"')]|$)/i;
-const GREETING_PHRASE_RE =
-  /(how are you|how'?s it going|how do you do|what'?s up|whats up|good (morning|afternoon|evening|day)|nice to meet|who are you|what are you|what can you do|what can i ask|can you help|how can you help|حالت چطوره|حالتون چطوره|حال شما|چه خبر|چخبر|تو کی هستی|تو کی ای|کی هستی|چی کار می ?تونی|چیکار می ?تونی|چه کارایی|چی می ?تونم بپرسم|چی می ?تونم ازت بپرسم|می ?تونی کمکم کنی)/i;
+// canned reply (no LLM). The pleasantry patterns below only decide the *reply
+// copy*; whether we short-circuit at all is decided by detectSmallTalk, which
+// fires ONLY when the message is nothing BUT small talk. This is deliberate:
+// matching a greeting token anywhere used to eat real questions like
+// "hey, what did you build at Dekamond?" or the very common Persian "چطوری X
+// رو ساختی؟" ("چطوری" = "how" in colloquial Persian), so those never reached
+// retrieval and the bot felt like a scripted reply instead of real RAG.
+//
+// English tokens are wrapped in \b; the Persian alternatives are bare because
+// \b is ASCII-only and doesn't sit against Persian letters.
+const GREETING =
+  /\b(?:hi+|hey+|hello+|heya|hiya|yo|sup|howdy|hola|greetings|g'?day|good\s?(?:morning|afternoon|evening|day)|how\s?(?:are|r)\s?(?:you|u|ya)|how'?s\s?(?:it\s?going|things)|how\s?do\s?you\s?do|what'?s\s?up|whats\s?up|nice\s?to\s?meet(?:\s?you)?|bye+|goodbye|good\s?bye|see\s?(?:ya|you))\b|salaam?|dorood|سلام|درود|علیک|صبح بخیر|عصر بخیر|ظهر بخیر|شب بخیر|چطوری|چطورین|چطورید|چطوره|حالت چطوره|حالتون چطوره|حال شما|خوبی|خوبین|خوبید|چه خبر|چخبر|خداحافظ|خدافظ|بدرود|فعلا|بای/i;
+const THANKS =
+  /\b(?:thanks|thank\s?you|thankyou|thx|tnx|ty|cheers|much\s?appreciated|appreciate\s?(?:it|you))\b|مرسی|ممنونم|ممنون|متشکرم|تشکر|سپاسگزارم|سپاس|مچکرم|دمت گرم|دستت درد نکنه|لطف کردی|قربونت/i;
+// Identity / "what is this thing" questions about the assistant itself — a
+// greeting-style reply is the right answer, but only when that IS the message.
+const CAPABILITY =
+  /\b(?:who\s?(?:are|r)\s?(?:you|u)|what\s?(?:are|r)\s?(?:you|u)|what\s?can\s?you\s?do|what\s?can\s?(?:i|you)\s?(?:ask|help)|what\s?should\s?i\s?ask|can\s?you\s?help|how\s?can\s?you\s?help|how\s?(?:does|do)\s?this\s?work|what(?:'?s| is)\s?this)\b|تو کیه|تو کی هستی|تو کی ای|شما کی هستی[دن]|کی هستی|چی ?کار می ?تونی|چیکار می ?تونی|چه کارایی|چیا می ?تونی|چی می ?تونم بپرسم|چی می ?تونم ازت بپرسم|می ?تونی کمکم کنی|این چیه|این چطور کار می ?کنه/i;
 
-export function isThanks(text: string): boolean {
-  return THANKS_RE.test(text.trim());
+// Filler that carries no topic — stripped when checking whether anything
+// substantive is left. Matched as whole tokens (never inside a word).
+const FILLER = new Set([
+  "a","an","the","to","of","there","here","man","bro","dude","buddy","friend","mate","pal",
+  "please","plz","pls","sir","maam","sina","sinas","assistant","bot","ai","again","just","so",
+  "well","ok","okay","kk","cool","nice","great","awesome","lovely","dear","hey","hi","hello",
+  "you","u","me","my","your","for","lot","lots","very","much","really","too","then","now","and",
+  "hmm","umm","uh","oh","yo","yes","yeah","yep","no","nope",
+  "جان","جون","عزیز","عزیزم","دوست","رفیق","من","تو","شما","بابا","آقا","خانم","لطفا","لطفاً",
+  "خیلی","زیاد","هم","دیگه","یه","رو","و","خب","اها","آها","اوکی","بله","آره","نه","ممنونم",
+]);
+
+/**
+ * Lowercase and drop the invisible zero-width / bidi marks that pepper Persian
+ * text — so colloquial spellings like "می‌تونی" (with a ZWNJ) match the same
+ * pattern as "می تونی" / "میتونی".
+ */
+function normalize(s: string): string {
+  return s.toLowerCase().replace(/[‌‍‎‏﻿]/g, "");
 }
-export function isGreeting(text: string): boolean {
-  const t = text.trim();
-  return GREETING_RE.test(t) || GREETING_PHRASE_RE.test(t);
+
+/**
+ * Remove the matched pleasantry phrases, then drop filler tokens, and return
+ * what's left glued together. Empty ⟺ the message was pure small talk.
+ */
+function residualContent(text: string): string {
+  let t = ` ${normalize(text)} `;
+  for (const re of [GREETING, THANKS, CAPABILITY]) {
+    t = t.replace(new RegExp(re.source, "gi"), " ");
+  }
+  // Split on whitespace, punctuation, symbols, and any leftover format chars.
+  const tokens = t.split(/[\p{P}\p{S}\p{Z}\p{C}\s]+/u).filter(Boolean);
+  return tokens.filter((tok) => !FILLER.has(tok)).join("");
+}
+
+export type SmallTalk = "thanks" | "greeting" | "capability" | null;
+
+/**
+ * Classify a message as pure small talk (→ fast canned reply, no LLM) or not
+ * (→ null, meaning fall through to retrieval). Returns non-null ONLY when a
+ * pleasantry matched AND nothing substantive remains, so "hey, what's your
+ * stack?" and "چطوری RAG رو ساختی؟" correctly go to RAG.
+ */
+export function detectSmallTalk(text: string): SmallTalk {
+  const t = normalize(text.trim());
+  if (!t) return null;
+  const greeting = GREETING.test(t);
+  const thanks = THANKS.test(t);
+  const capability = CAPABILITY.test(t);
+  if (!greeting && !thanks && !capability) return null;
+  if (residualContent(text) !== "") return null; // a real question/topic is present
+  if (thanks) return "thanks";
+  if (capability) return "capability";
+  return "greeting";
 }
 
 export function greetingMessage(lang: Lang): string {

@@ -142,6 +142,42 @@ describe("POST /api/chat", () => {
     expect(streamText).not.toHaveBeenCalled();
   });
 
+  it("answers a greeting-prefixed real question via RAG (does NOT canned-reply)", async () => {
+    const { text } = await callChat({
+      messages: [userMessage("hey, what did you build at Dekamond?")],
+      lang: "en",
+    });
+    expect(streamText).toHaveBeenCalledTimes(1); // reached the LLM, not the greeting
+    expect(text).toContain("Sina built");
+  });
+
+  it("answers a thanks-prefixed follow-up via RAG (does NOT canned-reply)", async () => {
+    const { text } = await callChat({
+      messages: [userMessage("thanks! and what did Sina build at Dekamond?")],
+      lang: "en",
+    });
+    expect(streamText).toHaveBeenCalledTimes(1);
+    expect(text).toContain("Sina built");
+  });
+
+  it("still fast-replies to a PURE greeting without calling the LLM", async () => {
+    const { text } = await callChat({
+      messages: [userMessage("hi there!")],
+      lang: "en",
+    });
+    expect(streamText).not.toHaveBeenCalled();
+    expect(text.toLowerCase()).toContain("assistant");
+  });
+
+  it("fast-replies to an identity/capability question without the LLM", async () => {
+    const { text } = await callChat({
+      messages: [userMessage("what can you do?")],
+      lang: "en",
+    });
+    expect(streamText).not.toHaveBeenCalled();
+    expect(text.toLowerCase()).toContain("assistant");
+  });
+
   it("answers in-scope questions: streams text, includes sources, injects grounded context", async () => {
     const { raw, text } = await callChat({
       messages: [userMessage("What did Sina build at Dekamond?")],
