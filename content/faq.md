@@ -1,10 +1,19 @@
 # Frequently asked questions
 
 ## What is Sina's strongest area?
-Sina is strongest in Python backend development and LLM application engineering. He builds resilient backend services with FastAPI and Django/DRF, and designs multi-provider LLM systems with RAG, automatic failover, and API-key rotation.
+Sina is strongest in Python backend development and LLM application engineering. He builds resilient backend services with FastAPI and Django/DRF, and designs multi-provider LLM systems with RAG, automatic failover, and API-key rotation. He also works the other side of the problem — evaluating frontier models adversarially at Mercor to find where they break — which is what makes the systems he builds distrust model output by default and verify it instead.
 
 ## How many years of experience does Sina have?
-Around a year of professional experience: six months as a Software Developer at Dekamond (2025) and six months as a Django backend developer at Arnikup (2024, including a two-month internship). He is early in his career and actively growing.
+Around a year of professional software-engineering experience: six months as a Software Developer at Dekamond (2025) and six months as a Django backend developer at Arnikup (2024, including a two-month internship). On top of that, since April 2026 he has been working remotely as an AI training and evaluation contractor with Mercor, doing adversarial evaluation of frontier language models. He is early in his career and actively growing.
+
+## What does Sina do at Mercor?
+Sina works with Mercor as an AI training and evaluation contractor (remote, since April 2026), and the work is adversarial evaluation — deliberately trying to break frontier language models. He designs prompts and evaluation tasks built to make strong models fail, aimed at the places they're weakest: web search and retrieval (forcing the model to actually find and use a source instead of recalling it from memory), multi-step reasoning (where one wrong intermediate step quietly poisons the final answer), and the edge cases where a model sounds completely confident and is simply wrong. For each task he writes a verified golden answer and a single-answer rubric, so every failure is reproducible and can be scored objectively instead of argued about. It's the flip side of building with LLMs: to make them reliable, you first have to know exactly how they break.
+
+## What is Mercor?
+Mercor is a talent marketplace that connects domain experts with frontier AI labs. It builds the benchmarks, evaluation environments, and large-scale human datasets used to post-train and stress-test frontier models — work like adversarial prompt writing, evaluation task design, rubrics, and verified reference answers. Sina contributes to that as an AI training and evaluation contractor.
+
+## Does Sina have experience evaluating or red-teaming LLMs?
+Yes — it's a core part of his current work. At Mercor he designs adversarial prompts and tasks that expose where frontier models fail on web search, multi-step reasoning, and edge cases, and writes verified golden answers and rubrics so each failure is reproducible and objectively scorable. The same instinct shows up in what he builds: RubricEval grades code against a versioned rubric but leaves the final accept / review / reject call to deterministic code rather than the model, and this portfolio's chatbot refuses out-of-scope questions instead of guessing.
 
 ## What is Sina's core tech stack?
 Python, FastAPI, Django/DRF, PostgreSQL, Redis, Docker, SQLAlchemy/Alembic, Git, and Linux. For LLM work he uses RAG, LangGraph, multi-provider integration (OpenRouter and Google AI), prompt design, and token budgeting. On the frontend he has used React and TypeScript.
@@ -112,7 +121,7 @@ Yes. He's in the UTC+3:30 zone, which overlaps comfortably with European hours a
 Sina is primarily a backend and AI engineer, but he's comfortable on the frontend when a project needs it — he's built UIs with React and TypeScript, including the ScrapeGPT interface. His center of gravity is backend services and LLM systems.
 
 ## What is Sina focused on or learning right now?
-AI and LLM engineering is his main focus — multi-provider systems, RAG, and agent workflows — alongside his M.Sc. in Software Engineering, where he's going deeper on software architecture and AI systems.
+AI and LLM engineering is his main focus — multi-provider systems, RAG, and agent workflows — alongside his M.Sc. in Software Engineering, where he's going deeper on software architecture and AI systems. Right now that also includes hands-on frontier-model evaluation: his contract work with Mercor has him designing adversarial prompts and tasks that find exactly where strong models fail (web search, multi-step reasoning, edge cases), which feeds straight back into building LLM systems that don't fall over in production.
 
 ## Why does Sina work on AI and LLM systems?
 It fits how he thinks. He has an R&D mindset and enjoys problems where the ground shifts quickly, and he's drawn to the engineering challenges of making LLM systems reliable — failover across providers, cost control, and grounding answers so they stay accurate.

@@ -51,10 +51,11 @@ export const dict = {
       number: "02",
       eyebrow: "About",
       title: "A bit about me",
-      bio: "I'm a Python developer with a Computer Science degree and around a year of professional experience, focused on backend services and LLM-powered applications. I learn mainly by building — my open-source projects are where ideas get tested and pushed toward production quality. I'm early in my career and still growing, but steady about shipping, writing tests, and seeing work through.",
+      bio: "I'm a Python developer with a Computer Science degree, focused on backend services and LLM-powered applications. Alongside that I work with Mercor as an AI training & evaluation contractor — designing adversarial prompts and tasks that find exactly where frontier models break. I learn mainly by building — my open-source projects are where ideas get tested and pushed toward production quality. I'm early in my career and still growing, but steady about shipping, writing tests, and seeing work through.",
       strengthsLabel: "What I bring",
       strengths: [
         "Applied AI/LLM work — RAG, LangGraph, and multi-provider failover behind FastAPI",
+        "Frontier-model evaluation — adversarial prompts, golden answers, and rubrics that make failures reproducible",
         "Resilient backends — async APIs, crash-tolerant jobs, graceful degradation",
         "Quick from prototype to production, with tests and clean architecture",
         "Root-cause problem solving — I dig until it actually works",
@@ -65,6 +66,12 @@ export const dict = {
       stackLabel: { ai: "LLM & AI", backend: "Backend", infra: "Data & Infra" },
       experienceLabel: "Experience",
       experience: [
+        {
+          role: "AI Training & Evaluation (Contract)",
+          org: "Mercor",
+          period: "2026 · present",
+          note: "Adversarial evaluation of frontier LLMs — designing prompts and tasks built to make strong models fail on web search, multi-step reasoning, and the edge cases where they're confidently wrong, then writing verified golden answers and single-answer rubrics so every failure is reproducible and objectively scorable.",
+        },
         {
           role: "Software Developer",
           org: "Dekamond",
@@ -194,10 +201,11 @@ export const dict = {
       number: "۰۲",
       eyebrow: "دربارهٔ من",
       title: "کمی دربارهٔ من",
-      bio: "یه توسعه‌دهندهٔ Python هستم با مدرک علوم کامپیوتر و حدود یک سال سابقهٔ کاری؛ بیشتر روی بک‌اند و اپلیکیشن‌هایی که با LLM کار می‌کنن تمرکز دارم. بیشتر با ساختن یاد می‌گیرم — پروژه‌های متن‌بازم همون‌جاست که ایده‌ها رو تست می‌کنم و تا حد یه محصول واقعی جلو می‌برمشون. هنوز اول مسیرم و دارم رشد می‌کنم، ولی سر تحویل کار، تست نوشتن و تموم‌کردنش جدی و باثباتم.",
+      bio: "یه توسعه‌دهندهٔ Python هستم با مدرک علوم کامپیوتر؛ بیشتر روی بک‌اند و اپلیکیشن‌هایی که با LLM کار می‌کنن تمرکز دارم. در کنارش با Mercor به‌صورت قراردادی روی آموزش و ارزیابیِ AI کار می‌کنم — طراحیِ promptها و taskهای adversarial که دقیقاً پیدا می‌کنن مدل‌های frontier کجا می‌شکنن. بیشتر با ساختن یاد می‌گیرم — پروژه‌های متن‌بازم همون‌جاست که ایده‌ها رو تست می‌کنم و تا حد یه محصول واقعی جلو می‌برمشون. هنوز اول مسیرم و دارم رشد می‌کنم، ولی سر تحویل کار، تست نوشتن و تموم‌کردنش جدی و باثباتم.",
       strengthsLabel: "چی به کار اضافه می‌کنم",
       strengths: [
         "کار عملی با AI و LLM — RAG، LangGraph و جابه‌جایی خودکار بین چند سرویس‌دهنده، پشت FastAPI",
+        "ارزیابیِ مدل‌های frontier — promptهای adversarial، جواب‌های طلاییِ تأییدشده و rubricهایی که خطاها رو تکرارپذیر می‌کنن",
         "بک‌اند مقاوم — APIهای async، کارهایی که بعد از crash خودشون رو جمع‌وجور می‌کنن، و افت نرم به‌جای خطا",
         "سریع از نمونهٔ اولیه تا محصول نهایی، با تست و معماری تمیز",
         "حل مشکل از ریشه — تا وقتی واقعاً درست کار نکنه، ولش نمی‌کنم",
@@ -208,6 +216,12 @@ export const dict = {
       stackLabel: { ai: "LLM و AI", backend: "بک‌اند", infra: "داده و زیرساخت" },
       experienceLabel: "سابقهٔ کاری",
       experience: [
+        {
+          role: "آموزش و ارزیابیِ AI (قراردادی)",
+          org: "Mercor",
+          period: "۲۰۲۶ · اکنون",
+          note: "ارزیابیِ adversarial روی LLMهای frontier — طراحیِ prompt و taskهایی که عمداً ساخته می‌شن تا مدل‌های قوی رو به خطا بندازن: روی web search، استدلالِ چندمرحله‌ای، و اون حالت‌های لبه‌ای که مدل با اعتمادبه‌نفسِ کامل اشتباه می‌گه. برای هر task یه جوابِ طلاییِ تأییدشده و یه rubricِ تک‌جوابی می‌نویسم تا هر خطا تکرارپذیر باشه و به‌شکل عینی نمره بگیره، نه سلیقه‌ای.",
+        },
         {
           role: "توسعه‌دهندهٔ نرم‌افزار",
           org: "Dekamond",

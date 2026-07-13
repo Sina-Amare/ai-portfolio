@@ -10,7 +10,14 @@ import { Reveal } from "../motion/reveal";
 
 // Skill tags stay in Latin in both languages — that's how engineers read them.
 const stackItems = {
-  ai: ["RAG", "LangGraph", "Multi-provider failover", "Prompt design", "Token budgeting"],
+  ai: [
+    "RAG",
+    "LangGraph",
+    "Multi-provider failover",
+    "Prompt design",
+    "Token budgeting",
+    "LLM evaluation",
+  ],
   backend: ["FastAPI", "Django/DRF", "Async APIs", "Celery", "JWT"],
   infra: ["PostgreSQL", "Redis", "Docker", "SQLAlchemy/Alembic", "Linux"],
 } as const;
