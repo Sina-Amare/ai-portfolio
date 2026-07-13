@@ -234,7 +234,7 @@ export const projects: Project[] = [
     stack: ["Next.js", "FastAPI", "LiteLLM", "PostgreSQL"],
     repo: "https://github.com/Sina-Amare/github-code-review",
     featured: true,
-    span: "normal",
+    span: "wide",
     summary:
       "Define a versioned rubric of weighted, gated criteria; submit a GitHub repo or ZIP and watch an LLM grade each criterion live against the real code — but a deterministic policy in code makes the final accept / review / reject call, reproducible and auditable.",
     summaryFa:

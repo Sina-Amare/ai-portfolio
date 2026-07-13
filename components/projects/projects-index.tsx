@@ -24,23 +24,28 @@ export function ProjectsIndex() {
           />
         </Reveal>
 
+        {/* Bento: at lg the two "wide" projects each take 2 of 3 columns and pair
+            with a narrow cell, so the grid tiles exactly — and the GitHub link,
+            which is only a footnote, stays the smallest card rather than the
+            biggest. Below lg everything is one column wide (a clean 2×2 on sm),
+            since a 2-col span there would leave holes. */}
         <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => (
-            <RevealItem
-              key={p.slug}
-              className={cn(p.span === "wide" && "sm:col-span-2 lg:col-span-2")}
-            >
+            <RevealItem key={p.slug} className={cn(p.span === "wide" && "lg:col-span-2")}>
               <ProjectCard project={p} />
             </RevealItem>
           ))}
 
-          <RevealItem className="sm:col-span-2 lg:col-span-2">
+          <RevealItem>
             <a
               href={site.socials.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="group glass flex h-full flex-col justify-between gap-4 rounded-[var(--radius-card)] border-accent/15 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40"
+              className="group glass flex h-full flex-col justify-center gap-4 rounded-[var(--radius-card)] border-accent/15 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40"
             >
+              {/* Centred, not top/bottom-anchored: this tile stretches to the
+                  height of the tall project card beside it, and pinning the icon
+                  and text to opposite edges left a big empty gap down the middle. */}
               <div className="flex items-center justify-between">
                 <div className="bg-accent/15 text-accent grid h-10 w-10 place-items-center rounded-full">
                   <GitHubIcon className="h-5 w-5" />
