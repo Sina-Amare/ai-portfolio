@@ -21,6 +21,20 @@ function sectionTop(el: HTMLElement): number {
   return Math.max(0, y - navH - 16);
 }
 
+/** Honour the visitor's reduced-motion preference for programmatic scrolling. */
+function reduceMotion(): boolean {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
+
+/**
+ * Glide back to the top of the page — the "Home" nav target. Without this, a
+ * Link to "/" while already on "/" re-navigates and snaps to the top instantly,
+ * which felt like a jump next to the smooth section links.
+ */
+export function scrollToTop(smooth = true): void {
+  window.scrollTo({ top: 0, behavior: smooth && !reduceMotion() ? "smooth" : "auto" });
+}
+
 /**
  * Scroll so section `id` lands just below the nav. Returns false if the section
  * isn't in the DOM (e.g. navigating from another page — the caller lets the
@@ -30,7 +44,10 @@ export function scrollToSectionId(id: string, smooth = true): boolean {
   const el = document.getElementById(id);
   if (!el) return false;
 
-  window.scrollTo({ top: sectionTop(el), behavior: smooth ? "smooth" : "auto" });
+  window.scrollTo({
+    top: sectionTop(el),
+    behavior: smooth && !reduceMotion() ? "smooth" : "auto",
+  });
 
   // Re-snap once the scroll settles, in case layout shifted underneath it.
   let settled = false;

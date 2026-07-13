@@ -36,7 +36,10 @@ test("happy path: streams a grounded answer with a source chip", async ({ page }
 test("out-of-scope refusal renders cleanly", async ({ page }) => {
   await mockChat(page, refusal);
   await page.goto("/#chat");
-  await page.getByRole("button", { name: "What's your strongest tech stack?" }).click();
+  // Ask a genuinely off-topic question rather than clicking an (in-scope) chip.
+  const box = page.getByRole("textbox", { name: /Ask about my experience/i });
+  await box.fill("What's the weather in Tokyo today?");
+  await box.press("Enter");
   await expect(page.getByText(/outside what I can chat about/)).toBeVisible();
 });
 

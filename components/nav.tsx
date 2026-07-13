@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { FileText, Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
-import { scrollToSectionId } from "@/lib/scroll";
+import { scrollToSectionId, scrollToTop } from "@/lib/scroll";
 import { useLocale } from "./locale-provider";
 import { Container } from "./ui/container";
 import { ThemeToggle } from "./theme-toggle";
@@ -18,18 +18,33 @@ export function Nav() {
   const pathname = usePathname();
   const { t } = useLocale();
 
+  // Every nav item targets a section of the home page, so they all glide instead
+  // of jumping. "Projects" points at the #work section (which already lists every
+  // project); its "All projects" button — and ⌘K — still open the /projects index.
   const links = [
     { href: "/", label: t.nav.home },
-    { href: "/projects", label: t.nav.projects },
+    { href: "/#work", label: t.nav.projects },
     { href: "/#about", label: t.nav.about },
     { href: "/#contact", label: t.nav.contact },
   ];
 
-  // Hash links. Same-page (already on home): intercept and scroll precisely
-  // ourselves. Cross-page (/#about from another route): let the Link navigate —
-  // ScrollToHash on the home page does the precise scroll once it mounts.
+  // Same-page: intercept and scroll precisely ourselves. Cross-page (/#about from
+  // another route): let the Link navigate — ScrollToHash on the home page does the
+  // precise scroll once it mounts.
   const onNav = (e: React.MouseEvent, href: string) => {
     setOpen(false);
+
+    // "Home" (and the logo) while already home: a Link to "/" would re-navigate
+    // and snap to the top instantly. Glide there ourselves instead.
+    if (href === "/" && pathname === "/") {
+      e.preventDefault();
+      requestAnimationFrame(() => {
+        scrollToTop(true);
+        window.history.replaceState(null, "", "/");
+      });
+      return;
+    }
+
     if (!href.startsWith("/#") || pathname !== "/") return;
     const id = href.slice(2);
     // Defer one frame so a closing mobile menu has collapsed before we measure.
@@ -59,6 +74,7 @@ export function Nav() {
         <Container className="relative flex h-14 items-center justify-between">
           <Link
             href="/"
+            onClick={(e) => onNav(e, "/")}
             className="text-heading font-mono text-sm font-semibold tracking-tight"
             aria-label="Sina Amareh — home"
           >

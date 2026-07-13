@@ -32,11 +32,33 @@ test("home has no serious/critical accessibility violations", async ({ page }) =
 
 test("navigates from home to a project case study", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Projects" }).first().click();
+  // The nav's "Projects" scrolls to the #work section; that section's
+  // "All projects" button is what opens the full index.
+  await page.getByRole("link", { name: "All projects" }).click();
   await expect(page).toHaveURL(/\/projects$/);
   await page.getByRole("link", { name: /ScrapeGPT/ }).first().click();
   await expect(page).toHaveURL(/\/projects\/scrapegpt$/);
   await expect(
     page.getByRole("heading", { name: "ScrapeGPT", level: 1 }),
   ).toBeVisible();
+});
+
+// Every nav item targets a home-page section, so none of them should hard-jump.
+test("nav 'Projects' scrolls to the work section instead of leaving the page", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Projects", exact: true }).first().click();
+  await expect(page).toHaveURL(/#work$/);
+  await expect(page.locator("#work")).toBeInViewport();
+});
+
+test("nav 'Home' scrolls back to the top rather than snapping", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Contact", exact: true }).first().click();
+  await expect(page).toHaveURL(/#contact$/);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+
+  await page.getByRole("link", { name: "Home", exact: true }).first().click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(50);
 });
