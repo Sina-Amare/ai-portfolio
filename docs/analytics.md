@@ -20,14 +20,49 @@ reset", so a person visiting on five days counts as five unique visitors and
 "returning" is structurally unanswerable. Plausible and Fathom share that 24-hour
 limitation by design.
 
-## Setup (about 2 minutes, free, no card)
+## Setup (about 3 minutes, free, no card)
 
-1. **Provision Redis.** Vercel dashboard → your project → **Storage** → **Marketplace**
-   → **Upstash Redis** → free plan. Vercel injects `UPSTASH_REDIS_REST_URL` and
-   `UPSTASH_REDIS_REST_TOKEN` automatically.
-2. **Set a password.** Project → Settings → Environment Variables → add
-   `ADMIN_PASSWORD` (use something long and random).
-3. **Redeploy.** Visit `/admin`, sign in, done.
+Note that **Integrations and Storage live in the account/team sidebar, not inside the
+project** — Redis is provisioned once for the account and then *connected* to a project.
+
+### 1. Provision Redis
+
+Dashboard → **Integrations** (sidebar) → **Browse Marketplace** → under **Native
+Integrations** pick **Upstash** → **Install** → choose **Redis**, pick a **Region** near
+you and the **Free** plan → **Continue** → give it a **Database Name** → **Create**.
+
+### 2. Connect it to the project
+
+On the new resource's page → **Projects** → **Connect Project** → select the portfolio →
+**Connect**.
+
+> Leave **Custom Prefix** empty. A prefix renames the injected variables (e.g.
+> `DB1_KV_REST_API_URL`), and the app looks for the unprefixed names.
+
+Vercel injects the credentials automatically. Either naming scheme works — the app reads
+`UPSTASH_REDIS_REST_URL`/`_TOKEN` or `KV_REST_API_URL`/`_TOKEN`.
+
+### Or do steps 1–2 in one command
+
+```bash
+npm i -g vercel && vercel login
+vercel link            # run inside the project folder
+vercel install upstash # installs, connects to the linked project, writes .env.local
+```
+
+### 3. Set a password
+
+Select the **project** → **Settings** → **Environment Variables** → add `ADMIN_PASSWORD`
+for all environments. Generate one with:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"
+```
+
+### 4. Redeploy
+
+Environment variables only apply to new builds: **Deployments** → newest → **⋯** →
+**Redeploy**. Then open `/admin`.
 
 Optional: set `ADMIN_SESSION_SECRET` to a separate long random value. It defaults to
 `ADMIN_PASSWORD`, which means changing the password also invalidates existing sessions
