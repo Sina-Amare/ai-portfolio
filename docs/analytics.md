@@ -131,6 +131,30 @@ exemption in force 5 Feb 2026). For a personal portfolio measuring only its own
 traffic, aggregated, with no cross-site tracking and no ad profiling, this sits in the
 lowest-risk category — but it is a judgement call, not an exemption you can point at.
 
+## Daily digest to Telegram
+
+`vercel.json` registers a cron that hits `/api/cron/digest` once a day (07:00 UTC;
+Hobby allows one run per day with ±59 min precision). It sends today's views and
+visitors, the trend vs yesterday, a 14-day sparkline, and the top pages, referrers and
+countries — reusing the same `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` the contact form
+already uses, so there's no email provider and no extra cost.
+
+It stays silent on days with no traffic, and skips cleanly if Telegram or Upstash
+isn't configured. Set `CRON_SECRET` to lock the endpoint down — Vercel then sends it as
+a bearer token and the route rejects anything else. With no secret set it only accepts
+requests carrying Vercel's own `x-vercel-cron` header.
+
+## Date range
+
+The dashboard has 7 / 30 / 90-day views. The range is a plain link (`/admin?range=90`),
+so each is bookmarkable and it works without JS. Only those three values are accepted —
+the number sizes a Redis pipeline, so an arbitrary `?range=100000` would turn one page
+load into a huge command burst.
+
+Breakdowns are stored per month, so a 90-day range reads every month it touches and
+merges them. Visitors and "came back" always stay current-month: the salt rotates
+monthly, so cross-month visitor identity genuinely doesn't exist.
+
 ## Reading the numbers honestly
 
 - **Visitors** = distinct people seen *this calendar month*, read from one set. It is

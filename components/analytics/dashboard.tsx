@@ -1,4 +1,31 @@
+import Link from "next/link";
 import type { Breakdown, Overview } from "@/lib/analytics/store";
+import { cn } from "@/lib/utils";
+
+/** "NL" → 🇳🇱, by mapping the two letters to regional-indicator code points. */
+function flagOf(code: string): string {
+  if (!/^[A-Z]{2}$/.test(code)) return "🌐";
+  return String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+}
+
+// Intl gives real country names for free — no lookup table to maintain.
+const regionNames =
+  typeof Intl !== "undefined" && "DisplayNames" in Intl
+    ? new Intl.DisplayNames(["en"], { type: "region" })
+    : null;
+
+function countryLabel(code: string): string {
+  if (code === "Unknown") return "🌐 Unknown";
+  let name = code;
+  try {
+    name = regionNames?.of(code) ?? code;
+  } catch {
+    /* invalid code — fall back to the raw value */
+  }
+  return `${flagOf(code)} ${name}`;
+}
+
+const RANGES = [7, 30, 90] as const;
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
@@ -15,10 +42,12 @@ function BreakdownCard({
   title,
   rows,
   empty,
+  format,
 }: {
   title: string;
   rows: Breakdown;
   empty: string;
+  format?: (label: string) => string;
 }) {
   const max = rows.length ? Math.max(...rows.map((r) => r.count)) : 0;
   return (
@@ -32,7 +61,7 @@ function BreakdownCard({
             <li key={r.label} className="relative">
               <div className="flex items-baseline justify-between gap-3 text-sm">
                 <span className="truncate" title={r.label}>
-                  {r.label}
+                  {format ? format(r.label) : r.label}
                 </span>
                 <span className="text-muted font-mono shrink-0 text-xs tabular-nums">
                   {r.count.toLocaleString()}
@@ -101,6 +130,26 @@ export function Dashboard({ data }: { data: Overview }) {
 
   return (
     <div className="space-y-4">
+      {/* Range selector. Plain links, so it works without JS and each range is
+          a shareable/bookmarkable URL. */}
+      <div className="flex items-center gap-1.5">
+        {RANGES.map((r) => (
+          <Link
+            key={r}
+            href={`/admin?range=${r}`}
+            scroll={false}
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-xs transition-colors",
+              r === data.range
+                ? "border-accent/50 text-text bg-accent/10"
+                : "text-muted hover:text-text border-border hover:border-accent/40",
+            )}
+          >
+            {r} days
+          </Link>
+        ))}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
           label={`Page views · ${data.range}d`}
@@ -136,6 +185,7 @@ export function Dashboard({ data }: { data: Overview }) {
           title="Countries"
           rows={data.countries}
           empty="No visits recorded yet."
+          format={countryLabel}
         />
         <BreakdownCard title="Top pages" rows={data.paths} empty="No visits recorded yet." />
         <BreakdownCard

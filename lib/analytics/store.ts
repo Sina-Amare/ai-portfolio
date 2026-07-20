@@ -196,12 +196,24 @@ export type Overview = {
   timezones: Breakdown;
 };
 
-function toBreakdown(h: Record<string, unknown> | null, limit = 12): Breakdown {
-  if (!h) return [];
-  return Object.entries(h)
-    .map(([label, count]) => ({ label, count: Number(count) || 0 }))
+/** Merge one-or-more monthly hashes into a sorted top-N breakdown. */
+function toBreakdown(hashes: (Record<string, unknown> | null)[], limit = 12): Breakdown {
+  const totals = new Map<string, number>();
+  for (const h of hashes) {
+    if (!h) continue;
+    for (const [label, count] of Object.entries(h)) {
+      totals.set(label, (totals.get(label) ?? 0) + (Number(count) || 0));
+    }
+  }
+  return [...totals]
+    .map(([label, count]) => ({ label, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, limit);
+}
+
+/** Distinct YYYY-MM buckets a day list touches, so ranges can span months. */
+function monthsFor(days: string[]): string[] {
+  return [...new Set(days.map((d) => d.slice(0, 7)))];
 }
 
 function emptyOverview(days: number, enabled: boolean, degraded: boolean): Overview {
@@ -237,23 +249,33 @@ export async function getOverview(days = 30): Promise<Overview> {
       dayList.push(dayKey(d));
     }
     const month = monthKey(today);
+    // Breakdowns are stored per month, so a 90-day range has to read every month
+    // it touches and merge them — otherwise the range selector would silently
+    // only ever change the chart.
+    const months = monthsFor(dayList);
 
     const p = r.pipeline();
     for (const d of dayList) p.get<number>(K.views(d));
     for (const d of dayList) p.scard(K.uniqDay(d));
     p.scard(K.seen(month));
     p.scard(K.repeat(month));
-    p.hgetall(K.path(month));
-    p.hgetall(K.ref(month));
-    p.hgetall(K.country(month));
-    p.hgetall(K.tz(month));
+    for (const m of months) p.hgetall(K.path(m));
+    for (const m of months) p.hgetall(K.ref(m));
+    for (const m of months) p.hgetall(K.country(m));
+    for (const m of months) p.hgetall(K.tz(m));
     const res = (await p.exec()) as unknown[];
 
     const n = dayList.length;
+    const mCount = months.length;
     const num = (x: unknown) => Number(x) || 0;
     const views = res.slice(0, n).map(num);
     const uniques = res.slice(n, n * 2).map(num);
-    const at = (i: number) => res[n * 2 + i];
+    const base = n * 2;
+    const hashes = (i: number) =>
+      res.slice(base + 2 + i * mCount, base + 2 + (i + 1) * mCount) as (Record<
+        string,
+        unknown
+      > | null)[];
 
     return {
       enabled: true,
@@ -262,19 +284,20 @@ export async function getOverview(days = 30): Promise<Overview> {
       totals: {
         views: views.reduce((a, b) => a + b, 0),
         // Deliberately NOT the sum of daily uniques — that counts a person who
-        // visits on five days as five people.
-        visitors: num(at(0)),
-        repeatVisitors: num(at(1)),
+        // visits on five days as five people. Always current-month: the salt
+        // rotates monthly, so cross-month visitor identity doesn't exist.
+        visitors: num(res[base]),
+        repeatVisitors: num(res[base + 1]),
       },
       series: dayList.map((day, i) => ({
         day,
         views: views[i] ?? 0,
         uniques: uniques[i] ?? 0,
       })),
-      paths: toBreakdown(at(2) as Record<string, unknown> | null),
-      referrers: toBreakdown(at(3) as Record<string, unknown> | null),
-      countries: toBreakdown(at(4) as Record<string, unknown> | null),
-      timezones: toBreakdown(at(5) as Record<string, unknown> | null),
+      paths: toBreakdown(hashes(0)),
+      referrers: toBreakdown(hashes(1)),
+      countries: toBreakdown(hashes(2)),
+      timezones: toBreakdown(hashes(3)),
     };
   } catch {
     return emptyOverview(days, true, true);

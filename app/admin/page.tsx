@@ -16,8 +16,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function AdminPage() {
+const ALLOWED_RANGES = [7, 30, 90];
+
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string }>;
+}) {
   const authed = verifySessionToken((await cookies()).get(ADMIN_COOKIE)?.value);
+  // Only accept known ranges — the value sizes a Redis pipeline, so an arbitrary
+  // ?range=100000 would turn one page load into a huge command burst.
+  const requested = Number((await searchParams).range);
+  const range = ALLOWED_RANGES.includes(requested) ? requested : 30;
 
   return (
     <section className="pt-28 pb-24 sm:pt-32">
@@ -45,7 +55,7 @@ export default async function AdminPage() {
             </div>
 
             {analyticsEnabled() ? (
-              <Dashboard data={await getOverview(30)} />
+              <Dashboard data={await getOverview(range)} />
             ) : (
               <div className="glass rounded-[var(--radius-card)] p-6">
                 <h2 className="text-base font-semibold">Analytics isn&apos;t connected yet</h2>

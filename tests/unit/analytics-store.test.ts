@@ -163,6 +163,36 @@ describe("analytics store aggregation", () => {
     ]);
   });
 
+  it("honours the requested range length", async () => {
+    await recordVisit(visit());
+    for (const days of [7, 30, 90]) {
+      const o = await getOverview(days);
+      expect(o.series).toHaveLength(days);
+      expect(o.range).toBe(days);
+      // Today's view is always present regardless of window size.
+      expect(o.totals.views).toBe(1);
+    }
+  });
+
+  it("merges breakdowns across every month a long range spans", async () => {
+    // Seed the previous month directly, mimicking data recorded back then.
+    const prev = new Date();
+    prev.setUTCMonth(prev.getUTCMonth() - 1);
+    const prevMonth = prev.toISOString().slice(0, 7);
+    store.hashes.set(`an:co:${prevMonth}`, new Map([["DE", 5]]));
+
+    await recordVisit(visit({ country: "DE" })); // current month, 1 more DE
+
+    // A 7-day window can't reach last month...
+    const short = await getOverview(7);
+    expect(short.countries).toEqual([{ label: "DE", count: 1 }]);
+
+    // ...but a 90-day window must include and merge it, or the range selector
+    // would only ever change the chart.
+    const long = await getOverview(90);
+    expect(long.countries).toEqual([{ label: "DE", count: 6 }]);
+  });
+
   it("puts today's views at the END of the series (chronological order)", async () => {
     await recordVisit(visit());
     const o = await getOverview(7);
