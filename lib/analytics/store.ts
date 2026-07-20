@@ -29,11 +29,19 @@ const SALT_TTL = 40 * 86_400;
 
 let client: Redis | null | undefined;
 
-/** Null when unconfigured — every caller treats that as "analytics disabled". */
+/**
+ * Null when unconfigured — every caller treats that as "analytics disabled".
+ *
+ * Accepts both naming conventions on purpose: Upstash's own integration sets
+ * UPSTASH_REDIS_REST_*, while provisioning Redis through the Vercel Marketplace
+ * (the descendant of Vercel KV) sets KV_REST_API_*. Reading only one of them
+ * would leave analytics silently dormant depending on how the store was added,
+ * with no error to explain why.
+ */
 export function redis(): Redis | null {
   if (client !== undefined) return client;
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
   client = url && token ? new Redis({ url, token }) : null;
   return client;
 }

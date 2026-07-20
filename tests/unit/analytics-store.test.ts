@@ -212,9 +212,25 @@ describe("analytics store aggregation", () => {
     expect(keys).not.toContain("203.0.113.7");
   });
 
+  it("also accepts the KV_REST_API_* names the Vercel Marketplace injects", async () => {
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    process.env.KV_REST_API_URL = "https://fake.upstash.io";
+    process.env.KV_REST_API_TOKEN = "fake-token";
+    vi.resetModules();
+    const mod = await import("@/lib/analytics/store");
+    expect(mod.analyticsEnabled()).toBe(true);
+    await mod.recordVisit(visit());
+    expect((await mod.getOverview(30)).totals.views).toBe(1);
+    delete process.env.KV_REST_API_URL;
+    delete process.env.KV_REST_API_TOKEN;
+  });
+
   it("no-ops safely when Upstash is not configured", async () => {
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.KV_REST_API_URL;
+    delete process.env.KV_REST_API_TOKEN;
     vi.resetModules();
     const mod = await import("@/lib/analytics/store");
     await expect(mod.recordVisit(visit())).resolves.toBeUndefined();
