@@ -3,12 +3,32 @@
  * Module-scope state persists across warm invocations. For multi-instance scale, swap in
  * Upstash Ratelimit (env-gated) later — fine for a portfolio at this volume.
  */
+import { createHash } from "node:crypto";
+
 const WINDOW_MS = 60_000;
 const PER_MINUTE = Number(process.env.RAG_RPM ?? "12");
 const DAILY_MAX = Number(process.env.RAG_DAILY_MAX ?? "1000");
 
 type Bucket = { count: number; reset: number };
 const ipBuckets = new Map<string, Bucket>();
+
+/**
+ * Bucket keys are a hash of the IP, never the IP itself. The limiter only needs
+ * equality, and keeping raw addresses in a long-lived process map would quietly
+ * contradict the "raw IPs are never stored" property the analytics relies on.
+ */
+function bucketKey(ip: string): string {
+  return createHash("sha256").update(ip).digest("hex").slice(0, 16);
+}
+
+/**
+ * Drop expired buckets. Without this the maps grow for the life of the lambda,
+ * which is both a slow leak and a needlessly large set of retained identifiers.
+ */
+function sweep(map: Map<string, Bucket>, now: number): void {
+  if (map.size < 512) return; // cheap: only bother once it's actually growing
+  for (const [k, b] of map) if (now > b.reset) map.delete(k);
+}
 
 let dayCount = 0;
 let dayReset = 0;
@@ -23,9 +43,11 @@ export function rateLimit(
   ip: string,
   now = Date.now(),
 ): { ok: boolean; retryAfter: number } {
-  const b = ipBuckets.get(ip);
+  const key = bucketKey(ip);
+  sweep(ipBuckets, now);
+  const b = ipBuckets.get(key);
   if (!b || now > b.reset) {
-    ipBuckets.set(ip, { count: 1, reset: now + WINDOW_MS });
+    ipBuckets.set(key, { count: 1, reset: now + WINDOW_MS });
     return { ok: true, retryAfter: 0 };
   }
   if (b.count >= PER_MINUTE) {
@@ -44,9 +66,11 @@ export function contactRateLimit(
   ip: string,
   now = Date.now(),
 ): { ok: boolean; retryAfter: number } {
-  const b = contactBuckets.get(ip);
+  const key = bucketKey(ip);
+  sweep(contactBuckets, now);
+  const b = contactBuckets.get(key);
   if (!b || now > b.reset) {
-    contactBuckets.set(ip, { count: 1, reset: now + CONTACT_WINDOW_MS });
+    contactBuckets.set(key, { count: 1, reset: now + CONTACT_WINDOW_MS });
     return { ok: true, retryAfter: 0 };
   }
   if (b.count >= CONTACT_MAX) {

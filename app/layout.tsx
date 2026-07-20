@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { LocaleProvider } from "@/components/locale-provider";
 import { CommandPalette } from "@/components/command-palette";
 import { AnimatedBackground } from "@/components/animated-background";
+import { Tracker } from "@/components/analytics/tracker";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -122,6 +123,7 @@ export default async function RootLayout({
               <Footer />
             </MotionProvider>
             <CommandPalette />
+            <Tracker />
           </LocaleProvider>
         </ThemeProvider>
         <script
