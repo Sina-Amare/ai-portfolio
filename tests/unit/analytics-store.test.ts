@@ -226,6 +226,22 @@ describe("analytics store aggregation", () => {
     delete process.env.KV_REST_API_TOKEN;
   });
 
+  it("discovers credentials behind a Vercel Custom Prefix", async () => {
+    // Vercel's connect dialog can rename the injected vars to <PREFIX>_REST_API_*.
+    // Without discovery this reads as "not connected" with nothing to explain why.
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    process.env.STORAGE_REST_API_URL = "https://fake.upstash.io";
+    process.env.STORAGE_REST_API_TOKEN = "fake-token";
+    vi.resetModules();
+    const mod = await import("@/lib/analytics/store");
+    expect(mod.analyticsEnabled()).toBe(true);
+    await mod.recordVisit(visit());
+    expect((await mod.getOverview(30)).totals.views).toBe(1);
+    delete process.env.STORAGE_REST_API_URL;
+    delete process.env.STORAGE_REST_API_TOKEN;
+  });
+
   it("no-ops safely when Upstash is not configured", async () => {
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;

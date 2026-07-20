@@ -30,19 +30,38 @@ const SALT_TTL = 40 * 86_400;
 let client: Redis | null | undefined;
 
 /**
- * Null when unconfigured — every caller treats that as "analytics disabled".
+ * Find the Redis REST credentials however Vercel happened to name them.
  *
- * Accepts both naming conventions on purpose: Upstash's own integration sets
- * UPSTASH_REDIS_REST_*, while provisioning Redis through the Vercel Marketplace
- * (the descendant of Vercel KV) sets KV_REST_API_*. Reading only one of them
- * would leave analytics silently dormant depending on how the store was added,
- * with no error to explain why.
+ * Upstash's own integration sets UPSTASH_REDIS_REST_*; provisioning through the
+ * Vercel Marketplace (the descendant of Vercel KV) sets KV_REST_API_*; and
+ * Vercel's "Custom Prefix" option on the connect dialog renames them again to
+ * <PREFIX>_REST_API_*. Hard-coding one scheme means a perfectly good database
+ * shows up as "not connected" with nothing in the logs to explain it, so fall
+ * back to discovering any matching url/token pair.
  */
+function credentialsFromEnv(): { url: string; token: string } | null {
+  const known: [string | undefined, string | undefined][] = [
+    [process.env.UPSTASH_REDIS_REST_URL, process.env.UPSTASH_REDIS_REST_TOKEN],
+    [process.env.KV_REST_API_URL, process.env.KV_REST_API_TOKEN],
+  ];
+  for (const [url, token] of known) if (url && token) return { url, token };
+
+  const SUFFIX = /(REST_API_URL|REST_URL)$/;
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!value || !SUFFIX.test(key) || !/^https?:\/\//.test(value)) continue;
+    const prefix = key.replace(SUFFIX, "");
+    const token =
+      process.env[`${prefix}REST_API_TOKEN`] ?? process.env[`${prefix}REST_TOKEN`];
+    if (token) return { url: value, token };
+  }
+  return null;
+}
+
+/** Null when unconfigured — every caller treats that as "analytics disabled". */
 export function redis(): Redis | null {
   if (client !== undefined) return client;
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-  client = url && token ? new Redis({ url, token }) : null;
+  const creds = credentialsFromEnv();
+  client = creds ? new Redis(creds) : null;
   return client;
 }
 
