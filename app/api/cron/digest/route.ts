@@ -42,6 +42,9 @@ function buildMessage(o: Awaited<ReturnType<typeof getOverview>>): string {
           .join("\n")
       : "  • (none yet)";
 
+  const busiest = o.hours.length
+    ? [...o.hours].sort((a, b) => b.count - a.count)[0]!
+    : null;
   const max = Math.max(...o.series.map((d) => d.views), 1);
   const spark = o.series
     .slice(-14)
@@ -63,8 +66,13 @@ function buildMessage(o: Awaited<ReturnType<typeof getOverview>>): string {
     `*Referrers*`,
     top(o.referrers),
     ``,
-    `*Countries*`,
-    top(o.countries),
+    `*Cities*`,
+    top(o.cities),
+    ``,
+    `*Devices*`,
+    top(o.devices, 3),
+    ``,
+    busiest ? `Busiest hour (visitor local time): *${busiest.label}*` : "",
     ``,
     `${site.url}/admin`,
   ].join("\n");

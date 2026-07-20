@@ -92,6 +92,11 @@ const visit = (over: Partial<Parameters<typeof recordVisit>[0]> = {}) => ({
   referrer: "Direct",
   country: "DE",
   timezone: "Europe/Berlin",
+  city: "Berlin, DE",
+  hour: "09:00",
+  weekday: "Tue",
+  device: "Desktop",
+  browser: "Chrome",
   ...over,
 });
 
@@ -191,6 +196,34 @@ describe("analytics store aggregation", () => {
     // would only ever change the chart.
     const long = await getOverview(90);
     expect(long.countries).toEqual([{ label: "DE", count: 6 }]);
+  });
+
+  it("records the detailed dimensions and keeps time buckets in clock order", async () => {
+    await recordVisit(visit({ hour: "21:00", weekday: "Fri", city: "Amsterdam, NL", device: "Mobile", browser: "Safari" }));
+    await recordVisit(visit({ ip: "2.2.2.2", hour: "09:00", weekday: "Mon", city: "Berlin, DE" }));
+    await recordVisit(visit({ ip: "3.3.3.3", hour: "09:00", weekday: "Mon", city: "Berlin, DE" }));
+
+    const o = await getOverview(30);
+    expect(o.cities).toEqual([
+      { label: "Berlin, DE", count: 2 },
+      { label: "Amsterdam, NL", count: 1 },
+    ]);
+    expect(o.devices).toEqual(
+      expect.arrayContaining([
+        { label: "Desktop", count: 2 },
+        { label: "Mobile", count: 1 },
+      ]),
+    );
+    expect(o.browsers).toEqual(
+      expect.arrayContaining([
+        { label: "Chrome", count: 2 },
+        { label: "Safari", count: 1 },
+      ]),
+    );
+    // Hours must read chronologically, NOT by volume — 09:00 (2) before 21:00 (1).
+    expect(o.hours.map((h) => h.label)).toEqual(["09:00", "21:00"]);
+    // Weekdays follow the calendar, so Mon precedes Fri.
+    expect(o.weekdays.map((d) => d.label)).toEqual(["Mon", "Fri"]);
   });
 
   it("puts today's views at the END of the series (chronological order)", async () => {

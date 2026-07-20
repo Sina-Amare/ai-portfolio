@@ -87,7 +87,25 @@ const K = {
   ref: (m: string) => `an:ref:${m}`,
   country: (m: string) => `an:co:${m}`,
   tz: (m: string) => `an:tz:${m}`,
+  city: (m: string) => `an:city:${m}`,
+  hour: (m: string) => `an:hr:${m}`,
+  weekday: (m: string) => `an:wd:${m}`,
+  device: (m: string) => `an:dev:${m}`,
+  browser: (m: string) => `an:br:${m}`,
 } as const;
+
+/** Every per-month breakdown, in the order getOverview reads them back. */
+const MONTHLY = [
+  K.path,
+  K.ref,
+  K.country,
+  K.tz,
+  K.city,
+  K.hour,
+  K.weekday,
+  K.device,
+  K.browser,
+] as const;
 
 /**
  * The month's salt, cached in instance memory. It is immutable for the whole
@@ -130,6 +148,11 @@ export type VisitInput = {
   referrer: string;
   country: string;
   timezone: string;
+  city: string;
+  hour: string;
+  weekday: string;
+  device: string;
+  browser: string;
 };
 
 /**
@@ -158,6 +181,11 @@ export async function recordVisit(v: VisitInput): Promise<void> {
   p.hincrby(K.ref(month), v.referrer, 1);
   p.hincrby(K.country(month), v.country, 1);
   p.hincrby(K.tz(month), v.timezone, 1);
+  p.hincrby(K.city(month), v.city, 1);
+  p.hincrby(K.hour(month), v.hour, 1);
+  p.hincrby(K.weekday(month), v.weekday, 1);
+  p.hincrby(K.device(month), v.device, 1);
+  p.hincrby(K.browser(month), v.browser, 1);
   const res = (await p.exec()) as unknown[];
 
   // Set TTLs only when a key was just created, so the common path pays nothing.
@@ -172,10 +200,7 @@ export async function recordVisit(v: VisitInput): Promise<void> {
     if (firstThisMonth === 1) {
       e.expire(K.seen(month), MONTH_TTL);
       e.expire(K.repeat(month), MONTH_TTL);
-      e.expire(K.path(month), MONTH_TTL);
-      e.expire(K.ref(month), MONTH_TTL);
-      e.expire(K.country(month), MONTH_TTL);
-      e.expire(K.tz(month), MONTH_TTL);
+      for (const key of MONTHLY) e.expire(key(month), MONTH_TTL);
     }
     await e.exec();
   }
@@ -194,6 +219,12 @@ export type Overview = {
   referrers: Breakdown;
   countries: Breakdown;
   timezones: Breakdown;
+  cities: Breakdown;
+  /** Visitor-local hour ("09:00"), not UTC. */
+  hours: Breakdown;
+  weekdays: Breakdown;
+  devices: Breakdown;
+  browsers: Breakdown;
 };
 
 /** Merge one-or-more monthly hashes into a sorted top-N breakdown. */
@@ -216,6 +247,13 @@ function monthsFor(days: string[]): string[] {
   return [...new Set(days.map((d) => d.slice(0, 7)))];
 }
 
+const WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+/** Calendar order, so the weekday chart reads Mon→Sun rather than by volume. */
+function orderWeekdays(rows: Breakdown): Breakdown {
+  return [...rows].sort((a, b) => WEEK.indexOf(a.label) - WEEK.indexOf(b.label));
+}
+
 function emptyOverview(days: number, enabled: boolean, degraded: boolean): Overview {
   return {
     enabled,
@@ -227,6 +265,11 @@ function emptyOverview(days: number, enabled: boolean, degraded: boolean): Overv
     referrers: [],
     countries: [],
     timezones: [],
+    cities: [],
+    hours: [],
+    weekdays: [],
+    devices: [],
+    browsers: [],
   };
 }
 
@@ -259,10 +302,7 @@ export async function getOverview(days = 30): Promise<Overview> {
     for (const d of dayList) p.scard(K.uniqDay(d));
     p.scard(K.seen(month));
     p.scard(K.repeat(month));
-    for (const m of months) p.hgetall(K.path(m));
-    for (const m of months) p.hgetall(K.ref(m));
-    for (const m of months) p.hgetall(K.country(m));
-    for (const m of months) p.hgetall(K.tz(m));
+    for (const key of MONTHLY) for (const m of months) p.hgetall(key(m));
     const res = (await p.exec()) as unknown[];
 
     const n = dayList.length;
@@ -298,6 +338,13 @@ export async function getOverview(days = 30): Promise<Overview> {
       referrers: toBreakdown(hashes(1)),
       countries: toBreakdown(hashes(2)),
       timezones: toBreakdown(hashes(3)),
+      cities: toBreakdown(hashes(4)),
+      // Hours and weekdays are read in full and ordered by the clock, not by
+      // count — a histogram with its bars sorted by size tells you nothing.
+      hours: toBreakdown(hashes(5), 24).sort((a, b) => a.label.localeCompare(b.label)),
+      weekdays: orderWeekdays(toBreakdown(hashes(6), 7)),
+      devices: toBreakdown(hashes(7), 5),
+      browsers: toBreakdown(hashes(8), 6),
     };
   } catch {
     return emptyOverview(days, true, true);

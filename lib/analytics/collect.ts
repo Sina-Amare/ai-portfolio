@@ -9,6 +9,72 @@
  */
 import { isbot } from "isbot";
 
+/**
+ * City, as "Amsterdam, NL". Kept as one label rather than a separate region
+ * dimension so the breakdown stays readable and costs one hash instead of two.
+ * The value comes from Vercel's header (RFC3986-encoded), never the client, so
+ * its cardinality is bounded by real geography and can't be driven up.
+ */
+export function cityFrom(headers: Headers, country: string): string {
+  const raw = headers.get("x-vercel-ip-city")?.trim();
+  if (!raw) return "Unknown";
+  let city: string;
+  try {
+    city = decodeURIComponent(raw);
+  } catch {
+    city = raw;
+  }
+  city = city.replace(/[^\p{L}\p{N}\s'.-]/gu, "").trim().slice(0, 64);
+  if (!city) return "Unknown";
+  return country === "Unknown" ? city : `${city}, ${country}`;
+}
+
+/**
+ * The hour and weekday *as the visitor experienced them*, derived from their
+ * IANA timezone. "People read this at 9am their time" is a far more useful fact
+ * than the UTC hour, and it needs no data from the device — the timezone
+ * already came from Vercel's header.
+ */
+export function localTimeFrom(timezone: string, now = new Date()): {
+  hour: string;
+  weekday: string;
+} {
+  const tz = timezone !== "Unknown" ? timezone : "UTC";
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      hour: "2-digit",
+      hour12: false,
+      weekday: "short",
+    }).formatToParts(now);
+    const hour = parts.find((p) => p.type === "hour")?.value ?? "00";
+    const weekday = parts.find((p) => p.type === "weekday")?.value ?? "Unknown";
+    // "24" appears in some ICU builds for midnight; normalise it.
+    return { hour: `${hour === "24" ? "00" : hour}:00`, weekday };
+  } catch {
+    return { hour: "Unknown", weekday: "Unknown" };
+  }
+}
+
+/** Coarse device class. Deliberately crude — enough to answer "mobile or not". */
+export function deviceFrom(userAgent: string): string {
+  const ua = userAgent.toLowerCase();
+  if (/ipad|tablet|playbook|silk|(android(?!.*mobile))/.test(ua)) return "Tablet";
+  if (/mobi|iphone|ipod|android|blackberry|iemobile|opera mini/.test(ua)) return "Mobile";
+  return "Desktop";
+}
+
+/** Browser family. Order matters: Chrome/Edge UAs also contain "Safari". */
+export function browserFrom(userAgent: string): string {
+  const ua = userAgent;
+  if (/Edg\//.test(ua)) return "Edge";
+  if (/OPR\/|Opera/.test(ua)) return "Opera";
+  if (/Firefox\//.test(ua)) return "Firefox";
+  if (/Chrome\//.test(ua)) return "Chrome";
+  if (/Safari\//.test(ua)) return "Safari";
+  return "Other";
+}
+
 /** Vercel geo headers — available on Hobby with no plan gate. */
 export function geoFrom(headers: Headers): { country: string; timezone: string } {
   const country = headers.get("x-vercel-ip-country")?.trim().toUpperCase();

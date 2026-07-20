@@ -13,7 +13,16 @@
  * didn't increment.
  */
 import { getClientIp } from "@/lib/rate-limit";
-import { geoFrom, isBotRequest, normalizePath, normalizeReferrer } from "@/lib/analytics/collect";
+import {
+  browserFrom,
+  cityFrom,
+  deviceFrom,
+  geoFrom,
+  isBotRequest,
+  localTimeFrom,
+  normalizePath,
+  normalizeReferrer,
+} from "@/lib/analytics/collect";
 import { analyticsEnabled, dayKey, recordVisit } from "@/lib/analytics/store";
 import { beaconAllowed } from "@/lib/analytics/limit";
 import { projects } from "@/lib/projects";
@@ -67,6 +76,7 @@ export async function POST(req: Request) {
   }
 
   const { country, timezone } = geoFrom(req.headers);
+  const { hour, weekday } = localTimeFrom(timezone);
 
   try {
     await recordVisit({
@@ -80,6 +90,11 @@ export async function POST(req: Request) {
       ),
       country,
       timezone,
+      city: cityFrom(req.headers, country),
+      hour,
+      weekday,
+      device: deviceFrom(userAgent),
+      browser: browserFrom(userAgent),
     });
   } catch {
     // Swallow: a failed counter must never surface to the visitor.

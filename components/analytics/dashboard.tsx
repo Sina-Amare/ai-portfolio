@@ -105,6 +105,75 @@ function Series({ series }: { series: Overview["series"] }) {
   );
 }
 
+/**
+ * When people actually read the site, in THEIR local time — derived from the
+ * timezone Vercel reports, so it needs nothing from the device. Bars stay in
+ * clock order; sorting a histogram by size would destroy the shape.
+ */
+function WhenCard({ hours, weekdays }: { hours: Breakdown; weekdays: Breakdown }) {
+  const byHour = new Map(hours.map((h) => [h.label, h.count]));
+  const slots = Array.from({ length: 24 }, (_, i) => {
+    const label = `${String(i).padStart(2, "0")}:00`;
+    return { label, count: byHour.get(label) ?? 0 };
+  });
+  const maxH = Math.max(1, ...slots.map((s) => s.count));
+  const maxD = Math.max(1, ...weekdays.map((d) => d.count));
+  const busiest = hours.length
+    ? [...hours].sort((a, b) => b.count - a.count)[0]!
+    : null;
+
+  return (
+    <div className="glass rounded-[var(--radius-card)] p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div className="eyebrow text-[10px]">When people visit · their local time</div>
+        {busiest && (
+          <div className="text-muted text-xs">
+            busiest around <span className="text-text">{busiest.label}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 flex h-24 items-end gap-[2px]">
+        {slots.map((s) => (
+          <div
+            key={s.label}
+            className="bg-accent/25 hover:bg-accent/60 min-h-[2px] flex-1 rounded-t-sm transition-colors"
+            style={{ height: `${(s.count / maxH) * 100}%` }}
+            title={`${s.label} — ${s.count} view${s.count === 1 ? "" : "s"}`}
+          />
+        ))}
+      </div>
+      <div className="text-muted mt-1.5 flex justify-between text-[10px]">
+        <span>00:00</span>
+        <span>06:00</span>
+        <span>12:00</span>
+        <span>18:00</span>
+        <span>23:00</span>
+      </div>
+
+      {weekdays.length > 0 && (
+        <div className="mt-5 grid grid-cols-7 gap-1.5">
+          {weekdays.map((d) => (
+            <div key={d.label} className="text-center">
+              {/* items-end anchors the bar to the bottom. A percentage
+                  margin-top would NOT work here: percentage margins resolve
+                  against the container's width, not its height. */}
+              <div className="bg-border/40 flex h-10 items-end overflow-hidden rounded-md">
+                <div
+                  className="bg-accent/40 min-h-[2px] w-full"
+                  style={{ height: `${(d.count / maxD) * 100}%` }}
+                  title={`${d.label} — ${d.count}`}
+                />
+              </div>
+              <div className="text-muted mt-1 text-[10px]">{d.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Dashboard({ data }: { data: Overview }) {
   const { totals } = data;
   // Share of this month's distinct visitors who came back at least once. This
@@ -175,10 +244,12 @@ export function Dashboard({ data }: { data: Overview }) {
 
       <Series series={data.series} />
 
+      <WhenCard hours={data.hours} weekdays={data.weekdays} />
+
       <div className="grid gap-4 lg:grid-cols-2">
         <BreakdownCard
-          title="Timezones"
-          rows={data.timezones}
+          title="Cities"
+          rows={data.cities}
           empty="No visits recorded yet."
         />
         <BreakdownCard
@@ -193,6 +264,15 @@ export function Dashboard({ data }: { data: Overview }) {
           rows={data.referrers}
           empty="No visits recorded yet."
         />
+        <BreakdownCard
+          title="Timezones"
+          rows={data.timezones}
+          empty="No visits recorded yet."
+        />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 lg:gap-4">
+          <BreakdownCard title="Devices" rows={data.devices} empty="No visits yet." />
+          <BreakdownCard title="Browsers" rows={data.browsers} empty="No visits yet." />
+        </div>
       </div>
 
       <p className="text-muted text-xs leading-relaxed">

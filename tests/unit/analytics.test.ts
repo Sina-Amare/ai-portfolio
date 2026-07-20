@@ -1,8 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { createHmac } from "node:crypto";
 import {
+  browserFrom,
+  cityFrom,
+  deviceFrom,
   geoFrom,
   isBotRequest,
+  localTimeFrom,
   normalizePath,
   normalizeReferrer,
 } from "@/lib/analytics/collect";
@@ -59,6 +63,46 @@ describe("analytics/collect", () => {
     expect(normalizeReferrer("https://www.sinaamareh.ir/x", "sinaamareh.ir")).toBe("Direct");
     expect(normalizeReferrer("", "sinaamareh.ir")).toBe("Direct");
     expect(normalizeReferrer("not-a-url", "sinaamareh.ir")).toBe("Direct");
+  });
+
+  it("derives the visitor's LOCAL hour and weekday from their timezone", () => {
+    // 2026-07-14T22:30Z is already the 15th in Tehran but still the 14th in NY.
+    const t = new Date("2026-07-14T22:30:00Z");
+    expect(localTimeFrom("Asia/Tehran", t).hour).toBe("02:00");
+    expect(localTimeFrom("America/New_York", t).hour).toBe("18:00");
+    expect(localTimeFrom("UTC", t).hour).toBe("22:00");
+    // Unknown/invalid zones fall back to UTC rather than throwing.
+    expect(localTimeFrom("Unknown", t).hour).toBe("22:00");
+    expect(localTimeFrom("Not/AZone", t).hour).toBe("Unknown");
+    expect(localTimeFrom("Asia/Tehran", t).weekday).toBe("Wed");
+  });
+
+  it("classifies device and browser from the user-agent", () => {
+    const iphone =
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
+    const ipad =
+      "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/604.1";
+    const chrome =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36";
+    const edge = `${chrome} Edg/120.0`;
+
+    expect(deviceFrom(iphone)).toBe("Mobile");
+    expect(deviceFrom(ipad)).toBe("Tablet");
+    expect(deviceFrom(chrome)).toBe("Desktop");
+
+    // Chrome and Edge UAs both contain "Safari", so order of checks matters.
+    expect(browserFrom(chrome)).toBe("Chrome");
+    expect(browserFrom(edge)).toBe("Edge");
+    expect(browserFrom(iphone)).toBe("Safari");
+  });
+
+  it("builds a bounded 'City, CC' label from Vercel's header", () => {
+    const h = (city: string) => new Headers({ "x-vercel-ip-city": city });
+    expect(cityFrom(h("Amsterdam"), "NL")).toBe("Amsterdam, NL");
+    // The header is RFC3986-encoded.
+    expect(cityFrom(h("S%C3%A3o%20Paulo"), "BR")).toBe("São Paulo, BR");
+    expect(cityFrom(new Headers(), "NL")).toBe("Unknown");
+    expect(cityFrom(h("Berlin"), "Unknown")).toBe("Berlin");
   });
 
   it("reads geo from Vercel headers and rejects malformed values", () => {
