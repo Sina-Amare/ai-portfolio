@@ -83,6 +83,7 @@ export const projects: Project[] = [
     outcomes: [
       "Turns any page into clean, typed CSV / JSON / XLSX through a guided analyze → review → scope → extract flow, with field-coverage trust signals on the results.",
       "Degrades gracefully instead of returning nothing when the AI's selectors aren't perfect.",
+      "Survives its own failures: crawl pages are leased and written idempotently, a reaper reclaims dead leases, and a watchdog re-dispatches stalled runs — a mid-crawl crash costs a retry, not the dataset.",
     ],
     architecture: [
       "URL",
@@ -117,6 +118,7 @@ export const projects: Project[] = [
       outcomes: [
         "هر صفحه رو با یه جریان هدایت‌شده — analyze، بازبینی، انتخابِ scope و extract — به CSV / JSON / XLSXِ تمیز و typed تبدیل می‌کنه، با سیگنال‌های اعتماد روی پوششِ فیلدها.",
         "وقتی selectorهای AI کامل نیستن، به‌جای این‌که هیچی برنگردونه، با افتِ نرم بازم داده می‌ده.",
+        "از خرابیِ خودش هم جون سالم به در می‌بره: صفحه‌های crawl به‌صورت lease گرفته و idempotent نوشته می‌شن، یه reaper اجاره‌های مرده رو پس می‌گیره و یه watchdog اجراهای گیرکرده رو دوباره راه می‌ندازه — یه crash وسطِ کار یعنی یه retry، نه از دست رفتنِ دیتاست.",
       ],
       architecture: [
         "URL",

@@ -56,9 +56,8 @@ export const dict = {
       strengths: [
         "Applied AI/LLM work — RAG, LangGraph, and multi-provider failover behind FastAPI",
         "Frontier-model evaluation — adversarial prompts, golden answers, and rubrics that make failures reproducible",
-        "Resilient backends — async APIs, crash-tolerant jobs, graceful degradation",
+        "Resilient backends — jobs are leased and watchdog-recovered, so a crash means a resumed run, not lost work",
         "Quick from prototype to production, with tests and clean architecture",
-        "Root-cause problem solving — I dig until it actually works",
       ],
       quote:
         "Never had to explain something twice. Never came back empty-handed. Your biggest strength? Being a problem solver.",
@@ -206,9 +205,8 @@ export const dict = {
       strengths: [
         "کار عملی با AI و LLM — RAG، LangGraph و جابه‌جایی خودکار بین چند سرویس‌دهنده، پشت FastAPI",
         "ارزیابیِ مدل‌های frontier — promptهای adversarial، جواب‌های طلاییِ تأییدشده و rubricهایی که خطاها رو تکرارپذیر می‌کنن",
-        "بک‌اند مقاوم — APIهای async، کارهایی که بعد از crash خودشون رو جمع‌وجور می‌کنن، و افت نرم به‌جای خطا",
+        "بک‌اند مقاوم — کارها lease می‌شن و یه watchdog ریکاورشون می‌کنه؛ crash یعنی ادامهٔ اجرا، نه از دست رفتنِ کار",
         "سریع از نمونهٔ اولیه تا محصول نهایی، با تست و معماری تمیز",
-        "حل مشکل از ریشه — تا وقتی واقعاً درست کار نکنه، ولش نمی‌کنم",
       ],
       quote:
         "هیچ‌وقت لازم نشد چیزی رو دو بار بهش بگم. هیچ‌وقت دست‌خالی برنگشت. بزرگ‌ترین نقطه‌قوتت؟ این‌که مشکل رو واقعاً حل می‌کنی.",
