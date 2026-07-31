@@ -25,10 +25,11 @@ export function ProjectsIndex() {
         </Reveal>
 
         {/* Bento: at lg the two "wide" projects each take 2 of 3 columns and pair
-            with a narrow cell, so the grid tiles exactly — and the GitHub link,
-            which is only a footnote, stays the smallest card rather than the
-            biggest. Below lg everything is one column wide (a clean 2×2 on sm),
-            since a 2-col span there would leave holes. */}
+            with a narrow cell — [wide|normal] / [normal|wide] — so four projects
+            tile exactly. The GitHub link, which is only a footnote, becomes a
+            short full-width strip on its own row instead of a stretched card.
+            Below lg everything is one column wide (a clean 2×2 on sm), since a
+            2-col span there would leave holes. */}
         <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => (
             <RevealItem key={p.slug} className={cn(p.span === "wide" && "lg:col-span-2")}>
@@ -36,7 +37,7 @@ export function ProjectsIndex() {
             </RevealItem>
           ))}
 
-          <RevealItem>
+          <RevealItem className="sm:col-span-2 lg:col-span-3">
             <a
               href={site.socials.github}
               target="_blank"

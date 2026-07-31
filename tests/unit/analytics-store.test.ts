@@ -181,7 +181,11 @@ describe("analytics store aggregation", () => {
 
   it("merges breakdowns across every month a long range spans", async () => {
     // Seed the previous month directly, mimicking data recorded back then.
+    // Pin the day to the 1st BEFORE shifting the month: on e.g. July 31,
+    // setUTCMonth(June) targets June 31, which rolls forward to July 1 and
+    // silently seeds the CURRENT month instead.
     const prev = new Date();
+    prev.setUTCDate(1);
     prev.setUTCMonth(prev.getUTCMonth() - 1);
     const prevMonth = prev.toISOString().slice(0, 7);
     store.hashes.set(`an:co:${prevMonth}`, new Map([["DE", 5]]));

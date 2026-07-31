@@ -228,6 +228,94 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: "promptamp",
+    name: "PromptAmp",
+    tagline: "The prompt amplifier — your keys, any site",
+    taglineFa: "تقویت‌کنندهٔ prompt — کلیدهای خودت، هر سایتی",
+    year: "2026",
+    stack: ["TypeScript", "WXT", "Manifest V3", "Vitest", "Playwright"],
+    repo: "https://github.com/Sina-Amare/promptamp",
+    featured: true,
+    span: "normal",
+    summary:
+      "A browser extension that turns a rough draft into an engineered prompt inside any text field on any site — with your own API key. The result appears next to your original, nothing is replaced until you accept, and pasted code comes back byte-for-byte. Live on Firefox Add-ons.",
+    summaryFa:
+      "یه اکستنشن مرورگر که پیش‌نویسِ خام رو همون‌جا توی هر text fieldِ هر سایتی به یه promptِ مهندسی‌شده تبدیل می‌کنه — با API keyِ خودت. نتیجه کنار متنِ اصلیت میاد، تا accept نکنی چیزی عوض نمی‌شه، و کدی که paste کردی بایت‌به‌بایت برمی‌گرده. روی Firefox Add-ons منتشر شده.",
+    problem:
+      "Everyone types half-formed requests into AI tools and gets mediocre results — prompt-engineering advice lives in blog posts nobody applies mid-task. PromptAmp moves that skill into the text field itself: one tap turns the rough thought into a precise, structured prompt, in place, in English or Persian — and if the draft contains code or a log, that content is reproduced exactly; only the ask gets engineered.",
+    role: "Built it end-to-end in TypeScript on WXT — the six-tier insertion engine, the BYOK provider layer with its failover chain and PKCE OAuth, the popup/options UI, and the Vitest + Playwright suites that drive the built extension in a real browser.",
+    highlights: [
+      {
+        title: "Works in any text field",
+        body: "A six-tier insertion engine (exec-command → native setter → contenteditable → paste simulation → main-world editor bridge → clipboard) writes through input-event paths, so React and ProseMirror editors keep their model — and your Ctrl+Z — intact.",
+      },
+      {
+        title: "Your keys, eight providers",
+        body: "Strictly BYOK: OpenAI, Anthropic, Gemini, Groq, OpenRouter via PKCE OAuth, local Ollama / LM Studio, or any OpenAI-compatible endpoint. The list order is a failover chain — credential failures hand over; a model's refusal deliberately doesn't.",
+      },
+      {
+        title: "Keeps what you paste",
+        body: "Pasted code, logs, and documents are reproduced byte-for-byte; only the rough request around them is engineered. Drafts work in English or Persian, and can output in a different language than they were written in.",
+      },
+      {
+        title: "Private by construction",
+        body: "No backend, no telemetry, no accounts. Keys live in storage.local (never sync), host permissions cover exactly the providers you use, and a soft spend cap warns before a runaway bill.",
+      },
+    ],
+    outcomes: [
+      "Published on Firefox Add-ons (AMO), with Chrome and Edge builds shipping from the same WXT codebase.",
+      "Turns 'make it faster and add validation' into a structured, precise prompt with one tap — without your pasted code coming back changed.",
+    ],
+    architecture: [
+      "Rough draft",
+      "✦ button",
+      "BYOK provider chain",
+      "Side-by-side review",
+      "Accept",
+      "Event-path insert",
+    ],
+    fa: {
+      problem:
+        "همه درخواست‌های نصفه‌نیمه توی ابزارهای AI تایپ می‌کنن و نتیجهٔ متوسط می‌گیرن — توصیه‌های prompt engineering هم توی بلاگ‌پست‌هاییه که وسطِ کار کسی اعمالشون نمی‌کنه. PromptAmp این مهارت رو میاره توی خودِ text field: یه لمس، فکرِ خام رو همون‌جا به یه promptِ دقیق و ساخت‌یافته تبدیل می‌کنه، به انگلیسی یا فارسی — و اگه پیش‌نویس کد یا لاگ داشته باشه، عینِ همون برمی‌گرده؛ فقط درخواست مهندسی می‌شه.",
+      role: "از صفر تا صد با TypeScript روی WXT ساختمش — موتورِ شش‌مرحله‌ایِ insertion، لایهٔ BYOKِ providerها با زنجیرهٔ failover و OAuthِ PKCE، رابطِ popup/options، و مجموعه‌تست‌های Vitest و Playwright که اکستنشنِ ساخته‌شده رو توی مرورگرِ واقعی می‌رونن.",
+      highlights: [
+        {
+          title: "توی هر text fieldی کار می‌کنه",
+          body: "یه موتورِ insertion شش‌مرحله‌ای (exec-command → native setter → contenteditable → شبیه‌سازیِ paste → پلِ main-world → کلیپ‌بورد) که از مسیرِ input event می‌نویسه؛ پس modelِ ادیتورهای React و ProseMirror — و Ctrl+Zِ خودت — سالم می‌مونن.",
+        },
+        {
+          title: "کلیدهای خودت، هشت provider",
+          body: "کاملاً BYOK: ‏OpenAI، Anthropic، Gemini، Groq، OpenRouter با OAuthِ PKCE، ‏Ollama و LM Studio لوکال، یا هر endpointِ سازگار با OpenAI. ترتیبِ لیست یه زنجیرهٔ failoverه — خطاهای credential دست‌به‌دست می‌شن؛ ولی refusalِ مدل عمداً نه.",
+        },
+        {
+          title: "چیزی که paste کردی دست نمی‌خوره",
+          body: "کد، لاگ و سندی که paste کردی بایت‌به‌بایت برمی‌گرده؛ فقط درخواستِ خامِ دورش مهندسی می‌شه. پیش‌نویس به انگلیسی یا فارسی جواب می‌ده و خروجی می‌تونه به زبانی غیر از زبانِ پیش‌نویس باشه.",
+        },
+        {
+          title: "حریم خصوصی از پایه",
+          body: "نه سروری، نه telemetry، نه اکانتی. کلیدها توی storage.local می‌مونن (هیچ‌وقت sync نمی‌شن)، دسترسیِ host دقیقاً محدود به providerهاییه که استفاده می‌کنی، و یه سقفِ نرمِ هزینه قبل از صورت‌حسابِ لجام‌گسیخته هشدار می‌ده.",
+        },
+      ],
+      outcomes: [
+        "روی Firefox Add-ons (AMO) منتشر شده و بیلدهای Chrome و Edge از همون یه codebaseِ WXT بیرون میان.",
+        "«سریع‌ترش کن و ولیدیشن اضافه کن» رو با یه لمس به یه promptِ دقیق و ساخت‌یافته تبدیل می‌کنه — بدونِ این‌که کدِ paste‌شده‌ت عوض‌شده برگرده.",
+      ],
+      architecture: [
+        "پیش‌نویس خام",
+        "دکمهٔ ✦",
+        "زنجیرهٔ BYOK",
+        "بازبینی کنار هم",
+        "تأیید",
+        "درجِ event-path",
+      ],
+    },
+    cover: "/projects/promptamp/preserve.webp",
+    media: [
+      { type: "image", src: "/projects/promptamp/preserve.webp", caption: "Keeps what you paste — code comes back byte-for-byte, only the ask gets engineered, in English or Persian" },
+      { type: "image", src: "/projects/promptamp/languages.webp", caption: "Any rough idea, in any language — a Persian draft becomes a polished English prompt" },
+    ],
+  },
+  {
     slug: "github-code-review",
     name: "RubricEval",
     tagline: "A rubric-driven code-evaluation platform",

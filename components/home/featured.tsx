@@ -23,7 +23,9 @@ export function Featured() {
           />
         </Reveal>
 
-        <RevealGroup className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Four featured projects tile as a clean 2×2; three columns would
+            leave an orphan card on its own row. */}
+        <RevealGroup className="mt-10 grid gap-4 sm:grid-cols-2">
           {featuredProjects.map((p) => (
             <RevealItem key={p.slug}>
               <ProjectCard project={p} />
