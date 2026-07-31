@@ -37,7 +37,7 @@ cleanly with **no LLM call**, so it never makes things up.
   first-person voice (sub-second to first token via Groq) with source-citation chips.
 - **Structurally anti-hallucination** — three guards: a retrieval **threshold gate** (refuses
   off-topic questions with no LLM call), a **strict grounded prompt**, and a **jailbreak pre-filter**.
-- **Multi-provider failover + key rotation** — **Groq** (fastest first-token) → **Gemini 2.5 Flash**
+- **Multi-provider failover + key rotation** — **Groq** (fastest first-token) → **Gemini 3.1 / 2.5 Flash**
   → **OpenRouter** free models, and **language-aware** (Persian leads with Gemini for fluent output).
   Each provider rotates across multiple comma-separated API keys; if one errors, times out, or hits
   quota, the next key/provider takes over automatically and invisibly.
@@ -78,7 +78,7 @@ content/*.md ──(npm run embed)──▶ lib/kb.json   (committed; deploys ne
 
 The failover ladder (in [`lib/rag/providers.ts`](lib/rag/providers.ts)) tries providers in order and
 only includes ones whose API key is present. It's **language-aware**: English leads with **Groq**
-(Llama 3.3 70B — fastest first-token), then **Gemini 2.5 Flash-Lite → Flash**, then **OpenRouter**
+(Llama 3.3 70B — fastest first-token), then **Gemini 3.1 Flash-Lite → 2.5 Flash-Lite → 2.5 Flash**, then **OpenRouter**
 (Qwen3-Next-80B → Llama-3.3-70B); Persian leads with **Gemini** (stronger Persian) and keeps Groq
 last. Every provider rotates across all of its comma-separated keys before falling through, so total
 capacity ≈ the sum of your keys. Your API keys are **server-side only** and never reach the browser —

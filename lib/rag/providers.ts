@@ -30,6 +30,10 @@ const GROQ_MODELS = [
   { id: "llama-3.1-8b-instant", label: "Llama 3.1 8B · Groq" },
 ];
 const GEMINI_MODELS = [
+  // 3.1 Flash-Lite leads: noticeably better Persian than 2.5 (verified against
+  // the production prompt on an EN+FA battery). The 2.5 models stay as the next
+  // rungs, so any 3.1 hiccup or quota miss falls through to known-good behavior.
+  { id: "gemini-3.1-flash-lite", label: "Gemini 3.1 Flash-Lite" },
   { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite" },
   { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
 ];

@@ -91,7 +91,7 @@ Yes — Sina treats tests as part of shipping. He has used pytest and Postman, a
 By email at sinaamareh0263@gmail.com, on GitHub at github.com/Sina-Amare, or on LinkedIn at linkedin.com/in/sina-amareh-909987286.
 
 ## How does this chatbot work?
-It's a retrieval-augmented chatbot: it turns your question into an embedding, finds the most relevant pieces of Sina's CV and project notes, and answers only from those — with multi-provider failover behind it, the same resilience pattern Sina uses in his work. If a question is outside what it knows, it says so rather than guessing.
+It's a retrieval-augmented chatbot: it turns your question into an embedding, finds the most relevant pieces of Sina's CV and project notes, and answers only from those — with multi-provider failover behind it, the same resilience pattern Sina uses in his work. Deliberately, there is no vector database: the knowledge base is small, so retrieval is an in-memory cosine-similarity search over a pre-embedded file committed with the site — simpler, faster, and free. If a question is outside what it knows, it says so rather than guessing.
 
 ## What is Sina's working style?
 Sina likes to own a feature end to end — API, data model, tests, and the UI parts that matter. He learns by building, ships steadily with meaningful commits, writes tests as part of the work, and refactors when it helps rather than leaving things half-finished. He cares most about reliability, security by default, and code that's maintainable.
