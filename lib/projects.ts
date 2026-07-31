@@ -242,7 +242,7 @@ export const projects: Project[] = [
     summaryFa:
       "یه اکستنشن مرورگر که پیش‌نویس خام رو همون‌جا — توی هر فیلد متنی، توی هر سایتی — تبدیل می‌کنه به یه prompt درست‌وحسابی، با API key خودت. نتیجه کنار متن خودت نشون داده می‌شه و تا تأیید نکنی هیچی جایگزین نمی‌شه؛ کدی هم که paste کرده باشی بدون یه ذره تغییر برمی‌گرده. روی Firefox Add-ons منتشر شده.",
     problem:
-      "Everyone types half-formed requests into AI tools and gets mediocre results — prompt-engineering advice lives in blog posts nobody applies mid-task. PromptAmp moves that skill into the text field itself: one tap turns the rough thought into a precise, structured prompt, in place, in English or Persian — and if the draft contains code or a log, that content is reproduced exactly; only the ask gets engineered.",
+      "Everyone types half-formed requests into AI tools and gets mediocre results — prompt-engineering advice lives in blog posts nobody applies mid-task. PromptAmp moves that skill into the text field itself: one tap turns the rough thought into a precise, structured prompt, in place, in whatever language you wrote it — and if the draft contains code or a log, that content is reproduced exactly; only the ask gets engineered.",
     role: "Built it end-to-end in TypeScript on WXT — the six-tier insertion engine, the BYOK provider layer with its failover chain and PKCE OAuth, the popup/options UI, and the Vitest + Playwright suites that drive the built extension in a real browser.",
     highlights: [
       {
@@ -255,7 +255,7 @@ export const projects: Project[] = [
       },
       {
         title: "Keeps what you paste",
-        body: "Pasted code, logs, and documents are reproduced byte-for-byte; only the rough request around them is engineered. Drafts work in English or Persian, and can output in a different language than they were written in.",
+        body: "Pasted code, logs, and documents are reproduced byte-for-byte; only the rough request around them is engineered. Write the draft in any language and the prompt comes back in that language — or pick any output language you like, so a Persian draft can become a polished English prompt.",
       },
       {
         title: "Private by construction",
@@ -276,7 +276,7 @@ export const projects: Project[] = [
     ],
     fa: {
       problem:
-        "همه‌مون درخواست‌های نصفه‌نیمه توی ابزارهای AI می‌نویسیم و جواب‌های متوسط می‌گیریم؛ ترفندهای prompt نوشتن هم ته بلاگ‌پست‌هایی مونده که وسط کار کسی سراغشون نمی‌ره. PromptAmp این مهارت رو میاره توی خود فیلد متنی: یه کلیک، و فکر خام همون‌جا تبدیل می‌شه به یه prompt دقیق و مرتب — به انگلیسی یا فارسی. اگه هم توی پیش‌نویست کد یا لاگ باشه، عین خودش می‌مونه؛ فقط درخواستت بازنویسی می‌شه.",
+        "همه‌مون درخواست‌های نصفه‌نیمه توی ابزارهای AI می‌نویسیم و جواب‌های متوسط می‌گیریم؛ ترفندهای prompt نوشتن هم ته بلاگ‌پست‌هایی مونده که وسط کار کسی سراغشون نمی‌ره. PromptAmp این مهارت رو میاره توی خود فیلد متنی: یه کلیک، و فکر خام همون‌جا تبدیل می‌شه به یه prompt دقیق و مرتب — به هر زبونی که نوشته باشیش. اگه هم توی پیش‌نویست کد یا لاگ باشه، عین خودش می‌مونه؛ فقط درخواستت بازنویسی می‌شه.",
       role: "کل اکستنشن رو با TypeScript روی WXT ساختم — موتور شش‌مرحله‌ای درج متن، لایه providerها با کلید خود کاربر و زنجیره failover و ورود OAuth، صفحه‌های popup و تنظیمات، و تست‌های Vitest و Playwright که اکستنشن ساخته‌شده رو توی مرورگر واقعی اجرا می‌کنن.",
       highlights: [
         {
@@ -289,7 +289,7 @@ export const projects: Project[] = [
         },
         {
           title: "چیزی که paste کردی دست نمی‌خوره",
-          body: "کد، لاگ یا متنی که paste کردی عین خودش برمی‌گرده — بایت‌به‌بایت. فقط درخواستی که دورش نوشتی بازنویسی می‌شه. پیش‌نویس می‌تونه فارسی یا انگلیسی باشه و خروجی هم اگه بخوای به زبون دیگه‌ای در میاد.",
+          body: "کد، لاگ یا متنی که paste کردی عین خودش برمی‌گرده — بایت‌به‌بایت. فقط درخواستی که دورش نوشتی بازنویسی می‌شه. پیش‌نویس به هر زبونی جواب می‌ده و prompt هم به همون زبون برمی‌گرده — یا هر زبون خروجی‌ای که خودت انتخاب کنی؛ مثلاً پیش‌نویس فارسی، prompt انگلیسی.",
         },
         {
           title: "حریم خصوصی از پایه",
@@ -311,7 +311,7 @@ export const projects: Project[] = [
     },
     cover: "/projects/promptamp/preserve.webp",
     media: [
-      { type: "image", src: "/projects/promptamp/preserve.webp", caption: "Keeps what you paste — code comes back byte-for-byte, only the ask gets engineered, in English or Persian" },
+      { type: "image", src: "/projects/promptamp/preserve.webp", caption: "Keeps what you paste — code comes back byte-for-byte, only the ask gets engineered, in your draft's language" },
       { type: "image", src: "/projects/promptamp/languages.webp", caption: "Any rough idea, in any language — a Persian draft becomes a polished English prompt" },
     ],
   },
