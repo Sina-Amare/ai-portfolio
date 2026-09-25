@@ -74,11 +74,27 @@
       "expectSource": "Project: Business Intelligence Agents"
     },
     {
+      "q": "Can the Social Research Agent search followers' tweets about a specific topic?",
+      "expectSource": "Project: Social Research Agent"
+    },
+    {
+      "q": "How do the Business Intelligence Agents use manager feedback in later reports?",
+      "expectSource": "Project: Business Intelligence Agents"
+    },
+    {
       "q": "ایجنت رصد شبکه‌های اجتماعی چه مشکلی رو حل کرد؟",
       "expectSource": "Project: Social Research Agent"
     },
     {
       "q": "ایجنت‌های تحلیل و گزارش‌گیری چطور گزارش قابل اعتماد می‌سازن؟",
+      "expectSource": "Project: Business Intelligence Agents"
+    },
+    {
+      "q": "ایجنت رصد می‌تونه بین توییت‌های فالوئرها دربارهٔ یه موضوع بگرده؟",
+      "expectSource": "Project: Social Research Agent"
+    },
+    {
+      "q": "ایجنت‌های تحلیل چطور از بازخورد مدیر برای گزارش بعدی استفاده می‌کنن؟",
       "expectSource": "Project: Business Intelligence Agents"
     },
     { "q": "PromptAmp چیه؟" },
