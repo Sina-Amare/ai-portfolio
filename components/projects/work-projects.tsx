@@ -32,8 +32,14 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
             const copy = project[locale];
             return (
               <RevealItem key={project.id}>
-                <article className="glass border-accent/15 flex h-full flex-col rounded-[var(--radius-card)] p-6 sm:p-8">
-                  <span className="text-accent font-mono text-[11px] tracking-wider uppercase">
+                <article className="glass border-accent/15 flex h-full flex-col rounded-[var(--radius-card)] p-6 font-normal sm:p-8">
+                  <span
+                    className={
+                      locale === "fa"
+                        ? "text-accent font-fa text-xs font-medium"
+                        : "text-accent font-mono text-[11px] tracking-wider uppercase"
+                    }
+                  >
                     {labels.projectLabel}
                   </span>
                   <h3 className="mt-3 text-2xl font-semibold tracking-tight">
