@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Inter, JetBrains_Mono, Vazirmatn } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Inter,
+  JetBrains_Mono,
+  Vazirmatn,
+} from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
 import { site } from "@/lib/site";
@@ -12,6 +17,8 @@ import { LocaleProvider } from "@/components/locale-provider";
 import { CommandPalette } from "@/components/command-palette";
 import { AnimatedBackground } from "@/components/animated-background";
 import { Tracker } from "@/components/analytics/tracker";
+import { SkipLink } from "@/components/skip-link";
+import { LocaleMetadata } from "@/components/locale-metadata";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -42,44 +49,49 @@ const vazirmatn = Vazirmatn({
   preload: false,
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(site.url),
-  title: {
-    default: `${site.name} — ${site.role}`,
-    template: `%s — ${site.name}`,
-  },
-  description:
-    "Python backend & AI/LLM engineer. Resilient backend services, multi-provider LLM apps, and RAG. Ask my AI assistant anything about my work.",
-  keywords: [
-    "Sina Amareh",
-    "Python developer",
-    "Backend engineer",
-    "AI engineer",
-    "LLM",
-    "RAG",
-    "FastAPI",
-    "Django",
-    "Next.js",
-  ],
-  authors: [{ name: site.name, url: site.url }],
-  creator: site.name,
-  openGraph: {
-    type: "website",
-    url: site.url,
-    siteName: site.name,
-    title: `${site.name} — ${site.role}`,
-    description:
-      "Python backend & AI/LLM engineer. Ask my AI assistant anything about my work.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${site.name} — ${site.role}`,
-    description:
-      "Python backend & AI/LLM engineer. Ask my AI assistant anything about my work.",
-  },
-  alternates: { canonical: site.url },
-  robots: { index: true, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = (await cookies()).get("locale")?.value === "fa" ? "fa" : "en";
+  const role = locale === "fa" ? "توسعه‌دهندهٔ بک‌اند و AI" : site.role;
+  const description =
+    locale === "fa"
+      ? "من سینا عماره‌ام؛ با Python بک‌اند و برنامه‌های AI می‌سازم. از پروژه‌ها و تجربه‌هام از دستیار سایت بپرس."
+      : "Python backend & AI/LLM engineer. Resilient backend services, multi-provider LLM apps, and RAG. Ask my AI assistant anything about my work.";
+  return {
+    metadataBase: new URL(site.url),
+    title: {
+      default: `${site.name} — ${role}`,
+      template: `%s — ${site.name}`,
+    },
+    description,
+    keywords: [
+      "Sina Amareh",
+      "Python developer",
+      "Backend engineer",
+      "AI engineer",
+      "LLM",
+      "RAG",
+      "FastAPI",
+      "Django",
+      "Next.js",
+    ],
+    authors: [{ name: site.name, url: site.url }],
+    creator: site.name,
+    openGraph: {
+      type: "website",
+      url: site.url,
+      siteName: site.name,
+      title: `${site.name} — ${role}`,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${site.name} — ${role}`,
+      description,
+    },
+    alternates: { canonical: site.url },
+    robots: { index: true, follow: true },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [
@@ -92,7 +104,8 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const cookieStore = await cookies();
-  const locale: Locale = cookieStore.get("locale")?.value === "fa" ? "fa" : "en";
+  const locale: Locale =
+    cookieStore.get("locale")?.value === "fa" ? "fa" : "en";
   return (
     <html
       lang={locale}
@@ -104,16 +117,12 @@ export default async function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className="bg-bg text-text font-sans flex min-h-dvh flex-col"
+        className="bg-bg text-text flex min-h-dvh flex-col font-sans"
       >
-        <a
-          href="#content"
-          className="focus:bg-accent focus:text-accent-contrast sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:px-4 focus:py-2 focus:text-sm"
-        >
-          Skip to content
-        </a>
         <ThemeProvider>
           <LocaleProvider initial={locale}>
+            <SkipLink />
+            <LocaleMetadata />
             <AnimatedBackground />
             <MotionProvider>
               <Nav />

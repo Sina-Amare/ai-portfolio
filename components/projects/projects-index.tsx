@@ -8,6 +8,7 @@ import { useLocale } from "@/components/locale-provider";
 import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ProjectCard } from "@/components/projects/project-card";
+import { WorkProjects } from "@/components/projects/work-projects";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { GitHubIcon } from "@/components/icons";
 
@@ -32,7 +33,10 @@ export function ProjectsIndex() {
             2-col span there would leave holes. */}
         <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => (
-            <RevealItem key={p.slug} className={cn(p.span === "wide" && "lg:col-span-2")}>
+            <RevealItem
+              key={p.slug}
+              className={cn(p.span === "wide" && "lg:col-span-2")}
+            >
               <ProjectCard project={p} />
             </RevealItem>
           ))}
@@ -42,7 +46,7 @@ export function ProjectsIndex() {
               href={site.socials.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="group glass flex h-full flex-col justify-center gap-4 rounded-[var(--radius-card)] border-accent/15 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/40"
+              className="group glass border-accent/15 hover:border-accent/40 flex h-full flex-col justify-center gap-4 rounded-[var(--radius-card)] p-6 transition-all duration-300 hover:-translate-y-0.5"
             >
               {/* Centred, not top/bottom-anchored: this tile stretches to the
                   height of the tall project card beside it, and pinning the icon
@@ -51,18 +55,21 @@ export function ProjectsIndex() {
                 <div className="bg-accent/15 text-accent grid h-10 w-10 place-items-center rounded-full">
                   <GitHubIcon className="h-5 w-5" />
                 </div>
-                <ArrowUpRight className="text-muted group-hover:text-accent h-5 w-5 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                <ArrowUpRight className="text-muted group-hover:text-accent h-5 w-5 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold tracking-tight">
                   {t.projects.moreOnGithub}
                 </h3>
-                <p className="text-muted mt-1 text-sm">{t.projects.moreOnGithubNote}</p>
+                <p className="text-muted mt-1 text-sm">
+                  {t.projects.moreOnGithubNote}
+                </p>
               </div>
             </a>
           </RevealItem>
         </RevealGroup>
       </Container>
+      <WorkProjects />
     </section>
   );
 }

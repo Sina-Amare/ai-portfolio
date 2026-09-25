@@ -1,12 +1,16 @@
 import type { MetadataRoute } from "next";
+import { cookies } from "next/headers";
 import { site } from "@/lib/site";
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const locale = (await cookies()).get("locale")?.value === "fa" ? "fa" : "en";
   return {
-    name: `${site.name} — ${site.role}`,
+    name: `${site.name} — ${locale === "fa" ? "توسعه‌دهندهٔ بک‌اند و AI" : site.role}`,
     short_name: site.name,
     description:
-      "Python backend & AI/LLM engineer. Ask my AI assistant anything about my work.",
+      locale === "fa"
+        ? "پروژه‌ها و تجربه‌های سینا عماره در بک‌اند و AI؛ از دستیار سایت دربارهٔ کارهاش بپرس."
+        : "Python backend & AI/LLM engineer. Ask my AI assistant anything about my work.",
     start_url: "/",
     display: "standalone",
     background_color: "#0a0a0b",

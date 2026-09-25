@@ -38,6 +38,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Private workplace source material
+/NDA/
+
 # local screenshot artifacts + QA scripts (dev only)
 /shot-*.png
 /shot.png

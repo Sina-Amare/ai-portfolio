@@ -5,6 +5,7 @@ export type MediaItem = {
   src: string;
   poster?: string;
   caption?: string;
+  captionFa?: string;
 };
 
 export type Project = {
@@ -58,7 +59,7 @@ export const projects: Project[] = [
     summary:
       "Paste a URL and an LLM proposes the extraction fields and selectors; the app re-validates and self-heals them against the real HTML, then crawls and exports clean CSV/JSON/XLSX.",
     summaryFa:
-      "یه URL می‌دی و LLM فیلدها و selectorهای استخراج رو پیشنهاد می‌ده؛ برنامه اون‌ها رو روی HTML واقعی چک و اصلاح می‌کنه، بعد صفحه‌ها رو crawl می‌کنه و خروجی تمیز CSV/JSON/XLSX تحویل می‌ده.",
+      "لینک صفحه رو می‌دی؛ LLM پیشنهاد می‌ده چه داده‌هایی رو از کجا برداریم. برنامه پیشنهادها رو روی HTML واقعی امتحان می‌کنه، خطاها رو اصلاح می‌کنه و در آخر دادهٔ تمیز رو به شکل CSV، JSON یا XLSX تحویل می‌ده.",
     problem:
       "Scrapers built on hand-written CSS selectors are brittle — one layout change and they silently return nothing. ScrapeGPT lets an LLM discover the selectors from the page, then makes extraction resilient: it re-checks every selector against the real HTML, self-heals the ones that miss, and falls back through multiple strategies so even a wrong guess still yields records.",
     role: "Designed and built the full stack — a FastAPI + PostgreSQL backend, a provider-agnostic LLM layer (LiteLLM) with encrypted bring-your-own keys, and a React/TypeScript UI.",
@@ -95,30 +96,30 @@ export const projects: Project[] = [
     ],
     fa: {
       problem:
-        "اسکریپرهایی که با selector دستی ساخته می‌شن خیلی شکننده‌ان — یه تغییر کوچیک توی ظاهر صفحه کافیه تا بی‌سروصدا دیگه هیچی برنگردونن. ScrapeGPT پیدا کردن selectorها رو می‌سپره به LLM و بعد استخراج رو مقاوم می‌کنه: هر selector روی HTML واقعی دوباره چک می‌شه، اونایی که جواب نمی‌دن خودکار اصلاح می‌شن، و چند مسیر جایگزین هم هست تا حتی وقتی حدس AI غلط از آب درمیاد، باز هم داده به دست بیاد.",
-      role: "کل استک رو خودم طراحی کردم و ساختم — بک‌اند FastAPI و PostgreSQL، یه لایه LLM مستقل از provider (با LiteLLM) که کلید API خود کاربر رو رمزنگاری‌شده نگه می‌داره، و رابط کاربری React/TypeScript.",
+        "وقتی برای استخراج داده از یه سایت selectorها رو دستی می‌نویسی، یه تغییر کوچیک توی صفحه ممکنه همه‌چیز رو خراب کنه. بدتر اینکه گاهی برنامه بی‌سروصدا خروجی خالی می‌ده. ScrapeGPT از LLM کمک می‌گیره تا selectorها رو پیدا کنه، اما بعد خودش تک‌تک‌شون رو روی صفحهٔ واقعی امتحان می‌کنه. اگه چیزی پیدا نشه، selector رو اصلاح می‌کنه یا از مسیر جایگزین می‌ره تا کار با یه حدس اشتباه متوقف نشه.",
+      role: "طراحی و ساخت کل برنامه با من بود: بک‌اند FastAPI و PostgreSQL، لایهٔ LLM با LiteLLM که به یه سرویس خاص وابسته نیست و کلید کاربر رو رمزنگاری می‌کنه، و رابط کاربری React/TypeScript.",
       highlights: [
         {
           title: "AI پیشنهاد می‌ده، کد تأیید می‌کنه",
-          body: "LLM به جای HTML خام، یه خلاصه تمیز از ساختار صفحه می‌خونه و selector آیتم‌های تکراری و تک‌تک فیلدها رو پیشنهاد می‌ده — ولی سیستم هیچ‌وقت چشم‌بسته به این پیشنهادها اعتماد نمی‌کنه.",
+          body: "LLM خلاصه‌ای از ساختار صفحه رو می‌بینه و selector آیتم‌ها و فیلدها رو پیشنهاد می‌ده. برنامه هر پیشنهاد رو روی HTML واقعی امتحان می‌کنه؛ صرفِ جواب مدل کافی نیست.",
         },
         {
-          title: "selectorهایی که خودشون رو ترمیم می‌کنن",
-          body: "هر selector یه بار دیگه روی صفحه واقعی اجرا می‌شه؛ اونایی که چیزی پیدا نمی‌کنن اول ساده‌تر می‌شن و اگه باز جواب ندن کنار می‌رن. یه مسیر جایگزین بر پایه ساختار جدول هم هست — پس حتی یه حدس ناقص هم داده برمی‌گردونه.",
+          title: "وقتی صفحه عوض می‌شه، کار ادامه پیدا می‌کنه",
+          body: "اگه یه selector چیزی پیدا نکنه، برنامه ساده‌ترش می‌کنه و دوباره امتحان می‌کنه. برای جدول‌ها هم یه روش جایگزین داره تا با یک پیشنهاد ناقص، کل استخراج از کار نیفته.",
         },
         {
-          title: "صفحه‌های تعاملی رو هم بلده",
-          body: "کنترل‌های تعاملی صفحه (مثل دکمه Metric/Imperial) رو تشخیص می‌ده، با یه مرورگر واقعی حالت‌هاشون رو عوض می‌کنه و از هر حالت جداگانه خروجی می‌گیره — نه فقط از HTML ثابت.",
+          title: "با صفحه‌های تعاملی هم کار می‌کنه",
+          body: "اگه داده پشت یه دکمه یا منوی کشویی باشه، کنترل رو پیدا می‌کنه و با مرورگر واقعی حالت‌های مختلفش رو باز می‌کنه. مثلاً می‌تونه هر دو حالت Metric و Imperial رو جداگانه بخونه.",
         },
         {
           title: "امنیت از پایه",
-          body: "در برابر حمله SSRF محافظت می‌شه (بررسی تک‌تک redirectها و قفل کردن IP مقصد در برابر DNS rebinding)، و کلید API خود کاربر هم با Fernet رمزنگاری و نگهداری می‌شه.",
+          body: "آدرس مقصد در هر redirect بررسی می‌شه و IP اتصال ثابت می‌مونه تا راه حمله‌های SSRF و DNS rebinding بسته بشه. کلید API کاربر هم با Fernet رمزنگاری می‌شه.",
         },
       ],
       outcomes: [
-        "هر صفحه با یه مسیر مرحله‌به‌مرحله — تحلیل، بازبینی، انتخاب محدوده، استخراج — تبدیل می‌شه به خروجی تمیز CSV / JSON / XLSX، همراه با نشونه‌هایی که می‌گن پوشش هر فیلد چقدر کامله.",
-        "وقتی selectorهای AI بی‌نقص نیستن، به جای اینکه دست‌خالی برگرده، هر چی قابل استخراجه رو تحویل می‌ده.",
-        "از crash هم جون سالم به در می‌بره: صفحه‌ها اجاره‌ای (lease) پردازش می‌شن و نتیجه‌ها طوری نوشته می‌شن که تکرارشون مشکلی درست نکنه؛ اجاره‌های رهاشده پس گرفته می‌شن و یه watchdog اجراهای گیرکرده رو دوباره راه می‌ندازه — یعنی crash وسط کار فقط یه تلاش دوباره هزینه داره، نه کل دیتاست.",
+        "از بررسی صفحه تا انتخاب محدوده و استخراج، کاربر قدم‌به‌قدم جلو می‌ره. در آخر خروجی CSV، JSON یا XLSX می‌گیره و می‌بینه هر فیلد چقدر کامل استخراج شده.",
+        "اگه پیشنهاد LLM کامل نباشه، برنامه روش‌های دیگه رو امتحان می‌کنه و داده‌هایی رو که پیدا کرده از دست نمی‌ده.",
+        "اگه وسط crawl برنامه قطع بشه، صفحه‌های نیمه‌تمام دوباره پردازش می‌شن. نتیجه‌ها هم طوری ذخیره می‌شن که اجرای دوباره دادهٔ تکراری نسازه؛ لازم نیست کل کار از اول شروع بشه.",
       ],
       architecture: [
         "URL",
@@ -131,10 +132,38 @@ export const projects: Project[] = [
     },
     cover: "/projects/scrapegpt/extraction-results.webp",
     media: [
-      { type: "image", src: "/projects/scrapegpt/extraction-results.webp", caption: "The payoff — 96 records scraped into a clean table, each with its source URL, ready to export as CSV / JSON / XLSX" },
-      { type: "image", src: "/projects/scrapegpt/workspace.webp", caption: "Guided analyze → review → scope → extract, with the AI's confidence per page" },
-      { type: "image", src: "/projects/scrapegpt/quality.webp", caption: "Trust signals after a run — 96 records, nothing blocked or failed, and 100% coverage on every field" },
-      { type: "image", src: "/projects/scrapegpt/providers.webp", caption: "Bring-your-own-key providers, encrypted at rest and tested before use" },
+      {
+        type: "image",
+        src: "/projects/scrapegpt/extraction-results.webp",
+        caption:
+          "The payoff — 96 records scraped into a clean table, each with its source URL, ready to export as CSV / JSON / XLSX",
+        captionFa:
+          "۹۶ ردیف دادهٔ تمیز، هرکدوم با لینک منبع؛ آمادهٔ خروجی CSV / JSON / XLSX",
+      },
+      {
+        type: "image",
+        src: "/projects/scrapegpt/workspace.webp",
+        caption:
+          "Guided analyze → review → scope → extract, with the AI's confidence per page",
+        captionFa:
+          "از تحلیل صفحه تا بازبینی و استخراج؛ میزان اطمینان AI هم برای هر صفحه مشخصه",
+      },
+      {
+        type: "image",
+        src: "/projects/scrapegpt/quality.webp",
+        caption:
+          "Trust signals after a run — 96 records, nothing blocked or failed, and 100% coverage on every field",
+        captionFa:
+          "نتیجهٔ اجرا: ۹۶ ردیف، بدون صفحهٔ مسدود یا ناموفق، با پوشش کامل همهٔ فیلدها",
+      },
+      {
+        type: "image",
+        src: "/projects/scrapegpt/providers.webp",
+        caption:
+          "Bring-your-own-key providers, encrypted at rest and tested before use",
+        captionFa:
+          "سرویس‌های AI با کلید خودت؛ کلیدها رمزنگاری و قبل از استفاده تست می‌شن",
+      },
     ],
   },
   {
@@ -150,7 +179,7 @@ export const projects: Project[] = [
     summary:
       "Turns your own Telegram account into a self-hosted, installable AI messenger (formerly SakaiBot). Read and send messages with inline media in a glassy web app, and call an LLM right inside any chat — analyze, ask, translate, image, voice. AI results land in a panel, so you decide what to send.",
     summaryFa:
-      "اکانت تلگرام خودت رو تبدیل می‌کنه به یه مسنجر هوشمند و قابل نصب (اسم قبلیش SakaiBot بود). توی یه وب‌اپ تمیز پیام می‌خونی و می‌فرستی — با عکس و ویس و استیکر — و توی هر چت هم می‌تونی از AI کمک بگیری: تحلیل چت، پرسش، ترجمه، ساخت تصویر، صدا. جواب AI اول توی یه پنل میاد و خودت تصمیم می‌گیری چی ارسال بشه.",
+      "اکانت تلگرام خودت رو به یه مسنجر قابل نصب با AI تبدیل می‌کنه (اسم قبلیش SakaiBot بود). پیام‌ها و عکس و ویس رو توی وب‌اپ می‌بینی و می‌فرستی؛ توی هر چت هم می‌تونی از AI برای تحلیل، ترجمه، تصویر یا صدا کمک بگیری. جواب اول به خودت نشون داده می‌شه و ارسالش دست توئه.",
     problem:
       "Telegram has no built-in AI, and bolting one on usually means copy-pasting into another app or handing a third-party bot your account. Aigram runs as a userbot on your own account (Telethon) behind a glassy, installable web app: a real messenger you can read and send from, with an AI co-pilot in every chat — your account, your keys, your server.",
     role: "Built it end-to-end in Python — the Telethon/MTProto core, a FastAPI + vanilla-JS PWA on the same asyncio loop, the multi-provider AI layer, and a single audited send-bridge with ban-safety throttling.",
@@ -186,29 +215,29 @@ export const projects: Project[] = [
     ],
     fa: {
       problem:
-        "تلگرام AI داخلی نداره و راه‌های معمول اضافه کردنش هم جالب نیستن: یا باید مدام بین تلگرام و یه اپ دیگه کپی‌پیست کنی، یا اکانتت رو بسپری دست یه بات غریبه. Aigram به شکل یوزربات روی اکانت خودت اجرا می‌شه (با Telethon) و پشتش یه وب‌اپ تمیز و قابل نصب داره: یه مسنجر واقعی که باهاش می‌خونی و می‌فرستی، و توی هر چت یه دستیار AI کنارته — اکانت خودت، کلید خودت، سرور خودت.",
-      role: "از صفر تا صد با Python ساختمش — هسته Telethon/MTProto، یه PWA با FastAPI و جاوااسکریپت خالص روی همون asyncio loop، لایه AI با چند provider، و یه مسیر ارسال واحد و کنترل‌شده که با فاصله‌گذاری بین پیام‌ها جلوی بن شدن اکانت رو می‌گیره.",
+        "برای کمک گرفتن از AI وسط چت، معمولاً باید متن رو از تلگرام به یه برنامهٔ دیگه ببری. Aigram این کار رو داخل یه مسنجر قابل نصب انجام می‌ده که روی اکانت خودت اجرا می‌شه. پیام می‌خونی و می‌فرستی و دستیار AI هم توی همون چت در دسترسه؛ اکانت، کلیدها و سرور دست خودته.",
+      role: "همهٔ بخش‌هاش رو با Python ساختم: اتصال Telethon/MTProto، وب‌اپ PWA با FastAPI و جاوااسکریپت روی یک asyncio loop، لایهٔ AI با چند سرویس و یک مسیر کنترل‌شده برای ارسال پیام.",
       highlights: [
         {
           title: "یه مسنجر واقعی و قابل نصب",
-          body: "یه وب‌اپ تمیز روی اکانت خودت: حباب‌های پیام گروه‌بندی‌شده، عکس و استیکر و ویس داخل خود چت، ریپلای و ادیت و فوروارد و حذف، تایپینگ و وضعیت آنلاین لحظه‌ای، تم دارک و لایت — و با یه Cloudflare Tunnel رایگان می‌شینه روی صفحه اصلی گوشیت.",
+          body: "توی وب‌اپ می‌تونی پیام‌ها رو با عکس، استیکر و ویس ببینی؛ جواب بدی، ویرایش کنی یا بفرستی جلو. وضعیت تایپ و آنلاین بودن هم زنده میاد. نسخهٔ PWA با Cloudflare Tunnel روی گوشی نصب می‌شه.",
         },
         {
           title: "AI توی هر چت — کنترل دست خودت",
-          body: "توی هر چت یه منوی ✨ AI هست: تحلیل چت یا پرسش از تاریخچه‌ش، پرسیدن هر سوالی (با تفکر عمیق و جست‌وجوی وب)، ترجمه با تلفظ فارسی، ساخت تصویر، تبدیل متن به صدا و برعکس. جواب‌ها توی یه پنل ذخیره و دسته‌بندی می‌شن — و تا خودت نخوای هیچی ارسال نمی‌شه.",
+          body: "توی هر چت می‌تونی از AI دربارهٔ تاریخچهٔ همون گفتگو بپرسی، با جست‌وجوی وب جواب بگیری، ترجمه کنی، تصویر بسازی یا متن و صدا رو تبدیل کنی. جواب‌ها توی پنل ذخیره می‌شن و تا خودت انتخاب نکنی، برای کسی ارسال نمی‌شن.",
         },
         {
           title: "فقط یه مسیر به تلگرام می‌نویسه",
-          body: "FastAPI و کلاینت Telethon یه session مشترک MTProto دارن، روی یه asyncio loop. توی کل پروژه فقط یه ماژول اجازه داره روی تلگرام بنویسه — اون هم با فاصله‌گذاری بین پیام‌ها و مدیریت FloodWait، که اکانتت بن نشه.",
+          body: "FastAPI و Telethon روی یک asyncio loop کار می‌کنن و یک session دارن. همهٔ پیام‌های خروجی از یک مسیر می‌گذرن؛ هم فاصلهٔ بین ارسال‌ها کنترل می‌شه، هم خطای FloodWait مدیریت می‌شه.",
         },
         {
           title: "زیر فشار سهمیه سرپا می‌مونه",
-          body: "Gemini سرویس اصلیه و OpenRouter پشتیبان؛ برای هر کدوم تا ۴ کلید می‌چرخه و موقع خطا یا تموم شدن سهمیه، خودکار جابه‌جا می‌شه. کلیدها رو هم همون لحظه توی پنل اضافه و تست و عوض می‌کنی، بدون restart.",
+          body: "Gemini سرویس اصلیه و OpenRouter پشتیبان. اگه یه کلید خطا بده یا سهمیه‌ش تموم بشه، برنامه بین کلیدها جابه‌جا می‌شه. می‌تونی تا چهار کلید برای هر سرویس توی پنل اضافه و تست کنی، بدون restart.",
         },
       ],
       outcomes: [
-        "یه مسنجر واقعی به‌علاوه یه دستیار AI، روی اکانت تلگرام خودت — قابل نصب روی گوشی، بدون اینکه session دست هیچ سرویس واسطی باشه.",
-        "هر جای ارزونی اجرا می‌شه: یه VPS ماهی ۱٫۴۹ یورو، کامپیوتر خونه، Termux یا رزبری‌پای — با مسیر راه‌اندازی‌ای که از داخل ایران هم جواب می‌ده.",
+        "مسنجر و دستیار AI روی اکانت خودت کار می‌کنن و روی گوشی هم قابل نصب‌اند؛ session اکانت پیش خودت می‌مونه.",
+        "روی یه VPS ارزون، کامپیوتر خونه، Termux یا رزبری‌پای اجرا می‌شه. حتی برای راه‌اندازی از داخل ایران هم مسیر مشخص داره.",
       ],
       architecture: [
         "انتخاب چت",
@@ -221,10 +250,37 @@ export const projects: Project[] = [
     },
     cover: "/projects/aigram/chat-dark.webp",
     media: [
-      { type: "image", src: "/projects/aigram/chat-dark.webp", caption: "A real Telegram messenger on your own account — grouped bubbles, inline media, live typing, dark + light" },
-      { type: "image", src: "/projects/aigram/ai-result.webp", caption: "AI runs inside the chat; results land in the panel — saved, categorized, and yours to send or not" },
-      { type: "image", src: "/projects/aigram/ai-sheet.webp", caption: "The ✨ AI sheet — analyze, ask, prompt, translate, image, TTS/STT" },
-      { type: "image", src: "/projects/aigram/chat-mobile.webp", caption: "Installable PWA — the full messenger on your phone over a free Cloudflare Tunnel" },
+      {
+        type: "image",
+        src: "/projects/aigram/chat-dark.webp",
+        caption:
+          "A real Telegram messenger on your own account — grouped bubbles, inline media, live typing, dark + light",
+        captionFa:
+          "مسنجر روی اکانت خودت؛ پیام‌ها، عکس و ویس، وضعیت لحظه‌ای و تم روشن و تیره",
+      },
+      {
+        type: "image",
+        src: "/projects/aigram/ai-result.webp",
+        caption:
+          "AI runs inside the chat; results land in the panel — saved, categorized, and yours to send or not",
+        captionFa:
+          "AI داخل همون چت جواب می‌ده؛ نتیجه توی پنل می‌مونه تا خودت برای ارسالش تصمیم بگیری",
+      },
+      {
+        type: "image",
+        src: "/projects/aigram/ai-sheet.webp",
+        caption:
+          "The ✨ AI sheet — analyze, ask, prompt, translate, image, TTS/STT",
+        captionFa: "منوی AI برای تحلیل، پرسش، ترجمه، تصویر و تبدیل متن و صدا",
+      },
+      {
+        type: "image",
+        src: "/projects/aigram/chat-mobile.webp",
+        caption:
+          "Installable PWA — the full messenger on your phone over a free Cloudflare Tunnel",
+        captionFa:
+          "نسخهٔ قابل نصب روی گوشی، با دسترسی از راه Cloudflare Tunnel",
+      },
     ],
   },
   {
@@ -240,7 +296,7 @@ export const projects: Project[] = [
     summary:
       "A browser extension that turns a rough draft into an engineered prompt inside any text field on any site — with your own API key. The result appears next to your original, nothing is replaced until you accept, and pasted code comes back byte-for-byte. Live on Firefox Add-ons.",
     summaryFa:
-      "یه اکستنشن مرورگر که پیش‌نویس خام رو همون‌جا — توی هر فیلد متنی، توی هر سایتی — تبدیل می‌کنه به یه prompt درست‌وحسابی، با API key خودت. نتیجه کنار متن خودت نشون داده می‌شه و تا تأیید نکنی هیچی جایگزین نمی‌شه؛ کدی هم که paste کرده باشی بدون یه ذره تغییر برمی‌گرده. روی Firefox Add-ons منتشر شده.",
+      "یه اکستنشن مرورگر که درخواست خامت رو همون‌جا، توی فیلد متن هر سایتی، به یه prompt دقیق تبدیل می‌کنه. با کلید API خودت کار می‌کنه؛ نتیجه رو کنار متن اصلی می‌بینی و تا تأیید نکنی چیزی عوض نمی‌شه. کد paste‌شده هم دست‌نخورده می‌مونه. روی Firefox Add-ons منتشر شده.",
     problem:
       "Everyone types half-formed requests into AI tools and gets mediocre results — prompt-engineering advice lives in blog posts nobody applies mid-task. PromptAmp moves that skill into the text field itself: one tap turns the rough thought into a precise, structured prompt, in place, in whatever language you wrote it — and if the draft contains code or a log, that content is reproduced exactly; only the ask gets engineered.",
     role: "Built it end-to-end in TypeScript on WXT — the six-tier insertion engine, the BYOK provider layer with its failover chain and PKCE OAuth, the popup/options UI, and the Vitest + Playwright suites that drive the built extension in a real browser.",
@@ -276,29 +332,29 @@ export const projects: Project[] = [
     ],
     fa: {
       problem:
-        "همه‌مون درخواست‌های نصفه‌نیمه توی ابزارهای AI می‌نویسیم و جواب‌های متوسط می‌گیریم؛ ترفندهای prompt نوشتن هم ته بلاگ‌پست‌هایی مونده که وسط کار کسی سراغشون نمی‌ره. PromptAmp این مهارت رو میاره توی خود فیلد متنی: یه کلیک، و فکر خام همون‌جا تبدیل می‌شه به یه prompt دقیق و مرتب — به هر زبونی که نوشته باشیش. اگه هم توی پیش‌نویست کد یا لاگ باشه، عین خودش می‌مونه؛ فقط درخواستت بازنویسی می‌شه.",
-      role: "کل اکستنشن رو با TypeScript روی WXT ساختم — موتور شش‌مرحله‌ای درج متن، لایه providerها با کلید خود کاربر و زنجیره failover و ورود OAuth، صفحه‌های popup و تنظیمات، و تست‌های Vitest و Playwright که اکستنشن ساخته‌شده رو توی مرورگر واقعی اجرا می‌کنن.",
+        "وسط کار با ابزارهای AI، خیلی وقت‌ها یه درخواست عجولانه می‌نویسی و جواب مبهم می‌گیری. PromptAmp همون‌جا که داری متن رو می‌نویسی کمک می‌کنه درخواستت روشن‌تر و دقیق‌تر بشه. یه کلیک می‌کنی، نسخهٔ بهتر رو کنار متن اصلی می‌بینی و خودت تصمیم می‌گیری جاش بذاری یا نه. اگه کد یا لاگ هم paste کرده باشی، فقط متن درخواست تغییر می‌کنه.",
+      role: "کل اکستنشن رو با TypeScript و WXT ساختم: موتور درج متن با شش روش، اتصال به چند سرویس AI با کلید خود کاربر و مسیر جایگزین، ورود OAuth، صفحه‌های تنظیمات و تست‌های Vitest و Playwright روی مرورگر واقعی.",
       highlights: [
         {
           title: "توی هر فیلد متنی کار می‌کنه",
-          body: "نوشتن متن توی سایت‌های دیگه همون بخش سخت ماجراست — ادیتورهای مدرن (مثل چیزی که ChatGPT یا Notion دارن) متن تزریقی رو بی‌سروصدا پس می‌زنن. PromptAmp شش روش رو به ترتیب امتحان می‌کنه و هر کدوم مثل تایپ واقعی می‌نویسن؛ نتیجه اینکه ادیتور صفحه خراب نمی‌شه و Ctrl+Z خودت هم سر جاشه.",
+          body: "ادیتورهای سایت‌ها یک‌شکل نیستن؛ بعضی‌ها متنی رو که اکستنشن وارد می‌کنه بی‌سروصدا رد می‌کنن. PromptAmp شش روش درج رو به ترتیب امتحان می‌کنه تا متن واقعاً ثبت بشه و Ctrl+Z هم کار کنه.",
         },
         {
-          title: "کلید خودت، هشت provider",
-          body: "کاملاً با کلید خودت کار می‌کنه: OpenAI، ‏Anthropic، ‏Gemini، ‏Groq، ‏OpenRouter (با ورود یک‌کلیکی)، ‏Ollama و LM Studio روی سیستم خودت، یا هر سرویس سازگار با OpenAI. ترتیب لیست همون زنجیره failover هست: اگه کلیدی خطا بده یا سهمیه‌ش تموم شه، خودش می‌ره سراغ بعدی — ولی اگه مدلی از جواب دادن طفره بره، عمداً سراغ مدل بعدی نمی‌ره.",
+          title: "کلید و انتخاب سرویس دست خودته",
+          body: "با OpenAI، Anthropic، Gemini، Groq، OpenRouter، Ollama، LM Studio یا سرویس سازگار با OpenAI کار می‌کنه؛ برای OpenRouter ورود یک‌کلیکی هم داره. اگه کلید یا سهمیهٔ یه سرویس مشکل پیدا کنه، سراغ گزینهٔ بعدی می‌ره. جواب ندادن خود مدل باعث جابه‌جایی نمی‌شه.",
         },
         {
-          title: "چیزی که paste کردی دست نمی‌خوره",
-          body: "کد، لاگ یا متنی که paste کردی عین خودش برمی‌گرده — بایت‌به‌بایت. فقط درخواستی که دورش نوشتی بازنویسی می‌شه. پیش‌نویس به هر زبونی جواب می‌ده و prompt هم به همون زبون برمی‌گرده — یا هر زبون خروجی‌ای که خودت انتخاب کنی؛ مثلاً پیش‌نویس فارسی، prompt انگلیسی.",
+          title: "کد و لاگت دقیقاً همون می‌مونه",
+          body: "کد، لاگ یا سندی که paste کردی بایت‌به‌بایت حفظ می‌شه؛ فقط درخواستی که دورش نوشتی بهتر می‌شه. زبون خروجی رو هم خودت انتخاب می‌کنی؛ مثلاً می‌تونی از پیش‌نویس فارسی یه prompt انگلیسی بگیری.",
         },
         {
           title: "حریم خصوصی از پایه",
-          body: "نه سروری در کاره، نه آماری جمع می‌شه، نه اکانتی لازمه. کلیدها فقط روی مرورگر خودت می‌مونن و هیچ‌وقت sync نمی‌شن، دسترسی اکستنشن محدود به همون سرویس‌هاییه که خودت انتخاب کردی، و یه سقف هزینه هم هست که قبل از بالا رفتن خرجت هشدار می‌ده.",
+          body: "اکانت و سرور مرکزی لازم نداره. کلیدها توی مرورگر خودت می‌مونن و sync نمی‌شن؛ دسترسی اکستنشن به سرویس‌هایی محدوده که انتخاب کردی. سقف هزینه هم قبل از بالا رفتن خرجت هشدار می‌ده.",
         },
       ],
       outcomes: [
-        "روی Firefox Add-ons (AMO) منتشر شده؛ نسخه‌های Chrome و Edge هم از همین یه codebase بیرون میان.",
-        "«سریع‌ترش کن و ولیدیشن اضافه کن» با یه کلیک تبدیل می‌شه به یه prompt دقیق و ساخت‌یافته — بدون اینکه کد paste‌شده‌ت دست بخوره.",
+        "روی Firefox Add-ons منتشر شده؛ نسخه‌های Chrome و Edge هم از همون codebase ساخته می‌شن.",
+        "یه درخواست کوتاه مثل «سریع‌ترش کن و validation اضافه کن» رو با یه کلیک دقیق‌تر می‌کنه و کد paste‌شده رو همون‌طور نگه می‌داره.",
       ],
       architecture: [
         "پیش‌نویس خام",
@@ -311,8 +367,22 @@ export const projects: Project[] = [
     },
     cover: "/projects/promptamp/preserve.webp",
     media: [
-      { type: "image", src: "/projects/promptamp/preserve.webp", caption: "Keeps what you paste — code comes back byte-for-byte, only the ask gets engineered, in your draft's language" },
-      { type: "image", src: "/projects/promptamp/languages.webp", caption: "Any rough idea, in any language — a Persian draft becomes a polished English prompt" },
+      {
+        type: "image",
+        src: "/projects/promptamp/preserve.webp",
+        caption:
+          "Keeps what you paste — code comes back byte-for-byte, only the ask gets engineered, in your draft's language",
+        captionFa:
+          "کدی که paste کردی دقیقاً همون‌طور می‌مونه؛ فقط درخواستت بهتر نوشته می‌شه",
+      },
+      {
+        type: "image",
+        src: "/projects/promptamp/languages.webp",
+        caption:
+          "Any rough idea, in any language — a Persian draft becomes a polished English prompt",
+        captionFa:
+          "پیش‌نویس رو به هر زبونی بنویس؛ مثلاً از متن فارسی یه prompt انگلیسی بگیر",
+      },
     ],
   },
   {
@@ -328,7 +398,7 @@ export const projects: Project[] = [
     summary:
       "Define a versioned rubric of weighted, gated criteria; submit a GitHub repo or ZIP and watch an LLM grade each criterion live against the real code — but a deterministic policy in code makes the final accept / review / reject call, reproducible and auditable.",
     summaryFa:
-      "یه rubric نسخه‌دار از معیارهای وزن‌دار تعریف می‌کنی، یه ریپوی GitHub یا فایل ZIP می‌فرستی، و زنده تماشا می‌کنی که LLM به هر معیار روی کد واقعی نمره می‌ده — ولی تصمیم نهایی قبول / بازبینی / رد رو یه policy قطعی توی کد می‌گیره؛ قابل تکرار و قابل حسابرسی.",
+      "معیارهای وزن‌دار و شرط‌های لازم رو توی یه rubric نسخه‌دار تعریف می‌کنی و ریپوی GitHub یا فایل ZIP می‌دی. LLM کد رو معیاربه‌معیار بررسی می‌کنه؛ تصمیم نهایی قبول، بازبینی یا رد رو قانون‌های مشخص برنامه می‌گیرن تا نتیجه قابل تکرار باشه.",
     problem:
       "Most 'AI code reviewers' tangle three things together: what to evaluate, how to judge it, and how to decide. RubricEval separates them — the rubric is versioned data, the LLM only grades each criterion against the real files, and a pure policy function makes the decision — so one prompt tweak can't silently flip every result, and every decision is reproducible.",
     role: "Designed and built the full-stack platform — a FastAPI + async SQLAlchemy backend with a durable job queue, behind a Next.js / TypeScript frontend.",
@@ -364,29 +434,29 @@ export const projects: Project[] = [
     ],
     fa: {
       problem:
-        "بیشتر «ریویوئرهای کد AI» سه تا کار متفاوت رو قاطی هم می‌کنن: چی ارزیابی بشه، چطور قضاوت بشه، و چطور تصمیم گرفته بشه. RubricEval این سه تا رو از هم جدا می‌کنه — rubric یه داده نسخه‌داره، LLM فقط به هر معیار روی کد واقعی نمره می‌ده، و تصمیم نهایی رو یه تابع policy قطعی می‌گیره. نتیجه اینکه یه تغییر کوچیک توی prompt نمی‌تونه بی‌سروصدا همه نتیجه‌ها رو عوض کنه و هر تصمیمی قابل تکراره.",
-      role: "کل پلتفرم رو طراحی کردم و ساختم — بک‌اند FastAPI با SQLAlchemy غیرهمزمان و یه صف کار مقاوم، و فرانت‌اند Next.js با TypeScript.",
+        "اگه همهٔ ارزیابی کد رو به یه prompt بسپری، معلوم نیست با تغییر prompt چرا نتیجه عوض شده. RubricEval سه کار رو جدا می‌کنه: معیارها توی rubric نسخه‌دار تعریف می‌شن، LLM روی فایل‌های واقعی به هر معیار نمره می‌ده و قانون‌های ثابت برنامه تصمیم نهایی رو می‌گیرن. می‌شه دید هر نتیجه از کجا اومده و بعداً هم دوباره همون ارزیابی رو انجام داد.",
+      role: "کل پلتفرم رو طراحی و ساختم: بک‌اند FastAPI با SQLAlchemy غیرهمزمان و صف کار مقاوم، و فرانت‌اند Next.js با TypeScript.",
       highlights: [
         {
           title: "مدل نمره می‌ده، کد تصمیم می‌گیره",
-          body: "LLM به هر معیار نمره می‌ده، ولی تصمیم قبول / بازبینی / رد رو یه تابع policy ساده و کاملاً تست‌شده می‌گیره — نتیجه‌ها قابل تکرارن و اسیر حال‌وهوای مدل نیستن.",
+          body: "LLM هر معیار رو جداگانه نمره می‌ده. بعد یه تابع policy تست‌شده با همون نمره‌ها تصمیم قبول، بازبینی یا رد رو می‌گیره؛ تصمیم به تغییر حال‌وهوای مدل وابسته نمی‌مونه.",
         },
         {
           title: "شواهد با فایل‌های واقعی چک می‌شن",
-          body: "هر ارجاعی که مدل می‌ده (مسیر فایل، شماره خط، نقل‌قول) با کد واقعی مقایسه می‌شه و اگه تأیید نشه، علامت می‌خوره — مدرک ساختگی جایی برای قایم شدن نداره.",
+          body: "اگه مدل به یه فایل، شماره‌خط یا تکه‌کد استناد کنه، برنامه اون رو با فایل واقعی مقایسه می‌کنه. ارجاعی که پیدا نشه مشخص می‌شه تا به عنوان مدرک پذیرفته نشه.",
         },
         {
-          title: "rubric یعنی داده، نه کد",
-          body: "هر rubric استانداردسازی و hash می‌شه؛ هر ارزیابی هم hash همون rubric و اسم مدل و نسخه prompt رو ثبت می‌کنه. پس نه rubric منتشرشده بی‌خبر عوض می‌شه، نه نتیجه‌ای غیرقابل تکرار می‌مونه.",
+          title: "می‌شه فهمید هر نتیجه با کدوم معیار به دست اومده",
+          body: "هر rubric یه hash داره و کنار نتیجه، اسم مدل و نسخهٔ prompt هم ثبت می‌شه. اگه معیارها بعداً تغییر کنن، معلومه نتیجهٔ قبلی با کدوم نسخه گرفته شده.",
         },
         {
-          title: "ساخته‌شده برای اجرای بی‌وقفه",
-          body: "صف کاری که از crash جون سالم به در می‌بره و بین چند worker پخش می‌شه، گزارش زنده با قابلیت پخش دوباره، یه LLM ساختگی (FakeLLM) برای اجرای آفلاین و تست، و یه مجموعه مرجع برای سنجش هر تغییر prompt یا مدل.",
+          title: "ارزیابی وسط کار گم نمی‌شه",
+          body: "کارها توی صفی می‌مونن که بعد از crash هم ادامه پیدا می‌کنه و بین چند worker پخش می‌شه. نتیجه‌ها زنده پخش می‌شن؛ با FakeLLM و مجموعهٔ مرجع هم می‌شه تغییرهای prompt یا مدل رو آفلاین تست کرد.",
         },
       ],
       outcomes: [
-        "ریویو کد رو تبدیل می‌کنه به یه تصمیم قابل تکرار و قابل حسابرسی بر پایه rubric — نه نظری که یه LLM همون یه بار داده.",
-        "کل موتور بدون اینترنت و به شکل قطعی اجرا می‌شه (با FakeLLM) و هر تغییر prompt یا مدل با یه مجموعه مرجع سنجیده می‌شه.",
+        "برای هر تصمیم، معیارها و شواهدش مشخصه؛ می‌شه ارزیابی رو دوباره انجام داد و نتیجه رو بررسی کرد.",
+        "با FakeLLM می‌شه موتور رو بدون اینترنت اجرا کرد و تغییرهای prompt یا مدل رو با یه مجموعهٔ مرجع سنجید.",
       ],
       architecture: [
         "ریپو یا ZIP",
@@ -399,10 +469,36 @@ export const projects: Project[] = [
     },
     cover: "/projects/github-code-review/live-evaluation.webp",
     media: [
-      { type: "image", src: "/projects/github-code-review/live-evaluation.webp", caption: "Live per-criterion evaluation streaming to an accept / review / reject decision" },
-      { type: "image", src: "/projects/github-code-review/report.webp", caption: "Final report — every verdict carries evidence, each citation highlighted against the real file in Monaco (the VS Code editor)" },
-      { type: "image", src: "/projects/github-code-review/task-builder.webp", caption: "Rubric as data — weighted criteria and gates, versioned and content-hashed" },
-      { type: "image", src: "/projects/github-code-review/dashboard.webp", caption: "Tasks and recent verdicts at a glance" },
+      {
+        type: "image",
+        src: "/projects/github-code-review/live-evaluation.webp",
+        caption:
+          "Live per-criterion evaluation streaming to an accept / review / reject decision",
+        captionFa:
+          "نمرهٔ هر معیار زنده میاد و در آخر نتیجهٔ قبول، بازبینی یا رد مشخص می‌شه",
+      },
+      {
+        type: "image",
+        src: "/projects/github-code-review/report.webp",
+        caption:
+          "Final report — every verdict carries evidence, each citation highlighted against the real file in Monaco (the VS Code editor)",
+        captionFa:
+          "گزارش نهایی؛ مدرک هر نتیجه روی خط‌های واقعی فایل نشون داده می‌شه",
+      },
+      {
+        type: "image",
+        src: "/projects/github-code-review/task-builder.webp",
+        caption:
+          "Rubric as data — weighted criteria and gates, versioned and content-hashed",
+        captionFa:
+          "ساخت rubric با معیارهای وزن‌دار و شرط‌های لازم؛ هر نسخه hash خودش رو داره",
+      },
+      {
+        type: "image",
+        src: "/projects/github-code-review/dashboard.webp",
+        caption: "Tasks and recent verdicts at a glance",
+        captionFa: "تسک‌ها و نتیجه‌های اخیر، همه توی یک صفحه",
+      },
     ],
   },
 ];

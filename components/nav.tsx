@@ -76,7 +76,7 @@ export function Nav() {
             href="/"
             onClick={(e) => onNav(e, "/")}
             className="text-heading font-mono text-sm font-semibold tracking-tight"
-            aria-label="Sina Amareh — home"
+            aria-label={t.nav.homeLabel}
           >
             sina<span className="text-accent">.</span>amareh
           </Link>
@@ -100,7 +100,7 @@ export function Nav() {
               href={site.resume}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-text ms-2 inline-flex items-center gap-1.5 rounded-full border border-border-strong px-3 py-1.5 text-sm transition-colors hover:border-accent/60"
+              className="text-text border-border-strong hover:border-accent/60 ms-2 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors"
             >
               <FileText className="h-3.5 w-3.5" /> {t.nav.resume}
             </a>
@@ -108,7 +108,7 @@ export function Nav() {
               type="button"
               onClick={() => window.dispatchEvent(new Event("toggle-command"))}
               aria-label={t.nav.command}
-              className="text-muted hover:text-text ms-1 hidden items-center gap-1.5 rounded-full border border-border px-2.5 py-1.5 text-xs transition-colors hover:border-accent/40 lg:inline-flex"
+              className="text-muted hover:text-text border-border hover:border-accent/40 ms-1 hidden items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs transition-colors lg:inline-flex"
             >
               <Search className="h-3.5 w-3.5" />
               <kbd className="font-mono text-[10px] tracking-wide">⌘K</kbd>
@@ -124,7 +124,7 @@ export function Nav() {
               type="button"
               onClick={() => setOpen((v) => !v)}
               className="text-muted hover:text-text inline-flex h-11 w-11 items-center justify-center rounded-full"
-              aria-label={open ? "Close menu" : "Open menu"}
+              aria-label={open ? t.nav.closeMenu : t.nav.openMenu}
               aria-expanded={open}
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -133,7 +133,7 @@ export function Nav() {
         </Container>
 
         {open && (
-          <div className="relative border-t border-border md:hidden">
+          <div className="border-border relative border-t md:hidden">
             <Container className="flex flex-col py-3">
               {links.map((l) => (
                 <Link

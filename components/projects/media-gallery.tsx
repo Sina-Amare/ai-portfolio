@@ -5,9 +5,19 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
 import type { MediaItem } from "@/lib/projects";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/components/locale-provider";
 
 /** Case-study screenshot / video gallery with a keyboard-navigable lightbox. */
-export function MediaGallery({ items, label }: { items: MediaItem[]; label: string }) {
+export function MediaGallery({
+  items,
+  label,
+}: {
+  items: MediaItem[];
+  label: string;
+}) {
+  const { locale } = useLocale();
+  const captionOf = (item: MediaItem) =>
+    locale === "fa" ? (item.captionFa ?? item.caption) : item.caption;
   const [index, setIndex] = useState<number | null>(null);
   const reduce = useReducedMotion();
   const open = index !== null;
@@ -16,7 +26,9 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
   const close = useCallback(() => setIndex(null), []);
   const go = useCallback(
     (dir: number) =>
-      setIndex((i) => (i === null ? i : (i + dir + items.length) % items.length)),
+      setIndex((i) =>
+        i === null ? i : (i + dir + items.length) % items.length,
+      ),
     [items.length],
   );
 
@@ -47,13 +59,15 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
             key={m.src}
             type="button"
             onClick={() => setIndex(i)}
-            aria-label={m.caption ?? "Open preview"}
+            aria-label={
+              captionOf(m) ?? (locale === "fa" ? "دیدن تصویر" : "Open preview")
+            }
             className="group bg-surface border-border hover:border-accent/50 relative block aspect-video w-full overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={m.poster ?? m.src}
-              alt={m.caption ?? ""}
+              alt={captionOf(m) ?? ""}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             />
@@ -64,9 +78,9 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                 </span>
               </span>
             )}
-            {m.caption && (
+            {captionOf(m) && (
               <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-3 py-2 text-start text-[12px] text-white/90 opacity-0 transition-opacity group-hover:opacity-100">
-                {m.caption}
+                {captionOf(m)}
               </span>
             )}
           </button>
@@ -91,7 +105,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
             <button
               type="button"
               onClick={close}
-              aria-label="Close"
+              aria-label={locale === "fa" ? "بستن" : "Close"}
               className="absolute top-4 right-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
             >
               <X className="h-5 w-5" />
@@ -105,7 +119,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                     e.stopPropagation();
                     go(-1);
                   }}
-                  aria-label="Previous"
+                  aria-label={locale === "fa" ? "قبلی" : "Previous"}
                   className="absolute left-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:left-6"
                 >
                   <ChevronLeft className="h-6 w-6" />
@@ -116,7 +130,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                     e.stopPropagation();
                     go(1);
                   }}
-                  aria-label="Next"
+                  aria-label={locale === "fa" ? "بعدی" : "Next"}
                   className="absolute right-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:right-6"
                 >
                   <ChevronRight className="h-6 w-6" />
@@ -134,7 +148,10 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                   initial={reduce ? false : { opacity: 0, scale: 0.97 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.99 }}
-                  transition={{ duration: reduce ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    duration: reduce ? 0 : 0.22,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
                   {current.type === "video" ? (
                     <video
@@ -148,18 +165,18 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={current.src}
-                      alt={current.caption ?? ""}
+                      alt={captionOf(current) ?? ""}
                       className="mx-auto max-h-[80vh] w-full rounded-xl object-contain"
                     />
                   )}
-                  {current.caption && (
+                  {captionOf(current) && (
                     <p
                       className={cn(
                         "mt-3 text-center text-sm text-white/80",
                         items.length > 1 && "px-12",
                       )}
                     >
-                      {current.caption}
+                      {captionOf(current)}
                       {items.length > 1 && (
                         <span className="text-white/40">
                           {" "}

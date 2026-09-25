@@ -3,8 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
+import { useLocale } from "@/components/locale-provider";
+import { pageCopy } from "@/lib/page-copy";
 
 export function LoginForm() {
+  const { locale } = useLocale();
+  const t = pageCopy[locale].admin;
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,36 +30,41 @@ export function LoginForm() {
         router.refresh();
         return;
       }
-      const { error: code } = (await res.json().catch(() => ({}))) as { error?: string };
+      const { error: code } = (await res.json().catch(() => ({}))) as {
+        error?: string;
+      };
       setError(
         code === "rate_limited"
-          ? "Too many attempts — wait a few minutes."
+          ? t.rate
           : code === "not_configured"
-            ? "ADMIN_PASSWORD isn't set on the server."
-            : "Wrong password.",
+            ? t.missingPassword
+            : t.wrongPassword,
       );
     } catch {
-      setError("Couldn't reach the server.");
+      setError(t.network);
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <form onSubmit={submit} className="glass mx-auto mt-24 max-w-sm rounded-[var(--radius-card)] p-6">
+    <form
+      onSubmit={submit}
+      className="glass mx-auto mt-24 max-w-sm rounded-[var(--radius-card)] p-6"
+    >
       <div className="bg-accent/15 text-accent mb-4 grid h-10 w-10 place-items-center rounded-full">
         <Lock className="h-5 w-5" />
       </div>
-      <h1 className="text-lg font-semibold tracking-tight">Admin</h1>
-      <p className="text-muted mt-1 text-sm">Enter the password to view site analytics.</p>
+      <h1 className="text-lg font-semibold tracking-tight">{t.loginTitle}</h1>
+      <p className="text-muted mt-1 text-sm">{t.loginIntro}</p>
 
       <input
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         autoFocus
-        aria-label="Admin password"
-        className="text-text mt-5 w-full rounded-xl border border-border bg-transparent px-3 py-2.5 text-sm outline-none focus:border-accent/60"
+        aria-label={t.password}
+        className="text-text border-border focus:border-accent/60 mt-5 w-full rounded-xl border bg-transparent px-3 py-2.5 text-sm outline-none"
       />
       {error && (
         <p role="alert" className="mt-2 text-sm text-red-500">
@@ -67,7 +76,7 @@ export function LoginForm() {
         disabled={busy || !password}
         className="bg-accent text-accent-contrast mt-4 w-full rounded-xl py-2.5 text-sm font-medium transition-opacity disabled:opacity-40"
       >
-        {busy ? "Checking…" : "Sign in"}
+        {busy ? t.checking : t.signIn}
       </button>
     </form>
   );

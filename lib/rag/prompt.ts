@@ -39,13 +39,100 @@ const CAPABILITY =
 // Filler that carries no topic — stripped when checking whether anything
 // substantive is left. Matched as whole tokens (never inside a word).
 const FILLER = new Set([
-  "a","an","the","to","of","there","here","man","bro","dude","buddy","friend","mate","pal",
-  "please","plz","pls","sir","maam","sina","sinas","assistant","bot","ai","again","just","so",
-  "well","ok","okay","kk","cool","nice","great","awesome","lovely","dear","hey","hi","hello",
-  "you","u","me","my","your","for","lot","lots","very","much","really","too","then","now","and",
-  "hmm","umm","uh","oh","yo","yes","yeah","yep","no","nope",
-  "جان","جون","عزیز","عزیزم","دوست","رفیق","من","تو","شما","بابا","آقا","خانم","لطفا","لطفاً",
-  "خیلی","زیاد","هم","دیگه","یه","رو","و","خب","اها","آها","اوکی","بله","آره","نه","ممنونم",
+  "a",
+  "an",
+  "the",
+  "to",
+  "of",
+  "there",
+  "here",
+  "man",
+  "bro",
+  "dude",
+  "buddy",
+  "friend",
+  "mate",
+  "pal",
+  "please",
+  "plz",
+  "pls",
+  "sir",
+  "maam",
+  "sina",
+  "sinas",
+  "assistant",
+  "bot",
+  "ai",
+  "again",
+  "just",
+  "so",
+  "well",
+  "ok",
+  "okay",
+  "kk",
+  "cool",
+  "nice",
+  "great",
+  "awesome",
+  "lovely",
+  "dear",
+  "hey",
+  "hi",
+  "hello",
+  "you",
+  "u",
+  "me",
+  "my",
+  "your",
+  "for",
+  "lot",
+  "lots",
+  "very",
+  "much",
+  "really",
+  "too",
+  "then",
+  "now",
+  "and",
+  "hmm",
+  "umm",
+  "uh",
+  "oh",
+  "yo",
+  "yes",
+  "yeah",
+  "yep",
+  "no",
+  "nope",
+  "جان",
+  "جون",
+  "عزیز",
+  "عزیزم",
+  "دوست",
+  "رفیق",
+  "من",
+  "تو",
+  "شما",
+  "بابا",
+  "آقا",
+  "خانم",
+  "لطفا",
+  "لطفاً",
+  "خیلی",
+  "زیاد",
+  "هم",
+  "دیگه",
+  "یه",
+  "رو",
+  "و",
+  "خب",
+  "اها",
+  "آها",
+  "اوکی",
+  "بله",
+  "آره",
+  "نه",
+  "ممنونم",
 ]);
 
 /**
@@ -94,38 +181,41 @@ export function detectSmallTalk(text: string): SmallTalk {
 
 export function greetingMessage(lang: Lang): string {
   return lang === "fa"
-    ? "سلام! 👋 من دستیارِ هوش مصنوعیِ سینام و می‌تونم درباره‌ی سابقه، مهارت‌ها و پروژه‌هاش باهات حرف بزنم. دوست داری از چی شروع کنیم؟"
+    ? "سلام! 👋 من دستیار AI سینام. می‌تونم دربارهٔ پروژه‌ها، مهارت‌ها و تجربه‌ش بهت بگم. دوست داری از کدوم شروع کنیم؟"
     : "Hey! 👋 I'm Sina's AI assistant — I can tell you about his background, skills, and projects. What would you like to know?";
 }
 export function thanksMessage(lang: Lang): string {
   return lang === "fa"
-    ? "خواهش می‌کنم! 🙂 اگه سوال دیگه‌ای درباره‌ی سینا یا پروژه‌هاش داری، بپرس."
+    ? "خواهش می‌کنم! 🙂 اگه دربارهٔ کارهای سینا سؤال دیگه‌ای داری، بپرس."
     : "Anytime! 🙂 If you've got more questions about Sina or his projects, just ask.";
 }
 
 /** Deterministic refusal copy used by Guards 1 and 3 (no LLM call). First-person, warm. */
 export function refusalMessage(lang: Lang): string {
   if (lang === "fa") {
-    return `این یه‌کم خارج از چیزاییه که می‌تونم درباره‌ش حرف بزنم. من فقط دربارهٔ سابقه، مهارت‌ها و پروژه‌های خودم می‌تونم کمکت کنم؛ برای هر چیز دیگه‌ای هم راحت بهم ایمیل بزن: ${site.email}`;
+    return `من دربارهٔ پروژه‌ها، مهارت‌ها و تجربهٔ کاری سینا جواب می‌دم. برای سؤال‌های دیگه می‌تونی بهش ایمیل بزنی: ${site.email}`;
   }
   return `That's a little outside what I can chat about — I can only help with my background, skills, and projects. For anything else, feel free to email me at ${site.email}.`;
 }
 
 export function rateLimitMessage(lang: Lang): string {
   return lang === "fa"
-    ? "یه‌کم سریع پیام می‌فرستی! چند لحظه صبر کن و دوباره بپرس."
+    ? "چندتا پیام پشت سر هم فرستادی. یه کم صبر کن و دوباره بپرس."
     : "You're sending messages a bit fast — give it a second and try again.";
 }
 
 export function errorMessage(lang: Lang): string {
   return lang === "fa"
-    ? `الان نتونستم جواب بدم، ببخشید! یه لحظه دیگه دوباره امتحان کن، یا مستقیم بهم ایمیل بزن: ${site.email}`
+    ? `الان نتونستم جواب بدم. یه کم دیگه دوباره امتحان کن یا به سینا ایمیل بزن: ${site.email}`
     : `Sorry — I couldn't answer just now. Try again in a moment, or email me at ${site.email}.`;
 }
 
 export function buildContextBlock(scored: ScoredChunk[]): string {
   return scored
-    .map((s, i) => `[${i + 1}] (${s.chunk.source} › ${s.chunk.section})\n${s.chunk.text}`)
+    .map(
+      (s, i) =>
+        `[${i + 1}] (${s.chunk.source} › ${s.chunk.section})\n${s.chunk.text}`,
+    )
     .join("\n\n");
 }
 
@@ -135,9 +225,9 @@ export function buildSystemPrompt(lang: Lang, scored: ScoredChunk[]): string {
   const styleLine =
     lang === "fa"
       ? [
-          `- Write in friendly, natural, everyday COLLOQUIAL Persian (فارسی محاوره‌ای و صمیمی) — the way a real Iranian developer actually chats, warm and personable. Avoid stiff, bookish, or overly formal written Persian.`,
-          `- Keep ALL technical terms, tool names, frameworks, and job titles in English/Latin script — e.g. open-source, backend, web scraping, RAG, FastAPI, LLM, prompt. NEVER translate them into Persian calques (never «بازمتن»، «وب‌خراشی»، «پس‌کرانه» and the like). Mix the Latin terms naturally into Persian sentences, exactly how developers in Iran really talk.`,
-          `- Grammar must be correct and natural. You are Sina speaking as «من»; you address the visitor as «تو». Keep verb persons right — e.g. ask «دوست داری بیشتر بدونی؟», never the broken «بدونم». Don't produce malformed words or wrong suffixes.`,
+          `- Write clear, conversational Iranian Persian, like a developer explaining his own work to another person. Use short sentences and familiar words. Start with the real problem and a concrete example; explain a technical term when it matters. Avoid translated English sentence shapes, résumé prose, marketing slogans, and bureaucratic phrases.`,
+          `- Keep familiar technical names in Latin script — e.g. LangGraph, MCP, RAG, FastAPI, LLM, prompt. Mix them into natural Persian sentences. Use everyday Persian for the rest, not made-up Persian equivalents or needless English words.`,
+          `- Speak as Sina using «من» and address the visitor as «تو». Keep colloquial verbs consistent and grammatical. Example: «اول عددها رو با کد حساب می‌کنم، بعد LLM کمک می‌کنه تغییرها رو توضیح بدم.»`,
         ].join("\n")
       : `- Keep the English natural, warm, and personable — like a friendly chat, not a formal résumé.`;
   return [

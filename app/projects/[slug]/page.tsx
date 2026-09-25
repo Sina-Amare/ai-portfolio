@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProject, projects } from "@/lib/projects";
 import { CaseStudy } from "@/components/projects/case-study";
+import { cookies } from "next/headers";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -13,10 +14,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const project = getProject(slug);
   if (!project) return {};
+  const locale = (await cookies()).get("locale")?.value === "fa" ? "fa" : "en";
+  const description = locale === "fa" ? project.summaryFa : project.summary;
   return {
     title: project.name,
-    description: project.summary,
-    openGraph: { title: project.name, description: project.summary },
+    description,
+    openGraph: { title: project.name, description },
   };
 }
 

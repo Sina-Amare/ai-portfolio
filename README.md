@@ -46,11 +46,14 @@ cleanly with **no LLM call**, so it never makes things up.
   model call; embeddings are cached and key-rotated too.
 - **Bilingual + RTL** — viewer-selectable English / فارسی (Vazirmatn font, right-to-left layout,
   warm colloquial Persian — not stiff machine translation, tech terms kept in Latin).
+- **Workplace agents** — two anonymized case studies explain the problems, workflows, engineering
+  decisions, and practical value of private research and business-reporting agents. Their source
+  code and internal data are not published.
 - **Dark + light** — a refined "Warm Slate + Amber" palette with a toggle, a subtle ambient
   background, and motion that respects `prefers-reduced-motion`.
 - **Polished details** — ⌘K command palette, cursor-spotlight cards, precise scroll-to-section nav,
   an auto-scrolling transcript, and a Telegram-delivered contact form.
-- **Tested** — 64 unit/component/route tests, Playwright E2E specs (LLM mocked), and a RAG retrieval
+- **Tested** — 103 unit/component/route tests, Playwright E2E specs (LLM mocked), and a RAG retrieval
   gate (100% refusal on out-of-scope).
 
 ---
@@ -68,7 +71,7 @@ Browser ── React UI (useChat) ──▶ /api/chat  (Node serverless route)
                                      7. streamText() with the language-aware provider failover ladder
                                   SSE token stream ──▶ smooth render + source chips
 
-content/*.md ──(npm run embed)──▶ lib/kb.json   (committed; deploys never re-embed)
+content/*.md + content/projects/*.md ──(npm run embed)──▶ lib/kb.json   (committed; deploys never re-embed)
 ```
 
 <p align="center">
@@ -88,17 +91,17 @@ the client only ever calls our own `/api/chat`.
 
 ## Tech stack
 
-| Layer | Choice |
-| --- | --- |
-| Framework | **Next.js 16** (App Router, RSC, React Compiler, Turbopack) |
-| Language | **TypeScript** · **React 19** |
-| Styling | **Tailwind CSS v4** (CSS-first `@theme`) · **Motion** |
-| Chat / streaming | **Vercel AI SDK v6** (`ai`, `@ai-sdk/react`, `@ai-sdk/groq`, `@ai-sdk/google`, `@openrouter/ai-sdk-provider`) |
-| LLM providers | **Groq** (Llama, fastest first-token) · **Google Gemini** (chat + embeddings) · **OpenRouter** (free-model fallback) — language-aware failover + multi-key rotation |
-| Retrieval | **In-memory cosine** over a committed `kb.json` — no vector DB, with exact + semantic answer caching |
-| Contact | **Telegram bot** delivery (server-side) |
-| Testing | **Vitest** · **Testing Library** · **Playwright** · custom RAG eval |
-| Hosting | **Vercel** (Hobby / free tier) |
+| Layer            | Choice                                                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework        | **Next.js 16** (App Router, RSC, React Compiler, Turbopack)                                                                                                         |
+| Language         | **TypeScript** · **React 19**                                                                                                                                       |
+| Styling          | **Tailwind CSS v4** (CSS-first `@theme`) · **Motion**                                                                                                               |
+| Chat / streaming | **Vercel AI SDK v6** (`ai`, `@ai-sdk/react`, `@ai-sdk/groq`, `@ai-sdk/google`, `@openrouter/ai-sdk-provider`)                                                       |
+| LLM providers    | **Groq** (Llama, fastest first-token) · **Google Gemini** (chat + embeddings) · **OpenRouter** (free-model fallback) — language-aware failover + multi-key rotation |
+| Retrieval        | **In-memory cosine** over a committed `kb.json` — no vector DB, with exact + semantic answer caching                                                                |
+| Contact          | **Telegram bot** delivery (server-side)                                                                                                                             |
+| Testing          | **Vitest** · **Testing Library** · **Playwright** · custom RAG eval                                                                                                 |
+| Hosting          | **Vercel** (Hobby / free tier)                                                                                                                                      |
 
 ---
 
@@ -154,15 +157,15 @@ Open **<http://localhost:3000>** and ask the chatbot anything. 🎉
 
 ### Common scripts
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Dev server with hot reload |
-| `npm run build` / `npm start` | Production build / serve it |
-| `npm test` | Unit + component + route tests (Vitest) |
-| `npm run test:e2e` | Playwright E2E (LLM mocked — no keys needed) |
-| `npm run eval` | RAG retrieval gate (needs the Google key) |
-| `npm run embed` | Rebuild `lib/kb.json` from `content/` after editing the knowledge base |
-| `npm run typecheck` / `npm run lint` | TypeScript / ESLint |
+| Command                              | What it does                                                           |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| `npm run dev`                        | Dev server with hot reload                                             |
+| `npm run build` / `npm start`        | Production build / serve it                                            |
+| `npm test`                           | Unit + component + route tests (Vitest)                                |
+| `npm run test:e2e`                   | Playwright E2E (LLM mocked — no keys needed)                           |
+| `npm run eval`                       | RAG retrieval gate (needs the Google key)                              |
+| `npm run embed`                      | Rebuild `lib/kb.json` from `content/` after editing the knowledge base |
+| `npm run typecheck` / `npm run lint` | TypeScript / ESLint                                                    |
 
 ---
 

@@ -7,11 +7,11 @@ const LABELS = { en: "EN", fa: "فا" } as const;
 
 /** Compact site-wide language switch (English / Persian). */
 export function LocaleToggle({ className }: { className?: string }) {
-  const { locale, setLocale } = useLocale();
+  const { locale, setLocale, t } = useLocale();
   return (
     <div
       role="group"
-      aria-label="Language"
+      aria-label={t.nav.language}
       className={cn(
         "border-border inline-flex items-center rounded-full border p-0.5",
         className,

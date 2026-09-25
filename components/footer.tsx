@@ -13,17 +13,21 @@ const socials = [
 ];
 
 export function Footer() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-24 border-t border-border">
+    <footer className="border-border mt-24 border-t">
       <Container className="flex flex-col gap-8 py-12 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-sm">
           <div className="text-heading font-mono text-sm font-semibold">
             sina<span className="text-accent">.</span>amareh
           </div>
-          <p className="text-muted mt-3 text-sm leading-relaxed">{t.footer.tagline}</p>
-          <p className="text-muted mt-4 text-xs opacity-80">{t.footer.builtWith}</p>
+          <p className="text-muted mt-3 text-sm leading-relaxed">
+            {t.footer.tagline}
+          </p>
+          <p className="text-muted mt-4 text-xs opacity-80">
+            {t.footer.builtWith}
+          </p>
         </div>
 
         <div className="flex flex-col gap-4 sm:items-end">
@@ -34,8 +38,10 @@ export function Footer() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={label}
-                className="text-muted hover:text-text inline-flex h-10 w-10 items-center justify-center rounded-full border border-border transition-colors hover:border-accent/50"
+                aria-label={
+                  label === "Email" && locale === "fa" ? "ایمیل" : label
+                }
+                className="text-muted hover:text-text border-border hover:border-accent/50 inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors"
               >
                 <Icon className="h-[18px] w-[18px]" />
               </a>

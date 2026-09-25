@@ -41,15 +41,46 @@
     { "q": "Can I see your code?" },
     { "q": "Tell me about ScrapeGPT", "expectSource": "Project: ScrapeGPT" },
     { "q": "What is Aigram?", "expectSource": "Project: Aigram" },
-    { "q": "Explain the GitHub Code Review project", "expectSource": "Project: RubricEval" },
+    {
+      "q": "Explain the GitHub Code Review project",
+      "expectSource": "Project: RubricEval"
+    },
     { "q": "What is RubricEval?", "expectSource": "Project: RubricEval" },
     { "q": "What is ScrapeGPT?", "expectSource": "Project: ScrapeGPT" },
-    { "q": "How does ScrapeGPT's AI selector work?", "expectSource": "Project: ScrapeGPT" },
+    {
+      "q": "How does ScrapeGPT's AI selector work?",
+      "expectSource": "Project: ScrapeGPT"
+    },
     { "q": "What can Aigram do?", "expectSource": "Project: Aigram" },
-    { "q": "How does RubricEval decide accept or reject?", "expectSource": "Project: RubricEval" },
+    {
+      "q": "How does RubricEval decide accept or reject?",
+      "expectSource": "Project: RubricEval"
+    },
     { "q": "What is PromptAmp?", "expectSource": "Project: PromptAmp" },
-    { "q": "Tell me about the browser extension Sina built", "expectSource": "Project: PromptAmp" },
-    { "q": "How does PromptAmp insert text into any website?", "expectSource": "Project: PromptAmp" },
+    {
+      "q": "Tell me about the browser extension Sina built",
+      "expectSource": "Project: PromptAmp"
+    },
+    {
+      "q": "How does PromptAmp insert text into any website?",
+      "expectSource": "Project: PromptAmp"
+    },
+    {
+      "q": "What problem did the Social Research Agent solve?",
+      "expectSource": "Project: Social Research Agent"
+    },
+    {
+      "q": "How does the Business Intelligence Agents project keep its reports reliable?",
+      "expectSource": "Project: Business Intelligence Agents"
+    },
+    {
+      "q": "ایجنت رصد شبکه‌های اجتماعی چه مشکلی رو حل کرد؟",
+      "expectSource": "Project: Social Research Agent"
+    },
+    {
+      "q": "ایجنت‌های تحلیل و گزارش‌گیری چطور گزارش قابل اعتماد می‌سازن؟",
+      "expectSource": "Project: Business Intelligence Agents"
+    },
     { "q": "PromptAmp چیه؟" },
     { "q": "ScrapeGPT چیه؟" },
     { "q": "Aigram چیکار می‌کنه؟" },
