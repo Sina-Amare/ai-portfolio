@@ -19,6 +19,15 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - **CSS cascade layers** — `@layer` groups decide which rules win before specificity does, and
   unlayered CSS beats every layer. Here `.glass` was unlayered, so Tailwind's `hover:bg-*` on the same
   card never applied; moving it into `@layer components` let utilities win again.
+- **Rewrite vs redirect** — a redirect tells the browser "go to this other URL" (the address bar
+  changes); a rewrite serves another route's content under the same URL. Here `proxy.ts` _rewrites_
+  `/projects` to the internal `/en/projects` route, but _redirects_ a typed `/en/projects` to `/projects`.
+- **Static generation (SSG)** — pages rendered to HTML once at build time and served from the CDN.
+  Reading `cookies()` makes a page per-request; moving the language into the URL made every public
+  page static (● in the `next build` route table).
+- **Hydration mismatch** — React's error when the HTML the server rendered differs from the client's
+  first render. Here `usePathname()` is `/en/projects` on the server but `/projects` in the browser, so
+  rendered code uses `useBarePath()`, which strips the prefix on both sides.
 
 ## Study briefs
 

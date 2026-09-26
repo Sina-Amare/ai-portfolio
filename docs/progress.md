@@ -3,7 +3,8 @@
 **Goal:** a premium bilingual portfolio whose centerpiece is a grounded RAG chatbot about Sina, plus
 case studies, a contact form and private analytics — deployed free on Vercel.
 
-**Architecture (3 lines):** Next.js 16 App Router on Vercel Hobby. `/api/chat` = zod → rate limit →
+**Architecture (3 lines):** Next.js 16 App Router on Vercel Hobby; routes live in `app/[lang]`, `proxy.ts`
+serves English unprefixed and Persian at `/fa` (all public pages static). `/api/chat` = zod → rate limit →
 in-memory cosine retrieval over committed `lib/kb.json` → relevance gate → Groq/Gemini/OpenRouter
 failover ladder (streamed). Analytics = cookieless beacon → Upstash Redis → `/admin` + Telegram digest.
 
@@ -33,7 +34,13 @@ checklist to verify.
       chip in the golden set, gallery/arrows mirror in RTL, card focus ring, `.glass` layered.
       Review follow-up: `lib/kb.json` re-embedded (eval 88/88), headings in RTL islands use Vazirmatn,
       BI "every number traces to the data" outcome softened.
-- [ ] B3 `/fa` locale-prefixed routing + SEO metadata
+- [x] B3 `/fa` locale-prefixed routing + SEO metadata — `app/[lang]` + `proxy.ts` (rewrite to /en, 308
+      /en/\*, Persian auto-detect on entry only), every public page SSG, per-page canonical/hreflang/og
+      (`lib/seo.ts`), bilingual sitemap, Persian OG card (Chromium screenshot; Satori can't lay out
+      Persian), link-based toggle, /privacy linked + counted, dark theme-color. Decision:
+      `docs/decisions/001-locale-prefixed-urls.md`. Known cost: page-level 404s render after hydration
+      (Next's error shell), status still 404. Local e2e: run with `--workers=2` (dev server times out
+      under 8 parallel workers on this machine). `next dev` re-appends a block to AGENTS.md — revert it.
 - [ ] B5 chatbot Persian quality
 - [ ] B7 analytics v2
 - [ ] B6 UI/UX + accessibility polish
@@ -43,7 +50,7 @@ checklist to verify.
 
 ## Current task
 
-B3 — `/fa` locale-prefixed routing + SEO metadata.
+B5 — chatbot Persian quality.
 
 ## Blocker
 
@@ -64,7 +71,7 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B3.
+Start B5 (then B7 analytics v2, which can now use the /fa-prefixed page labels as a language breakdown).
 Owner, before deploying B2: set `CRON_SECRET` in Vercel (the digest cron now fails closed without it).
 
 _Last updated: 2026-09-26_
