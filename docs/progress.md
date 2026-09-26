@@ -55,7 +55,18 @@ checklist to verify.
       Review follow-up: Persian words count double in `detectDir` (Persian heavy with Latin terms
       stays RTL); "ignore/forget … instructions" only refuses when it opens a clause, so descriptive
       questions about prompt injection get through.
-- [ ] B7 analytics v2
+- [x] B7a analytics v2, server side — visits are server-side sessions (sliding 30-min pointer, reload
+      dedupe, acquisition once per visit), engaged mark, active-time buckets, section reach/dwell, events,
+      returning = 2+ visits this month (gap-2), chat outcome/topic/chip per month (never the text), owner
+      `sa_owner` cookie + dev gate (gap-10, sec-5), EXPIREs only on key creation (gap-6), in-memory
+      beacon pre-check + a daily budget charged in real Redis commands (health-3, sec-2). `getInsights`
+      is the new read side (KPIs, series, buckets, pages, sections, events, chat, acquisition + months,
+      recent 50 visits, since). Decision 002. Old dashboard/digest still read the v1 keys, which are no
+      longer written: **do not deploy before B7b**.
+- [ ] B7b analytics v2, client + dashboard — tracker engagement flushes/sections/events (+ webdriver
+      skip), dashboard on `getInsights` (EN/FA, gap-1/gap-5 labels), digest (health-4), privacy copy
+      (gap-3). For B9: `.env.example` needs ANALYTICS_RPM=30, ANALYTICS_DAILY_COMMANDS=12000 (replaces
+      ANALYTICS_DAILY_MAX) and ANALYTICS_IN_DEV.
 - [ ] B6 UI/UX + accessibility polish
 - [ ] B8 performance
 - [ ] B9 tests, docs, CI
@@ -63,7 +74,8 @@ checklist to verify.
 
 ## Current task
 
-B7 — analytics v2 (real visits, engaged time, section reach, no noise).
+B7b — analytics v2 client + dashboard: tracker flushes (`t: "eng"` beacons per `lib/analytics/beacon.ts`),
+`data-analytics-section` markers, `/admin` rebuilt on `getInsights`, digest, privacy page.
 
 ## Blocker
 
@@ -84,7 +96,7 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B7 analytics v2 (it can use the /fa-prefixed page labels as a language breakdown).
+Start B7b (the beacon contract and `getInsights` shape are fixed by B7a; see `docs/analytics.md`).
 Owner, before deploying B2: set `CRON_SECRET` in Vercel (the digest cron now fails closed without it).
 
-_Last updated: 2026-09-26_
+_Last updated: 2026-09-26 (B7a)_
