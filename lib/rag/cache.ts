@@ -2,8 +2,9 @@
  * In-memory caches to cut LLM load without touching accuracy:
  *  - embedCache: skip the embedding round-trip for a repeated query text.
  *  - answerCache: serve the exact same grounded answer instantly (fake-streamed)
- *    for a repeated OR semantically-equivalent first-turn question — e.g. the
- *    suggested chips and their paraphrases — with no LLM call.
+ *    for a repeated OR semantically-equivalent first-turn question — the
+ *    suggested chips and their paraphrases — with no LLM call. The chat route
+ *    only writes chip answers, so visitors can't seed what others are served.
  *
  * Per-instance and bounded; resets on deploy, so a knowledge-base change can't
  * go stale for long. Only used for first-turn questions, so conversation-

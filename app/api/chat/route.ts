@@ -9,7 +9,7 @@ import {
   type UIMessage,
 } from "ai";
 import { z } from "zod";
-import type { Lang } from "@/lib/i18n";
+import { ui, type Lang } from "@/lib/i18n";
 import { getKnowledgeBase } from "@/lib/rag/kb";
 import { embedText } from "@/lib/rag/embed";
 import { retrieve, RETRIEVAL_TOP_K } from "@/lib/rag/retrieve";
@@ -47,6 +47,15 @@ const BodySchema = z.object({
   messages: z.array(MessageSchema).min(1),
   lang: z.enum(["en", "fa"]).default("en"),
 });
+
+/**
+ * The answer cache exists for the suggestion chips (and paraphrases of them), so
+ * only chip answers are ever WRITTEN. Otherwise one crafted question could seed
+ * the answer other visitors are served for hours.
+ */
+const CHIP_QUESTIONS = new Set(
+  [...ui.en.suggestions, ...ui.fa.suggestions].map((q) => normalizeQuery(q)),
+);
 
 /** Turns the model sees; older ones are dropped server-side. */
 const MAX_HISTORY = 12;
@@ -311,7 +320,7 @@ export async function POST(req: Request) {
             // Sources go LAST so the "thinking" indicator stays until real text
             // arrives (avoids an empty message during the model's time-to-first-token).
             writer.write({ type: "data-sources", id: "sources", data: sources });
-            if (firstTurn && full.trim()) {
+            if (firstTurn && full.trim() && CHIP_QUESTIONS.has(normalizeQuery(question))) {
               answerCache.set(cacheKey, { text: full, sources, embedding: queryEmbedding });
             }
             return; // success
