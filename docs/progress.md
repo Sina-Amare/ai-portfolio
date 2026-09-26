@@ -84,15 +84,26 @@ checklist to verify.
       chip/typed card no longer shares the chat KPI's title, the visit log's "+N" uses Persian digits,
       the digest names the months its chat topics cover, and a route-change flush credits time only
       (it no longer reads the next page's sections).
-- [ ] B6 UI/UX + accessibility polish
+- [x] B6 UI/UX + accessibility polish — skip link above the header (start-4), --danger token and no
+      opacity on muted small text (light-theme AA), focus ring keeps a control's corners, .eyebrow and
+      h1–h5 defaults layered, Send/Stop focus ring, Persian mono text in Vazirmatn (JetBrains Mono named
+      directly: Turbopack keeps next/font's Arial fallback even with adjustFontFallback: false), fa palette
+      headings untracked, gallery = native `<dialog>` (focus back to its thumbnail, caption on focus),
+      palette = cmdk Command.Dialog (focus restored, "Ctrl K" off a Mac), /projects h1 + sr-only h1 in
+      chat, titles outside `<Reveal>` above the fold, one auto-retry, Escape closes the mobile menu,
+      password-manager login, aria-busy log + spoken "Thinking…", focus after New chat, LTR code in
+      Persian answers, chat saved only on "ready", markdown while streaming (useChat throttle 50 ms),
+      contact form keeps focus, IME-safe Enter, avatar eager (no deprecated priority), bidi-isolated
+      /projects in Persian privacy copy. Already done earlier: ui-1 (B4), hero LocaleToggle (B3), gallery
+      RTL arrows (B4). Not done: 40px suggestion chips (30px passes AA's 24px), outside-tap closing
+      the mobile menu. e2e 20/20 on `next dev -p 3100` (port 3000 is in a Windows excluded range here).
 - [ ] B8 performance
 - [ ] B9 tests, docs, CI
 - [ ] B10 final verification + report
 
 ## Current task
 
-B6 — UI/UX + accessibility polish (next in the execution order: B6 → B8 → B9 → B10). Its privacy-copy
-items (codex-6, gap-3) were done in B7b.
+B8 — performance (next in the execution order: B8 → B9 → B10).
 
 ## Blocker
 
@@ -113,8 +124,8 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B6. Analytics v2 is complete end to end (B7a + B7b), so the branch no longer has a
-half-migrated dashboard. Owner, before deploying: set `CRON_SECRET` in Vercel (the digest cron fails
-closed without it).
+Start B8 (web-6 lazy react-markdown matters more now: B6 renders markdown while streaming, so
+the parser is on the chat's hot path). Owner, before deploying: set `CRON_SECRET` in Vercel (the
+digest cron fails closed without it).
 
-_Last updated: 2026-09-27 (B7b done, review follow-up applied)_
+_Last updated: 2026-09-27 (B6 done)_

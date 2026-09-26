@@ -49,6 +49,16 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - **sendBeacon / keepalive** — browser APIs for a request that must survive the page closing. A
   normal `fetch` started in `pagehide` is cancelled with the page; the tracker's last engagement flush
   uses `navigator.sendBeacon`, falling back to `fetch(…, {keepalive: true})`.
+- **Focus trap and focus restore (modal dialogs)** — while a modal is open, Tab must cycle inside it,
+  and closing it must put focus back where it was. Here the gallery uses native `<dialog>.showModal()`
+  (trap + Escape for free) and refocuses the thumbnail; the ⌘K palette uses cmdk's Radix dialog and
+  remembers what had focus, because Radix only restores focus to its own trigger button.
+- **Live region / aria-busy** — a live region (`role="log"`, `role="status"`) makes screen readers
+  announce new content; `aria-busy="true"` tells them to wait. Here the chat log is busy while an
+  answer streams, so it is read once when complete instead of word by word.
+- **Bidi isolation** — wrapping a left-to-right fragment so a right-to-left sentence can't reorder
+  its neutral characters. Here `/projects` inside Persian text displayed as `projects/`; `⁦…⁩`
+  (or `dir="ltr"` on an element, as on chat code) isolates it.
 
 ## Study briefs
 
