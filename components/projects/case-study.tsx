@@ -32,7 +32,8 @@ export function CaseStudy({ project }: { project: Project }) {
         <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_270px] lg:gap-16">
           {/* Main */}
           <article className="min-w-0">
-            <Reveal>
+            {/* Above the fold: plain markup, so the title is visible before (and without) JS. */}
+            <div>
               <div className="flex items-center gap-3">
                 <span className="text-accent-text font-mono text-xs">{project.year}</span>
                 <span className="eyebrow">{tagline}</span>
@@ -41,7 +42,7 @@ export function CaseStudy({ project }: { project: Project }) {
                 {project.name}
               </h1>
               <p className="text-text mt-5 max-w-2xl text-lg leading-relaxed">{summary}</p>
-            </Reveal>
+            </div>
 
             {project.media && project.media.length > 0 && (
               <Reveal delay={0.05} className="mt-10">

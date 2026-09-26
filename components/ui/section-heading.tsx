@@ -1,12 +1,15 @@
 import { cn } from "@/lib/utils";
 
 export function SectionHeading({
+  as: Heading = "h2",
   eyebrow,
   number,
   title,
   description,
   className,
 }: {
+  /** h1 when the heading is the page title (/projects). */
+  as?: "h1" | "h2";
   eyebrow?: string;
   number?: string;
   title: React.ReactNode;
@@ -19,9 +22,9 @@ export function SectionHeading({
         {number && <span className="text-accent-text font-mono text-xs">{number}</span>}
         {eyebrow && <span className="eyebrow">{eyebrow}</span>}
       </div>
-      <h2 className="text-gradient mt-3 text-3xl font-semibold tracking-tight sm:text-[2.5rem] sm:leading-[1.1]">
+      <Heading className="text-gradient mt-3 text-3xl font-semibold tracking-tight sm:text-[2.5rem] sm:leading-[1.1]">
         {title}
-      </h2>
+      </Heading>
       {description && <p className="text-muted mt-4 leading-relaxed">{description}</p>}
     </div>
   );

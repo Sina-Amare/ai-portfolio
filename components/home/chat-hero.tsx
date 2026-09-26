@@ -170,6 +170,8 @@ export function ChatHero() {
         {/* Chat column */}
         {active ? (
           <div className="flex w-full max-w-[720px] flex-col">
+            {/* The visible h1 collapsed away; the page keeps its title for heading navigation. */}
+            <h1 className="sr-only">{t.heroHeadline}</h1>
             <div className="mb-3 flex shrink-0 items-center justify-between">
               <button
                 type="button"

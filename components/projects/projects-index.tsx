@@ -9,7 +9,7 @@ import { Container } from "@/components/ui/container";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ProjectCard } from "@/components/projects/project-card";
 import { WorkProjects } from "@/components/projects/work-projects";
-import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
+import { RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { GitHubIcon } from "@/components/icons";
 
 export function ProjectsIndex() {
@@ -18,13 +18,13 @@ export function ProjectsIndex() {
     <>
       <section data-analytics-section="projects-list" className="pt-28 sm:pt-32">
         <Container>
-          <Reveal>
-            <SectionHeading
-              eyebrow={t.projects.eyebrow}
-              title={t.projects.title}
-              description={t.projects.description}
-            />
-          </Reveal>
+          {/* Page title, above the fold: no <Reveal>, which renders it invisible until JS runs. */}
+          <SectionHeading
+            as="h1"
+            eyebrow={t.projects.eyebrow}
+            title={t.projects.title}
+            description={t.projects.description}
+          />
 
           {/* Bento: at lg the two "wide" projects each take 2 of 3 columns and pair
             with a narrow cell — [wide|normal] / [normal|wide] — so four projects

@@ -106,6 +106,11 @@ describe("ChatHero", () => {
     messages = chatting;
   });
 
+  it("keeps a page h1 once the headline collapses into the chat", () => {
+    render(hero());
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(ui.en.heroHeadline);
+  });
+
   it("hands keyboard focus to the empty input after New chat", () => {
     status = "ready";
     const { rerender } = render(hero());
