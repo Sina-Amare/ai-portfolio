@@ -22,7 +22,14 @@ import {
 
 const RECENT_SHOWN = 50;
 
-export type DayStats = { day: string; visits: number; engaged: number; pageviews: number };
+export type DayStats = {
+  day: string;
+  visits: number;
+  engaged: number;
+  pageviews: number;
+  /** Active time of the day's engaged visits. */
+  engagedMs: number;
+};
 export type PageStats = { path: string; views: number; avgMs: number };
 export type SectionStats = { section: Section; visits: number; reachPct: number; avgMs: number };
 export type EventStats = { name: string; count: number; props: Breakdown };
@@ -182,7 +189,12 @@ function toRecent(id: string, h: Hash): RecentVisit {
   };
 }
 
-export async function getInsights(days = 30, now = new Date()): Promise<Insights> {
+/** `recentShown` visit records are read (one command each); the digest asks for more. */
+export async function getInsights(
+  days = 30,
+  now = new Date(),
+  recentShown = RECENT_SHOWN,
+): Promise<Insights> {
   const r = redis();
   if (!r) return emptyInsights(days, now, false, false);
 
@@ -198,7 +210,7 @@ export async function getInsights(days = 30, now = new Date()): Promise<Insights
 
     const first = r.pipeline();
     first.get(K.since);
-    first.lrange(K.recent, 0, RECENT_SHOWN - 1);
+    first.lrange(K.recent, 0, recentShown - 1);
     const [sinceRaw, idsRaw] = (await first.exec()) as unknown[];
     const since = sinceRaw ? str(sinceRaw) : null;
     const ids = Array.isArray(idsRaw) ? idsRaw.map(str) : [];
@@ -243,6 +255,7 @@ export async function getInsights(days = 30, now = new Date()): Promise<Insights
       visits: num(perDay[i]!.visits),
       engaged: num(perDay[i]!.engaged),
       pageviews: num(perDay[i]!.pages) + (legacy.get(day) ?? 0),
+      engagedMs: num(perDay[i]!.ems),
     }));
     const visits = sum("visits");
     const engaged = sum("engaged");

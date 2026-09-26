@@ -26,8 +26,8 @@ const insights: Insights = {
     contactSubmits: 1,
   },
   series: [
-    { day: "2026-09-26", visits: 14, engaged: 9, pageviews: 25 },
-    { day: "2026-09-27", visits: 6, engaged: 3, pageviews: 11 },
+    { day: "2026-09-26", visits: 14, engaged: 9, pageviews: 25, engagedMs: 1_125_000 },
+    { day: "2026-09-27", visits: 6, engaged: 3, pageviews: 11, engagedMs: 375_000 },
   ],
   timeBuckets: [
     { label: "<10s", count: 8 },

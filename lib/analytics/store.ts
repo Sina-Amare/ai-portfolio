@@ -105,33 +105,10 @@ export const K = {
   ret: (m: string) => `an:ret:${m}`,
   recent: "an:recent",
   since: "an:since",
-  // v1, per-pageview counters: no longer written, still read for old days.
+  // v1's per-pageview counter: no longer written, still read for days before v2.
+  // (v1's other keys expire on their own within 400 days.)
   views: (d: string) => `an:v:${d}`,
-  uniqDay: (d: string) => `an:u:${d}`,
-  repeat: (m: string) => `an:rep:${m}`,
-  path: (m: string) => `an:path:${m}`,
-  ref: (m: string) => `an:ref:${m}`,
-  country: (m: string) => `an:co:${m}`,
-  tz: (m: string) => `an:tz:${m}`,
-  city: (m: string) => `an:city:${m}`,
-  hour: (m: string) => `an:hr:${m}`,
-  weekday: (m: string) => `an:wd:${m}`,
-  device: (m: string) => `an:dev:${m}`,
-  browser: (m: string) => `an:br:${m}`,
 } as const;
-
-/** Every per-month breakdown, in the order getOverview reads them back. */
-const MONTHLY = [
-  K.path,
-  K.ref,
-  K.country,
-  K.tz,
-  K.city,
-  K.hour,
-  K.weekday,
-  K.device,
-  K.browser,
-] as const;
 
 /**
  * The month's salt, cached in instance memory. It is immutable for the whole
@@ -161,26 +138,7 @@ export function visitorHash(salt: string, ip: string, userAgent: string, host: s
     .slice(0, 32);
 }
 
-export type DayPoint = { day: string; views: number; uniques: number };
 export type Breakdown = { label: string; count: number }[];
-
-export type Overview = {
-  enabled: boolean;
-  degraded: boolean;
-  range: number;
-  totals: { views: number; visitors: number; repeatVisitors: number };
-  series: DayPoint[];
-  paths: Breakdown;
-  referrers: Breakdown;
-  countries: Breakdown;
-  timezones: Breakdown;
-  cities: Breakdown;
-  /** Visitor-local hour ("09:00"), not UTC. */
-  hours: Breakdown;
-  weekdays: Breakdown;
-  devices: Breakdown;
-  browsers: Breakdown;
-};
 
 /** Merge one-or-more monthly hashes into a sorted top-N breakdown. */
 export function toBreakdown(hashes: (Record<string, unknown> | null)[], limit = 12): Breakdown {
@@ -207,103 +165,4 @@ const WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 /** Calendar order, so the weekday chart reads Mon→Sun rather than by volume. */
 export function orderWeekdays(rows: Breakdown): Breakdown {
   return [...rows].sort((a, b) => WEEK.indexOf(a.label) - WEEK.indexOf(b.label));
-}
-
-function emptyOverview(days: number, enabled: boolean, degraded: boolean): Overview {
-  return {
-    enabled,
-    degraded,
-    range: days,
-    totals: { views: 0, visitors: 0, repeatVisitors: 0 },
-    series: [],
-    paths: [],
-    referrers: [],
-    countries: [],
-    timezones: [],
-    cities: [],
-    hours: [],
-    weekdays: [],
-    devices: [],
-    browsers: [],
-  };
-}
-
-/**
- * v1: the last `days` days of per-pageview counters and their monthly
- * breakdowns. Nothing writes these keys any more (./insights.ts is the v2 read
- * side); kept until the dashboard and digest move over.
- *
- * Never throws: an Upstash outage or an exhausted quota returns a degraded
- * overview so /admin renders a notice instead of a 500.
- */
-export async function getOverview(days = 30): Promise<Overview> {
-  const r = redis();
-  if (!r) return emptyOverview(days, false, false);
-
-  try {
-    const today = new Date();
-    const dayList: string[] = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(today);
-      d.setUTCDate(d.getUTCDate() - i);
-      dayList.push(dayKey(d));
-    }
-    const month = monthKey(today);
-    // Breakdowns are stored per month, so a 90-day range has to read every month
-    // it touches and merge them — otherwise the range selector would silently
-    // only ever change the chart.
-    const months = monthsFor(dayList);
-
-    const p = r.pipeline();
-    for (const d of dayList) p.get<number>(K.views(d));
-    for (const d of dayList) p.scard(K.uniqDay(d));
-    p.scard(K.seen(month));
-    p.scard(K.repeat(month));
-    for (const key of MONTHLY) for (const m of months) p.hgetall(key(m));
-    const res = (await p.exec()) as unknown[];
-
-    const n = dayList.length;
-    const mCount = months.length;
-    const num = (x: unknown) => Number(x) || 0;
-    const views = res.slice(0, n).map(num);
-    const uniques = res.slice(n, n * 2).map(num);
-    const base = n * 2;
-    const hashes = (i: number) =>
-      res.slice(base + 2 + i * mCount, base + 2 + (i + 1) * mCount) as (Record<
-        string,
-        unknown
-      > | null)[];
-
-    return {
-      enabled: true,
-      degraded: false,
-      range: days,
-      totals: {
-        views: views.reduce((a, b) => a + b, 0),
-        // Deliberately NOT the sum of daily uniques — that counts a person who
-        // visits on five days as five people. Always current-month: the salt
-        // rotates monthly, so cross-month visitor identity doesn't exist.
-        visitors: num(res[base]),
-        repeatVisitors: num(res[base + 1]),
-      },
-      series: dayList.map((day, i) => ({
-        day,
-        views: views[i] ?? 0,
-        uniques: uniques[i] ?? 0,
-      })),
-      paths: toBreakdown(hashes(0)),
-      referrers: toBreakdown(hashes(1)),
-      countries: toBreakdown(hashes(2)),
-      timezones: toBreakdown(hashes(3)),
-      cities: toBreakdown(hashes(4)),
-      // Hours and weekdays are read in full and ordered by the clock, not by
-      // count — a histogram with its bars sorted by size tells you nothing.
-      hours: toBreakdown(hashes(5), 24).sort((a, b) => a.label.localeCompare(b.label)),
-      weekdays: orderWeekdays(toBreakdown(hashes(6), 7)),
-      devices: toBreakdown(hashes(7), 5),
-      browsers: toBreakdown(hashes(8), 6),
-    };
-  } catch {
-    return emptyOverview(days, true, true);
-  }
 }

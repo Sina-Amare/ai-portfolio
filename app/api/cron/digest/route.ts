@@ -2,13 +2,30 @@
  * Daily traffic digest, delivered to the Telegram bot the contact form already
  * uses — no email provider, no new dependency, no extra cost.
  *
- * Triggered by the Vercel cron defined in vercel.json. Hobby allows one run per
- * day with ±59 min precision, which is exactly the right granularity for this.
+ * Triggered by the Vercel cron defined in vercel.json at 07:00 UTC, so it
+ * reports YESTERDAY, a complete UTC day, against the day before (health-4):
+ * "today" at 07:00 would be seven hours of data compared with a full day.
  */
-import { getOverview } from "@/lib/analytics/store";
+import { getInsights, type Insights, type RecentVisit } from "@/lib/analytics/insights";
+import { dayKey } from "@/lib/analytics/store";
 import { site } from "@/lib/site";
 
 export const runtime = "nodejs";
+
+/** Visit records read to find yesterday's (the log is newest first, today's come first). */
+const VISITS_READ = 200;
+/** A visit worth a line of its own: this much active time, or one of these actions. */
+const NOTABLE_MS = 120_000;
+const NOTABLE_EVENTS = ["contact_submit", "resume_download"];
+const EVENT_LABELS: Record<string, string> = {
+  chat_ask: "chat",
+  contact_submit: "contact form",
+  resume_download: "résumé",
+  outbound: "link",
+  gallery_open: "gallery",
+  palette_open: "palette",
+  lang_switch: "language",
+};
 
 /**
  * Vercel attaches `Authorization: Bearer <CRON_SECRET>` when that var is set.
@@ -20,55 +37,87 @@ function authorized(req: Request): boolean {
   return Boolean(secret) && req.headers.get("authorization") === `Bearer ${secret}`;
 }
 
-function bar(value: number, max: number, width = 10): string {
-  if (max <= 0) return "▁".repeat(width);
-  const filled = Math.max(1, Math.round((value / max) * width));
-  return "█".repeat(filled) + "░".repeat(Math.max(0, width - filled));
+/** Telegram's legacy Markdown breaks on a stray _ * ` or [ in a city or topic name. */
+const esc = (s: string) => s.replace(/[_*`[]/g, "\\$&");
+
+function dur(ms: number): string {
+  const s = Math.round(ms / 1000);
+  return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
 }
 
-function buildMessage(o: Awaited<ReturnType<typeof getOverview>>): string {
-  const today = o.series[o.series.length - 1];
-  const yesterday = o.series[o.series.length - 2];
-  const delta = yesterday && today ? today.views - yesterday.views : 0;
-  const arrow = delta > 0 ? `▲ +${delta}` : delta < 0 ? `▼ ${delta}` : "no change";
+function delta(now: number, before: number): string {
+  if (now === before) return "same as the day before";
+  return `${now > before ? "▲ +" : "▼ "}${now - before} vs the day before`;
+}
 
-  const top = (rows: { label: string; count: number }[], n = 3) =>
-    rows.length
-      ? rows
-          .slice(0, n)
-          .map((r) => `  • ${r.label} — ${r.count}`)
-          .join("\n")
-      : "  • (none yet)";
+function top(counts: Map<string, number>, n = 3): string {
+  const rows = [...counts].sort((a, b) => b[1] - a[1]).slice(0, n);
+  return rows.length
+    ? rows.map(([label, count]) => `  • ${esc(label)} — ${count}`).join("\n")
+    : "  • (none)";
+}
 
-  const busiest = o.hours.length ? [...o.hours].sort((a, b) => b.count - a.count)[0]! : null;
-  const max = Math.max(...o.series.map((d) => d.views), 1);
-  const spark = o.series
-    .slice(-14)
-    .map((d) => bar(d.views, max, 1))
-    .join("");
+function tally(values: string[]): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const v of values) out.set(v, (out.get(v) ?? 0) + 1);
+  return out;
+}
+
+function visitLine(v: RecentVisit): string {
+  const actions = v.events.map(({ name, count }) => {
+    const [ev, prop] = name.split(":") as [string, string?];
+    const label = `${EVENT_LABELS[ev] ?? ev}${prop ? ` (${prop})` : ""}`;
+    return count > 1 ? `${label} ×${count}` : label;
+  });
+  return [
+    v.city === "Unknown" ? v.country : v.city,
+    `${v.device}/${v.browser}`,
+    `from ${v.referrer || "Direct"}`,
+    `${dur(v.activeMs)} active`,
+    `${v.pageCount} page${v.pageCount === 1 ? "" : "s"}`,
+    ...(actions.length ? [actions.join(", ")] : []),
+  ]
+    .map(esc)
+    .join(" · ");
+}
+
+function buildMessage(o: Insights, day: string): string | null {
+  const [before, y] = o.series.slice(-2);
+  if (!y || y.day !== day || !y.visits) return null;
+
+  const visits = o.recent.filter((v) => v.id.startsWith(day));
+  // ponytail: sources and sections come from the visit log; past VISITS_READ visits
+  // a day they're a sample (labelled). A per-day breakdown hash if that ever happens.
+  const sampled = o.recent.length === VISITS_READ && o.recent.at(-1)!.id.startsWith(day);
+  const notable = visits
+    .filter(
+      (v) =>
+        v.activeMs >= NOTABLE_MS ||
+        v.events.some((e) => NOTABLE_EVENTS.includes(e.name.split(":")[0]!)),
+    )
+    .sort((a, b) => b.activeMs - a.activeMs)
+    .slice(0, 3);
+  const avg = (d: typeof y) => (d.engaged ? dur(d.engagedMs / d.engaged) : "—");
+  const rate = Math.round((y.engaged / y.visits) * 100);
 
   return [
-    `📊 *${site.name} — daily traffic*`,
+    `📊 *${esc(site.name)} — yesterday (${day})*`,
     ``,
-    `*Today:* ${today?.views ?? 0} views · ${today?.uniques ?? 0} visitors (${arrow} vs yesterday)`,
-    `*Last ${o.range}d:* ${o.totals.views} views`,
-    `*This month:* ${o.totals.visitors} visitors · ${o.totals.repeatVisitors} came back`,
+    `*Visits:* ${y.visits} (${delta(y.visits, before?.visits ?? 0)})`,
+    `*Engaged:* ${y.engaged} · ${rate}% (${delta(y.engaged, before?.engaged ?? 0)})`,
+    `*Avg active time:* ${avg(y)} per engaged visit (day before: ${before ? avg(before) : "—"})`,
     ``,
-    `\`${spark}\`  _last 14 days_`,
+    `*Sources*${sampled ? ` _(latest ${VISITS_READ} visits)_` : ""}`,
+    top(tally(visits.map((v) => v.referrer || "Direct"))),
     ``,
-    `*Top pages*`,
-    top(o.paths),
+    `*Sections seen*`,
+    top(tally(visits.flatMap((v) => v.sections.map((s) => s.section)))),
     ``,
-    `*Referrers*`,
-    top(o.referrers),
-    ``,
-    `*Cities*`,
-    top(o.cities),
-    ``,
-    `*Devices*`,
-    top(o.devices, 3),
-    ``,
-    busiest ? `Busiest hour (visitor local time): *${busiest.label}*` : "",
+    `*Chat topics this month*`,
+    top(new Map(o.chat.topics.map((t) => [t.label, t.count]))),
+    ...(notable.length
+      ? [``, `*Notable visits*`, ...notable.map((v) => `  • ${visitLine(v)}`)]
+      : []),
     ``,
     `${site.url}/admin`,
   ].join("\n");
@@ -85,15 +134,18 @@ export async function GET(req: Request) {
     return Response.json({ skipped: "telegram_not_configured" }, { status: 200 });
   }
 
-  const overview = await getOverview(30);
-  if (!overview.enabled) {
+  const yesterday = new Date();
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const insights = await getInsights(2, yesterday, VISITS_READ);
+  if (!insights.enabled) {
     return Response.json({ skipped: "analytics_not_configured" }, { status: 200 });
   }
-  if (overview.degraded) {
+  if (insights.degraded) {
     return Response.json({ skipped: "datastore_unavailable" }, { status: 200 });
   }
-  // Nothing happened — don't send a message just to say zero.
-  if (overview.totals.views === 0) {
+  const text = buildMessage(insights, dayKey(yesterday));
+  // Nobody came yesterday — don't send a message just to say zero.
+  if (!text) {
     return Response.json({ skipped: "no_traffic" }, { status: 200 });
   }
 
@@ -103,7 +155,7 @@ export async function GET(req: Request) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
-        text: buildMessage(overview),
+        text,
         parse_mode: "Markdown",
         disable_web_page_preview: true,
       }),
