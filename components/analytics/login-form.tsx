@@ -33,12 +33,16 @@ export function LoginForm() {
       const { error: code } = (await res.json().catch(() => ({}))) as {
         error?: string;
       };
+      // Only a 401 means the password was wrong. Anything else (a 500 from an
+      // outage, a 403) must not send the owner off to reset a correct password.
       setError(
-        code === "rate_limited"
-          ? t.rate
-          : code === "not_configured"
-            ? t.missingPassword
-            : t.wrongPassword,
+        res.status === 401
+          ? t.wrongPassword
+          : code === "rate_limited"
+            ? t.rate
+            : code === "not_configured"
+              ? t.missingPassword
+              : t.serverError,
       );
     } catch {
       setError(t.network);

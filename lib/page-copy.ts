@@ -65,6 +65,7 @@ export const pageCopy = {
       missingPassword: "ADMIN_PASSWORD isn't set on the server.",
       wrongPassword: "Wrong password.",
       network: "Couldn't reach the server.",
+      serverError: "Something went wrong on the server. Try again in a minute.",
       datastore: "Couldn't reach the datastore",
       datastoreBody:
         "Upstash didn't respond. The service may be temporarily unavailable or out of free commands. Visitor-side recording is unaffected; this page will update when Redis responds again.",
@@ -157,6 +158,7 @@ export const pageCopy = {
       missingPassword: "ADMIN_PASSWORD روی سرور تنظیم نشده.",
       wrongPassword: "رمز اشتباهه.",
       network: "ارتباط با سرور برقرار نشد.",
+      serverError: "سرور به مشکل خورد. یه دقیقه دیگه دوباره امتحان کن.",
       datastore: "ارتباط با محل ذخیرهٔ آمار برقرار نشد",
       datastoreBody:
         "Upstash جواب نداد؛ شاید مشکل موقتی باشه یا سهمیهٔ رایگان تموم شده باشه. ثبت بازدیدهای سایت ادامه داره و این صفحه بعد از وصل شدن Redis دوباره پر می‌شه.",
