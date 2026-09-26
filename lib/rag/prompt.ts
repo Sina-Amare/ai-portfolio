@@ -7,10 +7,12 @@ export const MAX_INPUT_CHARS = 600;
 // Guard 3: cheap pre-filter for obvious jailbreak / prompt-injection COMMANDS
 // only. Bare nouns ("system prompt", "prompt injection", "jailbreak") are what
 // recruiters ask an LLM engineer about, so they reach RAG; anything subtler is
-// left to the SAFETY rule in the system prompt. The last branch is Persian
-// («دستورهای قبلی رو نادیده بگیر»).
+// left to the SAFETY rule in the system prompt. "ignore/disregard/forget …"
+// and "you are now" count only when they open a clause, so descriptive
+// questions ("can your agent ignore all rules of robots.txt?") get through.
+// The last branch is Persian («دستورهای قبلی رو نادیده بگیر»).
 const JAILBREAK_RE =
-  /\b(?:ignore|disregard|forget)\s+(?:(?:all\s+(?:of\s+)?)?(?:the\s+|your\s+|my\s+)?(?:previous|prior|above|earlier|preceding)|all|your)\s+(?:instructions|rules|prompts?)\b|\bdisregard\s+(?:(?:all|the)\s+)?(?:previous|prior|above)\b|\breveal\s+your\s+(?:system\s+)?prompt\b|\b(?:print|repeat|show\s+me)\s+your\s+system\s+prompt\b|(?:^|[.!?]\s*)you\s+are\s+now\b|\b(?:enable|enter|activate|switch\s+to|turn\s+on)\s+developer\s+mode\b|(?:دستور|قانون|قوانین|قواعد)\S*\s+(?:\S+\s+){0,2}(?:نادیده[\s\u200C]?بگیر|فراموش[\s\u200C]?کن)(?:ید)?(?![\u0600-\u06FF])/i;
+  /(?:^|[.!?,;:]\s*)(?:please\s+)?(?:(?:ignore|disregard|forget)\s+(?:(?:all\s+(?:of\s+)?)?(?:the\s+|your\s+|my\s+)?(?:previous|prior|above|earlier|preceding)|all|your)\s+(?:instructions|rules|prompts?)\b|disregard\s+(?:(?:all|the)\s+)?(?:previous|prior|above)\b)|\breveal\s+your\s+(?:system\s+)?prompt\b|\b(?:print|repeat|show\s+me)\s+your\s+system\s+prompt\b|(?:^|[.!?]\s*)you\s+are\s+now\b|\b(?:enable|enter|activate|switch\s+to|turn\s+on)\s+developer\s+mode\b|(?:دستور|قانون|قوانین|قواعد)\S*\s+(?:\S+\s+){0,2}(?:نادیده[\s\u200C]?بگیر|فراموش[\s\u200C]?کن)(?:ید)?(?![\u0600-\u06FF])/i;
 
 /**
  * Arabic Yeh/Kaf (ي U+064A, ك U+0643), which some keyboards and pasted text
