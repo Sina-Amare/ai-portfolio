@@ -29,7 +29,7 @@ import {
   thanksMessage,
 } from "@/lib/rag/prompt";
 import { chatLadder, type ChatProvider } from "@/lib/rag/providers";
-import { answerCache, embedCache, normalizeQuery } from "@/lib/rag/cache";
+import { answerCache, embedCache, normalizeQuery, SEMANTIC_CACHE_THRESHOLD } from "@/lib/rag/cache";
 import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -266,7 +266,7 @@ export async function POST(req: Request) {
   // is served from the same grounded answer, instantly, with no LLM call. The
   // high threshold keeps it to genuine restatements, never a different question.
   if (readCache) {
-    const near = answerCache.findSimilar(queryEmbedding, 0.94, `${lang}:`);
+    const near = answerCache.findSimilar(queryEmbedding, SEMANTIC_CACHE_THRESHOLD, `${lang}:`);
     if (near) return cachedResponse(near.text, near.sources);
   }
 

@@ -48,6 +48,12 @@ export type CachedAnswer = {
   embedding: number[];
 };
 
+/**
+ * Cosine a first-turn question needs with a cached chip question to be served
+ * that chip's answer. `npm run eval` checks entity-swapped chips stay below it.
+ */
+export const SEMANTIC_CACHE_THRESHOLD = 0.94;
+
 const ANSWER_MAX = 200;
 const ANSWER_TTL = 6 * 60 * 60 * 1000;
 const answers = new Map<string, Entry<CachedAnswer>>();

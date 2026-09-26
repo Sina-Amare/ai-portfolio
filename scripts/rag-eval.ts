@@ -3,6 +3,7 @@
  * - in-scope questions must NOT be refused (top score >= threshold)
  * - items with expectSource must surface that source in the top-k
  * - out-of-scope questions MUST be refused (top score < threshold)
+ * - a chip and its entity-swapped twin must stay below the semantic-cache threshold
  *
  * Run with `npm run eval` (loads .env.local for the embedding key).
  * This is the highest-value anti-hallucination check: a wrong refusal decision
@@ -11,6 +12,8 @@
 import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SEMANTIC_CACHE_THRESHOLD } from "../lib/rag/cache";
+import { cosineNormalized } from "../lib/rag/cosine";
 import { embedText } from "../lib/rag/embed";
 import { retrieve } from "../lib/rag/retrieve";
 import { RELEVANCE_THRESHOLD, isInScope } from "../lib/rag/threshold";
@@ -22,6 +25,16 @@ type Golden = {
   inScope: { q: string; expectSource?: string }[];
   outOfScope: string[];
 };
+
+/** [suggestion chip, the same question about a different project]. */
+const NEAR_MISS_PAIRS: [string, string][] = [
+  ["What is ScrapeGPT?", "What is Aigram?"],
+  ["What is ScrapeGPT?", "What is RubricEval?"],
+  ["What can Aigram do?", "What can PromptAmp do?"],
+  ["ScrapeGPT چیه؟", "Aigram چیه؟"],
+  ["ScrapeGPT چیه؟", "RubricEval چیه؟"],
+  ["Aigram چه کارهایی می‌کنه؟", "PromptAmp چه کارهایی می‌کنه؟"],
+];
 
 async function main() {
   const kb = JSON.parse(await readFile(join(ROOT, "lib", "kb.json"), "utf8")) as KnowledgeBase;
@@ -54,7 +67,22 @@ async function main() {
     console.log(`${refused ? "✓" : "✗"} OUT ${top[0].score.toFixed(2)}  ${q}`);
   }
 
-  const total = golden.inScope.length + golden.outOfScope.length;
+  // A chip's cached answer is served to any first-turn question this close to
+  // it, so a chip and the same question about another project must stay apart.
+  for (const [chip, swapped] of NEAR_MISS_PAIRS) {
+    const [a, b] = await Promise.all([
+      embedText(chip, "RETRIEVAL_QUERY"),
+      embedText(swapped, "RETRIEVAL_QUERY"),
+    ]);
+    const sim = cosineNormalized(a, b);
+    const ok = sim < SEMANTIC_CACHE_THRESHOLD;
+    if (ok) pass++;
+    else
+      failures.push(`CACHE ✗ [${sim.toFixed(3)}] "${chip}" ≈ "${swapped}" — would share an answer`);
+    console.log(`${ok ? "✓" : "✗"} CACHE ${sim.toFixed(3)}  ${chip}  vs  ${swapped}`);
+  }
+
+  const total = golden.inScope.length + golden.outOfScope.length + NEAR_MISS_PAIRS.length;
   console.log(`\n${pass}/${total} passed`);
   if (failures.length) {
     console.log("\nFailures:\n" + failures.join("\n"));
