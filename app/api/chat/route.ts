@@ -171,7 +171,11 @@ function cannedResponse(text: string) {
   return createUIMessageStreamResponse({ stream });
 }
 
-/** Fake-stream a cached answer with its sources — instant first token, no LLM. */
+/**
+ * Fake-stream a cached answer with its sources — instant first token, no LLM.
+ * Paced like the live path's smoothStream (4ms per word, none per space), so
+ * the fast path never feels slower than a fresh answer.
+ */
 function cachedResponse(text: string, sources: Source[]) {
   const stream = createUIMessageStream({
     execute: async ({ writer }) => {
@@ -179,7 +183,7 @@ function cachedResponse(text: string, sources: Source[]) {
       writer.write({ type: "text-start", id });
       for (const word of text.split(/(\s+)/)) {
         if (word) writer.write({ type: "text-delta", id, delta: word });
-        await new Promise((r) => setTimeout(r, 8));
+        if (word.trim()) await new Promise((r) => setTimeout(r, 4));
       }
       writer.write({ type: "text-end", id });
       writer.write({ type: "data-sources", id: "sources", data: sources });
