@@ -16,7 +16,6 @@ export function isRTL(lang: Lang): boolean {
 export const ui = {
   en: {
     dir: "ltr",
-    label: "EN",
     chatTitle: "Ask me anything",
     chatSubtitle:
       "An AI that answers in Sina's own voice — grounded in his real CV & projects, so no made-up answers.",
@@ -46,7 +45,6 @@ export const ui = {
   },
   fa: {
     dir: "rtl",
-    label: "فا",
     chatTitle: "از کارهام بپرس",
     chatSubtitle: "دستیار AI من با کمک رزومه و پروژه‌هام جواب می‌ده.",
     heroHeadline: "دربارهٔ کارهام ازم بپرس.",

@@ -4,33 +4,32 @@ import { Container } from "@/components/ui/container";
 import { Dashboard } from "@/components/analytics/dashboard";
 import { LoginForm } from "@/components/analytics/login-form";
 import { SignOut } from "@/components/analytics/sign-out";
-import { AdminLocaleRefresh } from "@/components/analytics/locale-refresh";
 import { ADMIN_COOKIE, adminConfigured, verifySessionToken } from "@/lib/analytics/auth";
 import { analyticsEnabled, getOverview } from "@/lib/analytics/store";
+import { toLocale } from "@/lib/locale";
 import { pageCopy } from "@/lib/page-copy";
 
 // Never cache or prerender: it's per-request, authenticated, and always live.
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = (await cookies()).get("locale")?.value === "fa" ? "fa" : "en";
+type Props = {
+  params: Promise<{ lang: string }>;
+  searchParams: Promise<{ range?: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
-    title: pageCopy[locale].admin.meta,
+    title: pageCopy[toLocale((await params).lang)].admin.meta,
     robots: { index: false, follow: false },
   };
 }
 
 const ALLOWED_RANGES = [7, 30, 90];
 
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ range?: string }>;
-}) {
-  const cookieStore = await cookies();
-  const locale = cookieStore.get("locale")?.value === "fa" ? "fa" : "en";
+export default async function AdminPage({ params, searchParams }: Props) {
+  const locale = toLocale((await params).lang);
   const p = pageCopy[locale].admin;
-  const authed = verifySessionToken(cookieStore.get(ADMIN_COOKIE)?.value);
+  const authed = verifySessionToken((await cookies()).get(ADMIN_COOKIE)?.value);
   // Only accept known ranges — the value sizes a Redis pipeline, so an arbitrary
   // ?range=100000 would turn one page load into a huge command burst.
   const requested = Number((await searchParams).range);
@@ -38,7 +37,6 @@ export default async function AdminPage({
 
   return (
     <section className="pt-28 pb-24 sm:pt-32">
-      <AdminLocaleRefresh />
       <Container>
         {!authed ? (
           <>

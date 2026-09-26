@@ -15,14 +15,14 @@ import { Message } from "@/components/chat/message";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { ChatInput } from "@/components/chat/chat-input";
 import { Suggestions } from "@/components/chat/suggestions";
-import { LangToggle } from "@/components/chat/lang-toggle";
+import { LocaleToggle } from "@/components/locale-toggle";
 import { Transcript } from "@/components/chat/transcript";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const CHAT_STORAGE_KEY = "sina-chat:v1";
 
 export function ChatHero() {
-  const { locale, setLocale, t: dt } = useLocale();
+  const { locale, t: dt } = useLocale();
   const lang = locale as Lang;
   const [input, setInput] = useState("");
   const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
@@ -172,7 +172,7 @@ export function ChatHero() {
               >
                 <RefreshCcw className="h-3.5 w-3.5" /> {t.newChat}
               </button>
-              <LangToggle lang={lang} onChange={setLocale} />
+              <LocaleToggle />
             </div>
 
             <Transcript scrollLabel={t.scrollLatest}>
@@ -256,7 +256,7 @@ export function ChatHero() {
             />
             <div className="mt-5 flex flex-col items-center gap-4">
               <Suggestions items={t.suggestions} onPick={send} dir={dir} />
-              <LangToggle lang={lang} onChange={setLocale} />
+              <LocaleToggle />
             </div>
           </div>
         )}

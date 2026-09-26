@@ -1,57 +1,32 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { dict, dirOf, type Dict, type Locale } from "@/lib/dictionary";
+import { createContext, useContext } from "react";
+import { usePathname } from "next/navigation";
+import { dict, type Dict } from "@/lib/dictionary";
+import { localizedPath, stripLocale, type Locale } from "@/lib/locale";
 
 type LocaleContextValue = {
   locale: Locale;
-  setLocale: (l: Locale) => void;
-  toggle: () => void;
   t: Dict;
+  /** A bare site path ("/projects", "/#about") as a link in the current language. */
+  path: (bare: string) => string;
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
+/** The locale comes from the URL (app/[lang]); switching languages is a navigation. */
 export function LocaleProvider({
-  initial,
+  locale,
   children,
 }: {
-  initial: Locale;
+  locale: Locale;
   children: React.ReactNode;
 }) {
-  const [locale, setLocaleState] = useState<Locale>(initial);
-
-  const apply = useCallback((l: Locale) => {
-    setLocaleState(l);
-    try {
-      localStorage.setItem("locale", l);
-      document.cookie = `locale=${l};path=/;max-age=31536000;samesite=lax`;
-    } catch {
-      /* storage unavailable — non-fatal */
-    }
-    const html = document.documentElement;
-    html.lang = l;
-    html.dir = dirOf(l);
-    html.setAttribute("data-locale", l);
-    // brief crossfade so the LTR↔RTL reflow doesn't snap.
-    html.classList.add("locale-switching");
-    window.setTimeout(() => html.classList.remove("locale-switching"), 450);
-  }, []);
-
-  const setLocale = useCallback(
-    (l: Locale) => {
-      if (l !== locale) apply(l);
-    },
-    [locale, apply],
-  );
-
-  const toggle = useCallback(() => apply(locale === "fa" ? "en" : "fa"), [locale, apply]);
-
-  const value = useMemo<LocaleContextValue>(
-    () => ({ locale, setLocale, toggle, t: dict[locale] as Dict }),
-    [locale, setLocale, toggle],
-  );
-
+  const value: LocaleContextValue = {
+    locale,
+    t: dict[locale] as Dict,
+    path: (bare) => localizedPath(bare, locale),
+  };
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 
@@ -59,4 +34,14 @@ export function useLocale(): LocaleContextValue {
   const ctx = useContext(LocaleContext);
   if (!ctx) throw new Error("useLocale must be used within LocaleProvider");
   return ctx;
+}
+
+/**
+ * The current path without its locale prefix. Use this, never a raw
+ * usePathname(), for anything rendered: under the proxy's rewrite the server
+ * prerenders "/en/projects" while the browser is at "/projects", and the
+ * mismatch would break hydration.
+ */
+export function useBarePath(): string {
+  return stripLocale(usePathname());
 }

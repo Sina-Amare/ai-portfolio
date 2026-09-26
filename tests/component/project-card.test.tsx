@@ -7,7 +7,7 @@ import { ProjectCardView } from "@/components/projects/project-card";
 describe("ProjectCardView", () => {
   it("links the whole card, draws the focus ring on the card, and skips GitHub without a repo", () => {
     render(
-      <LocaleProvider initial="en">
+      <LocaleProvider locale="en">
         <ProjectCardView
           href="/projects#agent"
           label="Agent — tagline"

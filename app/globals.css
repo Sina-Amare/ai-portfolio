@@ -437,18 +437,6 @@ h5 {
   line-height: 1.5;
 }
 
-/* Smooth crossfade when switching language (LTR↔RTL reflow). */
-#content,
-header,
-footer {
-  transition: opacity 0.22s ease;
-}
-html.locale-switching #content,
-html.locale-switching header,
-html.locale-switching footer {
-  opacity: 0.35;
-}
-
 /* Typing indicator + streaming caret */
 @keyframes blink {
   0%,

@@ -15,7 +15,7 @@ describe("MediaGallery", () => {
   it("in RTL, ArrowLeft moves to the next image", async () => {
     const user = userEvent.setup();
     render(
-      <LocaleProvider initial="fa">
+      <LocaleProvider locale="fa">
         <MediaGallery items={items} label="gallery" />
       </LocaleProvider>,
     );

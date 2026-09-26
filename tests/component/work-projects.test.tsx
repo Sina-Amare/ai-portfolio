@@ -6,7 +6,7 @@ import { WorkProjects } from "@/components/projects/work-projects";
 describe("WorkProjects", () => {
   it("home preview: each agent card links to its entry on /projects", () => {
     render(
-      <LocaleProvider initial="en">
+      <LocaleProvider locale="en">
         <WorkProjects preview />
       </LocaleProvider>,
     );
@@ -22,7 +22,7 @@ describe("WorkProjects", () => {
 
   it("/projects: one link-free mini case study per agent, anchored by its id", () => {
     const { container } = render(
-      <LocaleProvider initial="fa">
+      <LocaleProvider locale="fa">
         <WorkProjects />
       </LocaleProvider>,
     );

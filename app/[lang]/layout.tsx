@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter, JetBrains_Mono, Vazirmatn } from "next/font/google";
-import { cookies } from "next/headers";
-import "./globals.css";
+import { notFound } from "next/navigation";
+import "../globals.css";
 import { site } from "@/lib/site";
-import { dirOf, type Locale } from "@/lib/dictionary";
+import { LOCALES, dirOf, hasLocale, toLocale } from "@/lib/locale";
+import { pageCopy } from "@/lib/page-copy";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { MotionProvider } from "@/components/motion/motion-provider";
@@ -13,7 +14,6 @@ import { CommandPalette } from "@/components/command-palette";
 import { AnimatedBackground } from "@/components/animated-background";
 import { Tracker } from "@/components/analytics/tracker";
 import { SkipLink } from "@/components/skip-link";
-import { LocaleMetadata } from "@/components/locale-metadata";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -40,24 +40,26 @@ const vazirmatn = Vazirmatn({
   variable: "--font-vazirmatn",
   subsets: ["arabic", "latin"],
   display: "swap",
-  // Only needed when a visitor switches to Persian — don't block initial load.
+  // Only Persian pages use it — don't block the English first paint.
   preload: false,
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = (await cookies()).get("locale")?.value === "fa" ? "fa" : "en";
-  const role = locale === "fa" ? "توسعه‌دهندهٔ بک‌اند و AI" : site.role;
-  const description =
-    locale === "fa"
-      ? "من سینا عماره‌ام؛ با Python بک‌اند و برنامه‌های AI می‌سازم. از پروژه‌ها و تجربه‌هام از دستیار سایت بپرس."
-      : "Python backend & AI/LLM engineer. Resilient backend services, multi-provider LLM apps, and RAG. Ask my AI assistant anything about my work.";
+type Props = { params: Promise<{ lang: string }> };
+
+// Both locales prerender; the proxy never routes anything else here.
+export function generateStaticParams() {
+  return LOCALES.map((lang) => ({ lang }));
+}
+
+// Site-wide defaults only. Canonical, hreflang, openGraph and twitter are set
+// per page (lib/seo.ts): metadata merges shallowly, so anything here would
+// leak into every page that doesn't override it.
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const home = pageCopy[toLocale((await params).lang)].home;
   return {
     metadataBase: new URL(site.url),
-    title: {
-      default: `${site.name} — ${role}`,
-      template: `%s — ${site.name}`,
-    },
-    description,
+    title: { default: home.title, template: `%s — ${site.name}` },
+    description: home.description,
     keywords: [
       "Sina Amareh",
       "Python developer",
@@ -71,19 +73,6 @@ export async function generateMetadata(): Promise<Metadata> {
     ],
     authors: [{ name: site.name, url: site.url }],
     creator: site.name,
-    openGraph: {
-      type: "website",
-      url: site.url,
-      siteName: site.name,
-      title: `${site.name} — ${role}`,
-      description,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${site.name} — ${role}`,
-      description,
-    },
-    alternates: { canonical: site.url },
     robots: { index: true, follow: true },
   };
 }
@@ -95,23 +84,25 @@ export const viewport: Viewport = {
   ],
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const cookieStore = await cookies();
-  const locale: Locale = cookieStore.get("locale")?.value === "fa" ? "fa" : "en";
+export default async function RootLayout({
+  children,
+  params,
+}: Readonly<{ children: React.ReactNode } & Props>) {
+  const { lang } = await params;
+  if (!hasLocale(lang)) notFound();
   return (
     <html
-      lang={locale}
-      dir={dirOf(locale)}
-      data-locale={locale}
+      lang={lang}
+      dir={dirOf(lang)}
+      data-locale={lang}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable} ${vazirmatn.variable} h-full`}
     >
       <body suppressHydrationWarning className="bg-bg text-text flex min-h-dvh flex-col font-sans">
         <ThemeProvider>
-          <LocaleProvider initial={locale}>
+          <LocaleProvider locale={lang}>
             <SkipLink />
-            <LocaleMetadata />
             <AnimatedBackground />
             <MotionProvider>
               <Nav />
