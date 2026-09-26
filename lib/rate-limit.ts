@@ -1,9 +1,11 @@
 /**
  * Lightweight in-memory rate limiting + a global daily cap to protect free-tier quota.
- * Module-scope state persists across warm invocations. For multi-instance scale, swap in
- * Upstash Ratelimit (env-gated) later — fine for a portfolio at this volume.
+ * Per-IP state is module-scope (per warm instance) — enough to blunt casual abuse. The
+ * daily cap is the one number that must hold across instances, so it lives in Redis
+ * when configured.
  */
 import { createHash } from "node:crypto";
+import { dayKey, redis } from "@/lib/analytics/store";
 
 const WINDOW_MS = 60_000;
 const PER_MINUTE = Number(process.env.RAG_RPM ?? "12");
@@ -77,8 +79,23 @@ export function contactRateLimit(
   return { ok: true, retryAfter: 0 };
 }
 
-/** Global daily counter; once exhausted we degrade to the canned refusal. */
-export function globalDailyOk(now = Date.now()): boolean {
+/**
+ * Global daily cap on LLM-bound chat requests. Shared through Redis when configured
+ * (one INCR, plus an EXPIRE on the day's first request); falls back to this instance's
+ * own counter without Redis, or when Redis errors.
+ */
+export async function globalDailyOk(now = Date.now()): Promise<boolean> {
+  const r = redis();
+  if (r) {
+    try {
+      const key = `chat:day:${dayKey(new Date(now))}`;
+      const n = await r.incr(key);
+      if (n === 1) await r.expire(key, 90_000);
+      return n <= DAILY_MAX;
+    } catch {
+      // Fall through to the in-memory counter.
+    }
+  }
   if (now > dayReset) {
     dayCount = 0;
     dayReset = now + 86_400_000;

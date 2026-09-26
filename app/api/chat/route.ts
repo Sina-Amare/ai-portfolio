@@ -18,6 +18,7 @@ import { isInScope } from "@/lib/rag/threshold";
 import type { ScoredChunk } from "@/lib/rag/types";
 import {
   buildSystemPrompt,
+  busyMessage,
   detectSmallTalk,
   errorMessage,
   greetingMessage,
@@ -232,9 +233,6 @@ export async function POST(req: Request) {
   if (smallTalk === "greeting" || smallTalk === "capability")
     return cannedResponse(greetingMessage(lang));
 
-  // Global daily cap → degrade gracefully to protect free-tier quota.
-  if (!globalDailyOk()) return cannedResponse(refusalMessage(lang));
-
   // Answer cache (first-turn only): an identical question — e.g. a suggested
   // chip — is served instantly with the same grounded answer, skipping the
   // embedding call and the LLM entirely.
@@ -273,6 +271,10 @@ export async function POST(req: Request) {
   // already handled with a fast canned reply above, so this only fires for
   // genuinely out-of-scope questions.
   if (!isInScope(scored)) return cannedResponse(refusalMessage(lang));
+
+  // Global daily cap on LLM calls, checked last so cache hits, small talk and
+  // refusals never spend it. Past it, say so honestly — the question is fine.
+  if (!(await globalDailyOk())) return cannedResponse(busyMessage(lang));
 
   const system = buildSystemPrompt(lang, scored);
   const sources = dedupeSources(scored);

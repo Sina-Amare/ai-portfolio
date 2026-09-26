@@ -36,6 +36,11 @@ vi.mock("@/lib/rag/providers", () => ({
   chatLadder: vi.fn(() => [{ id: "mock", label: "Mock", model: {} }]),
 }));
 
+vi.mock("@/lib/rate-limit", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/rate-limit")>()),
+  globalDailyOk: vi.fn(async () => true),
+}));
+
 vi.mock("ai", async (importOriginal) => {
   const actual = await importOriginal<typeof import("ai")>();
   return {
@@ -58,6 +63,7 @@ import { POST } from "@/app/api/chat/route";
 import { APICallError, streamText } from "ai";
 import { answerCache } from "@/lib/rag/cache";
 import { chatLadder } from "@/lib/rag/providers";
+import { globalDailyOk } from "@/lib/rate-limit";
 
 /** A real suggestion chip (lib/i18n.ts) — the only questions whose answers get cached. */
 const CHIP = "What did you build at Dekamond?";
@@ -270,6 +276,30 @@ describe("POST /api/chat", () => {
     await callChat({ messages: [userMessage(CHIP)], lang: "en" });
     await callChat({ messages: [userMessage(CHIP)], lang: "en" });
     expect(streamText).toHaveBeenCalledTimes(3); // the chip's answer IS cached
+  });
+
+  it("past the daily cap: cached chips still answer, new questions get an honest 'busy'", async () => {
+    await callChat({ messages: [userMessage(CHIP)], lang: "en" }); // cached
+    vi.mocked(globalDailyOk).mockResolvedValue(false);
+    try {
+      const cached = await callChat({ messages: [userMessage(CHIP)], lang: "en" });
+      expect(cached.text).toContain("Sina built");
+
+      // A follow-up (never cached) that is squarely in scope.
+      const busy = await callChat({
+        messages: [
+          userMessage(CHIP),
+          { id: "a", role: "assistant", parts: [{ type: "text", text: "Sina built RAG." }] },
+          userMessage("Which stack did you use at Dekamond?"),
+        ],
+        lang: "en",
+      });
+      expect(busy.text).toContain("a lot of questions today");
+      expect(busy.text).not.toContain("I can only"); // not the off-topic refusal
+      expect(streamText).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.mocked(globalDailyOk).mockResolvedValue(true);
+    }
   });
 
   it("regenerate skips the cache and asks the LLM again", async () => {

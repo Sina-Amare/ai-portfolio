@@ -204,6 +204,13 @@ export function rateLimitMessage(lang: Lang): string {
     : "You're sending messages a bit fast — give it a second and try again.";
 }
 
+/** The shared daily cap is spent — an honest "busy today", never an off-topic refusal. */
+export function busyMessage(lang: Lang): string {
+  return lang === "fa"
+    ? `امروز سؤال‌ها خیلی زیاد بوده و به سقف روزانه‌م رسیدم. فردا دوباره بپرس، یا همین الان بهم ایمیل بزن: ${site.email}`
+    : `I've had a lot of questions today and hit my daily limit. Please try again tomorrow, or email me at ${site.email}.`;
+}
+
 export function errorMessage(lang: Lang): string {
   return lang === "fa"
     ? `الان نتونستم جواب بدم. یه کم دیگه دوباره امتحان کن یا به سینا ایمیل بزن: ${site.email}`

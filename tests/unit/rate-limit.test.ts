@@ -1,4 +1,30 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+// A tiny stand-in for the Upstash client: just the two commands the cap uses.
+const { fake } = vi.hoisted(() => ({
+  fake: {
+    counts: new Map<string, number>(),
+    expired: [] as string[],
+    broken: false,
+    on: false,
+  },
+}));
+vi.mock("@/lib/analytics/store", () => ({
+  dayKey: (d = new Date()) => d.toISOString().slice(0, 10),
+  redis: () =>
+    fake.on
+      ? {
+          incr: async (k: string) => {
+            if (fake.broken) throw new Error("ERR max requests limit exceeded");
+            const n = (fake.counts.get(k) ?? 0) + 1;
+            fake.counts.set(k, n);
+            return n;
+          },
+          expire: async (k: string) => fake.expired.push(k),
+        }
+      : null,
+}));
+
 import { rateLimit, globalDailyOk, getClientIp } from "@/lib/rate-limit";
 
 describe("rate-limit", () => {
@@ -31,7 +57,24 @@ describe("rate-limit", () => {
     expect(rateLimit(ip, 1000 + 61_000).ok).toBe(true);
   });
 
-  it("globalDailyOk allows a request initially", () => {
-    expect(globalDailyOk(1000)).toBe(true);
+  it("globalDailyOk allows a request initially", async () => {
+    expect(await globalDailyOk(1000)).toBe(true);
+  });
+
+  it("globalDailyOk counts in Redis (shared by every instance) and fails open to memory", async () => {
+    fake.on = true;
+    const now = Date.UTC(2026, 8, 26);
+    const key = "chat:day:2026-09-26";
+
+    expect(await globalDailyOk(now)).toBe(true);
+    expect(fake.counts.get(key)).toBe(1);
+    expect(fake.expired).toEqual([key]); // EXPIRE only on the day's first request
+
+    fake.counts.set(key, 1000); // other instances already spent the default cap
+    expect(await globalDailyOk(now)).toBe(false);
+    expect(fake.expired).toHaveLength(1);
+
+    fake.broken = true; // a Redis outage must not take the chat down
+    expect(await globalDailyOk(now)).toBe(true);
   });
 });
