@@ -16,6 +16,9 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   exists in Persian at this URL". Needs one URL per language, which is why `/fa/*` routes exist.
 - **Fail open / fail closed** — what a guard does when its own dependency breaks. The admin login limiter
   fails _open_ (lets you try) when Redis is down; the cron endpoint fails _closed_ (rejects) without its secret.
+- **CSS cascade layers** — `@layer` groups decide which rules win before specificity does, and
+  unlayered CSS beats every layer. Here `.glass` was unlayered, so Tailwind's `hover:bg-*` on the same
+  card never applied; moving it into `@layer components` let utilities win again.
 
 ## Study briefs
 

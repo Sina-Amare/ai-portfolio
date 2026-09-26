@@ -28,7 +28,11 @@ checklist to verify.
       now required, ADMIN_LOGIN_GLOBAL_MAX default now 500) — left for B9. Review follow-up: embed 8s
       timeout now has a test; the Redis daily chat cap stays shared across environments on purpose
       (same API keys) — B7's production-only gate (sec-5) is for analytics writes only.
-- [ ] B4 workplace section: design-system alignment + professional copy
+- [x] B4 workplace section — rebuilt on `ProjectCardView` + `CaseStudySections` (home cards link to
+      `/projects#<id>`, mini case studies on /projects), EN/FA copy rewritten, EN workplace chip + every
+      chip in the golden set, gallery/arrows mirror in RTL, card focus ring, `.glass` layered.
+      **Open:** `lib/kb.json` not re-embedded — Google answered 403 (region block) during B4, so
+      `npm run embed && npm run eval` is still owed (content + golden are committed).
 - [ ] B3 `/fa` locale-prefixed routing + SEO metadata
 - [ ] B5 chatbot Persian quality
 - [ ] B7 analytics v2
@@ -39,7 +43,7 @@ checklist to verify.
 
 ## Current task
 
-B4 — workplace section: design-system alignment + professional copy.
+B3 — `/fa` locale-prefixed routing + SEO metadata.
 
 ## Blocker
 
@@ -60,7 +64,8 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B4 (extract `ProjectCardView` / `CaseStudySections`, rebuild the workplace section on them).
+Start B3. With VPN on: `npm run embed && npm run eval`, commit `lib/kb.json` (B4 content is not in the
+chatbot until then).
 Owner, before deploying B2: set `CRON_SECRET` in Vercel (the digest cron now fails closed without it).
 
 _Last updated: 2026-09-26_
