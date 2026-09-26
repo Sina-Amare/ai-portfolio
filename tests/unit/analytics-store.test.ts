@@ -235,6 +235,14 @@ describe("visits (sessions)", () => {
     expect(o.recent).toHaveLength(1);
   });
 
+  it("starts one visit when a new visitor's first beacons race", async () => {
+    // Several links opened in new tabs at once: every tab's page view sees no visit.
+    await Promise.all([recordBeacon(visitor(), pv("/")), recordBeacon(visitor(), pv("/projects"))]);
+    const o = await insights();
+    expect(o.kpis.visits).toBe(1);
+    expect(o.kpis.returningVisits).toBe(0);
+  });
+
   it("does not count a reload of the same page within 15 s as a page view", async () => {
     await recordBeacon(visitor(), pv("/"));
     at(10_000);
