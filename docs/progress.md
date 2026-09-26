@@ -61,15 +61,25 @@ checklist to verify.
       `sa_owner` cookie + dev gate (gap-10, sec-5), EXPIREs only on key creation (gap-6), in-memory
       beacon pre-check + a daily budget charged in real Redis commands (health-3, sec-2). `getInsights`
       is the new read side (KPIs, series, buckets, pages, sections, events, chat, acquisition + months,
-      recent 50 visits, since). Decision 002. Old dashboard/digest still read the v1 keys, which are no
-      longer written: **do not deploy before B7b**. Review follow-up: an empty flush after 30 idle
+      recent 50 visits, since). Decision 002. (The v1 dashboard/digest it left behind were replaced in
+      B7b.) Review follow-up: an empty flush after 30 idle
       minutes no longer starts a ghost "returning" visit, racing first beacons (tabs opened together)
       share one visit (`SET NX`), section reach divides by the visits that opened the section's page
       (`vk:`); an engagement-started visit still counts its page once (documented choice).
-- [ ] B7b analytics v2, client + dashboard — tracker engagement flushes/sections/events (+ webdriver
-      skip), dashboard on `getInsights` (EN/FA, gap-1/gap-5 labels), digest (health-4), privacy copy
-      (gap-3). For B9: `.env.example` needs ANALYTICS_RPM=30, ANALYTICS_DAILY_COMMANDS=12000 (replaces
-      ANALYTICS_DAILY_MAX) and ANALYTICS_IN_DEV.
+- [x] B7b analytics v2, client + dashboard — tracker measures active time (visible + input in the
+      last 60 s, sampled each second), sections seen/dwell (`data-analytics-section` on home, /projects,
+      case study) and actions (`track()`: chat chip/typed, contact, résumé, outbound by target, gallery,
+      palette, language; links via one delegated listener), flushed on route change/hide/pagehide/each
+      minute with sendBeacon, silent under `navigator.webdriver`. `/admin` rebuilt on `getInsights`:
+      KPIs, visits-vs-engaged chart (ui-10), active-time buckets, pages by time, section funnel, actions,
+      acquisition labelled with its months (gap-5, gap-1), last-50 visit log; Persian digits (gap-13);
+      two KPI cards per row on phones (checked at 390 px and 1440 px with a fixture page, not committed).
+      Digest reports yesterday vs the day before, silent at zero (health-4). Privacy page discloses the
+      v2 data, the 90-day visit log, chat providers, Telegram and owner-only cookies (gap-3, codex-6 —
+      these B6 items are done). v1 `getOverview` removed. For B9: `.env.example` needs
+      ANALYTICS_RPM=30, ANALYTICS_DAILY_COMMANDS=12000 (replaces ANALYTICS_DAILY_MAX) and
+      ANALYTICS_IN_DEV. For B10: look at `/admin` with real data after deploy (flag emoji don't render
+      on Windows Chromium; they do on phones).
 - [ ] B6 UI/UX + accessibility polish
 - [ ] B8 performance
 - [ ] B9 tests, docs, CI
@@ -77,10 +87,8 @@ checklist to verify.
 
 ## Current task
 
-B7b — analytics v2 client + dashboard: tracker flushes (`t: "eng"` beacons per `lib/analytics/beacon.ts`),
-`data-analytics-section` markers, `/admin` rebuilt on `getInsights`, digest, privacy page. The tracker
-should skip empty flushes (no ms, no events); client components must not import `BUCKET_LABELS` from
-`lib/analytics/session.ts` (it pulls `node:crypto` and `next/server`).
+B6 — UI/UX + accessibility polish (next in the execution order: B6 → B8 → B9 → B10). Its privacy-copy
+items (codex-6, gap-3) were done in B7b.
 
 ## Blocker
 
@@ -101,7 +109,8 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B7b (the beacon contract and `getInsights` shape are fixed by B7a; see `docs/analytics.md`).
-Owner, before deploying B2: set `CRON_SECRET` in Vercel (the digest cron now fails closed without it).
+Start B6. Analytics v2 is complete end to end (B7a + B7b), so the branch no longer has a
+half-migrated dashboard. Owner, before deploying: set `CRON_SECRET` in Vercel (the digest cron fails
+closed without it).
 
-_Last updated: 2026-09-27 (B7a review follow-up)_
+_Last updated: 2026-09-27 (B7b done)_
