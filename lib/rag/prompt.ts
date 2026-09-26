@@ -186,14 +186,17 @@ export function greetingMessage(lang: Lang): string {
 }
 export function thanksMessage(lang: Lang): string {
   return lang === "fa"
-    ? "خواهش می‌کنم! 🙂 اگه دربارهٔ کارهای سینا سؤال دیگه‌ای داری، بپرس."
-    : "Anytime! 🙂 If you've got more questions about Sina or his projects, just ask.";
+    ? "خواهش می‌کنم! 🙂 اگه دربارهٔ کارها و پروژه‌هام سؤال دیگه‌ای داری، بپرس."
+    : "Anytime! 🙂 If you've got more questions about my work or projects, just ask.";
 }
 
-/** Deterministic refusal copy used by Guards 1 and 3 (no LLM call). First-person, warm. */
+/**
+ * Deterministic refusal copy used by Guards 1 and 3 (no LLM call). First person
+ * as Sina in both languages, like the LLM's answers around it.
+ */
 export function refusalMessage(lang: Lang): string {
   if (lang === "fa") {
-    return `من دربارهٔ پروژه‌ها، مهارت‌ها و تجربهٔ کاری سینا جواب می‌دم. برای سؤال‌های دیگه می‌تونی بهش ایمیل بزنی: ${site.email}`;
+    return `این سؤال یه کم از حوزهٔ من بیرونه. من فقط دربارهٔ پروژه‌ها، مهارت‌ها و تجربهٔ کاری خودم جواب می‌دم؛ برای بقیه‌ش راحت بهم ایمیل بزن: ${site.email}`;
   }
   return `That's a little outside what I can chat about — I can only help with my background, skills, and projects. For anything else, feel free to email me at ${site.email}.`;
 }
@@ -213,7 +216,7 @@ export function busyMessage(lang: Lang): string {
 
 export function errorMessage(lang: Lang): string {
   return lang === "fa"
-    ? `الان نتونستم جواب بدم. یه کم دیگه دوباره امتحان کن یا به سینا ایمیل بزن: ${site.email}`
+    ? `ببخشید، الان نتونستم جواب بدم. یه کم دیگه دوباره امتحان کن یا بهم ایمیل بزن: ${site.email}`
     : `Sorry — I couldn't answer just now. Try again in a moment, or email me at ${site.email}.`;
 }
 

@@ -4,6 +4,8 @@ import {
   isAbusive,
   detectSmallTalk,
   refusalMessage,
+  errorMessage,
+  thanksMessage,
   buildSystemPrompt,
   buildContextBlock,
   MAX_INPUT_CHARS,
@@ -102,6 +104,16 @@ describe("prompt", () => {
     expect(refusalMessage("en").toLowerCase()).toContain("i can only");
     expect(refusalMessage("en")).toContain("sinaamareh0263@gmail.com");
     expect(refusalMessage("fa")).toContain("sinaamareh0263@gmail.com");
+  });
+
+  // The Persian LLM speaks as Sina («من»); a canned reply saying "email him"
+  // mid-conversation reads like a second speaker.
+  it("Persian canned replies speak as Sina in the first person", () => {
+    expect(refusalMessage("fa")).toContain("تجربهٔ کاری خودم");
+    for (const msg of [refusalMessage("fa"), errorMessage("fa"), thanksMessage("fa")]) {
+      expect(msg).not.toContain("سینا");
+    }
+    expect(errorMessage("fa")).toContain("بهم ایمیل بزن");
   });
 
   it("buildSystemPrompt grounds on the context and sets the language", () => {
