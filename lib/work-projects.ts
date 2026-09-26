@@ -146,7 +146,7 @@ export const workProjects: WorkProject[] = [
       ],
       outcomes: [
         "Managers received daily, weekly, and monthly reports per department — what changed, what needs attention, what to do next — without anyone assembling them by hand.",
-        "Recommendations rest on figures the code had already checked, so every number in a report traces back to the data.",
+        "Recommendations rest on figures the code had already checked, not on the model's arithmetic.",
         "Reports were published to shared spreadsheets in right-to-left Persian, ready for the team to read and discuss.",
         "Each report built on the feedback given to the last one instead of starting from zero.",
       ],
@@ -187,7 +187,7 @@ export const workProjects: WorkProject[] = [
       ],
       outcomes: [
         "مدیرها گزارش روزانه، هفتگی و ماهانهٔ هر واحد رو داشتن: چی عوض شده، کجا باید دقت کرد و قدم بعدی چیه؛ بدون این‌که کسی دستی جمعش کنه.",
-        "پیشنهادها روی عددهایی بنا شدن که کد قبلاً چکشون کرده بود؛ هر عدد گزارش رو می‌شه تا خود داده دنبال کرد.",
+        "پیشنهادها روی عددهایی بنا شدن که کد قبلاً چکشون کرده بود، نه حساب‌وکتاب خود مدل.",
         "گزارش‌ها راست‌چین و فارسی توی شیت‌های مشترک تیم منتشر می‌شدن و همه همون‌جا می‌خوندنشون.",
         "هر گزارش از بازخورد گزارش قبلی استفاده می‌کرد و از صفر شروع نمی‌شد.",
       ],
