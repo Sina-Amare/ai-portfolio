@@ -20,11 +20,13 @@ export const pageCopy = {
       title: "What this site measures",
       intro:
         "I count visits so I know whether anyone reads this. There is no advertising, no profiling, and nothing is shared with anyone.",
-      cookiesTitle: "No cookies, no tracking across sites",
+      cookiesTitle: "No analytics cookies, no tracking across sites",
       cookies:
-        "This site sets no cookies for analytics and stores nothing on your device. Nothing here follows you to other websites, and your visit is never combined with data from anywhere else.",
+        "Analytics sets no cookies and stores nothing on your device. Nothing here follows you to other websites, and your visit is never combined with data from anywhere else.",
+      preferences:
+        "A few things stay on your device, and only once you use them. Picking a language with the EN / فا switch sets a cookie named locale for one year, so the site opens in that language next time. Your theme choice is kept in your browser's storage, and an open chat with the assistant until you close the tab. None of this is used for analytics.",
       adminCookie:
-        "The one cookie the site can set is for the private admin dashboard, and only for me when I sign in.",
+        "The only other cookie is for the private admin dashboard, and only for me when I sign in.",
       recordedTitle: "What is recorded",
       recordedLead: "For each page view, the server records only aggregate counters:",
       recorded: [
@@ -127,7 +129,9 @@ export const pageCopy = {
       cookiesTitle: "بدون cookie تحلیلی یا ردیابی بین سایت‌ها",
       cookies:
         "برای آمار بازدیدها cookie نمی‌ذارم و چیزی روی دستگاهت ذخیره نمی‌کنم. این سایت تو رو در سایت‌های دیگه دنبال نمی‌کنه و بازدیدت رو با دادهٔ جای دیگه کنار هم نمی‌ذاره.",
-      adminCookie: "تنها cookie احتمالی برای صفحهٔ مدیریت خودمه؛ اون هم فقط وقتی خودم واردش می‌شم.",
+      preferences:
+        "چند چیز روی دستگاهت می‌مونه، اون هم فقط وقتی ازشون استفاده کنی. اگه با دکمهٔ EN / فا زبان رو انتخاب کنی، یک cookie به اسم locale برای یک سال ذخیره می‌شه تا دفعهٔ بعد سایت با همون زبان باز بشه. تمی که انتخاب می‌کنی توی حافظهٔ مرورگرت می‌مونه، و گفت‌وگوت با دستیار هم تا وقتی تب رو ببندی. هیچ‌کدوم از این‌ها برای آمار استفاده نمی‌شن.",
+      adminCookie: "تنها cookie دیگه برای صفحهٔ مدیریت خودمه؛ اون هم فقط وقتی خودم واردش می‌شم.",
       recordedTitle: "چه چیزهایی ثبت می‌شن؟",
       recordedLead: "برای هر بازدید از صفحه، سرور فقط چند شمارندهٔ کلی ثبت می‌کنه:",
       recorded: [

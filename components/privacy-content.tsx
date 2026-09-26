@@ -29,6 +29,7 @@ export function PrivacyContent() {
 
         <Section title={p.cookiesTitle}>
           <p>{p.cookies}</p>
+          <p>{p.preferences}</p>
           <p>{p.adminCookie}</p>
         </Section>
         <Section title={p.recordedTitle}>
