@@ -49,46 +49,7 @@ export function CaseStudy({ project }: { project: Project }) {
               </Reveal>
             )}
 
-            <Reveal delay={0.05} className="mt-12">
-              <h2 className="eyebrow">{p.problem}</h2>
-              <p className="text-text mt-3 max-w-2xl leading-[1.75]">{c.problem}</p>
-            </Reveal>
-
-            <Reveal delay={0.05} className="mt-10">
-              <h2 className="eyebrow">{p.myRole}</h2>
-              <p className="text-text mt-3 max-w-2xl leading-[1.75]">{c.role}</p>
-            </Reveal>
-
-            <Reveal delay={0.05} className="mt-10">
-              <h2 className="eyebrow">{p.howItWorks}</h2>
-              <div className="mt-4 overflow-x-auto pb-2">
-                <ArchDiagram steps={c.architecture} />
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.05} className="mt-12">
-              <h2 className="eyebrow">{p.highlights}</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {c.highlights.map((h) => (
-                  <div key={h.title} className="glass rounded-xl p-5">
-                    <h3 className="text-sm font-semibold">{h.title}</h3>
-                    <p className="text-muted mt-1.5 text-[13px] leading-relaxed">{h.body}</p>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.05} className="mt-12">
-              <h2 className="eyebrow">{p.outcomes}</h2>
-              <ul className="mt-4 space-y-2.5">
-                {c.outcomes.map((o) => (
-                  <li key={o} className="flex gap-2.5">
-                    <Check className="text-accent mt-0.5 h-4 w-4 shrink-0" />
-                    <span className="text-text text-[15px] leading-relaxed">{o}</span>
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
+            <CaseStudySections c={c} />
           </article>
 
           {/* Sticky meta sidebar */}
@@ -127,5 +88,60 @@ export function CaseStudy({ project }: { project: Project }) {
         </div>
       </Container>
     </section>
+  );
+}
+
+/** The body of a case study: problem, role, pipeline, highlights, outcomes.
+ *  `level` is the heading level of the section labels (tile titles go one
+ *  deeper), so the same blocks can sit under an h3 on /projects#workplace. */
+export function CaseStudySections({ c, level = 2 }: { c: Project["fa"]; level?: 2 | 3 | 4 }) {
+  const { t } = useLocale();
+  const p = t.projects;
+  const H = `h${level}` as const;
+  const Sub = ({ 2: "h3", 3: "h4", 4: "h5" } as const)[level];
+
+  return (
+    <>
+      <Reveal delay={0.05} className="mt-12">
+        <H className="eyebrow">{p.problem}</H>
+        <p className="text-text mt-3 max-w-2xl leading-[1.75]">{c.problem}</p>
+      </Reveal>
+
+      <Reveal delay={0.05} className="mt-10">
+        <H className="eyebrow">{p.myRole}</H>
+        <p className="text-text mt-3 max-w-2xl leading-[1.75]">{c.role}</p>
+      </Reveal>
+
+      <Reveal delay={0.05} className="mt-10">
+        <H className="eyebrow">{p.howItWorks}</H>
+        <div className="mt-4 overflow-x-auto pb-2">
+          <ArchDiagram steps={c.architecture} />
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.05} className="mt-12">
+        <H className="eyebrow">{p.highlights}</H>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {c.highlights.map((h) => (
+            <div key={h.title} className="glass rounded-xl p-5">
+              <Sub className="text-sm font-semibold">{h.title}</Sub>
+              <p className="text-muted mt-1.5 text-[13px] leading-relaxed">{h.body}</p>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.05} className="mt-12">
+        <H className="eyebrow">{p.outcomes}</H>
+        <ul className="mt-4 space-y-2.5">
+          {c.outcomes.map((o) => (
+            <li key={o} className="flex gap-2.5">
+              <Check className="text-accent mt-0.5 h-4 w-4 shrink-0" />
+              <span className="text-text text-[15px] leading-relaxed">{o}</span>
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+    </>
   );
 }
