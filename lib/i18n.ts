@@ -1,11 +1,24 @@
 export type Lang = "en" | "fa";
 
-// Persian / Arabic Unicode blocks.
-const RTL_RE = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
+// Persian / Arabic Unicode blocks. Ends at U+FEFC so a stray BOM (U+FEFF) in
+// pasted text doesn't count as Persian.
+const RTL_RE = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-ﻼ]/;
+const LATIN_RE = /[A-Za-zÀ-ɏ]/;
 
-/** Detect text direction from content (Persian/Arabic → rtl). */
+/**
+ * Detect text direction from content: the script most words are written in
+ * wins, so an English answer quoting «فارسی» stays LTR. Counted per word, not
+ * per letter, because Persian answers carry long Latin terms ("ScrapeGPT چیه؟");
+ * a tie goes to RTL for the same reason.
+ */
 export function detectDir(text: string): "rtl" | "ltr" {
-  return RTL_RE.test(text) ? "rtl" : "ltr";
+  let rtl = 0;
+  let ltr = 0;
+  for (const word of text.split(/\s+/)) {
+    if (RTL_RE.test(word)) rtl++;
+    else if (LATIN_RE.test(word)) ltr++;
+  }
+  return rtl > 0 && rtl >= ltr ? "rtl" : "ltr";
 }
 
 export function isRTL(lang: Lang): boolean {

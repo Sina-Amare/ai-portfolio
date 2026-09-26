@@ -11,8 +11,17 @@ describe("i18n", () => {
     expect(detectDir("hello world")).toBe("ltr");
   });
 
-  it("treats mixed text containing Persian as RTL", () => {
-    expect(detectDir("hello سلام")).toBe("rtl");
+  it("decides mixed text by the script most words use", () => {
+    // Persian with Latin tech terms — including a chip where the Latin word is longer.
+    expect(detectDir("ScrapeGPT چیه؟")).toBe("rtl");
+    expect(detectDir("چطوری RAG رو با FastAPI و Redis ساختی؟")).toBe("rtl");
+    // English quoting one Persian word stays LTR.
+    expect(detectDir("I grew up speaking Persian (فارسی) and English.")).toBe("ltr");
+  });
+
+  it("ignores a stray BOM", () => {
+    expect(detectDir("﻿hello world")).toBe("ltr");
+    expect(detectDir("﻿")).toBe("ltr");
   });
 
   it("isRTL is true only for Persian", () => {
