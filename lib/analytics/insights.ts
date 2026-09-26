@@ -53,6 +53,8 @@ export type Insights = {
   enabled: boolean;
   degraded: boolean;
   range: number;
+  /** When this was read (epoch ms): "3 hours ago" is relative to it. */
+  at: number;
   /** First day with visit data; older days only have page views. */
   since: string | null;
   /** Months the breakdowns cover: they are stored per month, not per day (gap-5). */
@@ -108,12 +110,13 @@ const num = (x: unknown) => Number(x) || 0;
 const str = (x: unknown) => (x == null ? "" : String(x));
 const asHash = (x: unknown): Hash => (x && typeof x === "object" ? (x as Hash) : {});
 
-function emptyInsights(days: number, enabled: boolean, degraded: boolean): Insights {
+function emptyInsights(days: number, now: Date, enabled: boolean, degraded: boolean): Insights {
   const none: Breakdown = [];
   return {
     enabled,
     degraded,
     range: days,
+    at: now.getTime(),
     since: null,
     months: [],
     kpis: {
@@ -181,7 +184,7 @@ function toRecent(id: string, h: Hash): RecentVisit {
 
 export async function getInsights(days = 30, now = new Date()): Promise<Insights> {
   const r = redis();
-  if (!r) return emptyInsights(days, false, false);
+  if (!r) return emptyInsights(days, now, false, false);
 
   try {
     const dayList: string[] = [];
@@ -267,6 +270,7 @@ export async function getInsights(days = 30, now = new Date()): Promise<Insights
       enabled: true,
       degraded: false,
       range: days,
+      at: now.getTime(),
       since,
       months,
       kpis: {
@@ -319,6 +323,6 @@ export async function getInsights(days = 30, now = new Date()): Promise<Insights
       recent: ids.flatMap((id, i) => (sessions[i] ? [toRecent(id, asHash(sessions[i]))] : [])),
     };
   } catch {
-    return emptyInsights(days, true, true);
+    return emptyInsights(days, now, true, true);
   }
 }

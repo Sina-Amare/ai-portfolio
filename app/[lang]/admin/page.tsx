@@ -5,7 +5,8 @@ import { Dashboard } from "@/components/analytics/dashboard";
 import { LoginForm } from "@/components/analytics/login-form";
 import { SignOut } from "@/components/analytics/sign-out";
 import { ADMIN_COOKIE, adminConfigured, verifySessionToken } from "@/lib/analytics/auth";
-import { analyticsEnabled, getOverview } from "@/lib/analytics/store";
+import { getInsights } from "@/lib/analytics/insights";
+import { analyticsEnabled } from "@/lib/analytics/store";
 import { toLocale } from "@/lib/locale";
 import { pageCopy } from "@/lib/page-copy";
 
@@ -58,7 +59,7 @@ export default async function AdminPage({ params, searchParams }: Props) {
             </div>
 
             {analyticsEnabled() ? (
-              <Dashboard data={await getOverview(range)} locale={locale} />
+              <Dashboard data={await getInsights(range)} locale={locale} />
             ) : (
               <div className="glass rounded-[var(--radius-card)] p-6">
                 <h2 className="text-base font-semibold">{p.disconnected}</h2>
