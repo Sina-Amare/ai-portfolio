@@ -3,11 +3,7 @@
  * (Python, FastAPI, RAG, Dekamond, …) intentionally stay in Latin script even
  * inside Persian strings — that's how Iranian engineers actually write.
  */
-export type Locale = "en" | "fa";
-
-export const LOCALES: Locale[] = ["en", "fa"];
-
-export const dirOf = (l: Locale): "rtl" | "ltr" => (l === "fa" ? "rtl" : "ltr");
+export { LOCALES, dirOf, type Locale } from "@/lib/locale";
 
 export const dict = {
   en: {
