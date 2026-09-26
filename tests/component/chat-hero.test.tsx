@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { beforeEach, describe, it, expect, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { ChatHero } from "@/components/home/chat-hero";
 import { LocaleProvider } from "@/components/locale-provider";
@@ -12,6 +12,9 @@ const chatting = [
 ];
 let messages = chatting;
 const regenerate = vi.fn();
+const setMessages = vi.fn((m: typeof messages) => {
+  messages = m;
+});
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
@@ -24,7 +27,7 @@ vi.mock("@ai-sdk/react", () => ({
     sendMessage: vi.fn(),
     stop: vi.fn(),
     regenerate,
-    setMessages: vi.fn(),
+    setMessages,
   }),
 }));
 vi.mock("@/lib/analytics/client", () => ({ track: vi.fn() }));
@@ -36,6 +39,9 @@ const hero = () => (
 );
 
 describe("ChatHero", () => {
+  // A saved chat would be restored through setMessages and leak between tests.
+  beforeEach(() => sessionStorage.clear());
+
   it("locks the language switch while an answer streams, since switching remounts the chat", () => {
     const { rerender } = render(hero());
     expect(screen.getByRole("group", { hidden: true })).toHaveAttribute("inert");
@@ -75,7 +81,6 @@ describe("ChatHero", () => {
   });
 
   it("saves the conversation only once an answer finished cleanly", () => {
-    sessionStorage.clear();
     status = "error";
     const { rerender } = render(hero());
     expect(sessionStorage.getItem("sina-chat:v1")).toBeNull();
@@ -83,5 +88,14 @@ describe("ChatHero", () => {
     status = "ready";
     rerender(hero());
     expect(sessionStorage.getItem("sina-chat:v1")).toContain("Hel");
+  });
+
+  it("hands keyboard focus to the empty input after New chat", () => {
+    status = "ready";
+    const { rerender } = render(hero());
+    fireEvent.click(screen.getByRole("button", { name: ui.en.newChat }));
+    rerender(hero());
+    expect(screen.getByRole("textbox")).toHaveFocus();
+    messages = chatting;
   });
 });

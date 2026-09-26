@@ -26,6 +26,9 @@ export function ChatHero() {
   const { locale, t: dt } = useLocale();
   const lang = locale as Lang;
   const [input, setInput] = useState("");
+  // "New chat" unmounts the focused button; the fresh input takes focus instead
+  // (not on first load, where autofocus would skip the page for screen readers).
+  const [refocus, setRefocus] = useState(false);
   const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
   const { messages, sendMessage, status, stop, regenerate, setMessages } = useChat({ transport });
   const reduce = useReducedMotion();
@@ -103,6 +106,7 @@ export function ChatHero() {
   function reset() {
     setMessages([]);
     setInput("");
+    setRefocus(true);
     try {
       sessionStorage.removeItem(CHAT_STORAGE_KEY);
     } catch {
@@ -258,6 +262,7 @@ export function ChatHero() {
               sendLabel={t.send}
               stopLabel={t.stop}
               large
+              autoFocus={refocus}
             />
             <div className="mt-5 flex flex-col items-center gap-4">
               <Suggestions items={t.suggestions} onPick={send} dir={dir} />
