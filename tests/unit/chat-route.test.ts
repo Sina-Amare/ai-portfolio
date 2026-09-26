@@ -55,7 +55,7 @@ vi.mock("ai", async (importOriginal) => {
 });
 
 import { POST } from "@/app/api/chat/route";
-import { streamText } from "ai";
+import { APICallError, streamText } from "ai";
 import { answerCache } from "@/lib/rag/cache";
 import { chatLadder } from "@/lib/rag/providers";
 
@@ -376,6 +376,45 @@ describe("POST /api/chat", () => {
     } finally {
       clock.mockRestore();
     }
+  });
+
+  it("rests a rung that answered 429 so the next request starts on another one", async () => {
+    const ladder = [
+      { id: "cool-1", label: "P1", model: { name: "p1" } },
+      { id: "cool-2", label: "P2", model: { name: "p2" } },
+    ] as unknown as ReturnType<typeof chatLadder>;
+    vi.mocked(chatLadder).mockReturnValueOnce(ladder).mockReturnValueOnce(ladder);
+    // Real SDK shape: the 429 arrives via onError, the text stream just ends.
+    vi.mocked(streamText).mockImplementationOnce(((opts: {
+      onError: (e: { error: unknown }) => void;
+    }) => {
+      opts.onError({
+        error: new APICallError({
+          message: "quota exceeded",
+          url: "https://provider.example",
+          requestBodyValues: {},
+          statusCode: 429,
+        }),
+      });
+      return {
+        textStream: (async function* () {})(),
+        get finishReason() {
+          return Promise.reject(new Error("quota exceeded"));
+        },
+      };
+    }) as unknown as typeof streamText);
+    const models = () =>
+      vi.mocked(streamText).mock.calls.map((c) => (c[0].model as unknown as { name: string }).name);
+
+    const first = await callChat({
+      messages: [userMessage("What did Sina build at Dekamond?")],
+      lang: "en",
+    });
+    expect(first.text).toContain("Sina built");
+    expect(models()).toEqual(["p1", "p2"]);
+
+    await callChat({ messages: [userMessage("What did Sina build at Dekamond?")], lang: "en" });
+    expect(models()).toEqual(["p1", "p2", "p2"]); // p1 is resting
   });
 
   it("fails over to the next provider when the first yields no text", async () => {

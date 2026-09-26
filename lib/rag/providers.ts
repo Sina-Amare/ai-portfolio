@@ -46,8 +46,15 @@ const OPENROUTER_MODELS = [
 // first one — it raises the effective per-minute ceiling, and the failover loop
 // in the route then covers a key that's fully exhausted for the day.
 let rr = 0;
-function rotate<T>(arr: T[], by: number): T[] {
-  return arr.length ? arr.map((_, i) => arr[(i + by) % arr.length]!) : arr;
+/**
+ * Rotated [item, original index] pairs. The original index goes into the rung id,
+ * so an id names the same key on every request (the route's 429 cooldown relies on it).
+ */
+function rotate<T>(arr: T[], by: number): [T, number][] {
+  return arr.map((_, i) => {
+    const k = (i + by) % arr.length;
+    return [arr[k]!, k];
+  });
 }
 
 /**
@@ -64,20 +71,20 @@ export function chatLadder(lang: Lang = "en"): ChatProvider[] {
 
   const groq: ChatProvider[] = [];
   for (const m of GROQ_MODELS) {
-    rotate(groqProviders, by).forEach((p, ki) =>
-      groq.push({ id: `groq:${m.id}#${ki}`, label: m.label, model: p(m.id) }),
+    rotate(groqProviders, by).forEach(([p, k]) =>
+      groq.push({ id: `groq:${m.id}#${k}`, label: m.label, model: p(m.id) }),
     );
   }
   const gemini: ChatProvider[] = [];
   for (const m of GEMINI_MODELS) {
-    rotate(googleProviders, by).forEach((p, ki) =>
-      gemini.push({ id: `${m.id}#${ki}`, label: m.label, model: p(m.id) }),
+    rotate(googleProviders, by).forEach(([p, k]) =>
+      gemini.push({ id: `${m.id}#${k}`, label: m.label, model: p(m.id) }),
     );
   }
   const openrouter: ChatProvider[] = [];
   for (const m of OPENROUTER_MODELS) {
-    rotate(openrouterProviders, by).forEach((p, ki) =>
-      openrouter.push({ id: `or:${m.id}#${ki}`, label: m.label, model: p.chat(m.id) }),
+    rotate(openrouterProviders, by).forEach(([p, k]) =>
+      openrouter.push({ id: `or:${m.id}#${k}`, label: m.label, model: p.chat(m.id) }),
     );
   }
 

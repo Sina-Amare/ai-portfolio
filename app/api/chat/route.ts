@@ -1,4 +1,5 @@
 import {
+  APICallError,
   consumeStream,
   convertToModelMessages,
   createUIMessageStream,
@@ -26,7 +27,7 @@ import {
   sanitizeInput,
   thanksMessage,
 } from "@/lib/rag/prompt";
-import { chatLadder } from "@/lib/rag/providers";
+import { chatLadder, type ChatProvider } from "@/lib/rag/providers";
 import { answerCache, embedCache, normalizeQuery } from "@/lib/rag/cache";
 import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
 
@@ -64,6 +65,13 @@ const BodySchema = z.object({
 const CHIP_QUESTIONS = new Set(
   [...ui.en.suggestions, ...ui.fa.suggestions].map((q) => normalizeQuery(q)),
 );
+
+/**
+ * Rungs that just answered 429 sit out for a minute, so every request doesn't
+ * re-probe an exhausted key before reaching one that works. Per instance.
+ */
+const COOLDOWN_MS = 60_000;
+const cooledUntil = new Map<string, number>();
 
 /** Turns the model sees; older ones are dropped server-side. */
 const MAX_HISTORY = 12;
@@ -269,8 +277,12 @@ export async function POST(req: Request) {
   const system = buildSystemPrompt(lang, scored);
   const sources = dedupeSources(scored);
   const modelMessages = await convertToModelMessages(messages);
-  const ladder = chatLadder(lang);
-  if (ladder.length === 0) return cannedResponse(errorMessage(lang));
+  const all = chatLadder(lang);
+  if (all.length === 0) return cannedResponse(errorMessage(lang));
+  // Cooled rungs go last rather than away: skipped while anything else works,
+  // still tried before the visitor gets the error message.
+  const cooled = (p: ChatProvider) => (cooledUntil.get(p.id) ?? 0) > Date.now();
+  const ladder = [...all.filter((p) => !cooled(p)), ...all.filter(cooled)];
 
   const stream = createUIMessageStream({
     onError: () => errorMessage(lang),
@@ -282,8 +294,13 @@ export async function POST(req: Request) {
       for (const provider of ladder) {
         const left = deadline - Date.now();
         if (left < 1_000) break; // out of time → the fallback below
+        // streamText reports provider errors here, not by throwing.
+        let failure: unknown;
         try {
           const result = streamText({
+            onError: ({ error }) => {
+              failure = error;
+            },
             model: provider.model,
             system,
             messages: modelMessages,
@@ -342,13 +359,17 @@ export async function POST(req: Request) {
             return; // success
           }
           // Provider produced no text → fall through to the next one.
-        } catch {
+        } catch (err) {
           if (started) {
             writer.write({ type: "text-end", id });
             writer.write({ type: "error", errorText: errorMessage(lang) });
             return; // partial answer already sent — stop here
           }
-          // No text yet → try the next provider in the ladder.
+          failure = err; // No text yet → try the next provider in the ladder.
+        }
+        // A 429 means this key/model is out of quota or rate-limited: rest it.
+        if (APICallError.isInstance(failure) && failure.statusCode === 429) {
+          cooledUntil.set(provider.id, Date.now() + COOLDOWN_MS);
         }
       }
 
