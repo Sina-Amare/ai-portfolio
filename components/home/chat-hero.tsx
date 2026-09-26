@@ -124,20 +124,15 @@ export function ChatHero() {
     <section data-analytics-section="hero" className="relative isolate overflow-hidden">
       <div aria-hidden className="hero-bg pointer-events-none absolute inset-0 -z-10" />
       <Container className="flex min-h-[92svh] flex-col items-center justify-start pt-24 pb-16 sm:justify-center sm:py-24">
-        {/* Identity */}
-        <motion.div
-          initial={reduce ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: EASE }}
-          className="mb-7 flex items-center gap-2.5"
-        >
+        {/* Identity — static: server-rendered visible, like the headline below. */}
+        <div className="mb-7 flex items-center gap-2.5">
           <Avatar size={34} status />
           <span className="text-text text-sm font-medium">{site.name}</span>
           <span className="text-muted inline-flex items-center gap-1.5 font-mono text-[11px]">
             <span className="bg-accent inline-block h-1.5 w-1.5 rounded-full" />
             {dt.hero.available}
           </span>
-        </motion.div>
+        </div>
 
         {/* Headline — collapses on first message */}
         <AnimatePresence initial={false}>

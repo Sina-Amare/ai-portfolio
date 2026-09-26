@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 export function Suggestions({
@@ -12,11 +12,13 @@ export function Suggestions({
   onPick: (text: string) => void;
   dir: "ltr" | "rtl";
 }) {
-  const reduce = useReducedMotion();
+  // No reduced-motion branch in `initial`: the server can't know the preference,
+  // so it would mismatch on hydration. MotionConfig (reducedMotion="user") drops
+  // the movement instead.
   return (
     <motion.div
       className={cn("flex flex-wrap justify-center gap-2", dir === "rtl" && "font-fa")}
-      initial={reduce ? false : "hidden"}
+      initial="hidden"
       animate="show"
       variants={{
         hidden: {},
