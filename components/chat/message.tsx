@@ -26,13 +26,11 @@ function uniqueSourcesOf(message: UIMessage): string[] {
 export const Message = memo(function Message({
   message,
   sourcesLabel,
-  streaming = false,
   copyLabel = "Copy",
   copiedLabel = "Copied",
 }: {
   message: UIMessage;
   sourcesLabel: string;
-  streaming?: boolean;
   copyLabel?: string;
   copiedLabel?: string;
 }) {
@@ -76,13 +74,7 @@ export const Message = memo(function Message({
           dir === "rtl" && "font-fa",
         )}
       >
-        {isUser ? (
-          <p className="whitespace-pre-wrap">{text}</p>
-        ) : streaming ? (
-          <p className="whitespace-pre-wrap">{text}</p>
-        ) : (
-          <Markdown content={text} />
-        )}
+        {isUser ? <p className="whitespace-pre-wrap">{text}</p> : <Markdown content={text} />}
 
         {sources.length > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5">

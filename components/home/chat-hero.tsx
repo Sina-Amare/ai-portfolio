@@ -30,7 +30,12 @@ export function ChatHero() {
   // (not on first load, where autofocus would skip the page for screen readers).
   const [refocus, setRefocus] = useState(false);
   const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
-  const { messages, sendMessage, status, stop, regenerate, setMessages } = useChat({ transport });
+  // Throttled to ~20 renders/s, so the streaming answer can render as markdown
+  // (each update re-parses it) without stutter on long answers or phones.
+  const { messages, sendMessage, status, stop, regenerate, setMessages } = useChat({
+    transport,
+    experimental_throttle: 50,
+  });
   const reduce = useReducedMotion();
   const hydrated = useRef(false);
 
@@ -70,8 +75,6 @@ export function ChatHero() {
   const isStreaming = status === "submitted" || status === "streaming";
   const active = messages.length > 0;
   const lastIsAssistant = messages[messages.length - 1]?.role === "assistant";
-  const streamingMessageId =
-    status === "streaming" && lastIsAssistant ? messages[messages.length - 1]?.id : undefined;
 
   // A transient mid-stream drop (flaky network / provider hiccup) now surfaces as
   // an error instead of a silent half-answer. Auto-retry ONCE so a one-off cutoff
@@ -191,7 +194,6 @@ export function ChatHero() {
                   key={m.id}
                   message={m}
                   sourcesLabel={t.sources}
-                  streaming={m.id === streamingMessageId}
                   copyLabel={t.copy}
                   copiedLabel={t.copied}
                 />

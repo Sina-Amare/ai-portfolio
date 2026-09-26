@@ -36,17 +36,6 @@ describe("Message", () => {
     expect(container.textContent).toContain("irc"); // the label survives as plain text
   });
 
-  it("renders active streaming assistant text without markdown parsing", () => {
-    render(
-      <Message
-        message={mkMessage("assistant", "**bold** text")}
-        sourcesLabel="Sources"
-        streaming
-      />,
-    );
-    expect(screen.getByText("**bold** text")).toBeInTheDocument();
-  });
-
   it("shows source chips for assistant messages", () => {
     render(
       <Message

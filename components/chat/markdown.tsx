@@ -10,7 +10,8 @@ import remarkGfm from "remark-gfm";
 const safeUrl = (url: string) => (/^(https?:|mailto:)/i.test(url) ? url : undefined);
 const NO_IMAGES = ["img"];
 
-// Memoized so only the streaming message re-parses; safe (no raw HTML).
+// Memoized (with Message) so only the streaming message re-parses, at most
+// every 50ms (useChat's throttle in ChatHero); safe (no raw HTML).
 const components: Components = {
   a: ({ href, children }) =>
     !href ? (

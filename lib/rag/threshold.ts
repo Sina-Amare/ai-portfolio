@@ -7,7 +7,8 @@ import type { ScoredChunk } from "./types";
  *
  * Calibrated for gemini-embedding-001 @768 with RETRIEVAL task types:
  * empirically, in-scope queries score ~0.68–0.79 and out-of-scope ~0.49–0.58,
- * so 0.62 sits cleanly in the gap. Override with RAG_THRESHOLD without re-embedding.
+ * so 0.60 sits in the gap (lowered from 0.62 once greetings got canned replies).
+ * Override with RAG_THRESHOLD without re-embedding.
  */
 export const RELEVANCE_THRESHOLD = Number(process.env.RAG_THRESHOLD ?? "0.60");
 

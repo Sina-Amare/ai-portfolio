@@ -12,6 +12,7 @@ const chatting = [
 ];
 let messages = chatting;
 const regenerate = vi.fn();
+let chatOptions: { experimental_throttle?: number } = {};
 const setMessages = vi.fn((m: typeof messages) => {
   messages = m;
 });
@@ -21,14 +22,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 vi.mock("@ai-sdk/react", () => ({
-  useChat: () => ({
-    messages,
-    status,
-    sendMessage: vi.fn(),
-    stop: vi.fn(),
-    regenerate,
-    setMessages,
-  }),
+  useChat: (options: typeof chatOptions) => {
+    chatOptions = options;
+    return { messages, status, sendMessage: vi.fn(), stop: vi.fn(), regenerate, setMessages };
+  },
 }));
 vi.mock("@/lib/analytics/client", () => ({ track: vi.fn() }));
 
@@ -98,6 +95,15 @@ describe("ChatHero", () => {
     status = "streaming";
     rerender(hero());
     expect(screen.getByRole("log")).toHaveAttribute("aria-busy", "true");
+  });
+
+  it("renders the streaming answer as markdown, with throttled updates", () => {
+    status = "streaming";
+    messages = [chatting[0], { ...chatting[1], parts: [{ type: "text", text: "**Hel**" }] }];
+    render(hero());
+    expect(screen.getByText("Hel").tagName).toBe("STRONG");
+    expect(chatOptions.experimental_throttle).toBeGreaterThan(0);
+    messages = chatting;
   });
 
   it("hands keyboard focus to the empty input after New chat", () => {
