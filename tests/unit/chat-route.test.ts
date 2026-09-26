@@ -272,6 +272,14 @@ describe("POST /api/chat", () => {
     expect(streamText).toHaveBeenCalledTimes(3); // the chip's answer IS cached
   });
 
+  it("regenerate skips the cache and asks the LLM again", async () => {
+    await callChat({ messages: [userMessage(CHIP)], lang: "en" });
+    expect(streamText).toHaveBeenCalledTimes(1);
+
+    await callChat({ messages: [userMessage(CHIP)], lang: "en", trigger: "regenerate-message" });
+    expect(streamText).toHaveBeenCalledTimes(2);
+  });
+
   it("does NOT serve a cached answer across languages", async () => {
     await callChat({
       messages: [userMessage(CHIP)],

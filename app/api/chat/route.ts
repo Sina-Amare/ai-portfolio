@@ -46,6 +46,8 @@ const BodySchema = z.object({
   // kills long chats. The server keeps only the recent turns instead.
   messages: z.array(MessageSchema).min(1),
   lang: z.enum(["en", "fa"]).default("en"),
+  // Sent by useChat; "regenerate-message" must produce a fresh answer.
+  trigger: z.string().optional(),
 });
 
 /**
@@ -191,6 +193,9 @@ export async function POST(req: Request) {
   const lang: Lang = parsed.data.lang;
   // Counted before trimming: the answer cache is for a conversation's opening question.
   const firstTurn = parsed.data.messages.length === 1;
+  // Regenerate resends the same opening question; serving the cache would just
+  // replay the answer the visitor asked to replace.
+  const readCache = firstTurn && parsed.data.trigger !== "regenerate-message";
   const messages = toUIMessages(parsed.data.messages.slice(-MAX_HISTORY));
 
   // Abuse protection: per-IP rate limit.
@@ -219,7 +224,7 @@ export async function POST(req: Request) {
   // chip — is served instantly with the same grounded answer, skipping the
   // embedding call and the LLM entirely.
   const cacheKey = `${lang}:${normalizeQuery(question)}`;
-  if (firstTurn) {
+  if (readCache) {
     const hit = answerCache.get(cacheKey);
     if (hit) return cachedResponse(hit.text, hit.sources);
   }
@@ -243,7 +248,7 @@ export async function POST(req: Request) {
   // answered question — e.g. "what is ScrapeGPT" vs "tell me about ScrapeGPT" —
   // is served from the same grounded answer, instantly, with no LLM call. The
   // high threshold keeps it to genuine restatements, never a different question.
-  if (firstTurn) {
+  if (readCache) {
     const near = answerCache.findSimilar(queryEmbedding, 0.94, `${lang}:`);
     if (near) return cachedResponse(near.text, near.sources);
   }
