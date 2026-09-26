@@ -34,10 +34,23 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+// Only the shape the UI actually sends. A forged "system" turn or a null entry
+// is a 400 and never reaches the model; extra fields (providerMetadata, …) are
+// stripped here, and the turns are rebuilt from their text alone below.
+const MessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  parts: z.array(z.object({ type: z.string(), text: z.string().optional() })),
+});
 const BodySchema = z.object({
-  messages: z.array(z.any()).min(1).max(40),
+  // No max: useChat re-sends the whole conversation every turn, so a cap here
+  // kills long chats. The server keeps only the recent turns instead.
+  messages: z.array(MessageSchema).min(1),
   lang: z.enum(["en", "fa"]).default("en"),
 });
+
+/** Turns the model sees; older ones are dropped server-side. */
+const MAX_HISTORY = 12;
+const MAX_ASSISTANT_CHARS = 4000;
 
 type Source = { source: string; section: string };
 const COMPLETE_FINISH_REASONS = new Set<FinishReason>(["stop"]);
@@ -51,6 +64,26 @@ function badRequest(message: string) {
     status: 400,
     headers: { "content-type": "application/json" },
   });
+}
+
+/**
+ * Rebuild each turn from its text alone, capped per role: earlier turns get the
+ * same length limit as the question, and no client-set field survives.
+ */
+function toUIMessages(messages: z.infer<typeof MessageSchema>[]): UIMessage[] {
+  const out: UIMessage[] = [];
+  messages.forEach((m, i) => {
+    const text = m.parts
+      .filter((p) => p.type === "text")
+      .map((p) => p.text ?? "")
+      .join(" ");
+    const capped =
+      m.role === "user" ? sanitizeInput(text) : text.trim().slice(0, MAX_ASSISTANT_CHARS);
+    if (capped) out.push({ id: String(i), role: m.role, parts: [{ type: "text", text: capped }] });
+  });
+  // Trimming can leave an assistant turn first; providers expect a user turn to open.
+  const first = out.findIndex((m) => m.role === "user");
+  return first < 0 ? [] : out.slice(first);
 }
 
 function userText(m: UIMessage): string {
@@ -146,7 +179,10 @@ export async function POST(req: Request) {
 
   const parsed = BodySchema.safeParse(raw);
   if (!parsed.success) return badRequest("Invalid request body");
-  const { messages, lang } = parsed.data as { messages: UIMessage[]; lang: Lang };
+  const lang: Lang = parsed.data.lang;
+  // Counted before trimming: the answer cache is for a conversation's opening question.
+  const firstTurn = parsed.data.messages.length === 1;
+  const messages = toUIMessages(parsed.data.messages.slice(-MAX_HISTORY));
 
   // Abuse protection: per-IP rate limit.
   const rl = rateLimit(getClientIp(req));
@@ -173,7 +209,6 @@ export async function POST(req: Request) {
   // Answer cache (first-turn only): an identical question — e.g. a suggested
   // chip — is served instantly with the same grounded answer, skipping the
   // embedding call and the LLM entirely.
-  const firstTurn = messages.length === 1;
   const cacheKey = `${lang}:${normalizeQuery(question)}`;
   if (firstTurn) {
     const hit = answerCache.get(cacheKey);
@@ -212,13 +247,7 @@ export async function POST(req: Request) {
 
   const system = buildSystemPrompt(lang, scored);
   const sources = dedupeSources(scored);
-  const cleaned = messages
-    .map((m) => ({
-      ...m,
-      parts: (m.parts ?? []).filter((p) => p.type === "text"),
-    }))
-    .filter((m) => m.parts.length > 0);
-  const modelMessages = await convertToModelMessages(cleaned);
+  const modelMessages = await convertToModelMessages(messages);
   const ladder = chatLadder(lang);
   if (ladder.length === 0) return cannedResponse(errorMessage(lang));
 
@@ -235,6 +264,8 @@ export async function POST(req: Request) {
             model: provider.model,
             system,
             messages: modelMessages,
+            // Backstop to the schema: a system turn in history is an error, not a prompt.
+            allowSystemInMessages: false,
             temperature: 0.5,
             maxOutputTokens: 2200,
             // The ladder below IS our retry strategy: on a 503 / rate-limit we
