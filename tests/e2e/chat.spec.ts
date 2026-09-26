@@ -67,8 +67,13 @@ test("error path surfaces an alert with a retry", async ({ page }) => {
 
 test("language toggle switches the UI and suggestions to Persian", async ({ page }) => {
   await page.goto("/#chat");
-  // The site-wide language toggle (nav) also drives the chat hero.
-  await page.getByRole("group", { name: "Language" }).getByRole("button", { name: "فا" }).click();
+  // The site-wide language toggle (nav) also drives the chat hero, and keeps the hash.
+  await page
+    .getByRole("group", { name: "Language" })
+    .first()
+    .getByRole("link", { name: "فا" })
+    .click();
+  await expect(page).toHaveURL(/\/fa#chat$/);
   await expect(
     page.getByRole("button", { name: "ایجنت‌های کاری چه مشکلی رو حل کردن؟" }),
   ).toBeVisible();

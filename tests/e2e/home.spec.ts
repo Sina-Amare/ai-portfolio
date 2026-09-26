@@ -81,22 +81,22 @@ test("workplace agent cards link to their write-ups on /projects", async ({ page
 });
 
 test("Persian copy covers workplace agents, image captions, and privacy", async ({ page }) => {
-  await page.goto("/projects");
-  await page.getByRole("button", { name: "فا", exact: true }).first().click();
+  await page.goto("/fa/projects");
   await expect(page.locator("html")).toHaveAttribute("lang", "fa");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page).toHaveTitle(/پروژه‌ها/);
   await expect(page.getByRole("heading", { name: "ایجنت رصد شبکه‌های اجتماعی" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "ایجنت‌های تحلیل و گزارش‌گیری" })).toBeVisible();
   await expect(page.getByText("اول عدد، بعد تحلیل")).toBeVisible();
 
-  await page.goto("/projects/scrapegpt");
+  await page.goto("/fa/projects/scrapegpt");
   await page
     .getByRole("button", { name: /۹۶ ردیف دادهٔ تمیز/ })
     .first()
     .click();
   await expect(page.getByText(/۹۶ ردیف دادهٔ تمیز/).last()).toBeVisible();
 
-  await page.goto("/privacy");
+  await page.goto("/fa/privacy");
   await expect(page).toHaveTitle(/حریم خصوصی/);
   await expect(
     page.getByRole("heading", { name: "این سایت از بازدیدها چی می‌فهمه؟" }),
