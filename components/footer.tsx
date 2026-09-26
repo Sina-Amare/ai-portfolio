@@ -7,13 +7,13 @@ import { Container } from "./ui/container";
 import { GitHubIcon, LinkedInIcon } from "./icons";
 
 const socials = [
-  { href: site.socials.github, label: "GitHub", Icon: GitHubIcon },
-  { href: site.socials.linkedin, label: "LinkedIn", Icon: LinkedInIcon },
-  { href: site.socials.email, label: "Email", Icon: Mail },
-];
+  { href: site.socials.github, key: "github", Icon: GitHubIcon },
+  { href: site.socials.linkedin, key: "linkedin", Icon: LinkedInIcon },
+  { href: site.socials.email, key: "email", Icon: Mail },
+] as const;
 
 export function Footer() {
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
   const year = new Date().getFullYear();
   return (
     <footer className="border-border mt-24 border-t">
@@ -28,13 +28,13 @@ export function Footer() {
 
         <div className="flex flex-col gap-4 sm:items-end">
           <div className="flex items-center gap-2">
-            {socials.map(({ href, label, Icon }) => (
+            {socials.map(({ href, key, Icon }) => (
               <a
-                key={label}
+                key={key}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={label === "Email" && locale === "fa" ? "ایمیل" : label}
+                aria-label={t.command[key]}
                 className="text-muted hover:text-text border-border hover:border-accent/50 inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors"
               >
                 <Icon className="h-[18px] w-[18px]" />

@@ -6,10 +6,13 @@ import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
 import type { MediaItem } from "@/lib/projects";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
+import { dirOf } from "@/lib/dictionary";
 
 /** Case-study screenshot / video gallery with a keyboard-navigable lightbox. */
 export function MediaGallery({ items, label }: { items: MediaItem[]; label: string }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
+  // In RTL "next" sits on the left: buttons, chevrons and arrow keys all mirror.
+  const rtl = dirOf(locale) === "rtl";
   const captionOf = (item: MediaItem) =>
     locale === "fa" ? (item.captionFa ?? item.caption) : item.caption;
   const [index, setIndex] = useState<number | null>(null);
@@ -27,8 +30,8 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
-      else if (e.key === "ArrowRight") go(1);
-      else if (e.key === "ArrowLeft") go(-1);
+      else if (e.key === "ArrowRight") go(rtl ? -1 : 1);
+      else if (e.key === "ArrowLeft") go(rtl ? 1 : -1);
     };
     document.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
@@ -37,7 +40,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [open, close, go]);
+  }, [open, close, go, rtl]);
 
   if (!items.length) return null;
 
@@ -50,7 +53,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
             key={m.src}
             type="button"
             onClick={() => setIndex(i)}
-            aria-label={captionOf(m) ?? (locale === "fa" ? "دیدن تصویر" : "Open preview")}
+            aria-label={captionOf(m) ?? t.projects.openPreview}
             className="group bg-surface border-border hover:border-accent/50 relative block aspect-video w-full overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -94,8 +97,8 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
             <button
               type="button"
               onClick={close}
-              aria-label={locale === "fa" ? "بستن" : "Close"}
-              className="absolute top-4 right-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+              aria-label={t.projects.close}
+              className="absolute end-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
             >
               <X className="h-5 w-5" />
             </button>
@@ -108,10 +111,10 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                     e.stopPropagation();
                     go(-1);
                   }}
-                  aria-label={locale === "fa" ? "قبلی" : "Previous"}
-                  className="absolute left-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:left-6"
+                  aria-label={t.projects.previous}
+                  className="absolute start-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:start-6"
                 >
-                  <ChevronLeft className="h-6 w-6" />
+                  <ChevronLeft className="h-6 w-6 rtl:-scale-x-100" />
                 </button>
                 <button
                   type="button"
@@ -119,10 +122,10 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                     e.stopPropagation();
                     go(1);
                   }}
-                  aria-label={locale === "fa" ? "بعدی" : "Next"}
-                  className="absolute right-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:right-6"
+                  aria-label={t.projects.next}
+                  className="absolute end-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:end-6"
                 >
-                  <ChevronRight className="h-6 w-6" />
+                  <ChevronRight className="h-6 w-6 rtl:-scale-x-100" />
                 </button>
               </>
             )}

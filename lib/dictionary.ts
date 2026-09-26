@@ -172,6 +172,10 @@ export const dict = {
       highlights: "Engineering highlights",
       outcomes: "Outcomes",
       gallery: "Gallery",
+      openPreview: "Open preview",
+      close: "Close",
+      previous: "Previous",
+      next: "Next",
     },
   },
 
@@ -339,6 +343,10 @@ export const dict = {
       highlights: "تصمیم‌های فنی مهم",
       outcomes: "نتیجه",
       gallery: "تصاویر و ویدیوها",
+      openPreview: "دیدن تصویر",
+      close: "بستن",
+      previous: "قبلی",
+      next: "بعدی",
     },
   },
 };
