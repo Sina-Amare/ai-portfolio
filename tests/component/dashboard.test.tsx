@@ -130,12 +130,15 @@ describe("Dashboard", () => {
   });
 
   it("speaks Persian with Persian digits (gap-13)", () => {
-    render(<Dashboard data={insights} locale="fa" />);
+    const long = { ...insights.recent[0]!, pageCount: 25 };
+    render(<Dashboard data={{ ...insights, recent: [long] }} locale="fa" />);
     expect(screen.getByText("بازدیدهای با تعامل").nextSibling).toHaveTextContent("۱۲");
     expect(screen.getByText(/۶۰٪/)).toBeInTheDocument();
     expect(screen.getByText("۳۰ روز")).toBeInTheDocument();
     expect(screen.getAllByText("اوت ۲۰۲۶ – سپتامبر ۲۰۲۶")).toHaveLength(4);
     expect(screen.getByText("۳ ساعت پیش")).toBeInTheDocument();
+    // Even the "more pages" count in the visit log.
+    expect(screen.getByText(/\+۲۳$/)).toBeInTheDocument();
     expect(screen.getByText("🇳🇱 هلند")).toBeInTheDocument();
     expect(screen.getByText("د")).toBeInTheDocument();
   });

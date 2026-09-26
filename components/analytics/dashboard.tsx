@@ -319,7 +319,7 @@ function Visit({ v, f, p }: { v: RecentVisit; f: Fmt; p: Copy }) {
       </div>
       <p dir="ltr" className="text-muted mt-2 font-mono text-[11px] wrap-break-word rtl:text-right">
         {v.pages.join(" → ")}
-        {more > 0 && ` +${more}`}
+        {more > 0 && ` +${f.n(more)}`}
       </p>
       {sections.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1.5">
