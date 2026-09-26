@@ -1,8 +1,19 @@
 import type { Locale } from "@/lib/dictionary";
+import { site } from "@/lib/site";
 
 export const pageCopy = {
   en: {
     skip: "Skip to content",
+    home: {
+      title: `${site.name} — ${site.role}`,
+      description:
+        "Python backend & AI/LLM engineer. Resilient backend services, multi-provider LLM apps, and RAG. Ask my AI assistant anything about my work.",
+    },
+    projects: {
+      title: "Projects",
+      description:
+        "Open-source projects and two workplace agents by Sina Amareh, with the problems, workflows, and engineering decisions behind them.",
+    },
     privacy: {
       meta: "What this site measures, what it deliberately doesn't, and how long anything is kept.",
       eyebrow: "Privacy",
@@ -97,6 +108,16 @@ export const pageCopy = {
   },
   fa: {
     skip: "برو به محتوای اصلی",
+    home: {
+      title: "سینا عماره — توسعه‌دهندهٔ بک‌اند و AI",
+      description:
+        "من سینا عماره‌ام؛ با Python بک‌اند و برنامه‌های AI می‌سازم. از پروژه‌ها و تجربه‌هام از دستیار سایت بپرس.",
+    },
+    projects: {
+      title: "پروژه‌ها",
+      description:
+        "پروژه‌های متن‌باز و دو ایجنت کاری سینا عماره؛ با توضیح مسئله، مسیر کار و تصمیم‌های فنی.",
+    },
     privacy: {
       meta: "این سایت چه اطلاعاتی از بازدیدها نگه می‌داره و تا کی؟",
       eyebrow: "حریم خصوصی",
