@@ -77,12 +77,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0b" },
-    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
-  ],
-};
+// The site always opens dark (theme-provider's defaultTheme), so the browser
+// bar matches that instead of the OS preference.
+export const viewport: Viewport = { themeColor: "#0a0a0b" };
 
 export default async function RootLayout({
   children,
@@ -122,7 +119,7 @@ export default async function RootLayout({
               "@context": "https://schema.org",
               "@type": "Person",
               name: site.name,
-              jobTitle: "Software Developer — Backend & AI",
+              jobTitle: site.role,
               url: site.url,
               email: site.email,
               sameAs: [site.socials.github, site.socials.linkedin],
