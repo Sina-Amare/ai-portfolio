@@ -97,6 +97,22 @@
       "q": "ایجنت‌های تحلیل چطور از بازخورد مدیر برای گزارش بعدی استفاده می‌کنن؟",
       "expectSource": "Project: Business Intelligence Agents"
     },
+    {
+      "q": "How do the BI agents keep the LLM from doing arithmetic?",
+      "expectSource": "Project: Business Intelligence Agents"
+    },
+    {
+      "q": "Does the Social Research Agent remove duplicate posts?",
+      "expectSource": "Project: Social Research Agent"
+    },
+    {
+      "q": "ایجنت مالی با تراکنش‌های کوچیک چی کار می‌کنه؟",
+      "expectSource": "Project: Business Intelligence Agents"
+    },
+    {
+      "q": "ایجنت رصد از کجاها پست جمع می‌کنه؟",
+      "expectSource": "Project: Social Research Agent"
+    },
     { "q": "PromptAmp چیه؟" },
     { "q": "ScrapeGPT چیه؟" },
     { "q": "Aigram چیکار می‌کنه؟" },
