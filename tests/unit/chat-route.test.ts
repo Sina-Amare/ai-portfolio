@@ -356,14 +356,17 @@ describe("POST /api/chat", () => {
   });
 
   it("marks a provider stream error after partial text as failed", async () => {
+    // Real AI SDK 6 shape: textStream drops the error part and just ENDS; the
+    // failure only shows when finishReason rejects (lazily, like the SDK's).
     vi.mocked(streamText).mockImplementationOnce(((opts: { system: string }) => {
       capture.system = opts.system;
       return {
         textStream: (async function* () {
           yield "At Dekamond I ";
-          throw new Error("upstream disconnected");
         })(),
-        finishReason: Promise.resolve("error"),
+        get finishReason() {
+          return Promise.reject(new Error("upstream disconnected"));
+        },
       };
     }) as unknown as typeof streamText);
 
@@ -454,12 +457,13 @@ describe("POST /api/chat", () => {
     ] as unknown as ReturnType<typeof chatLadder>);
 
     // First provider dies BEFORE emitting any text → the ladder must try the
-    // next one. The default mock answers the second call normally.
+    // next one. Real SDK shape: an empty text stream and a rejecting
+    // finishReason, no throw. The default mock answers the second call.
     vi.mocked(streamText).mockImplementationOnce((() => ({
-      textStream: (async function* () {
-        throw new Error("first provider down");
-      })(),
-      finishReason: Promise.resolve("error"),
+      textStream: (async function* () {})(),
+      get finishReason() {
+        return Promise.reject(new Error("first provider down"));
+      },
     })) as unknown as typeof streamText);
 
     const res = await callChat({
