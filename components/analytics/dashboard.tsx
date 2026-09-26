@@ -92,7 +92,7 @@ function Bars({ title, rows, f, empty }: { title: string; rows: Row[]; f: Fmt; e
   const max = Math.max(0, ...rows.map((r) => r.count));
   return (
     <Card>
-      <h3 className="eyebrow text-[10px]">{title}</h3>
+      <div className="eyebrow text-[10px]">{title}</div>
       {rows.length === 0 || max === 0 ? (
         <p className="text-muted mt-3 text-sm">{empty}</p>
       ) : (
@@ -136,7 +136,7 @@ function Trend({ data, f, p }: { data: Insights; f: Fmt; p: Copy }) {
   return (
     <Card>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="eyebrow text-[10px]">{p.trend}</h3>
+        <div className="eyebrow text-[10px]">{p.trend}</div>
         <div className="text-muted flex items-center gap-3 text-xs">
           <span className="inline-flex items-center gap-1.5">
             <span className="bg-accent/25 size-2 rounded-sm" /> {p.allVisits}
@@ -201,7 +201,7 @@ function When({ data, f, p }: { data: Insights; f: Fmt; p: Copy }) {
   return (
     <Card>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="eyebrow text-[10px]">{p.when}</h3>
+        <div className="eyebrow text-[10px]">{p.when}</div>
         {busiest && (
           <div className="text-muted text-xs">
             {p.busiest} <span className="text-text">{busiest.label}</span>
