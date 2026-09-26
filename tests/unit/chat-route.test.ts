@@ -64,9 +64,10 @@ import { APICallError, streamText } from "ai";
 import { answerCache } from "@/lib/rag/cache";
 import { chatLadder } from "@/lib/rag/providers";
 import { globalDailyOk } from "@/lib/rate-limit";
+import { ui } from "@/lib/i18n";
 
-/** A real suggestion chip (lib/i18n.ts) — the only questions whose answers get cached. */
-const CHIP = "What did you build at Dekamond?";
+/** A real suggestion chip — the only questions whose answers get cached. */
+const CHIP = ui.en.suggestions[0];
 
 let ip = 0;
 function userMessage(text: string) {

@@ -39,6 +39,17 @@
     { "q": "How good is your English?" },
     { "q": "How do you approach a new project?" },
     { "q": "Can I see your code?" },
+    { "q": "Are you open to new roles?" },
+    {
+      "q": "What problems did your workplace agents solve?",
+      "expectSource": "Project: Business Intelligence Agents"
+    },
+    {
+      "q": "ایجنت‌های کاری چه مشکلی رو حل کردن؟",
+      "expectSource": "Project: Social Research Agent"
+    },
+    { "q": "Aigram چه کارهایی می‌کنه؟", "expectSource": "Project: Aigram" },
+    { "q": "برای کار جدید پایه‌ای؟" },
     { "q": "Tell me about ScrapeGPT", "expectSource": "Project: ScrapeGPT" },
     { "q": "What is Aigram?", "expectSource": "Project: Aigram" },
     {

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { detectDir, isRTL, ui } from "@/lib/i18n";
+import golden from "@/eval/golden.json";
 
 describe("i18n", () => {
   it("detects RTL for Persian text", () => {
@@ -23,5 +24,14 @@ describe("i18n", () => {
     expect(ui.en.suggestions.length).toBeGreaterThan(0);
     expect(ui.fa.suggestions.length).toBeGreaterThan(0);
     expect(ui.fa.dir).toBe("rtl");
+  });
+
+  // A chip the retrieval gate refuses would be the bot declining its own
+  // suggestion; `npm run eval` only catches that if the chip is in the set.
+  it("puts every suggestion chip in the RAG golden set", () => {
+    const goldenQs = golden.inScope.map((item) => item.q);
+    for (const chip of [...ui.en.suggestions, ...ui.fa.suggestions]) {
+      expect(goldenQs).toContain(chip);
+    }
   });
 });

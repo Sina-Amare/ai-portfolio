@@ -34,7 +34,9 @@ async function mockChat(page: Page, body: string, status = 200) {
 test("happy path: streams a grounded answer with a source chip", async ({ page }) => {
   await mockChat(page, happy);
   await page.goto("/#chat");
-  await page.getByRole("button", { name: "What did you build at Dekamond?" }).click();
+  await page
+    .getByRole("button", { name: "What problems did your workplace agents solve?" })
+    .click();
   await expect(page.getByText("I built RAG systems at Dekamond.")).toBeVisible();
   await expect(page.getByText("CV", { exact: true })).toBeVisible();
 });
