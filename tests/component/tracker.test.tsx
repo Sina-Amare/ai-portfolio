@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
 import { act, render } from "@testing-library/react";
 
 // Under the proxy's rewrite the router reports the internal /en path.
-vi.mock("next/navigation", () => ({ usePathname: () => "/en/projects" }));
+const nav = vi.hoisted(() => ({ path: "/en/projects" }));
+vi.mock("next/navigation", () => ({ usePathname: () => nav.path }));
 
 // The tracker keeps its state at module scope (it must survive a locale
 // remount), so every test loads a fresh copy.
@@ -31,6 +32,7 @@ afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
   document.body.innerHTML = "";
+  nav.path = "/en/projects";
 });
 
 describe("Tracker", () => {
@@ -86,6 +88,34 @@ describe("Tracker", () => {
         sections: { hero: 5_000 },
         events: [{ n: "chat_ask", p: "chip" }],
       },
+    ]);
+  });
+
+  it("credits a route change's last moments to the old page without reading the new page", async () => {
+    vi.useFakeTimers({ now: 0 });
+    const { Tracker } = await load();
+    const hero = () => {
+      const el = document.createElement("section");
+      el.dataset.analyticsSection = "hero";
+      el.getBoundingClientRect = () => ({ top: 0, bottom: 500 }) as DOMRect;
+      return el;
+    };
+    document.body.append(hero());
+
+    window.history.pushState(null, "", "/");
+    const { rerender } = render(<Tracker />);
+    act(() => vi.advanceTimersByTime(2_900));
+    // Switch to Persian: by the time the tracker hears of it, the DOM is the new page's.
+    document.body.replaceChildren(hero());
+    window.history.pushState(null, "", "/fa");
+    nav.path = "/fa";
+    rerender(<Tracker />);
+
+    expect(bodies()).toEqual([
+      { t: "pv", path: "/", referrer: "" },
+      // All 2.9 s of time, but dwell only from the two scans of the old page.
+      { t: "eng", path: "/", ms: 2_900, sections: { hero: 2_000 }, events: [] },
+      { t: "pv", path: "/fa", referrer: "" },
     ]);
   });
 

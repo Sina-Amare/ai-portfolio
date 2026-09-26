@@ -31,14 +31,18 @@ let reported = new Set<string>();
 /** Per flush: ms each section was the one taking most of the viewport. */
 let dwell: Record<string, number> = {};
 
-/** Credit the time since the last sample, if the visitor was actually there. */
-function sample() {
+/**
+ * Credit the time since the last sample, if the visitor was actually there,
+ * and (with `scan`) to the section on screen.
+ */
+function sample(scan = true) {
   const now = Date.now();
   // Capped: a laptop waking from sleep must not credit the hours it slept.
   const dt = Math.min(now - lastTick, 2 * TICK_MS);
   lastTick = now;
   if (!page || document.visibilityState !== "visible" || now - lastActive > IDLE_MS) return;
   activeMs += dt;
+  if (!scan) return;
 
   let top = "";
   let topPx = 0;
@@ -55,7 +59,9 @@ function sample() {
 
 /** Send what the current page earned since the last flush: active time, sections, actions. */
 function flush() {
-  sample();
+  // Time only: on a route change the DOM already shows the next page, and its
+  // sections must not be credited to this one. Dwell comes from the ticks.
+  sample(false);
   const ms = Math.min(Math.round(activeMs), 1_800_000);
   const events = takeEvents();
   activeMs = 0;
