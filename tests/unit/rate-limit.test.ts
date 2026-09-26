@@ -25,7 +25,13 @@ vi.mock("@/lib/analytics/store", () => ({
       : null,
 }));
 
-import { rateLimit, globalDailyOk, getClientIp } from "@/lib/rate-limit";
+import {
+  contactRateLimit,
+  getClientIp,
+  globalDailyOk,
+  loginRateLimit,
+  rateLimit,
+} from "@/lib/rate-limit";
 
 describe("rate-limit", () => {
   it("getClientIp reads the first x-forwarded-for entry", () => {
@@ -55,6 +61,13 @@ describe("rate-limit", () => {
     const ip = `t-${Math.random()}`;
     for (let i = 0; i < 20; i++) rateLimit(ip, 1000);
     expect(rateLimit(ip, 1000 + 61_000).ok).toBe(true);
+  });
+
+  it("admin login and the contact form don't share a bucket", () => {
+    const ip = `t-${Math.random()}`;
+    for (let i = 0; i < 10; i++) contactRateLimit(ip, 1000);
+    expect(contactRateLimit(ip, 1000).ok).toBe(false);
+    expect(loginRateLimit(ip, 1000).ok).toBe(true);
   });
 
   it("globalDailyOk allows a request initially", async () => {

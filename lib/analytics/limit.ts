@@ -63,11 +63,15 @@ export async function beaconAllowed(ip: string, day: string): Promise<Gate> {
 
 /**
  * Admin login throttle. Two counters: per-IP (stops one attacker) and global
- * (stops the same attack spread across many IPs, which the per-IP counter would
+ * (bounds the same attack spread across many IPs, which the per-IP counter would
  * happily wave through).
+ *
+ * The global cap is deliberately high. At 60 it took just 6 IPs × 10 attempts
+ * to lock the owner out for the rest of the hour, while against a long random
+ * password it adds almost nothing — the password's entropy is the real defence.
  */
 const LOGIN_PER_IP_PER_HOUR = Number(process.env.ADMIN_LOGIN_MAX ?? "10");
-const LOGIN_GLOBAL_PER_HOUR = Number(process.env.ADMIN_LOGIN_GLOBAL_MAX ?? "60");
+const LOGIN_GLOBAL_PER_HOUR = Number(process.env.ADMIN_LOGIN_GLOBAL_MAX ?? "500");
 
 export async function loginAllowed(ip: string): Promise<boolean> {
   const r = redis();

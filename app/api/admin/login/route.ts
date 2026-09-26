@@ -1,4 +1,4 @@
-import { getClientIp, contactRateLimit } from "@/lib/rate-limit";
+import { getClientIp, loginRateLimit } from "@/lib/rate-limit";
 import { loginAllowed } from "@/lib/analytics/limit";
 import {
   adminConfigured,
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   // its own budget). It also caps attempts globally, so spreading the guessing
   // across many IPs doesn't sidestep the per-IP counter.
   const ip = getClientIp(req);
-  if (!contactRateLimit(ip).ok || !(await loginAllowed(ip))) {
+  if (!loginRateLimit(ip).ok || !(await loginAllowed(ip))) {
     return Response.json({ error: "rate_limited" }, { status: 429 });
   }
 

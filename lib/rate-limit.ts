@@ -12,7 +12,6 @@ const PER_MINUTE = Number(process.env.RAG_RPM ?? "12");
 const DAILY_MAX = Number(process.env.RAG_DAILY_MAX ?? "1000");
 
 type Bucket = { count: number; reset: number };
-const ipBuckets = new Map<string, Bucket>();
 
 /**
  * Bucket keys are a hash of the IP, never the IP itself. The limiter only needs
@@ -41,43 +40,37 @@ export function getClientIp(req: Request): string {
   return req.headers.get("x-real-ip") ?? "anonymous";
 }
 
-export function rateLimit(ip: string, now = Date.now()): { ok: boolean; retryAfter: number } {
-  const key = bucketKey(ip);
-  sweep(ipBuckets, now);
-  const b = ipBuckets.get(key);
-  if (!b || now > b.reset) {
-    ipBuckets.set(key, { count: 1, reset: now + WINDOW_MS });
+/** A fixed-window per-IP limiter with its own buckets. */
+function windowLimiter(windowMs: number, max: number) {
+  const buckets = new Map<string, Bucket>();
+  return (ip: string, now = Date.now()): { ok: boolean; retryAfter: number } => {
+    const key = bucketKey(ip);
+    sweep(buckets, now);
+    const b = buckets.get(key);
+    if (!b || now > b.reset) {
+      buckets.set(key, { count: 1, reset: now + windowMs });
+      return { ok: true, retryAfter: 0 };
+    }
+    if (b.count >= max) {
+      return { ok: false, retryAfter: Math.ceil((b.reset - now) / 1000) };
+    }
+    b.count += 1;
     return { ok: true, retryAfter: 0 };
-  }
-  if (b.count >= PER_MINUTE) {
-    return { ok: false, retryAfter: Math.ceil((b.reset - now) / 1000) };
-  }
-  b.count += 1;
-  return { ok: true, retryAfter: 0 };
+  };
 }
+
+export const rateLimit = windowLimiter(WINDOW_MS, PER_MINUTE);
 
 /** Separate, stricter limiter for the contact form (default 5 per 10 minutes). */
 const CONTACT_WINDOW_MS = 600_000;
 const CONTACT_MAX = Number(process.env.CONTACT_MAX_PER_WINDOW ?? "5");
-const contactBuckets = new Map<string, Bucket>();
+export const contactRateLimit = windowLimiter(CONTACT_WINDOW_MS, CONTACT_MAX);
 
-export function contactRateLimit(
-  ip: string,
-  now = Date.now(),
-): { ok: boolean; retryAfter: number } {
-  const key = bucketKey(ip);
-  sweep(contactBuckets, now);
-  const b = contactBuckets.get(key);
-  if (!b || now > b.reset) {
-    contactBuckets.set(key, { count: 1, reset: now + CONTACT_WINDOW_MS });
-    return { ok: true, retryAfter: 0 };
-  }
-  if (b.count >= CONTACT_MAX) {
-    return { ok: false, retryAfter: Math.ceil((b.reset - now) / 1000) };
-  }
-  b.count += 1;
-  return { ok: true, retryAfter: 0 };
-}
+/**
+ * Admin login: same budget, its own buckets — a few mistyped passwords must not
+ * block the same person's contact message, and the reverse.
+ */
+export const loginRateLimit = windowLimiter(CONTACT_WINDOW_MS, CONTACT_MAX);
 
 /**
  * Global daily cap on LLM-bound chat requests. Shared through Redis when configured
