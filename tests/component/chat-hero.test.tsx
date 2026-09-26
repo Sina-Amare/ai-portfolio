@@ -90,6 +90,16 @@ describe("ChatHero", () => {
     expect(sessionStorage.getItem("sina-chat:v1")).toContain("Hel");
   });
 
+  it("announces Thinking, then holds the answer until it finished streaming", () => {
+    status = "submitted";
+    const { rerender } = render(hero());
+    expect(screen.getByRole("status")).toHaveTextContent(ui.en.thinking);
+
+    status = "streaming";
+    rerender(hero());
+    expect(screen.getByRole("log")).toHaveAttribute("aria-busy", "true");
+  });
+
   it("hands keyboard focus to the empty input after New chat", () => {
     status = "ready";
     const { rerender } = render(hero());

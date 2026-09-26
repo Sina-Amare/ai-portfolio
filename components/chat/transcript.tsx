@@ -15,14 +15,18 @@ import { ArrowDown } from "lucide-react";
  *
  * - auto-scrolls as content streams in (ResizeObserver), but only while the user
  *   is already near the bottom, so scrolling up to read history isn't yanked back,
- * - shows a "jump to latest" button when scrolled up.
+ * - shows a "jump to latest" button when scrolled up,
+ * - is aria-busy while an answer streams, so screen readers read the finished
+ *   message once instead of word by word.
  */
 export function Transcript({
   children,
   scrollLabel,
+  busy = false,
 }: {
   children: React.ReactNode;
   scrollLabel: string;
+  busy?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -74,6 +78,7 @@ export function Transcript({
           role="log"
           aria-live="polite"
           aria-atomic="false"
+          aria-busy={busy}
           className="flex flex-col gap-5 px-0.5 py-2"
         >
           {children}

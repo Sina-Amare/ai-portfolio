@@ -184,7 +184,8 @@ export function ChatHero() {
               <LocaleToggle disabled={isStreaming} />
             </div>
 
-            <Transcript scrollLabel={t.scrollLatest}>
+            {/* Busy only while text streams: "Thinking…" must still be announced. */}
+            <Transcript scrollLabel={t.scrollLatest} busy={status === "streaming"}>
               {messages.map((m) => (
                 <Message
                   key={m.id}
