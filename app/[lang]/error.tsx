@@ -14,7 +14,7 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const { locale } = useLocale();
+  const { locale, path } = useLocale();
   const p = pageCopy[locale].error;
   useEffect(() => {
     console.error(error);
@@ -35,7 +35,7 @@ export default function Error({
             <RotateCcw className="h-4 w-4" /> {p.retry}
           </button>
           <Link
-            href="/"
+            href={path("/")}
             className="text-muted hover:text-text border-border hover:border-accent/50 rounded-full border px-5 py-2.5 text-sm transition-colors"
           >
             {p.home}

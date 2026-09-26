@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FileText, Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
 import { scrollToSectionId, scrollToTop } from "@/lib/scroll";
-import { useLocale } from "./locale-provider";
+import { useBarePath, useLocale } from "./locale-provider";
 import { Container } from "./ui/container";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleToggle } from "./locale-toggle";
@@ -15,12 +14,13 @@ import { LocaleToggle } from "./locale-toggle";
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
-  const { t } = useLocale();
+  const pathname = useBarePath();
+  const { t, path } = useLocale();
 
   // Every nav item targets a section of the home page, so they all glide instead
   // of jumping. "Projects" points at the #work section (which already lists every
   // project); its "All projects" button — and ⌘K — still open the /projects index.
+  // hrefs are bare paths; path() adds the /fa prefix on Persian pages.
   const links = [
     { href: "/", label: t.nav.home },
     { href: "/#work", label: t.nav.projects },
@@ -40,7 +40,7 @@ export function Nav() {
       e.preventDefault();
       requestAnimationFrame(() => {
         scrollToTop(true);
-        window.history.replaceState(null, "", "/");
+        window.history.replaceState(null, "", path("/"));
       });
       return;
     }
@@ -50,7 +50,7 @@ export function Nav() {
     // Defer one frame so a closing mobile menu has collapsed before we measure.
     requestAnimationFrame(() => {
       if (scrollToSectionId(id, true)) {
-        window.history.replaceState(null, "", href);
+        window.history.replaceState(null, "", path(href));
       }
     });
     if (document.getElementById(id)) e.preventDefault();
@@ -73,7 +73,7 @@ export function Nav() {
         <div aria-hidden className="nav-blur absolute inset-0" />
         <Container className="relative flex h-14 items-center justify-between">
           <Link
-            href="/"
+            href={path("/")}
             onClick={(e) => onNav(e, "/")}
             className="text-heading font-mono text-sm font-semibold tracking-tight"
             aria-label={t.nav.homeLabel}
@@ -85,7 +85,7 @@ export function Nav() {
             {links.map((l) => (
               <Link
                 key={l.href}
-                href={l.href}
+                href={path(l.href)}
                 scroll={l.href.startsWith("/#") ? false : undefined}
                 onClick={(e) => onNav(e, l.href)}
                 className={cn(
@@ -138,7 +138,7 @@ export function Nav() {
               {links.map((l) => (
                 <Link
                   key={l.href}
-                  href={l.href}
+                  href={path(l.href)}
                   scroll={l.href.startsWith("/#") ? false : undefined}
                   onClick={(e) => onNav(e, l.href)}
                   className="text-muted hover:text-text rounded-lg px-2 py-2.5 text-sm transition-colors"

@@ -19,7 +19,7 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const { setTheme, resolvedTheme } = useTheme();
-  const { locale, t } = useLocale();
+  const { locale, t, path } = useLocale();
   const dir = dirOf(locale);
   const c = t.command;
 
@@ -51,9 +51,9 @@ export function CommandPalette() {
   const goSection = (id: string) => () => {
     setOpen(false);
     if (scrollToSectionId(id, true)) {
-      history.replaceState(null, "", `/#${id}`);
+      history.replaceState(null, "", path(`/#${id}`));
     } else {
-      router.push(`/#${id}`);
+      router.push(path(`/#${id}`));
     }
   };
 
@@ -86,10 +86,13 @@ export function CommandPalette() {
             </Command.Empty>
 
             <Command.Group heading={c.groupNav}>
-              <Command.Item className={itemCls} onSelect={run(() => router.push("/"))}>
+              <Command.Item className={itemCls} onSelect={run(() => router.push(path("/")))}>
                 <Home className="h-4 w-4" /> {c.home}
               </Command.Item>
-              <Command.Item className={itemCls} onSelect={run(() => router.push("/projects"))}>
+              <Command.Item
+                className={itemCls}
+                onSelect={run(() => router.push(path("/projects")))}
+              >
                 <FolderGit2 className="h-4 w-4" /> {c.projects}
               </Command.Item>
               <Command.Item className={itemCls} onSelect={goSection("about")}>

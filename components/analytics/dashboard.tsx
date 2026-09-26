@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Breakdown, Overview } from "@/lib/analytics/store";
 import { cn } from "@/lib/utils";
-import type { Locale } from "@/lib/dictionary";
+import { localizedPath, type Locale } from "@/lib/locale";
 import { pageCopy } from "@/lib/page-copy";
 
 /** "NL" → 🇳🇱, by mapping the two letters to regional-indicator code points. */
@@ -220,7 +220,7 @@ export function Dashboard({ data, locale }: { data: Overview; locale: Locale }) 
         {RANGES.map((r) => (
           <Link
             key={r}
-            href={`/admin?range=${r}`}
+            href={localizedPath(`/admin?range=${r}`, locale)}
             scroll={false}
             className={cn(
               "rounded-full border px-3 py-1.5 text-xs transition-colors",

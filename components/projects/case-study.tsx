@@ -12,7 +12,7 @@ import { GitHubIcon } from "@/components/icons";
 
 /** Project case study with localized structure and content. */
 export function CaseStudy({ project }: { project: Project }) {
-  const { locale, t } = useLocale();
+  const { locale, t, path } = useLocale();
   const p = t.projects;
   const tagline = locale === "fa" ? project.taglineFa : project.tagline;
   const summary = locale === "fa" ? project.summaryFa : project.summary;
@@ -23,7 +23,7 @@ export function CaseStudy({ project }: { project: Project }) {
     <section className="pt-28 pb-24 sm:pt-32">
       <Container>
         <Link
-          href="/projects"
+          href={path("/projects")}
           className="text-muted hover:text-text inline-flex items-center gap-1.5 text-sm transition-colors"
         >
           <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" /> {p.back}

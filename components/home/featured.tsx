@@ -10,7 +10,7 @@ import { ProjectCard } from "../projects/project-card";
 import { Reveal, RevealGroup, RevealItem } from "../motion/reveal";
 
 export function Featured() {
-  const { t } = useLocale();
+  const { t, path } = useLocale();
   return (
     <section id="work" className="scroll-mt-24 py-20 sm:py-28">
       <Container>
@@ -34,7 +34,7 @@ export function Featured() {
         </RevealGroup>
 
         <Reveal delay={0.1} className="mt-8 flex justify-center">
-          <ButtonLink href="/projects" variant="outline" size="md">
+          <ButtonLink href={path("/projects")} variant="outline" size="md">
             {t.featured.all} <ArrowRight className="h-4 w-4 rtl:-scale-x-100" />
           </ButtonLink>
         </Reveal>

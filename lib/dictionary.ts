@@ -149,6 +149,7 @@ export const dict = {
       builtWith:
         "Built with Next.js & a live multi-provider RAG assistant — the chatbot on this site runs on my own code.",
       rights: "All rights reserved.",
+      privacy: "Privacy",
     },
     projects: {
       eyebrow: "Work",
@@ -320,6 +321,7 @@ export const dict = {
       tagline: "مهندس بک‌اند Python و AI/LLM · تهران، ایران (UTC+3:30).",
       builtWith: "این سایت رو با Next.js ساختم. دستیار RAG بالای صفحه هم روی کد خودم اجرا می‌شه.",
       rights: "همهٔ حقوق محفوظه.",
+      privacy: "حریم خصوصی",
     },
     projects: {
       eyebrow: "نمونه‌کارها",

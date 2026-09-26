@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Mail } from "lucide-react";
 import { site } from "@/lib/site";
 import { useLocale } from "./locale-provider";
@@ -13,7 +14,7 @@ const socials = [
 ] as const;
 
 export function Footer() {
-  const { t } = useLocale();
+  const { t, path } = useLocale();
   const year = new Date().getFullYear();
   return (
     <footer className="border-border mt-24 border-t">
@@ -41,8 +42,15 @@ export function Footer() {
               </a>
             ))}
           </div>
-          <p className="text-muted text-xs opacity-80">
-            © {year} {site.name}. {t.footer.rights}
+          {/* The page is prerendered, so the year is build-time; the client may disagree on Jan 1. */}
+          <p className="text-muted text-xs opacity-80" suppressHydrationWarning>
+            © {year} {site.name}. {t.footer.rights}{" "}
+            <Link
+              href={path("/privacy")}
+              className="hover:text-text underline-offset-2 hover:underline"
+            >
+              {t.footer.privacy}
+            </Link>
           </p>
         </div>
       </Container>

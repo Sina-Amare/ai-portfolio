@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { Search } from "lucide-react";
 import { LocaleProvider } from "@/components/locale-provider";
-import { ProjectCardView } from "@/components/projects/project-card";
+import { ProjectCard, ProjectCardView } from "@/components/projects/project-card";
+import { getProject } from "@/lib/projects";
 
 describe("ProjectCardView", () => {
   it("links the whole card, draws the focus ring on the card, and skips GitHub without a repo", () => {
@@ -26,5 +27,16 @@ describe("ProjectCardView", () => {
     // The link's own ring is clipped by the card's overflow-hidden (ui-1).
     expect(link.parentElement).toHaveClass("has-[>a:focus-visible]:outline-2");
     expect(screen.queryByRole("link", { name: /GitHub/ })).toBeNull();
+  });
+});
+
+describe("ProjectCard", () => {
+  it("links to the case study in the page's language", () => {
+    render(
+      <LocaleProvider locale="fa">
+        <ProjectCard project={getProject("scrapegpt")!} />
+      </LocaleProvider>,
+    );
+    expect(screen.getAllByRole("link")[0]).toHaveAttribute("href", "/fa/projects/scrapegpt");
   });
 });

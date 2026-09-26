@@ -17,7 +17,7 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
  * with a meta sidebar instead of a repo link (the code is private).
  */
 export function WorkProjects({ preview = false }: { preview?: boolean }) {
-  const { locale, t } = useLocale();
+  const { locale, t, path } = useLocale();
   const w = t.work;
 
   if (preview) {
@@ -39,7 +39,7 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
               return (
                 <RevealItem key={p.id}>
                   <ProjectCardView
-                    href={`/projects#${p.id}`}
+                    href={path(`/projects#${p.id}`)}
                     label={`${c.name} — ${c.tagline}`}
                     eyebrow={w.projectLabel}
                     name={c.name}
@@ -54,7 +54,7 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
           </RevealGroup>
 
           <Reveal delay={0.1} className="mt-8 flex justify-center">
-            <ButtonLink href="/projects#workplace" variant="outline" size="md">
+            <ButtonLink href={path("/projects#workplace")} variant="outline" size="md">
               {w.more} <ArrowRight className="h-4 w-4 rtl:-scale-x-100" />
             </ButtonLink>
           </Reveal>

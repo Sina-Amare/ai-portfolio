@@ -9,11 +9,11 @@ import { useLocale } from "@/components/locale-provider";
 import { GitHubIcon } from "@/components/icons";
 
 export function ProjectCard({ project, className }: { project: Project; className?: string }) {
-  const { locale } = useLocale();
+  const { locale, path } = useLocale();
   const tagline = locale === "fa" ? project.taglineFa : project.tagline;
   return (
     <ProjectCardView
-      href={`/projects/${project.slug}`}
+      href={path(`/projects/${project.slug}`)}
       label={`${project.name} — ${tagline}`}
       eyebrow={project.year}
       name={project.name}
