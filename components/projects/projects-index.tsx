@@ -16,7 +16,7 @@ export function ProjectsIndex() {
   const { t } = useLocale();
   return (
     <>
-      <section className="pt-28 sm:pt-32">
+      <section data-analytics-section="projects-list" className="pt-28 sm:pt-32">
         <Container>
           <Reveal>
             <SectionHeading

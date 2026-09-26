@@ -20,7 +20,7 @@ export function CaseStudy({ project }: { project: Project }) {
   const c = locale === "fa" ? project.fa : project;
 
   return (
-    <section className="pt-28 pb-24 sm:pt-32">
+    <section data-analytics-section="case-study" className="pt-28 pb-24 sm:pt-32">
       <Container>
         <Link
           href={path("/projects")}

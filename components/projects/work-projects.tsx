@@ -22,7 +22,11 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
 
   if (preview) {
     return (
-      <section id="workplace" className="scroll-mt-24 py-20 sm:py-28">
+      <section
+        id="workplace"
+        data-analytics-section="workplace"
+        className="scroll-mt-24 py-20 sm:py-28"
+      >
         <Container>
           <Reveal>
             <SectionHeading
@@ -64,7 +68,11 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
   }
 
   return (
-    <section id="workplace" className="scroll-mt-24 pt-20 pb-24 sm:pt-28">
+    <section
+      id="workplace"
+      data-analytics-section="workplace-detail"
+      className="scroll-mt-24 pt-20 pb-24 sm:pt-28"
+    >
       <Container>
         <Reveal>
           <SectionHeading eyebrow={w.eyebrow} title={w.title} description={w.description} />

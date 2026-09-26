@@ -16,7 +16,7 @@ const socials = [
 export function Contact() {
   const { t } = useLocale();
   return (
-    <section id="contact" className="scroll-mt-24 py-20 sm:py-28">
+    <section id="contact" data-analytics-section="contact" className="scroll-mt-24 py-20 sm:py-28">
       <Container>
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
           {/* Left — the pitch + direct links */}

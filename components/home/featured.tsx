@@ -12,7 +12,7 @@ import { Reveal, RevealGroup, RevealItem } from "../motion/reveal";
 export function Featured() {
   const { t, path } = useLocale();
   return (
-    <section id="work" className="scroll-mt-24 py-20 sm:py-28">
+    <section id="work" data-analytics-section="featured" className="scroll-mt-24 py-20 sm:py-28">
       <Container>
         <Reveal>
           <SectionHeading

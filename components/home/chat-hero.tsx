@@ -110,7 +110,7 @@ export function ChatHero() {
     dir === "rtl" ? "بک‌اند Python · مهندس AI / LLM" : "Python backend · AI / LLM engineer";
 
   return (
-    <section className="relative isolate overflow-hidden">
+    <section data-analytics-section="hero" className="relative isolate overflow-hidden">
       <div aria-hidden className="hero-bg pointer-events-none absolute inset-0 -z-10" />
       <Container className="flex min-h-[92svh] flex-col items-center justify-start pt-24 pb-16 sm:justify-center sm:py-24">
         {/* Identity */}

@@ -32,7 +32,7 @@ export function About() {
   ];
 
   return (
-    <section id="about" className="scroll-mt-24 py-20 sm:py-28">
+    <section id="about" data-analytics-section="about" className="scroll-mt-24 py-20 sm:py-28">
       <Container>
         <Reveal>
           <SectionHeading number={a.number} eyebrow={a.eyebrow} title={a.title} />
