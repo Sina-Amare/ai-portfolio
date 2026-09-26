@@ -297,6 +297,19 @@ describe("analytics store aggregation", () => {
     delete process.env.ANALYTICS_DAILY_MAX;
   });
 
+  it("fails open when Redis errors, so an outage can't lock the owner out", async () => {
+    const incr = vi
+      .spyOn(FakeRedis.prototype, "incr")
+      .mockRejectedValue(new Error("ERR max requests limit exceeded"));
+    try {
+      const { beaconAllowed, loginAllowed } = await import("@/lib/analytics/limit");
+      expect(await loginAllowed("1.2.3.4")).toBe(true);
+      expect((await beaconAllowed("1.2.3.4", "2026-07-16")).ok).toBe(true);
+    } finally {
+      incr.mockRestore();
+    }
+  });
+
   it("never keys rate-limit state on a raw IP", async () => {
     const { beaconAllowed } = await import("@/lib/analytics/limit");
     await beaconAllowed("203.0.113.7", "2026-07-15");

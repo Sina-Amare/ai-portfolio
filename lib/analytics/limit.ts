@@ -20,13 +20,23 @@ export function ipKey(ip: string): string {
   return createHash("sha256").update(ip).digest("hex").slice(0, 16);
 }
 
+/**
+ * Fails OPEN (returns 0) when Redis errors — an outage or a spent free quota
+ * must not turn the login into a 500 the form reads as "wrong password", nor
+ * break the beacon's always-204 contract. The login's in-memory limiter still
+ * applies meanwhile.
+ */
 async function bump(key: string, ttlSeconds: number): Promise<number> {
   const r = redis();
   if (!r) return 0;
-  const n = await r.incr(key);
-  // Only the request that created the key pays for the EXPIRE.
-  if (n === 1) await r.expire(key, ttlSeconds);
-  return n;
+  try {
+    const n = await r.incr(key);
+    // Only the request that created the key pays for the EXPIRE.
+    if (n === 1) await r.expire(key, ttlSeconds);
+    return n;
+  } catch {
+    return 0;
+  }
 }
 
 /** Per-IP beacon budget. Generous for humans, useless for a flood. */
