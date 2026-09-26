@@ -52,6 +52,9 @@ checklist to verify.
       jailbreak filter matches commands not topics, cached replies at the live 4ms/word pace.
       `npm run eval` now also checks entity-swapped chips vs the 0.94 semantic-cache cut-off: 94/94,
       closest pair 0.62. The greeting keeps "I'm Sina's AI assistant" in both languages on purpose.
+      Review follow-up: Persian words count double in `detectDir` (Persian heavy with Latin terms
+      stays RTL); "ignore/forget … instructions" only refuses when it opens a clause, so descriptive
+      questions about prompt injection get through.
 - [ ] B7 analytics v2
 - [ ] B6 UI/UX + accessibility polish
 - [ ] B8 performance
