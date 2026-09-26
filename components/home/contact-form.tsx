@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, Loader2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
@@ -33,6 +33,22 @@ export function ContactForm() {
   };
   const error = errorKey ? errorText[errorKey] : "";
 
+  // Keyboard focus never falls to <body>: the success panel takes it when it
+  // replaces the form, the name field when "Send another" brings the form back,
+  // and a client-side error focuses the field to fix.
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const again = useRef(false);
+  useEffect(() => {
+    if (status === "success") panelRef.current?.focus();
+    else if (status === "idle" && again.current) {
+      again.current = false;
+      nameRef.current?.focus();
+    }
+  }, [status]);
+
   const set =
     (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -49,8 +65,14 @@ export function ContactForm() {
     const name = form.name.trim();
     const email = form.email.trim();
     const message = form.message.trim();
-    if (!name || !email || !message) return fail("required");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("email");
+    if (!name || !email || !message) {
+      (!name ? nameRef : !email ? emailRef : messageRef).current?.focus();
+      return fail("required");
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailRef.current?.focus();
+      return fail("email");
+    }
 
     setStatus("submitting");
     setErrorKey("");
@@ -75,6 +97,8 @@ export function ContactForm() {
   if (status === "success") {
     return (
       <div
+        ref={panelRef}
+        tabIndex={-1}
         role="status"
         className="glass flex flex-col items-center justify-center rounded-2xl px-6 py-12 text-center"
       >
@@ -88,7 +112,10 @@ export function ContactForm() {
         </span>
         <button
           type="button"
-          onClick={() => setStatus("idle")}
+          onClick={() => {
+            again.current = true;
+            setStatus("idle");
+          }}
           className="text-muted hover:text-text mt-5 inline-flex items-center gap-1.5 text-sm transition-colors"
         >
           <RotateCcw className="h-3.5 w-3.5" /> {f.another}
@@ -119,9 +146,10 @@ export function ContactForm() {
             type="text"
             required
             maxLength={100}
+            ref={nameRef}
             value={form.name}
             onChange={set("name")}
-            disabled={submitting}
+            readOnly={submitting}
             placeholder={f.namePh}
             autoComplete="name"
             className={fieldCls}
@@ -133,9 +161,10 @@ export function ContactForm() {
             type="email"
             required
             maxLength={160}
+            ref={emailRef}
             value={form.email}
             onChange={set("email")}
-            disabled={submitting}
+            readOnly={submitting}
             placeholder={f.emailPh}
             autoComplete="email"
             className={fieldCls}
@@ -152,7 +181,7 @@ export function ContactForm() {
           maxLength={120}
           value={form.contact}
           onChange={set("contact")}
-          disabled={submitting}
+          readOnly={submitting}
           placeholder={f.contactPh}
           className={fieldCls}
         />
@@ -164,9 +193,10 @@ export function ContactForm() {
           required
           rows={4}
           maxLength={3000}
+          ref={messageRef}
           value={form.message}
           onChange={set("message")}
-          disabled={submitting}
+          readOnly={submitting}
           placeholder={f.messagePh}
           className={cn(fieldCls, "resize-none")}
         />
@@ -189,10 +219,12 @@ export function ContactForm() {
         </p>
       )}
 
+      {/* aria-disabled, not disabled: a disabled button loses keyboard focus. onSubmit
+          already ignores a second submit while one is in flight. */}
       <button
         type="submit"
-        disabled={submitting}
-        className="bg-accent text-accent-contrast hover:bg-accent-hover mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full text-[15px] font-medium shadow-[0_10px_28px_-14px_var(--accent-glow)] transition-all hover:-translate-y-px disabled:translate-y-0 disabled:opacity-70"
+        aria-disabled={submitting}
+        className="bg-accent text-accent-contrast hover:bg-accent-hover mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full text-[15px] font-medium shadow-[0_10px_28px_-14px_var(--accent-glow)] transition-all hover:-translate-y-px aria-disabled:translate-y-0 aria-disabled:cursor-progress aria-disabled:opacity-70"
       >
         {submitting ? (
           <>
