@@ -12,7 +12,7 @@ export function ArchDiagram({ steps }: { steps: string[] }) {
       {steps.map((step, i) => (
         <Fragment key={step}>
           <div className="glass flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2.5">
-            <span className="text-accent font-mono text-[10px]">
+            <span className="text-accent-text font-mono text-[10px]">
               {String(i + 1).padStart(2, "0")}
             </span>
             <span className="text-[13px] whitespace-nowrap">{step}</span>

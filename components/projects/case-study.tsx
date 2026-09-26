@@ -34,7 +34,7 @@ export function CaseStudy({ project }: { project: Project }) {
           <article className="min-w-0">
             <Reveal>
               <div className="flex items-center gap-3">
-                <span className="text-accent font-mono text-xs">{project.year}</span>
+                <span className="text-accent-text font-mono text-xs">{project.year}</span>
                 <span className="eyebrow">{tagline}</span>
               </div>
               <h1 className="text-gradient mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">

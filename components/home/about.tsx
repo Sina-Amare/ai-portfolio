@@ -100,7 +100,7 @@ export function About() {
                 <div key={e.org} className="border-border border-s ps-4">
                   <div className="flex items-baseline justify-between gap-3">
                     <h3 className="text-sm font-medium">
-                      {e.role} <span className="text-accent">· {e.org}</span>
+                      {e.role} <span className="text-accent-text">· {e.org}</span>
                     </h3>
                     <span className="text-muted shrink-0 font-mono text-[11px]">{e.period}</span>
                   </div>

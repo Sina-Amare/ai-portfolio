@@ -35,7 +35,7 @@ export function Featured() {
 
         <Reveal delay={0.1} className="mt-8 flex justify-center">
           <ButtonLink href="/projects" variant="outline" size="md">
-            {t.featured.all} <ArrowRight className="h-4 w-4" />
+            {t.featured.all} <ArrowRight className="h-4 w-4 rtl:-scale-x-100" />
           </ButtonLink>
         </Reveal>
       </Container>

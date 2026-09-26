@@ -89,7 +89,9 @@ body {
 
 h1,
 h2,
-h3 {
+h3,
+h4,
+h5 {
   font-family: var(--font-display), var(--font-sans), sans-serif;
   color: var(--heading);
   letter-spacing: -0.02em;
@@ -391,13 +393,17 @@ h3 {
 [data-locale="fa"] h1,
 [data-locale="fa"] h2,
 [data-locale="fa"] h3,
+[data-locale="fa"] h4,
+[data-locale="fa"] h5,
 [data-locale="fa"] .eyebrow {
   font-family: var(--font-fa), var(--font-sans), sans-serif;
 }
 [data-locale="fa"] body,
 [data-locale="fa"] h1,
 [data-locale="fa"] h2,
-[data-locale="fa"] h3 {
+[data-locale="fa"] h3,
+[data-locale="fa"] h4,
+[data-locale="fa"] h5 {
   letter-spacing: normal;
 }
 [data-locale="fa"] .eyebrow {
@@ -415,7 +421,9 @@ h3 {
 }
 [data-locale="fa"] h1,
 [data-locale="fa"] h2,
-[data-locale="fa"] h3 {
+[data-locale="fa"] h3,
+[data-locale="fa"] h4,
+[data-locale="fa"] h5 {
   line-height: 1.5;
 }
 
