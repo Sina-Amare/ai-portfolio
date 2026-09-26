@@ -10,13 +10,14 @@ import { site } from "@/lib/site";
 
 export const runtime = "nodejs";
 
-/** Vercel attaches `Authorization: Bearer <CRON_SECRET>` when that var is set. */
+/**
+ * Vercel attaches `Authorization: Bearer <CRON_SECRET>` when that var is set.
+ * Fails CLOSED: with no secret nothing gets in. A header such as x-vercel-cron
+ * is trivially spoofable, and every run costs Redis commands and pings Telegram.
+ */
 function authorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
-  // With no secret configured we only accept Vercel's own cron header, so the
-  // endpoint can't be triggered by a random visitor hitting the URL.
-  if (!secret) return req.headers.get("x-vercel-cron") !== null;
-  return req.headers.get("authorization") === `Bearer ${secret}`;
+  return Boolean(secret) && req.headers.get("authorization") === `Bearer ${secret}`;
 }
 
 function bar(value: number, max: number, width = 10): string {

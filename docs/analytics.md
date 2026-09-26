@@ -140,9 +140,9 @@ countries — reusing the same `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` the con
 already uses, so there's no email provider and no extra cost.
 
 It stays silent on days with no traffic, and skips cleanly if Telegram or Upstash
-isn't configured. Set `CRON_SECRET` to lock the endpoint down — Vercel then sends it as
-a bearer token and the route rejects anything else. With no secret set it only accepts
-requests carrying Vercel's own `x-vercel-cron` header.
+isn't configured. `CRON_SECRET` is **required**: Vercel sends it as a bearer token and
+the route rejects anything else. With no secret set the endpoint answers 401 to every
+request (fail closed), so the digest simply doesn't run until you add it.
 
 ## Date range
 
