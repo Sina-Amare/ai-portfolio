@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ChatInput } from "@/components/chat/chat-input";
 
@@ -35,6 +35,14 @@ describe("ChatInput", () => {
     const user = userEvent.setup();
     const { onSubmit } = setup({ value: "hi" });
     await user.type(screen.getByLabelText("Ask…"), "{Shift>}{Enter}{/Shift}");
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("does not submit the Enter that confirms an IME composition", () => {
+    const { onSubmit } = setup({ value: "日本" });
+    const box = screen.getByLabelText("Ask…");
+    fireEvent.keyDown(box, { key: "Enter", isComposing: true });
+    fireEvent.keyDown(box, { key: "Enter", keyCode: 229 });
     expect(onSubmit).not.toHaveBeenCalled();
   });
 

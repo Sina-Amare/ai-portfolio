@@ -67,7 +67,10 @@ export function ChatInput({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
+          // Enter that confirms an IME candidate (CJK input) isn't a send;
+          // Safari reports it only as keyCode 229.
+          const composing = e.nativeEvent.isComposing || e.keyCode === 229;
+          if (e.key === "Enter" && !e.shiftKey && !composing) {
             e.preventDefault();
             onSubmit();
           }
