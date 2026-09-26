@@ -25,7 +25,9 @@ checklist to verify.
 - [x] B2 security & correctness (chat input validation, cache poisoning, deadlines, admin login, cron)
       — 16 commits, 125 tests. Skipped on purpose: "stop the ladder on a 400" (Gemini answers an invalid
       key with 400, so one bad key would kill the whole ladder). `.env.example` not touched (CRON_SECRET
-      now required, ADMIN_LOGIN_GLOBAL_MAX default now 500) — left for B9.
+      now required, ADMIN_LOGIN_GLOBAL_MAX default now 500) — left for B9. Review follow-up: embed 8s
+      timeout now has a test; the Redis daily chat cap stays shared across environments on purpose
+      (same API keys) — B7's production-only gate (sec-5) is for analytics writes only.
 - [ ] B4 workplace section: design-system alignment + professional copy
 - [ ] B3 `/fa` locale-prefixed routing + SEO metadata
 - [ ] B5 chatbot Persian quality
