@@ -11,11 +11,12 @@
  * TTLs are set when a key is created, never on every write:
  *  - `an:s:<vid>` 30 min (sliding) and `an:sess:<sid>` 90 days, as the visit starts;
  *  - `an:d:<day>`, `an:m:<month>`, `an:seen:<month>` and `an:recent` on the day's
- *    first visit, which is the only moment each can be created
+ *    first visit or first chat, which is the only moment each can be created
  *    (a month's first visit is also its day's first);
  *  - `an:ret:<month>` with every add, because it is created later than the rest.
  */
 import { randomBytes } from "node:crypto";
+import { after } from "next/server";
 import type { Redis } from "@upstash/redis";
 import { isOwner } from "./auth";
 import { KEY_EVENTS, type Beacon, type EngageBeacon } from "./beacon";
@@ -288,4 +289,51 @@ export function countable(req: Request): boolean {
     !isBotRequest(req.headers.get("user-agent") ?? "") &&
     !isOwner(req.headers.get("cookie"))
   );
+}
+
+export type ChatOutcome = "answered" | "refused" | "cached" | "error" | "smalltalk" | "capped";
+export type ChatNote = { outcome: ChatOutcome; topic?: string; chip: boolean };
+
+/** Chat records per day. Past it this instance stops writing: a flood of refusals can't spend the month. */
+const CHAT_RECORDS_PER_DAY = 300;
+let chatFullDay = "";
+
+/**
+ * One chat turn as aggregates only: the outcome, the knowledge-base source the
+ * answer leaned on most (its topic) and whether it was a suggestion chip. The
+ * question text is never stored. Never throws.
+ */
+export async function recordChat(c: ChatNote, now = new Date()): Promise<void> {
+  const r = redis();
+  const day = dayKey(now);
+  if (!r || chatFullDay === day) return;
+  try {
+    const m = K.month(monthKey(now));
+    const n = await r.hincrby(K.day(day), "chat", 1);
+    if (n > CHAT_RECORDS_PER_DAY) {
+      chatFullDay = day;
+      return;
+    }
+    const p = r.pipeline();
+    p.hincrby(m, `chat:${c.outcome}`, 1);
+    p.hincrby(m, `ask:${c.chip ? "chip" : "typed"}`, 1);
+    if (c.topic) p.hincrby(m, `topic:${c.topic}`, 1);
+    // The day's first chat may be what created both keys.
+    if (n === 1) {
+      p.expire(K.day(day), DAY_TTL);
+      p.expire(m, MONTH_TTL);
+    }
+    await p.exec();
+  } catch {
+    // Analytics never breaks the chat.
+  }
+}
+
+/** Record a chat outcome after the response is sent, never in its way. */
+export function noteChat(req: Request, c: ChatNote): void {
+  try {
+    if (countable(req)) after(() => recordChat(c));
+  } catch {
+    // Outside a request (unit tests): nothing to record.
+  }
 }

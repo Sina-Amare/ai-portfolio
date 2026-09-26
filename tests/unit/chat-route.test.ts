@@ -36,6 +36,8 @@ vi.mock("@/lib/rag/providers", () => ({
   chatLadder: vi.fn(() => [{ id: "mock", label: "Mock", model: {} }]),
 }));
 
+vi.mock("@/lib/analytics/session", () => ({ noteChat: vi.fn() }));
+
 vi.mock("@/lib/rate-limit", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/rate-limit")>()),
   globalDailyOk: vi.fn(async () => true),
@@ -64,6 +66,7 @@ import { APICallError, streamText } from "ai";
 import { answerCache } from "@/lib/rag/cache";
 import { chatLadder } from "@/lib/rag/providers";
 import { globalDailyOk } from "@/lib/rate-limit";
+import { noteChat } from "@/lib/analytics/session";
 import { ui } from "@/lib/i18n";
 
 /** A real suggestion chip — the only questions whose answers get cached. */
@@ -502,5 +505,18 @@ describe("POST /api/chat", () => {
     expect(res.raw).toContain("data-sources");
     expect(extractErrors(res.raw)).toHaveLength(0);
     expect(streamText).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports each turn's outcome, topic and chip-or-typed to analytics, never the text", async () => {
+    await callChat({ messages: [userMessage(CHIP)], lang: "en" });
+    await callChat({ messages: [userMessage(CHIP)], lang: "en" }); // now from the cache
+    await callChat({ messages: [userMessage("What's the weather today?")], lang: "en" });
+    await callChat({ messages: [userMessage("thanks!")], lang: "en" });
+    expect(vi.mocked(noteChat).mock.calls.map(([, note]) => note)).toEqual([
+      { outcome: "answered", topic: "CV", chip: true },
+      { outcome: "cached", topic: "CV", chip: true },
+      { outcome: "refused", topic: undefined, chip: false }, // off-topic: no topic
+      { outcome: "smalltalk", topic: undefined, chip: false },
+    ]);
   });
 });

@@ -161,7 +161,7 @@ const { store, FakeRedis } = vi.hoisted(() => {
 
 vi.mock("@upstash/redis", () => ({ Redis: FakeRedis }));
 
-import { recordBeacon, type Visitor } from "@/lib/analytics/session";
+import { recordBeacon, recordChat, type Visitor } from "@/lib/analytics/session";
 import { getInsights } from "@/lib/analytics/insights";
 import type { Beacon } from "@/lib/analytics/beacon";
 
@@ -374,6 +374,7 @@ describe("storage and cost", () => {
     );
     at(2 * 3600_000);
     await recordBeacon(visitor(), pv("/")); // returning → an:ret is created now
+    await recordChat({ outcome: "answered", topic: "CV", chip: true });
 
     const keys = [store.kv, store.sets, store.hashes, store.lists].flatMap((m) => [...m.keys()]);
     expect(keys.filter((k) => k !== "an:since" && !store.ttl.has(k))).toEqual([]);
@@ -442,6 +443,32 @@ describe("getInsights", () => {
       const o = await insights();
       expect(o.enabled).toBe(true);
       expect(o.degraded).toBe(true);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+});
+
+describe("chat outcomes", () => {
+  it("records outcome, topic and chip-vs-typed, never the question", async () => {
+    await recordChat({ outcome: "answered", topic: "Project: ScrapeGPT", chip: true });
+    await recordChat({ outcome: "refused", chip: false });
+    const o = await insights();
+    expect(o.kpis.chatQuestions).toBe(2);
+    expect(o.chat.outcomes).toEqual(
+      expect.arrayContaining([
+        { label: "answered", count: 1 },
+        { label: "refused", count: 1 },
+      ]),
+    );
+    expect(o.chat.topics).toEqual([{ label: "Project: ScrapeGPT", count: 1 }]);
+    expect(o.chat).toMatchObject({ chip: 1, typed: 1 });
+  });
+
+  it("never throws when Redis fails", async () => {
+    const spy = vi.spyOn(FakeRedis.prototype, "hincrby").mockRejectedValue(new Error("down"));
+    try {
+      await expect(recordChat({ outcome: "error", chip: false })).resolves.toBeUndefined();
     } finally {
       spy.mockRestore();
     }
@@ -537,6 +564,7 @@ describe("configuration", () => {
     const session = await import("@/lib/analytics/session");
     const { getInsights: read } = await import("@/lib/analytics/insights");
     expect(await session.recordBeacon(visitor(), pv("/"))).toBe(0);
+    await expect(session.recordChat({ outcome: "answered", chip: false })).resolves.toBeUndefined();
     expect((await read(30)).enabled).toBe(false);
   });
 

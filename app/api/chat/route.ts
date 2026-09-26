@@ -31,6 +31,7 @@ import {
 import { chatLadder, type ChatProvider } from "@/lib/rag/providers";
 import { answerCache, embedCache, normalizeQuery, SEMANTIC_CACHE_THRESHOLD } from "@/lib/rag/cache";
 import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
+import { noteChat, type ChatOutcome } from "@/lib/analytics/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -229,14 +230,24 @@ export async function POST(req: Request) {
 
   if (!question) return badRequest("Empty message");
 
+  // /admin gets each turn's outcome, topic (the KB source retrieval leaned on
+  // most) and chip-or-typed. Never the question text.
+  const chip = CHIP_QUESTIONS.has(normalizeQuery(question));
+  let topic: string | undefined;
+  const note = (outcome: ChatOutcome) => noteChat(req, { outcome, topic, chip });
+
   // Red flag: jailbreak / prompt-injection pre-filter (instant, no LLM).
-  if (isAbusive(question)) return cannedResponse(refusalMessage(lang));
+  if (isAbusive(question)) {
+    note("refused");
+    return cannedResponse(refusalMessage(lang));
+  }
 
   // Small talk — answered warmly with no LLM call (and before retrieval), so a
   // greeting or a "thanks" never trips the relevance gate. Fires ONLY when the
   // message is nothing but a pleasantry; "hey, what did you build at Dekamond?"
   // and the colloquial-Persian "چطوری X رو ساختی؟" fall through to real RAG.
   const smallTalk = detectSmallTalk(question);
+  if (smallTalk) note("smalltalk");
   if (smallTalk === "thanks") return cannedResponse(thanksMessage(lang));
   if (smallTalk === "greeting" || smallTalk === "capability")
     return cannedResponse(greetingMessage(lang));
@@ -247,7 +258,11 @@ export async function POST(req: Request) {
   const cacheKey = `${lang}:${normalizeQuery(question)}`;
   if (readCache) {
     const hit = answerCache.get(cacheKey);
-    if (hit) return cachedResponse(hit.text, hit.sources);
+    if (hit) {
+      topic = hit.sources[0]?.source;
+      note("cached");
+      return cachedResponse(hit.text, hit.sources);
+    }
   }
 
   // Retrieve from the knowledge base — using the conversation-aware query so
@@ -262,6 +277,7 @@ export async function POST(req: Request) {
     if (!cached) embedCache.set(normQuery, queryEmbedding);
     scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, RETRIEVAL_TOP_K);
   } catch {
+    note("error");
     return cannedResponse(errorMessage(lang));
   }
 
@@ -271,24 +287,38 @@ export async function POST(req: Request) {
   // high threshold keeps it to genuine restatements, never a different question.
   if (readCache) {
     const near = answerCache.findSimilar(queryEmbedding, SEMANTIC_CACHE_THRESHOLD, `${lang}:`);
-    if (near) return cachedResponse(near.text, near.sources);
+    if (near) {
+      topic = near.sources[0]?.source;
+      note("cached");
+      return cachedResponse(near.text, near.sources);
+    }
   }
 
   // Relevance gate — instant refusal for clearly off-topic asks, NO LLM call,
   // so latency and the LLM quota are protected. Greetings/small-talk were
   // already handled with a fast canned reply above, so this only fires for
   // genuinely out-of-scope questions.
-  if (!isInScope(scored)) return cannedResponse(refusalMessage(lang));
+  if (!isInScope(scored)) {
+    note("refused"); // no topic: the nearest chunk of an off-topic question is noise
+    return cannedResponse(refusalMessage(lang));
+  }
+  topic = scored[0]?.chunk.source;
 
   // Global daily cap on LLM calls, checked last so cache hits, small talk and
   // refusals never spend it. Past it, say so honestly — the question is fine.
-  if (!(await globalDailyOk())) return cannedResponse(busyMessage(lang));
+  if (!(await globalDailyOk())) {
+    note("capped");
+    return cannedResponse(busyMessage(lang));
+  }
 
   const system = buildSystemPrompt(lang, scored);
   const sources = dedupeSources(scored);
   const modelMessages = await convertToModelMessages(messages);
   const all = chatLadder(lang);
-  if (all.length === 0) return cannedResponse(errorMessage(lang));
+  if (all.length === 0) {
+    note("error");
+    return cannedResponse(errorMessage(lang));
+  }
   // Cooled rungs go last rather than away: skipped while anything else works,
   // still tried before the visitor gets the error message.
   const cooled = (p: ChatProvider) => (cooledUntil.get(p.id) ?? 0) > Date.now();
@@ -359,6 +389,7 @@ export async function POST(req: Request) {
 
             if (!isCompleteFinish(finishReason)) {
               writer.write({ type: "error", errorText: errorMessage(lang) });
+              note("error");
               return;
             }
 
@@ -368,6 +399,7 @@ export async function POST(req: Request) {
             if (firstTurn && full.trim() && CHIP_QUESTIONS.has(normalizeQuery(question))) {
               answerCache.set(cacheKey, { text: full, sources, embedding: queryEmbedding });
             }
+            note("answered");
             return; // success
           }
           // Provider produced no text → fall through to the next one.
@@ -375,6 +407,7 @@ export async function POST(req: Request) {
           if (started) {
             writer.write({ type: "text-end", id });
             writer.write({ type: "error", errorText: errorMessage(lang) });
+            note("error");
             return; // partial answer already sent — stop here
           }
           failure = err; // No text yet → try the next provider in the ladder.
@@ -386,6 +419,7 @@ export async function POST(req: Request) {
       }
 
       // Every provider failed before producing text → graceful fallback.
+      note("error");
       if (!started) {
         const eid = "err";
         writer.write({ type: "text-start", id: eid });
