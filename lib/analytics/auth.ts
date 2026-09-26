@@ -87,3 +87,30 @@ export function clearedCookie(): string {
   const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
   return `${ADMIN_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
 }
+
+/**
+ * Marks the owner's browser for a year so their own browsing stays out of the
+ * analytics after the 12-hour session ends (signing out keeps it). It grants
+ * nothing: anyone who forges it only removes themselves from the counts.
+ */
+export const OWNER_COOKIE = "sa_owner";
+
+export function ownerCookie(): string {
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `${OWNER_COOKIE}=1; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000${secure}`;
+}
+
+function readCookie(header: string | null, name: string): string | undefined {
+  return header
+    ?.split(/;\s*/)
+    .find((c) => c.startsWith(`${name}=`))
+    ?.slice(name.length + 1);
+}
+
+/** The owner's browser: marked at login, or signed in right now. */
+export function isOwner(cookieHeader: string | null): boolean {
+  return (
+    readCookie(cookieHeader, OWNER_COOKIE) === "1" ||
+    verifySessionToken(readCookie(cookieHeader, ADMIN_COOKIE))
+  );
+}

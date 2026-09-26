@@ -11,7 +11,12 @@ import {
   normalizeReferrer,
 } from "@/lib/analytics/collect";
 import { visitorHash, dayKey, monthKey } from "@/lib/analytics/store";
-import { createSessionToken, verifySessionToken, passwordMatches } from "@/lib/analytics/auth";
+import {
+  createSessionToken,
+  isOwner,
+  verifySessionToken,
+  passwordMatches,
+} from "@/lib/analytics/auth";
 
 describe("analytics/collect", () => {
   it("treats crawlers and non-browsers as bots, real browsers as human", () => {
@@ -209,6 +214,14 @@ describe("analytics/auth", () => {
     expect(verifySessionToken(token)).toBe(true);
     delete process.env.ADMIN_PASSWORD;
     expect(verifySessionToken(token)).toBe(false);
+  });
+
+  it("recognises the owner by the year-long mark or a live admin session", () => {
+    expect(isOwner("theme=dark; sa_owner=1")).toBe(true);
+    expect(isOwner(`sa_admin=${createSessionToken()}`)).toBe(true);
+    expect(isOwner("sa_admin=forged.token.deadbeef")).toBe(false);
+    expect(isOwner("sa_owner=0; not_sa_owner=1")).toBe(false);
+    expect(isOwner(null)).toBe(false);
   });
 
   it("prefers an explicit ADMIN_SESSION_SECRET when set", () => {

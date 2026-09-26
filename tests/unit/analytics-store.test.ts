@@ -348,6 +348,18 @@ describe("analytics store aggregation", () => {
     delete process.env.STORAGE_REST_API_TOKEN;
   });
 
+  it("writes nothing outside production unless ANALYTICS_IN_DEV=1", async () => {
+    vi.resetModules();
+    const { collecting } = await import("@/lib/analytics/store");
+    expect(collecting()).toBe(false); // NODE_ENV is "test" here
+    vi.stubEnv("ANALYTICS_IN_DEV", "1");
+    expect(collecting()).toBe(true);
+    vi.stubEnv("ANALYTICS_IN_DEV", "");
+    vi.stubEnv("NODE_ENV", "production");
+    expect(collecting()).toBe(true);
+    vi.unstubAllEnvs();
+  });
+
   it("no-ops safely when Upstash is not configured", async () => {
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;

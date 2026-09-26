@@ -5,6 +5,7 @@ import {
   adminConfigured,
   clearedCookie,
   createSessionToken,
+  ownerCookie,
   passwordMatches,
   sessionCookie,
 } from "@/lib/analytics/auth";
@@ -41,13 +42,10 @@ export async function POST(req: Request) {
     return Response.json({ error: "invalid" }, { status: 401 });
   }
 
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: {
-      "content-type": "application/json",
-      "set-cookie": sessionCookie(createSessionToken()),
-    },
-  });
+  const headers = new Headers({ "content-type": "application/json" });
+  headers.append("set-cookie", sessionCookie(createSessionToken()));
+  headers.append("set-cookie", ownerCookie());
+  return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
 }
 
 /** Sign out. */

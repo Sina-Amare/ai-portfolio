@@ -68,6 +68,20 @@ export function analyticsEnabled(): boolean {
   return redis() !== null;
 }
 
+/**
+ * Whether visits are WRITTEN. Production only: `vercel env pull` or `vercel
+ * install upstash` puts the production credentials in .env.local, and the
+ * owner's own `npm run dev` browsing would land in the real numbers.
+ * ANALYTICS_IN_DEV=1 opts back in to test the pipeline locally. Reading (the
+ * dashboard) is unaffected.
+ */
+export function collecting(): boolean {
+  return (
+    analyticsEnabled() &&
+    (process.env.NODE_ENV === "production" || process.env.ANALYTICS_IN_DEV === "1")
+  );
+}
+
 /** UTC stamps so buckets don't shift with the server's locale. */
 export function dayKey(d = new Date()): string {
   return d.toISOString().slice(0, 10);

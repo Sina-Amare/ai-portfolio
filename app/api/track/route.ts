@@ -24,7 +24,8 @@ import {
   normalizePath,
   normalizeReferrer,
 } from "@/lib/analytics/collect";
-import { analyticsEnabled, dayKey, recordVisit } from "@/lib/analytics/store";
+import { collecting, dayKey, recordVisit } from "@/lib/analytics/store";
+import { isOwner } from "@/lib/analytics/auth";
 import { beaconAllowed } from "@/lib/analytics/limit";
 import { projects } from "@/lib/projects";
 import { site } from "@/lib/site";
@@ -44,7 +45,9 @@ function siteHost(req: Request): string {
 }
 
 export async function POST(req: Request) {
-  if (!analyticsEnabled()) return noContent();
+  // Noise never reaches the store: nothing outside production, and nothing
+  // from the owner (the year-long mark set at login, or a live admin session).
+  if (!collecting() || isOwner(req.headers.get("cookie"))) return noContent();
 
   const userAgent = req.headers.get("user-agent") ?? "";
   if (isBotRequest(userAgent)) return noContent();
