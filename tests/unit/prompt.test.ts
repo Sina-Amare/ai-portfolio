@@ -116,6 +116,16 @@ describe("prompt", () => {
     expect(fa.toLowerCase()).toContain("colloquial");
   });
 
+  // Both guards were added after real broken Persian answers; losing them once
+  // already went unnoticed because only "colloquial" was asserted.
+  it("keeps the Persian anti-calque and verb-person guards", () => {
+    const fa = buildSystemPrompt("fa", scored);
+    expect(fa).toContain("NEVER translate them into Persian calques");
+    expect(fa).toContain("«بازمتن»");
+    expect(fa).toContain("never the broken «بدونم»");
+    expect(fa).toContain("a concrete example from the context");
+  });
+
   it("buildContextBlock labels each chunk with its source and section", () => {
     expect(buildContextBlock(scored)).toContain("CV › Summary");
   });

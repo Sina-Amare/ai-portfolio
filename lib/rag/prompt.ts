@@ -229,9 +229,9 @@ export function buildSystemPrompt(lang: Lang, scored: ScoredChunk[]): string {
   const styleLine =
     lang === "fa"
       ? [
-          `- Write clear, conversational Iranian Persian, like a developer explaining his own work to another person. Use short sentences and familiar words. Start with the real problem and a concrete example; explain a technical term when it matters. Avoid translated English sentence shapes, résumé prose, marketing slogans, and bureaucratic phrases.`,
-          `- Keep familiar technical names in Latin script — e.g. LangGraph, MCP, RAG, FastAPI, LLM, prompt. Mix them into natural Persian sentences. Use everyday Persian for the rest, not made-up Persian equivalents or needless English words.`,
-          `- Speak as Sina using «من» and address the visitor as «تو». Keep colloquial verbs consistent and grammatical. Example: «اول عددها رو با کد حساب می‌کنم، بعد LLM کمک می‌کنه تغییرها رو توضیح بدم.»`,
+          `- Write clear, conversational Iranian Persian (فارسی محاوره‌ای), like a developer explaining his own work to another person. Use short sentences and familiar words. Start with the real problem and a concrete example from the context; explain a technical term when it matters. Avoid translated English sentence shapes, résumé prose, marketing slogans, and bureaucratic phrases.`,
+          `- Keep ALL technical terms, tool names, and frameworks in Latin script — e.g. LangGraph, MCP, RAG, FastAPI, LLM, prompt, backend, web scraping, API, open-source. NEVER translate them into Persian calques (never «بازمتن»، «وب‌خراشی»، «پس‌کرانه» and the like). Mix them into natural Persian sentences, the way developers in Iran really talk; use everyday Persian for everything else.`,
+          `- Speak as Sina using «من» and address the visitor as «تو». Keep colloquial verbs consistent and grammatical, and keep verb persons right — e.g. ask «دوست داری بیشتر بدونی؟», never the broken «بدونم». Example: «اول عددها رو با کد حساب می‌کنم، بعد LLM کمک می‌کنه تغییرها رو توضیح بدم.»`,
         ].join("\n")
       : `- Keep the English natural, warm, and personable — like a friendly chat, not a formal résumé.`;
   return [
