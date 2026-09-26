@@ -40,7 +40,7 @@ export function Tracker() {
     const isEntry = firstBeacon;
     firstBeacon = false;
 
-    const body = JSON.stringify({ path, referrer: isEntry ? document.referrer : "" });
+    const body = JSON.stringify({ t: "pv", path, referrer: isEntry ? document.referrer : "" });
 
     // keepalive lets the request survive the page unloading mid-flight.
     void fetch("/api/track", {

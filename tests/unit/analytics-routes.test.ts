@@ -3,19 +3,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * Noise filtering happens in the route, before a single Redis command: the
- * owner and dev traffic get the same silent 204 as everything else and never
- * reach the store or the rate limiter.
+ * owner, dev traffic, bots, foreign origins and malformed beacons all get the
+ * same silent 204 and never reach the store or the rate limiter.
  */
-const { recordVisit } = vi.hoisted(() => ({ recordVisit: vi.fn(async () => {}) }));
+const { recordBeacon } = vi.hoisted(() => ({ recordBeacon: vi.fn(async () => 5) }));
 
 vi.mock("@upstash/redis", () => ({ Redis: class {} })); // "configured", never called
 vi.mock("@/lib/analytics/limit", () => ({
   beaconAllowed: vi.fn(async () => ({ ok: true })),
+  chargeBeacon: vi.fn(async () => {}),
   loginAllowed: vi.fn(async () => true),
 }));
-vi.mock("@/lib/analytics/store", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/lib/analytics/store")>()),
-  recordVisit,
+vi.mock("@/lib/analytics/session", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/analytics/session")>()),
+  recordBeacon,
 }));
 
 import { POST as track } from "@/app/api/track/route";
@@ -35,7 +36,7 @@ function send(body: unknown, headers: Record<string, string> = {}) {
     }),
   );
 }
-const PV = { path: "/projects", referrer: "" };
+const PV = { t: "pv", path: "/projects", referrer: "" };
 
 beforeEach(() => {
   vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://fake.upstash.io");
@@ -49,22 +50,37 @@ afterEach(() => {
 });
 
 describe("POST /api/track", () => {
-  it("records a visitor's beacon", async () => {
-    expect((await send(PV)).status).toBe(204);
-    expect(recordVisit).toHaveBeenCalledOnce();
+  it("records a well-formed beacon from a visitor", async () => {
+    const res = await send(PV);
+    expect(res.status).toBe(204);
+    expect(recordBeacon).toHaveBeenCalledOnce();
+    expect(recordBeacon).toHaveBeenCalledWith(
+      expect.objectContaining({ userAgent: CHROME, browser: "Chrome" }),
+      { t: "pv", path: "/projects", referrer: "Direct" },
+    );
   });
 
   it("skips the owner: the year-long mark or a live admin session", async () => {
     expect((await send(PV, { cookie: "sa_owner=1" })).status).toBe(204);
     await send(PV, { cookie: `theme=dark; sa_admin=${createSessionToken()}` });
-    expect(recordVisit).not.toHaveBeenCalled();
+    expect(recordBeacon).not.toHaveBeenCalled();
     expect(beaconAllowed).not.toHaveBeenCalled(); // not even the rate limiter's INCR
   });
 
   it("writes nothing outside production unless ANALYTICS_IN_DEV=1", async () => {
     vi.stubEnv("ANALYTICS_IN_DEV", "");
     await send(PV);
-    expect(recordVisit).not.toHaveBeenCalled();
+    expect(recordBeacon).not.toHaveBeenCalled();
+  });
+
+  it("drops bots, foreign origins, malformed and oversized beacons before any command", async () => {
+    await send(PV, { "user-agent": "curl/8.0.1" });
+    await send(PV, { origin: "https://evil.example" });
+    await send({ t: "eng", path: "/", ms: -5 });
+    await send("not json");
+    await send({ t: "pv", path: "/", referrer: `https://x.com/${"a".repeat(5000)}` });
+    expect(recordBeacon).not.toHaveBeenCalled();
+    expect(beaconAllowed).not.toHaveBeenCalled(); // not even the rate limiter's INCR
   });
 });
 

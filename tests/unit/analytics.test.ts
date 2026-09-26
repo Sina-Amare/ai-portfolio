@@ -11,6 +11,7 @@ import {
   normalizeReferrer,
 } from "@/lib/analytics/collect";
 import { visitorHash, dayKey, monthKey } from "@/lib/analytics/store";
+import { parseBeacon } from "@/lib/analytics/beacon";
 import {
   createSessionToken,
   isOwner,
@@ -129,6 +130,65 @@ describe("analytics/collect", () => {
     expect(bad).toEqual({ country: "Unknown", timezone: "Unknown" });
 
     expect(geoFrom(new Headers())).toEqual({ country: "Unknown", timezone: "Unknown" });
+  });
+});
+
+describe("analytics/beacon", () => {
+  const parse = (raw: unknown) => parseBeacon(raw, ["scrapegpt"], "sinaamareh.ir");
+
+  it("normalizes a page view's path and referrer", () => {
+    expect(
+      parse({ t: "pv", path: "/projects?x=1", referrer: "https://www.google.com/search?q=secret" }),
+    ).toEqual({ t: "pv", path: "/projects", referrer: "google.com" });
+    expect(parse({ t: "pv", path: "/spam-1" })).toEqual({
+      t: "pv",
+      path: "Other",
+      referrer: "Direct",
+    });
+  });
+
+  it("drops unknown sections, events and props one by one, keeping the rest", () => {
+    const b = parse({
+      t: "eng",
+      path: "/",
+      ms: 5000,
+      sections: { hero: 1200, "made-up": 99 },
+      events: [
+        { n: "outbound", p: "github" },
+        { n: "outbound", p: "github" },
+        { n: "outbound", p: "evil.example" }, // prop not allowed: kept without it
+        { n: "made_up" },
+        { n: "gallery_open", p: "scrapegpt" },
+      ],
+    });
+    expect(b).toEqual({
+      t: "eng",
+      path: "/",
+      ms: 5000,
+      sections: { hero: 1200 },
+      events: { "outbound:github": 2, outbound: 1, "gallery_open:scrapegpt": 1 },
+    });
+  });
+
+  it("rejects malformed beacons and out-of-range numbers", () => {
+    const bad = [
+      null,
+      "x",
+      { t: "nope", path: "/" },
+      { path: "/", referrer: "" }, // the v1 shape, no type
+      { t: "eng", path: "/", ms: 1_800_001 },
+      { t: "eng", path: "/", ms: -1 },
+      { t: "eng", path: "/", ms: 1.5 },
+      { t: "eng", path: "/", ms: 10, sections: { hero: 1_800_001 } },
+      {
+        t: "eng",
+        path: "/",
+        ms: 10,
+        events: Array.from({ length: 21 }, () => ({ n: "outbound" })),
+      },
+      { t: "eng", path: "/", ms: 10, events: [{ n: "outbound", p: "x".repeat(41) }] },
+    ];
+    for (const raw of bad) expect(parse(raw)).toBeNull();
   });
 });
 

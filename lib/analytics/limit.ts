@@ -13,6 +13,7 @@
  * first hit of each window.
  */
 import { createHash } from "node:crypto";
+import { windowLimiter } from "@/lib/rate-limit";
 import { redis } from "./store";
 
 /** Never key Redis on a raw IP — hash it, we only need equality. */
@@ -39,26 +40,66 @@ async function bump(key: string, ttlSeconds: number): Promise<number> {
   }
 }
 
-/** Per-IP beacon budget. Generous for humans, useless for a flood. */
-const BEACON_PER_MINUTE = Number(process.env.ANALYTICS_RPM ?? "20");
 /**
- * Hard ceiling on beacons accepted per UTC day. At ~11 commands per recorded
- * view this keeps the month comfortably inside Upstash's 500k free commands
- * even if someone hammers the endpoint every single day.
+ * Per-IP beacons per minute. A page view sends one beacon and its engagement
+ * flushes (route change, tab hidden, every minute while active) about one more,
+ * so 30 still covers someone clicking through a page every few seconds.
  */
-const BEACON_PER_DAY = Number(process.env.ANALYTICS_DAILY_MAX ?? "1200");
+const BEACON_PER_MINUTE = Number(process.env.ANALYTICS_RPM ?? "30");
+/**
+ * First line, in instance memory: a single-source flood on a warm instance is
+ * turned away before it costs a single Redis command.
+ */
+const localBeaconLimit = windowLimiter(60_000, BEACON_PER_MINUTE);
+
+/**
+ * Redis commands beacons may spend per UTC day, charged with what each beacon
+ * ACTUALLY spent (chargeBeacon), because a beacon's cost varies ~5x: a page
+ * view inside a running visit is 5-7 commands, the first beacon of a visit ~27
+ * (31 for a returning one), an engagement flush 10-30 depending on sections and
+ * events (tests/unit/analytics-store.test.ts pins these).
+ *
+ * The math: Upstash free is 500k/month ≈ 16.6k/day. Leave ~4.6k/day (~140k a
+ * month) for the dashboard (~90-250 per load), chat recording (≤300 records
+ * × ~5), the chat cap and login, and beacons get 12k/day ≈ 360k/month. A real
+ * 3-page visit spends ~110 over ~8 beacons, so that is ~100 visits a day; a
+ * script inventing a new "visitor" per beacon gets ~400 beacons, then nothing.
+ */
+const BEACON_COMMANDS_PER_DAY = Number(process.env.ANALYTICS_DAILY_COMMANDS ?? "12000");
+
+/**
+ * The day's spend as this instance last saw it. Once it is over budget, the
+ * rest of the day costs this instance nothing; a cold instance learns the
+ * total from its first charge, so the overshoot is about a beacon per instance.
+ */
+let spent = { day: "", total: 0 };
 
 export type Gate = { ok: boolean; reason?: "ip" | "budget" };
 
 export async function beaconAllowed(ip: string, day: string): Promise<Gate> {
+  if (!localBeaconLimit(ip).ok) return { ok: false, reason: "ip" };
+  if (spent.day === day && spent.total >= BEACON_COMMANDS_PER_DAY) {
+    return { ok: false, reason: "budget" };
+  }
   const minute = Math.floor(Date.now() / 60_000);
   const perIp = await bump(`an:rl:${ipKey(ip)}:${minute}`, 120);
   if (perIp > BEACON_PER_MINUTE) return { ok: false, reason: "ip" };
-
-  const perDay = await bump(`an:cap:${day}`, 172_800);
-  if (perDay > BEACON_PER_DAY) return { ok: false, reason: "budget" };
-
   return { ok: true };
+}
+
+/** Add what an accepted beacon spent (plus the gate's INCR and this INCRBY) to the day. */
+export async function chargeBeacon(day: string, commands: number): Promise<void> {
+  const r = redis();
+  if (!r) return;
+  const cost = commands + 2;
+  try {
+    const key = `an:cap:${day}`;
+    const total = await r.incrby(key, cost);
+    if (total === cost) await r.expire(key, 172_800);
+    spent = { day, total };
+  } catch {
+    // Fail open, like bump(): the local limiter still applies.
+  }
 }
 
 /**

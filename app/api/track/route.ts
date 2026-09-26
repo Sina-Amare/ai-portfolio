@@ -1,32 +1,26 @@
 /**
- * Visit beacon. Fired once per page view from the browser; records aggregate
- * counters only (see lib/analytics/store.ts for the privacy model).
+ * Visit beacon: a page view (`t: "pv"`) or an engagement flush (`t: "eng"`:
+ * active time, section dwell, events). Records visits and aggregates only; see
+ * lib/analytics/session.ts for the model and lib/analytics/beacon.ts for the
+ * contract.
  *
- * This endpoint is unauthenticated and every accepted call costs Redis
- * commands, so it is gated three ways before it can touch the datastore: the
- * request must come from our own origin, the caller must be under a SHARED
- * per-IP rate limit, and the whole site must be under a global daily budget.
- * The shared counters matter — the in-memory limiter used elsewhere is
- * per-lambda, so concurrent requests would each get their own fresh budget.
+ * Noise never reaches the store: nothing is written outside production, from
+ * bots, or from the owner's browser (the `sa_owner` mark set at admin login, or
+ * a live admin session). The endpoint is unauthenticated and every accepted
+ * call costs Redis commands, so a beacon must also come from our own origin,
+ * be well-formed (checked before any command is spent), pass a per-IP limit
+ * (in memory first, then shared) and fit the day's command budget.
  *
  * Always answers 204: a portfolio must never show an error because a counter
  * didn't increment.
  */
 import { sameOrigin } from "@/lib/http";
 import { getClientIp } from "@/lib/rate-limit";
-import {
-  browserFrom,
-  cityFrom,
-  deviceFrom,
-  geoFrom,
-  isBotRequest,
-  localTimeFrom,
-  normalizePath,
-  normalizeReferrer,
-} from "@/lib/analytics/collect";
-import { collecting, dayKey, recordVisit } from "@/lib/analytics/store";
-import { isOwner } from "@/lib/analytics/auth";
-import { beaconAllowed } from "@/lib/analytics/limit";
+import { parseBeacon } from "@/lib/analytics/beacon";
+import { browserFrom, cityFrom, deviceFrom, geoFrom, localTimeFrom } from "@/lib/analytics/collect";
+import { beaconAllowed, chargeBeacon } from "@/lib/analytics/limit";
+import { countable, recordBeacon } from "@/lib/analytics/session";
+import { dayKey } from "@/lib/analytics/store";
 import { projects } from "@/lib/projects";
 import { site } from "@/lib/site";
 
@@ -35,6 +29,8 @@ export const runtime = "nodejs";
 const noContent = () => new Response(null, { status: 204 });
 
 const SLUGS = projects.map((p) => p.slug);
+/** A real beacon is a few hundred bytes; anything bigger isn't parsed. */
+const MAX_BODY = 4096;
 
 function siteHost(req: Request): string {
   try {
@@ -45,45 +41,43 @@ function siteHost(req: Request): string {
 }
 
 export async function POST(req: Request) {
-  // Noise never reaches the store: nothing outside production, and nothing
-  // from the owner (the year-long mark set at login, or a live admin session).
-  if (!collecting() || isOwner(req.headers.get("cookie"))) return noContent();
-
-  const userAgent = req.headers.get("user-agent") ?? "";
-  if (isBotRequest(userAgent)) return noContent();
+  if (!countable(req)) return noContent();
 
   const host = siteHost(req);
   if (!sameOrigin(req, host)) return noContent();
 
-  const ip = getClientIp(req);
-  const gate = await beaconAllowed(ip, dayKey());
-  if (!gate.ok) return noContent();
-
-  let body: { path?: unknown; referrer?: unknown };
+  let beacon;
   try {
-    body = await req.json();
+    const text = await req.text();
+    if (text.length > MAX_BODY) return noContent();
+    beacon = parseBeacon(JSON.parse(text), SLUGS, host);
   } catch {
     return noContent();
   }
+  if (!beacon) return noContent();
 
+  const ip = getClientIp(req);
+  const day = dayKey();
+  if (!(await beaconAllowed(ip, day)).ok) return noContent();
+
+  const userAgent = req.headers.get("user-agent") ?? "";
   const { country, timezone } = geoFrom(req.headers);
-  const { hour, weekday } = localTimeFrom(timezone);
-
   try {
-    await recordVisit({
-      ip,
-      userAgent,
-      host,
-      path: normalizePath(typeof body.path === "string" ? body.path : "/", SLUGS),
-      referrer: normalizeReferrer(typeof body.referrer === "string" ? body.referrer : "", host),
-      country,
-      timezone,
-      city: cityFrom(req.headers, country),
-      hour,
-      weekday,
-      device: deviceFrom(userAgent),
-      browser: browserFrom(userAgent),
-    });
+    const spent = await recordBeacon(
+      {
+        ip,
+        userAgent,
+        host,
+        country,
+        timezone,
+        city: cityFrom(req.headers, country),
+        ...localTimeFrom(timezone),
+        device: deviceFrom(userAgent),
+        browser: browserFrom(userAgent),
+      },
+      beacon,
+    );
+    await chargeBeacon(day, spent);
   } catch {
     // Swallow: a failed counter must never surface to the visitor.
   }

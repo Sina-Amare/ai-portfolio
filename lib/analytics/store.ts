@@ -13,7 +13,8 @@
  * a brand-new hash and double-counts them in that month's "distinct people".
  *
  * Every key carries a TTL, set once on creation, so storage is bounded without
- * paying for an EXPIRE on every write.
+ * paying for an EXPIRE on every write (lib/analytics/session.ts says where each
+ * one is set). The one exception is `an:since`: a single date, nothing personal.
  *
  * Everything degrades to a no-op when the Upstash env vars are absent, so the
  * site builds and deploys perfectly well before the datastore is provisioned.
@@ -21,9 +22,9 @@
 import { Redis } from "@upstash/redis";
 import { createHash, randomBytes } from "node:crypto";
 
-/** Daily aggregates live this long; monthly ones a little longer. */
-const DAY_TTL = 400 * 86_400;
-const MONTH_TTL = 400 * 86_400;
+/** Daily and monthly aggregates live this long. */
+export const DAY_TTL = 400 * 86_400;
+export const MONTH_TTL = 400 * 86_400;
 /** A month's salt must outlive the month it stamps, with room for clock skew. */
 const SALT_TTL = 40 * 86_400;
 
@@ -90,11 +91,23 @@ export function monthKey(d = new Date()): string {
   return d.toISOString().slice(0, 7);
 }
 
-const K = {
+export const K = {
   salt: (m: string) => `an:salt:${m}`,
+  // v2, visits (lib/analytics/session.ts). A visit id starts with the day it
+  // began, so its day and month keys are known without a read.
+  sessionOf: (vid: string) => `an:s:${vid}`,
+  sess: (sid: string) => `an:sess:${sid}`,
+  day: (d: string) => `an:d:${d}`,
+  month: (m: string) => `an:m:${m}`,
+  /** Distinct visitors this month (v1 added them per page view, v2 per visit). */
+  seen: (m: string) => `an:seen:${m}`,
+  /** Visitors with 2+ visits this month. */
+  ret: (m: string) => `an:ret:${m}`,
+  recent: "an:recent",
+  since: "an:since",
+  // v1, per-pageview counters: no longer written, still read for old days.
   views: (d: string) => `an:v:${d}`,
   uniqDay: (d: string) => `an:u:${d}`,
-  seen: (m: string) => `an:seen:${m}`,
   repeat: (m: string) => `an:rep:${m}`,
   path: (m: string) => `an:path:${m}`,
   ref: (m: string) => `an:ref:${m}`,
@@ -127,7 +140,7 @@ const MONTHLY = [
  */
 let saltCache: { month: string; value: string } | null = null;
 
-async function currentSalt(r: Redis, month: string): Promise<string> {
+export async function currentSalt(r: Redis, month: string): Promise<string> {
   if (saltCache?.month === month) return saltCache.value;
   const key = K.salt(month);
   let value = await r.get<string>(key);
@@ -146,72 +159,6 @@ export function visitorHash(salt: string, ip: string, userAgent: string, host: s
     .update(`${salt}|${ip}|${userAgent}|${host}`)
     .digest("hex")
     .slice(0, 32);
-}
-
-export type VisitInput = {
-  ip: string;
-  userAgent: string;
-  host: string;
-  path: string;
-  referrer: string;
-  country: string;
-  timezone: string;
-  city: string;
-  hour: string;
-  weekday: string;
-  device: string;
-  browser: string;
-};
-
-/**
- * Record one page view. Typically ~8 Redis commands on a warm instance (the
- * salt is cached and TTLs are only set when a key is first created).
- */
-export async function recordVisit(v: VisitInput): Promise<void> {
-  const r = redis();
-  if (!r) return;
-
-  const now = new Date();
-  const day = dayKey(now);
-  const month = monthKey(now);
-  const salt = await currentSalt(r, month);
-  const vid = visitorHash(salt, v.ip, v.userAgent, v.host);
-
-  // SADD returns 1 only when the id is new to this month's set.
-  const firstThisMonth = await r.sadd(K.seen(month), vid);
-
-  const p = r.pipeline();
-  p.incr(K.views(day));
-  p.sadd(K.uniqDay(day), vid);
-  // A visitor who is NOT new this month has, by definition, come back.
-  if (firstThisMonth !== 1) p.sadd(K.repeat(month), vid);
-  p.hincrby(K.path(month), v.path, 1);
-  p.hincrby(K.ref(month), v.referrer, 1);
-  p.hincrby(K.country(month), v.country, 1);
-  p.hincrby(K.tz(month), v.timezone, 1);
-  p.hincrby(K.city(month), v.city, 1);
-  p.hincrby(K.hour(month), v.hour, 1);
-  p.hincrby(K.weekday(month), v.weekday, 1);
-  p.hincrby(K.device(month), v.device, 1);
-  p.hincrby(K.browser(month), v.browser, 1);
-  const res = (await p.exec()) as unknown[];
-
-  // Set TTLs only when a key was just created, so the common path pays nothing.
-  // res[0] is the INCR result (1 == first view of the day); res[1] the SADD.
-  const firstViewOfDay = Number(res[0]) === 1;
-  if (firstViewOfDay || firstThisMonth === 1) {
-    const e = r.pipeline();
-    if (firstViewOfDay) {
-      e.expire(K.views(day), DAY_TTL);
-      e.expire(K.uniqDay(day), DAY_TTL);
-    }
-    if (firstThisMonth === 1) {
-      e.expire(K.seen(month), MONTH_TTL);
-      e.expire(K.repeat(month), MONTH_TTL);
-      for (const key of MONTHLY) e.expire(key(month), MONTH_TTL);
-    }
-    await e.exec();
-  }
 }
 
 export type DayPoint = { day: string; views: number; uniques: number };
@@ -236,7 +183,7 @@ export type Overview = {
 };
 
 /** Merge one-or-more monthly hashes into a sorted top-N breakdown. */
-function toBreakdown(hashes: (Record<string, unknown> | null)[], limit = 12): Breakdown {
+export function toBreakdown(hashes: (Record<string, unknown> | null)[], limit = 12): Breakdown {
   const totals = new Map<string, number>();
   for (const h of hashes) {
     if (!h) continue;
@@ -251,14 +198,14 @@ function toBreakdown(hashes: (Record<string, unknown> | null)[], limit = 12): Br
 }
 
 /** Distinct YYYY-MM buckets a day list touches, so ranges can span months. */
-function monthsFor(days: string[]): string[] {
+export function monthsFor(days: string[]): string[] {
   return [...new Set(days.map((d) => d.slice(0, 7)))];
 }
 
 const WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 /** Calendar order, so the weekday chart reads Mon→Sun rather than by volume. */
-function orderWeekdays(rows: Breakdown): Breakdown {
+export function orderWeekdays(rows: Breakdown): Breakdown {
   return [...rows].sort((a, b) => WEEK.indexOf(a.label) - WEEK.indexOf(b.label));
 }
 
@@ -282,7 +229,9 @@ function emptyOverview(days: number, enabled: boolean, degraded: boolean): Overv
 }
 
 /**
- * Last `days` days of aggregates plus this month's breakdowns.
+ * v1: the last `days` days of per-pageview counters and their monthly
+ * breakdowns. Nothing writes these keys any more (./insights.ts is the v2 read
+ * side); kept until the dashboard and digest move over.
  *
  * Never throws: an Upstash outage or an exhausted quota returns a degraded
  * overview so /admin renders a notice instead of a 500.

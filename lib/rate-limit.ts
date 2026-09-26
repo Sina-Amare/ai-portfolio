@@ -41,7 +41,7 @@ export function getClientIp(req: Request): string {
 }
 
 /** A fixed-window per-IP limiter with its own buckets. */
-function windowLimiter(windowMs: number, max: number) {
+export function windowLimiter(windowMs: number, max: number) {
   const buckets = new Map<string, Bucket>();
   return (ip: string, now = Date.now()): { ok: boolean; retryAfter: number } => {
     const key = bucketKey(ip);

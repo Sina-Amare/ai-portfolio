@@ -25,8 +25,8 @@ describe("Tracker", () => {
 
     const bodies = fetchMock.mock.calls.map(([, init]) => JSON.parse(init.body));
     expect(bodies).toEqual([
-      { path: "/projects", referrer: "https://www.google.com/" },
-      { path: "/fa/projects", referrer: "" },
+      { t: "pv", path: "/projects", referrer: "https://www.google.com/" },
+      { t: "pv", path: "/fa/projects", referrer: "" },
     ]);
     vi.unstubAllGlobals();
   });
