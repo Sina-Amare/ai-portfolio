@@ -62,7 +62,10 @@ checklist to verify.
       beacon pre-check + a daily budget charged in real Redis commands (health-3, sec-2). `getInsights`
       is the new read side (KPIs, series, buckets, pages, sections, events, chat, acquisition + months,
       recent 50 visits, since). Decision 002. Old dashboard/digest still read the v1 keys, which are no
-      longer written: **do not deploy before B7b**.
+      longer written: **do not deploy before B7b**. Review follow-up: an empty flush after 30 idle
+      minutes no longer starts a ghost "returning" visit, racing first beacons (tabs opened together)
+      share one visit (`SET NX`), section reach divides by the visits that opened the section's page
+      (`vk:`); an engagement-started visit still counts its page once (documented choice).
 - [ ] B7b analytics v2, client + dashboard — tracker engagement flushes/sections/events (+ webdriver
       skip), dashboard on `getInsights` (EN/FA, gap-1/gap-5 labels), digest (health-4), privacy copy
       (gap-3). For B9: `.env.example` needs ANALYTICS_RPM=30, ANALYTICS_DAILY_COMMANDS=12000 (replaces
@@ -75,7 +78,9 @@ checklist to verify.
 ## Current task
 
 B7b — analytics v2 client + dashboard: tracker flushes (`t: "eng"` beacons per `lib/analytics/beacon.ts`),
-`data-analytics-section` markers, `/admin` rebuilt on `getInsights`, digest, privacy page.
+`data-analytics-section` markers, `/admin` rebuilt on `getInsights`, digest, privacy page. The tracker
+should skip empty flushes (no ms, no events); client components must not import `BUCKET_LABELS` from
+`lib/analytics/session.ts` (it pulls `node:crypto` and `next/server`).
 
 ## Blocker
 
@@ -99,4 +104,4 @@ See `docs/yagni.md`.
 Start B7b (the beacon contract and `getInsights` shape are fixed by B7a; see `docs/analytics.md`).
 Owner, before deploying B2: set `CRON_SECRET` in Vercel (the digest cron now fails closed without it).
 
-_Last updated: 2026-09-26 (B7a)_
+_Last updated: 2026-09-27 (B7a review follow-up)_
