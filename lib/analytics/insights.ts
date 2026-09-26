@@ -7,7 +7,7 @@
  * the default 30 days, under 250 for 90). Never throws: an outage or a spent
  * quota returns a degraded, empty result and /admin shows a notice.
  */
-import { SECTIONS, type Section } from "./beacon";
+import { SECTION_PAGE, SECTIONS, type Section } from "./beacon";
 import { BUCKET_LABELS } from "./session";
 import {
   type Breakdown,
@@ -78,7 +78,11 @@ export type Insights = {
   timeBuckets: Breakdown;
   /** By average active time. */
   pages: PageStats[];
-  /** In page order; reach is a share of all visits in `months`. */
+  /**
+   * In page order. Reach is a share of the visits in `months` that opened the
+   * section's page (home, /projects, a case study), so a visit that landed on a
+   * case study isn't a drop-off in the home funnel.
+   */
   sections: SectionStats[];
   events: EventStats[];
   chat: { outcomes: Breakdown; topics: Breakdown; chip: number; typed: number };
@@ -239,7 +243,6 @@ export async function getInsights(days = 30, now = new Date()): Promise<Insights
     }));
     const visits = sum("visits");
     const engaged = sum("engaged");
-    const monthVisits = m("visits");
 
     const pageTime = group("pms");
     const pages = Object.entries(group("pv"))
@@ -284,10 +287,11 @@ export async function getInsights(days = 30, now = new Date()): Promise<Insights
       pages,
       sections: SECTIONS.map((section) => {
         const reached = m(`sr:${section}`);
+        const opened = m(`vk:${SECTION_PAGE[section]}`);
         return {
           section,
           visits: reached,
-          reachPct: monthVisits ? reached / monthVisits : 0,
+          reachPct: opened ? reached / opened : 0,
           avgMs: reached ? Math.round(m(`sms:${section}`) / reached) : 0,
         };
       }),

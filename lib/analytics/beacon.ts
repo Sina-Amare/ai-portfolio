@@ -23,6 +23,27 @@ export const SECTIONS = [
 ] as const;
 export type Section = (typeof SECTIONS)[number];
 
+/** The page each section lives on: its reach is a share of the visits that opened that page. */
+export const SECTION_PAGE = {
+  hero: "home",
+  featured: "home",
+  workplace: "home",
+  about: "home",
+  contact: "home",
+  "projects-list": "projects",
+  "workplace-detail": "projects",
+  "case-study": "case-study",
+} as const satisfies Record<Section, string>;
+export type PageKind = (typeof SECTION_PAGE)[Section];
+
+/** Which of those pages a (normalized) path is, in either language. */
+export function pageKind(path: string): PageKind | null {
+  const base = path === "/fa" ? "/" : path.startsWith("/fa/") ? path.slice(3) : path;
+  if (base === "/") return "home";
+  if (base === "/projects") return "projects";
+  return base.startsWith("/projects/") ? "case-study" : null;
+}
+
 export const EVENTS = [
   "chat_ask",
   "contact_submit",

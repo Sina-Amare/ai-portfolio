@@ -55,7 +55,7 @@ const localBeaconLimit = windowLimiter(60_000, BEACON_PER_MINUTE);
 /**
  * Redis commands beacons may spend per UTC day, charged with what each beacon
  * ACTUALLY spent (chargeBeacon), because a beacon's cost varies ~5x: a page
- * view inside a running visit is 5-7 commands, the first beacon of a visit ~27
+ * view inside a running visit is 5-8 commands, the first beacon of a visit ~27
  * (31 for a returning one), an engagement flush 10-30 depending on sections and
  * events (tests/unit/analytics-store.test.ts pins these).
  *

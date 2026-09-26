@@ -364,6 +364,24 @@ describe("engagement", () => {
     expect(o.pages.find((p) => p.path === "/")).toEqual({ path: "/", views: 2, avgMs: 4000 });
   });
 
+  it("measures a section's reach against the visits that opened its page", async () => {
+    await recordBeacon(visitor(), pv("/"));
+    await recordBeacon(visitor(), eng(4000, { sections: { hero: 3000 } }));
+    at(MIN);
+    await recordBeacon(visitor(), pv("/fa")); // the same home page again: still one home visit
+    // Landed on a case study and never opened home: not a drop-off in the home funnel.
+    const deep = visitor({ ip: "7.7.7.7" });
+    await recordBeacon(deep, pv("/projects/scrapegpt"));
+    await recordBeacon(
+      deep,
+      eng(4000, { path: "/projects/scrapegpt", sections: { "case-study": 3000 } }),
+    );
+
+    const o = await insights();
+    expect(o.sections.find((s) => s.section === "hero")!.reachPct).toBe(1);
+    expect(o.sections.find((s) => s.section === "case-study")!.reachPct).toBe(1);
+  });
+
   it("groups events with their props, per month and per visit", async () => {
     await recordBeacon(visitor(), pv("/"));
     await recordBeacon(

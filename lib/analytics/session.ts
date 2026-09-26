@@ -19,7 +19,7 @@ import { randomBytes } from "node:crypto";
 import { after } from "next/server";
 import type { Redis } from "@upstash/redis";
 import { isOwner } from "./auth";
-import { KEY_EVENTS, type Beacon, type EngageBeacon } from "./beacon";
+import { KEY_EVENTS, pageKind, type Beacon, type EngageBeacon } from "./beacon";
 import { isBotRequest } from "./collect";
 import {
   collecting,
@@ -159,7 +159,6 @@ async function startVisit(
   p.expire(K.sess(sid), SESSION_TTL);
   p.hincrby(day, "b0", 1);
   p.hincrby(day, "pages", 1);
-  p.hincrby(m, "visits", 1);
   const dims: [string, string][] = [
     ["ref", ref],
     ["entry", path],
@@ -174,6 +173,8 @@ async function startVisit(
   ];
   for (const [dim, label] of dims) p.hincrby(m, `${dim}:${label}`, 1);
   p.hincrby(m, `pv:${path}`, 1);
+  const kind = pageKind(path);
+  if (kind) p.hincrby(m, `vk:${kind}`, 1);
   p.lpush(K.recent, sid);
   p.ltrim(K.recent, 0, RECENT_MAX - 1);
   const res = await run(tx, p);
@@ -217,11 +218,17 @@ async function pageview(tx: Tx, sid: string, path: string, now: number) {
   const seq = String(s.seq ?? "")
     .split(" ")
     .filter(Boolean);
+  // `vk:` counts a visit once per page kind (home, /projects, a case study): the
+  // denominator of section reach. ponytail: read off the sequence, so past its
+  // first 20 pages a visit can count a kind twice; a per-visit flag if that matters.
+  const kind = pageKind(path);
+  const newKind = kind && !seq.some((seen) => pageKind(seen) === kind);
   if (seq.length < SEQ_MAX) seq.push(path);
   const p = tx.r.pipeline();
   p.hset(K.sess(sid), { lp: path, lt: now, last: now, pages, seq: seq.join(" ") });
   p.hincrby(K.day(dayOf(sid)), "pages", 1);
   p.hincrby(K.month(monthOf(sid)), `pv:${path}`, 1);
+  if (newKind) p.hincrby(K.month(monthOf(sid)), `vk:${kind}`, 1);
   await run(tx, p);
   if (pages >= 2 && !num(s.eng)) await markEngaged(tx, sid, num(s.ms));
 }
