@@ -40,6 +40,9 @@ export function PrivacyContent() {
             ))}
           </ul>
         </Section>
+        <Section title={p.visitTitle}>
+          <p>{p.visit}</p>
+        </Section>
         <Section title={p.ipTitle}>
           <p>{p.ip}</p>
           <p>{p.salt}</p>
@@ -49,6 +52,10 @@ export function PrivacyContent() {
         </Section>
         <Section title={p.botsTitle}>
           <p>{p.bots}</p>
+        </Section>
+        <Section title={p.chatTitle}>
+          <p>{p.chat}</p>
+          <p>{p.contactForm}</p>
         </Section>
         <Section title={p.contactTitle}>
           <p>
