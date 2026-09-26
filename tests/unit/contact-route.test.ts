@@ -5,13 +5,15 @@ import { POST } from "@/app/api/contact/route";
 let ip = 0;
 const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }));
 
-function call(body: unknown, fixedIp?: string) {
+function call(body: unknown, fixedIp?: string, headers: Record<string, string> = {}) {
   return POST(
     new Request("http://localhost/api/contact", {
       method: "POST",
       headers: {
+        origin: "http://localhost:3000",
         "content-type": "application/json",
         "x-forwarded-for": fixedIp ?? `20.0.0.${ip++}`,
+        ...headers,
       },
       body: typeof body === "string" ? body : JSON.stringify(body),
     }),
@@ -36,6 +38,13 @@ afterEach(() => {
 });
 
 describe("POST /api/contact", () => {
+  it("refuses cross-site and non-JSON posts before sending anything", async () => {
+    expect((await call(valid, undefined, { origin: "https://evil.example" })).status).toBe(403);
+    // A cross-site <form enctype="text/plain"> carrying a JSON-shaped body.
+    expect((await call(valid, undefined, { "content-type": "text/plain" })).status).toBe(415);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("rejects malformed JSON with 400", async () => {
     const res = await call("not json");
     expect(res.status).toBe(400);

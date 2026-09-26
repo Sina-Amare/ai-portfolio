@@ -12,6 +12,7 @@
  * Always answers 204: a portfolio must never show an error because a counter
  * didn't increment.
  */
+import { sameOrigin } from "@/lib/http";
 import { getClientIp } from "@/lib/rate-limit";
 import {
   browserFrom,
@@ -39,19 +40,6 @@ function siteHost(req: Request): string {
     return new URL(site.url).hostname;
   } catch {
     return req.headers.get("host") ?? "localhost";
-  }
-}
-
-/** Cheap first filter: a real beacon is same-origin fetch, so Origin is set. */
-function sameOrigin(req: Request, host: string): boolean {
-  const origin = req.headers.get("origin");
-  if (!origin) return false;
-  try {
-    const o = new URL(origin).hostname.toLowerCase().replace(/^www\./, "");
-    const h = host.toLowerCase().replace(/^www\./, "");
-    return o === h || o === "localhost" || o === "127.0.0.1";
-  } catch {
-    return false;
   }
 }
 

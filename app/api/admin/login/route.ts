@@ -1,3 +1,4 @@
+import { sameOrigin } from "@/lib/http";
 import { getClientIp, loginRateLimit } from "@/lib/rate-limit";
 import { loginAllowed } from "@/lib/analytics/limit";
 import {
@@ -12,6 +13,9 @@ export const runtime = "nodejs";
 
 /** Exchange the shared password for a signed session cookie. */
 export async function POST(req: Request) {
+  // Cross-site pages can't make visitors' browsers guess passwords (and spend
+  // the owner's login budget).
+  if (!sameOrigin(req)) return Response.json({ error: "forbidden" }, { status: 403 });
   if (!adminConfigured()) {
     return Response.json({ error: "not_configured" }, { status: 503 });
   }

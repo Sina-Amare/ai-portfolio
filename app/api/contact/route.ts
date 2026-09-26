@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sameOrigin } from "@/lib/http";
 import { contactRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -33,6 +34,14 @@ function esc(s: string) {
 }
 
 export async function POST(req: Request) {
+  // Another site's page must not be able to post this form from its visitors'
+  // browsers. Requiring JSON also rules out a <form enctype="text/plain"> that
+  // smuggles a JSON-shaped body without a CORS preflight.
+  if (!sameOrigin(req)) return json({ error: "Forbidden." }, 403);
+  if (!req.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
+    return json({ error: "Invalid request." }, 415);
+  }
+
   let raw: unknown;
   try {
     raw = await req.json();
