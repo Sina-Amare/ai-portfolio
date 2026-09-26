@@ -21,8 +21,11 @@ Done-when: every verified finding fixed or consciously skipped; Persian served a
 checklist to verify.
 
 - [x] B0 hygiene — prettier width 100 + formatting commit, NDA excluded from tsc, AGENTS.md §1 filled
-- [ ] B1 dependency security (next 16.3.6, audit fix)
-- [ ] B2 security & correctness (chat input validation, cache poisoning, deadlines, admin login, cron)
+- [x] B1 dependency security (next 16.3.6, audit fix)
+- [x] B2 security & correctness (chat input validation, cache poisoning, deadlines, admin login, cron)
+      — 16 commits, 125 tests. Skipped on purpose: "stop the ladder on a 400" (Gemini answers an invalid
+      key with 400, so one bad key would kill the whole ladder). `.env.example` not touched (CRON_SECRET
+      now required, ADMIN_LOGIN_GLOBAL_MAX default now 500) — left for B9.
 - [ ] B4 workplace section: design-system alignment + professional copy
 - [ ] B3 `/fa` locale-prefixed routing + SEO metadata
 - [ ] B5 chatbot Persian quality
@@ -34,7 +37,7 @@ checklist to verify.
 
 ## Current task
 
-B1.
+B4 — workplace section: design-system alignment + professional copy.
 
 ## Blocker
 
@@ -55,6 +58,7 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Bump Next to 16.3.6, `npm audit fix`, full checks + build.
+Start B4 (extract `ProjectCardView` / `CaseStudySections`, rebuild the workplace section on them).
+Owner, before deploying B2: set `CRON_SECRET` in Vercel (the digest cron now fails closed without it).
 
 _Last updated: 2026-09-26_
