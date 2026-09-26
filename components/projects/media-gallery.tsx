@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
 import type { MediaItem } from "@/lib/projects";
@@ -21,17 +21,22 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
   const open = index !== null;
   const current = index !== null ? items[index] : null;
 
-  const close = useCallback(() => setIndex(null), []);
+  // A native modal <dialog> gives the focus trap, Escape and an inert page for
+  // free. Every close (button, backdrop, Escape) goes through its "close" event.
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+  const close = useCallback(() => dialogRef.current?.close(), []);
   const go = useCallback(
     (dir: number) => setIndex((i) => (i === null ? i : (i + dir + items.length) % items.length)),
     [items.length],
   );
 
   useEffect(() => {
-    if (!open) return;
+    const dialog = dialogRef.current;
+    if (!open || !dialog) return;
+    if (!dialog.open) dialog.showModal(); // focuses the first control: Close
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-      else if (e.key === "ArrowRight") go(rtl ? -1 : 1);
+      if (e.key === "ArrowRight") go(rtl ? -1 : 1);
       else if (e.key === "ArrowLeft") go(rtl ? 1 : -1);
     };
     document.addEventListener("keydown", onKey);
@@ -41,7 +46,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [open, close, go, rtl]);
+  }, [open, go, rtl]);
 
   if (!items.length) return null;
 
@@ -53,7 +58,8 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
           <button
             key={m.src}
             type="button"
-            onClick={() => {
+            onClick={(e) => {
+              openerRef.current = e.currentTarget;
               setIndex(i);
               track("gallery_open");
             }}
@@ -75,7 +81,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
               </span>
             )}
             {captionOf(m) && (
-              <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-3 py-2 text-start text-[12px] text-white/90 opacity-0 transition-opacity group-hover:opacity-100">
+              <span className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/70 to-transparent px-3 py-2 text-start text-[12px] text-white/90 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
                 {captionOf(m)}
               </span>
             )}
@@ -83,21 +89,19 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
         ))}
       </div>
 
-      <AnimatePresence>
-        {open && current && (
-          <motion.div
-            className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduce ? 0 : 0.2 }}
-            onClick={close}
-            role="dialog"
-            aria-modal="true"
-            aria-label={label}
-          >
-            <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" />
-
+      <dialog
+        ref={dialogRef}
+        aria-label={label}
+        onClose={() => {
+          setIndex(null);
+          openerRef.current?.focus(); // back to the thumbnail that opened it
+        }}
+        // Only a click on the dim area itself, not on the image or a button.
+        onClick={(e) => e.target === e.currentTarget && close()}
+        className="fixed inset-0 m-0 h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 backdrop:bg-black/85 backdrop:backdrop-blur-sm open:flex sm:p-10"
+      >
+        {current && (
+          <>
             <button
               type="button"
               onClick={close}
@@ -111,10 +115,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
               <>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    go(-1);
-                  }}
+                  onClick={() => go(-1)}
                   aria-label={t.projects.previous}
                   className="absolute start-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:start-6"
                 >
@@ -122,10 +123,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                 </button>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    go(1);
-                  }}
+                  onClick={() => go(1)}
                   aria-label={t.projects.next}
                   className="absolute end-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:end-6"
                 >
@@ -134,7 +132,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
               </>
             )}
 
-            <div className="relative z-[1] w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+            <div className="relative z-[1] w-full max-w-5xl">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current.src}
@@ -181,9 +179,9 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                 </motion.div>
               </AnimatePresence>
             </div>
-          </motion.div>
+          </>
         )}
-      </AnimatePresence>
+      </dialog>
     </div>
   );
 }

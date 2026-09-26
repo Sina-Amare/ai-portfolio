@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { beforeAll, describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LocaleProvider } from "@/components/locale-provider";
@@ -9,6 +9,17 @@ const items = [
   { type: "image" as const, src: "/b.png", caption: "B", captionFa: "دوم" },
   { type: "image" as const, src: "/c.png", caption: "C", captionFa: "سوم" },
 ];
+
+// jsdom has <dialog> but not its methods.
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
+    this.open = true;
+  };
+  HTMLDialogElement.prototype.close = function (this: HTMLDialogElement) {
+    this.open = false;
+    this.dispatchEvent(new Event("close"));
+  };
+});
 
 describe("MediaGallery", () => {
   // Three items: with two, "next" and "previous" land on the same image.
@@ -22,5 +33,21 @@ describe("MediaGallery", () => {
     await user.click(screen.getByRole("button", { name: "اول" }));
     await user.keyboard("{ArrowLeft}");
     expect(await screen.findByText(/2\/3/)).toBeInTheDocument();
+  });
+
+  it("opens as a modal dialog and hands focus back to its thumbnail on close", async () => {
+    const user = userEvent.setup();
+    render(
+      <LocaleProvider locale="en">
+        <MediaGallery items={items} label="gallery" />
+      </LocaleProvider>,
+    );
+    const thumb = screen.getByRole("button", { name: "B" });
+    await user.click(thumb);
+    expect(screen.getByRole("dialog", { name: "gallery" })).toHaveAttribute("open");
+
+    await user.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(thumb).toHaveFocus();
   });
 });
