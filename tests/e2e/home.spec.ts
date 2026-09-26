@@ -60,20 +60,24 @@ test("nav 'Home' scrolls back to the top rather than snapping", async ({ page })
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(50);
 });
 
-test("workplace agents have a home preview and detailed, source-free project entries", async ({
-  page,
-}) => {
+test("workplace agent cards link to their write-ups on /projects", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("#workplace article")).toHaveCount(2);
-  await page.getByRole("link", { name: "Explore the work projects" }).click();
-  await expect(page).toHaveURL(/\/projects#workplace$/);
-  const cards = page.locator("#workplace article");
-  await expect(cards).toHaveCount(2);
-  await expect(cards.first().getByText("The important decision")).toBeVisible();
-  await expect(cards.first().getByText("Search the right sources")).toBeVisible();
-  await expect(cards.nth(1).getByText("Learn from the review")).toBeVisible();
-  await expect(cards.nth(1).getByRole("heading", { name: "What changed" })).toBeVisible();
-  await expect(cards.locator("a")).toHaveCount(0);
+  const preview = page.locator("#workplace");
+  await expect(preview.getByRole("link", { name: /^Social Research Agent/ })).toBeVisible();
+  await expect(preview.getByRole("link", { name: /^Business Intelligence Agents/ })).toBeVisible();
+  // The CTA must not collide with Featured's "All projects" button.
+  await expect(preview.getByRole("link", { name: "Read the full breakdowns" })).toBeVisible();
+
+  await preview.getByRole("link", { name: /^Social Research Agent/ }).click();
+  await expect(page).toHaveURL(/\/projects#social-research-agent$/);
+  await expect(page.locator("#social-research-agent")).toBeInViewport();
+
+  const articles = page.locator("#workplace article");
+  await expect(articles).toHaveCount(2);
+  await expect(articles.first().getByRole("heading", { name: "How it works" })).toBeVisible();
+  await expect(articles.nth(1).getByText("Numbers first, narrative second")).toBeVisible();
+  // Private code: no repo or source links inside the write-ups.
+  await expect(articles.locator("a")).toHaveCount(0);
 });
 
 test("Persian copy covers workplace agents, image captions, and privacy", async ({ page }) => {
@@ -83,7 +87,7 @@ test("Persian copy covers workplace agents, image captions, and privacy", async 
   await expect(page).toHaveTitle(/پروژه‌ها/);
   await expect(page.getByRole("heading", { name: "ایجنت رصد شبکه‌های اجتماعی" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "ایجنت‌های تحلیل و گزارش‌گیری" })).toBeVisible();
-  await expect(page.getByText("از نظر مدیر یاد می‌گیره")).toBeVisible();
+  await expect(page.getByText("اول عدد، بعد تحلیل")).toBeVisible();
 
   await page.goto("/projects/scrapegpt");
   await page
