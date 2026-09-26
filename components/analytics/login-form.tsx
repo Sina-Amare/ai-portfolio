@@ -62,8 +62,13 @@ export function LoginForm() {
       <h1 className="text-lg font-semibold tracking-tight">{t.loginTitle}</h1>
       <p className="text-muted mt-1 text-sm">{t.loginIntro}</p>
 
+      {/* A username the browser can pair with the password, so password managers
+          offer to save and fill it (there is only one account). */}
+      <input type="text" name="username" autoComplete="username" value="admin" readOnly hidden />
       <input
         type="password"
+        name="password"
+        autoComplete="current-password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         autoFocus

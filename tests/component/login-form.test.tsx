@@ -26,6 +26,12 @@ afterEach(() => {
 });
 
 describe("LoginForm", () => {
+  it("gives password managers a username and a current-password field", () => {
+    const { container } = render(<LoginForm />);
+    expect(screen.getByLabelText(t.password)).toHaveAttribute("autocomplete", "current-password");
+    expect(container.querySelector('input[autocomplete="username"]')).toHaveValue("admin");
+  });
+
   it("says 'wrong password' only for a 401", async () => {
     const alert = await submitWith(Response.json({ error: "invalid" }, { status: 401 }));
     expect(alert).toHaveTextContent(t.wrongPassword);
