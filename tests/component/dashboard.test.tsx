@@ -115,7 +115,7 @@ describe("Dashboard", () => {
     expect(screen.getByText("Avg active time").nextSibling).toHaveTextContent("2m 5s");
     // gap-5: breakdowns say which months they cover.
     expect(screen.getByText("Aug 2026 – Sep 2026")).toBeInTheDocument();
-    expect(screen.getByText(/Peak:/).textContent).toContain("Sep 26");
+    expect(screen.getByText(/Peak:/)).toHaveTextContent("Peak: Sep 26, 14 visits (9 engaged)");
     expect(screen.getByText("100% · avg 20s")).toBeInTheDocument();
     expect(screen.getByText("GitHub profile")).toBeInTheDocument();
     // The visit log: where, when, badges, what was seen and done.

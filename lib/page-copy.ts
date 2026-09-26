@@ -120,6 +120,7 @@ export const pageCopy = {
       allVisits: "All visits",
       engaged: "Engaged",
       peak: "Peak",
+      visitsWord: "visits",
       pageviews: "page views in this range",
       timeTitle: "Active time per visit",
       buckets: ["under 10 s", "10–30 s", "30 s – 1 min", "1–3 min", "3–10 min", "10 min+"],
@@ -326,6 +327,7 @@ export const pageCopy = {
       allVisits: "همهٔ بازدیدها",
       engaged: "با تعامل",
       peak: "بیشترین",
+      visitsWord: "بازدید",
       pageviews: "بازدید صفحه در این بازه",
       timeTitle: "زمان فعال در هر بازدید",
       buckets: [

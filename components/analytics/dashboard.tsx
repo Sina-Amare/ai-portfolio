@@ -77,9 +77,11 @@ function Card({ className, children }: { className?: string; children: React.Rea
 
 function Stat({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <Card>
+    <Card className="p-4 sm:p-5">
       <div className="eyebrow text-[10px]">{label}</div>
-      <div className="mt-2 text-3xl font-semibold tracking-tight tabular-nums">{value}</div>
+      <div className="mt-2 text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl">
+        {value}
+      </div>
       <div className="text-muted mt-1 text-xs leading-relaxed">{hint}</div>
     </Card>
   );
@@ -103,7 +105,7 @@ function Bars({ title, rows, f, empty }: { title: string; rows: Row[]; f: Fmt; e
                 <span className="truncate" dir="auto" title={r.label}>
                   {r.label}
                 </span>
-                <span className="text-muted shrink-0 font-mono text-xs tabular-nums">
+                <span className="text-muted shrink-0 text-xs tabular-nums">
                   {r.value ?? f.n(r.count)}
                 </span>
               </div>
@@ -169,13 +171,13 @@ function Trend({ data, f, p }: { data: Insights; f: Fmt; p: Copy }) {
         <span>{series[0] && f.day(series[0].day)}</span>
         <span>{series.at(-1) && f.day(series.at(-1)!.day)}</span>
       </div>
-      <p className="text-muted mt-3 text-xs">
-        {peak && (
-          <>
-            {p.peak}: <span className="text-text">{f.day(peak.day)}</span> · {f.n(peak.visits)} /{" "}
-            {p.engaged} {f.n(peak.engaged)} ·{" "}
-          </>
-        )}
+      {peak && (
+        <p className="text-muted mt-3 text-xs">
+          {p.peak}: <span className="text-text">{f.day(peak.day)}</span>, {f.n(peak.visits)}{" "}
+          {p.visitsWord} ({f.n(peak.engaged)} {p.engaged.toLowerCase()})
+        </p>
+      )}
+      <p className="text-muted mt-1 text-xs">
         {f.n(data.kpis.pageviews)} {p.pageviews}
       </p>
     </Card>
@@ -392,7 +394,8 @@ export function Dashboard({ data, locale }: { data: Insights; locale: Locale }) 
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Two per row even on phones: eight full-width cards would bury the chart. */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Stat
           label={p.kpi.engaged}
           value={f.n(k.engaged)}
