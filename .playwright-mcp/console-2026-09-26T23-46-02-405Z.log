@@ -1,7 +1,0 @@
-[     438ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3100/api/track:0
-[   21033ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3100/api/track:0
-[   81028ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3100/api/track:0
-[  142027ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3100/api/track:0
-[  218007ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3100/api/track:0
-[  220451ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3100/api/track:0
-[  223159ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:3100/api/track:0
