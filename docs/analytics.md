@@ -79,7 +79,7 @@ Upstash free: **256 MB, 500,000 commands/month**, no credit card, and — unlike
 — **no idle pause**, which matters for a portfolio that can go days without a visit.
 
 Measured costs (pinned by `tests/unit/analytics-store.test.ts`): a visit's first beacon
-~27 Redis commands (31 for a returning visitor), a page view inside a running visit 5–7,
+~27 Redis commands (31 for a returning visitor), a page view inside a running visit 5–8,
 an engagement flush 10–30 depending on sections and events. A typical 3-page visit
 spends ~110 commands over ~8 beacons, gate included. TTLs are written only when a key
 can be new, never per write. Vercel Hobby allows 1,000,000 function invocations/month,
@@ -101,18 +101,21 @@ time. (`ANALYTICS_DAILY_MAX`, a beacon count, is no longer read.)
 A **visit** is every beacon from one visitor hash with under 30 minutes of inactivity
 (GA4's rule). The pointer `an:s:<vid>` → visit id slides 30 minutes on every beacon, so a
 reload, the back button or a quick return is the same visit; activity after 30 idle
-minutes starts a new one. A reload of the same page within 15 s is not a new page view.
+minutes starts a new one, with its page as entry and first page view. A flush with no
+active time and no action (a background tab closed later) is not activity and starts
+nothing. A reload of the same page within 15 s is not a new page view. The pointer is
+created with `SET NX`, so tabs opened at the same moment share one visit.
 
-| Key               | What                                                                                                                                                                                | TTL              |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| `an:s:<vid>`      | current visit id                                                                                                                                                                    | 30 min, sliding  |
-| `an:sess:<sid>`   | one visit: start/last, country, city, device, browser, lang, entry referrer + page, pages in order (first 20), active ms, per-section ms, events, returning, engaged                | 90 days          |
-| `an:recent`       | last 500 visit ids, newest first                                                                                                                                                    | 90 days, sliding |
-| `an:d:<day>`      | visits, engaged, returning, pages, active ms (`ms`, engaged-only `ems`), time buckets `b0`–`b5`, chat, contact                                                                      | 400 days         |
-| `an:m:<month>`    | per visit: `ref:` `entry:` `co:` `city:` `dev:` `br:` `hr:` `wd:` `lang:` `tz:`; per page: `pv:` `pms:`; sections `sr:` (reach) `sms:` (dwell); `ev:`; chat `chat:` `topic:` `ask:` | 400 days         |
-| `an:seen:<month>` | distinct visitors                                                                                                                                                                   | 400 days         |
-| `an:ret:<month>`  | visitors with 2+ visits                                                                                                                                                             | 400 days         |
-| `an:since`        | first day of v2 data (one date, nothing personal)                                                                                                                                   | none             |
+| Key               | What                                                                                                                                                                                                             | TTL              |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| `an:s:<vid>`      | current visit id                                                                                                                                                                                                 | 30 min, sliding  |
+| `an:sess:<sid>`   | one visit: start/last, country, city, device, browser, lang, entry referrer + page, pages in order (first 20), active ms, per-section ms, events, returning, engaged                                             | 90 days          |
+| `an:recent`       | last 500 visit ids, newest first                                                                                                                                                                                 | 90 days, sliding |
+| `an:d:<day>`      | visits, engaged, returning, pages, active ms (`ms`, engaged-only `ems`), time buckets `b0`–`b5`, chat, contact                                                                                                   | 400 days         |
+| `an:m:<month>`    | per visit: `ref:` `entry:` `co:` `city:` `dev:` `br:` `hr:` `wd:` `lang:` `tz:`; per page: `pv:` `pms:`; sections `sr:` (reach) `sms:` (dwell) `vk:` (visits per page kind); `ev:`; chat `chat:` `topic:` `ask:` | 400 days         |
+| `an:seen:<month>` | distinct visitors                                                                                                                                                                                                | 400 days         |
+| `an:ret:<month>`  | visitors with 2+ visits                                                                                                                                                                                          | 400 days         |
+| `an:since`        | first day of v2 data (one date, nothing personal)                                                                                                                                                                | none             |
 
 A visit counts as **engaged** once it has ≥ 10 s of active time, ≥ 2 pages, or a key event
 (chat question, contact message, résumé download, outbound link, gallery open). Chat
@@ -201,6 +204,9 @@ cross-month visitor identity genuinely doesn't exist.
 - **Returning visitors** = visitors with 2+ visits this month. A second page in the same
   visit is not a return. (v1's "came back" counted anyone with a second page view, which
   flattered the number — worth knowing if you compare against old screenshots.)
+- **Section reach** is a share of the visits that opened the section's page (home,
+  /projects or a case study), not of all visits: someone who landed on a case study
+  and left is not a drop-off in the home funnel.
 - In a new month everyone is new again, because the salt rotated. That is the privacy
   design working, not a gap in the data.
 
