@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { FileText, Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
@@ -17,6 +17,7 @@ const onMac = () => /Mac|iPhone|iPad/.test(navigator.platform);
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
   const pathname = useBarePath();
   const { t, path } = useLocale();
   // The server renders "Ctrl K" (most visitors); Macs switch to ⌘K on hydration.
@@ -60,6 +61,18 @@ export function Nav() {
     });
     if (document.getElementById(id)) e.preventDefault();
   };
+
+  // Escape closes the mobile menu and puts focus back on its button.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      menuButton.current?.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -126,6 +139,7 @@ export function Nav() {
             <LocaleToggle />
             <ThemeToggle className="h-11 w-11" />
             <button
+              ref={menuButton}
               type="button"
               onClick={() => setOpen((v) => !v)}
               className="text-muted hover:text-text inline-flex h-11 w-11 items-center justify-center rounded-full"
