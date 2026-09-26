@@ -33,6 +33,12 @@ import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+/**
+ * One time budget for the whole request, shared by the embedding call and every
+ * ladder rung, so the graceful fallback is always written before Vercel kills
+ * the function at maxDuration.
+ */
+const DEADLINE_MS = 50_000;
 
 // Only the shape the UI actually sends. A forged "system" turn or a null entry
 // is a 400 and never reaches the model; extra fields (providerMetadata, …) are
@@ -181,6 +187,7 @@ function chatStreamResponse(stream: ReadableStream) {
 }
 
 export async function POST(req: Request) {
+  const deadline = Date.now() + DEADLINE_MS;
   let raw: unknown;
   try {
     raw = await req.json();
@@ -273,6 +280,8 @@ export async function POST(req: Request) {
       let full = "";
 
       for (const provider of ladder) {
+        const left = deadline - Date.now();
+        if (left < 1_000) break; // out of time → the fallback below
         try {
           const result = streamText({
             model: provider.model,
@@ -298,7 +307,9 @@ export async function POST(req: Request) {
               google: { thinkingConfig: { thinkingBudget: 0 } },
             },
             abortSignal: req.signal,
-            timeout: 45_000,
+            // The rest of the budget; once streaming, a 10s gap between chunks
+            // counts as a dead rung so the ladder moves on.
+            timeout: { totalMs: left, chunkMs: 10_000 },
             experimental_transform: smoothStream({ chunking: "word", delayInMs: 4 }),
           });
 

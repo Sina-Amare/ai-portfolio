@@ -4,6 +4,7 @@ import { l2normalize } from "./cosine";
 export const EMBED = { model: "gemini-embedding-001", dim: 768, version: 1 } as const;
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta";
+const EMBED_TIMEOUT_MS = 8_000;
 
 export type EmbedTask = "RETRIEVAL_DOCUMENT" | "RETRIEVAL_QUERY";
 
@@ -37,6 +38,9 @@ export async function embedText(
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[(start + i) % keys.length]!;
+    // A hung key must not eat the chat request's whole time budget: give up
+    // after 8s and try the next key (only the caller's own abort stops the loop).
+    const timeout = AbortSignal.timeout(EMBED_TIMEOUT_MS);
     try {
       const res = await fetch(`${BASE}/models/${EMBED.model}:embedContent?key=${key}`, {
         method: "POST",
@@ -47,7 +51,7 @@ export async function embedText(
           outputDimensionality: EMBED.dim,
           taskType: task,
         }),
-        signal,
+        signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
       });
 
       // Rate-limited / transient on this key → try the next one.

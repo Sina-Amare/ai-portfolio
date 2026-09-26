@@ -347,6 +347,37 @@ describe("POST /api/chat", () => {
     expect(partial.raw).not.toContain("data-sources");
   });
 
+  it("stops the ladder at the overall deadline and still writes the fallback", async () => {
+    vi.mocked(chatLadder).mockReturnValueOnce([
+      { id: "p1", label: "P1", model: {} },
+      { id: "p2", label: "P2", model: {} },
+    ] as unknown as ReturnType<typeof chatLadder>);
+    const realNow = Date.now();
+    const clock = vi.spyOn(Date, "now");
+    // The first rung stalls until the request's time budget is gone.
+    vi.mocked(streamText).mockImplementationOnce(((opts: { timeout: { totalMs: number } }) => {
+      expect(opts.timeout.totalMs).toBeLessThanOrEqual(50_000);
+      clock.mockReturnValue(realNow + 60_000);
+      return {
+        textStream: (async function* () {})(),
+        get finishReason() {
+          return Promise.reject(new Error("timed out"));
+        },
+      };
+    }) as unknown as typeof streamText);
+
+    try {
+      const res = await callChat({
+        messages: [userMessage("What did Sina build at Dekamond?")],
+        lang: "en",
+      });
+      expect(streamText).toHaveBeenCalledTimes(1); // p2 never started past the deadline
+      expect(res.text).toContain("couldn't answer");
+    } finally {
+      clock.mockRestore();
+    }
+  });
+
   it("fails over to the next provider when the first yields no text", async () => {
     vi.mocked(chatLadder).mockReturnValueOnce([
       { id: "p1", label: "P1", model: {} },
