@@ -47,10 +47,12 @@ export function ChatHero() {
   }, [setMessages]);
 
   // Persist only at rest (not on every streaming token), and clear when empty.
+  // Not on "error": a reload would show the half answer as final; storage keeps
+  // the last clean turn instead.
   useEffect(() => {
     if (!hydrated.current) return;
     try {
-      if (messages.length && (status === "ready" || status === "error")) {
+      if (messages.length && status === "ready") {
         sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify({ messages, lang }));
       } else if (!messages.length) {
         sessionStorage.removeItem(CHAT_STORAGE_KEY);

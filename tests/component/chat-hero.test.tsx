@@ -73,4 +73,15 @@ describe("ChatHero", () => {
     expect(regenerate).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("alert")).toBeInTheDocument();
   });
+
+  it("saves the conversation only once an answer finished cleanly", () => {
+    sessionStorage.clear();
+    status = "error";
+    const { rerender } = render(hero());
+    expect(sessionStorage.getItem("sina-chat:v1")).toBeNull();
+
+    status = "ready";
+    rerender(hero());
+    expect(sessionStorage.getItem("sina-chat:v1")).toContain("Hel");
+  });
 });
