@@ -83,7 +83,7 @@ export function ContactForm() {
         </span>
         <p className="text-text text-lg font-semibold">{f.sent}</p>
         <p className="text-muted mt-1.5 max-w-xs text-sm leading-relaxed">{f.sentNote}</p>
-        <span className="text-muted/80 mt-3 font-mono text-[11px] tracking-wide">
+        <span className="text-muted mt-3 font-mono text-[11px] tracking-wide">
           200 · {f.delivered}
         </span>
         <button
@@ -145,7 +145,7 @@ export function ContactForm() {
 
       <label className="mt-4 block">
         <span className="text-muted mb-1.5 block text-xs font-medium">
-          {f.contact} <span className="opacity-60">{f.optional}</span>
+          {f.contact} <span>{f.optional}</span>
         </span>
         <input
           type="text"
@@ -184,7 +184,7 @@ export function ContactForm() {
       />
 
       {status === "error" && (
-        <p role="alert" className="mt-4 text-sm text-red-500">
+        <p role="alert" className="text-danger mt-4 text-sm">
           {error}
         </p>
       )}

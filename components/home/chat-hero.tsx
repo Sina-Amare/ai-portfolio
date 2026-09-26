@@ -201,11 +201,11 @@ export function ChatHero() {
                 dir={dir}
                 role="alert"
                 className={cn(
-                  "mt-3 flex shrink-0 items-center justify-between gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm",
+                  "border-danger/30 bg-danger/10 mt-3 flex shrink-0 items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm",
                   dir === "rtl" && "font-fa",
                 )}
               >
-                <span className="text-red-500">{t.errorTitle}</span>
+                <span className="text-danger">{t.errorTitle}</span>
                 <button
                   type="button"
                   onClick={() => regenerate({ body: { lang } })}

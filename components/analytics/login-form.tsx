@@ -71,7 +71,7 @@ export function LoginForm() {
         className="text-text border-border focus:border-accent/60 mt-5 w-full rounded-xl border bg-transparent px-3 py-2.5 text-sm outline-none"
       />
       {error && (
-        <p role="alert" className="mt-2 text-sm text-red-500">
+        <p role="alert" className="text-danger mt-2 text-sm">
           {error}
         </p>
       )}

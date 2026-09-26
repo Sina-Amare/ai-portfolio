@@ -24,7 +24,7 @@ export function Footer() {
             sina<span className="text-accent">.</span>amareh
           </div>
           <p className="text-muted mt-3 text-sm leading-relaxed">{t.footer.tagline}</p>
-          <p className="text-muted mt-4 text-xs opacity-80">{t.footer.builtWith}</p>
+          <p className="text-muted mt-4 text-xs">{t.footer.builtWith}</p>
         </div>
 
         <div className="flex flex-col gap-4 sm:items-end">
@@ -43,7 +43,7 @@ export function Footer() {
             ))}
           </div>
           {/* The page is prerendered, so the year is build-time; the client may disagree on Jan 1. */}
-          <p className="text-muted text-xs opacity-80" suppressHydrationWarning>
+          <p className="text-muted text-xs" suppressHydrationWarning>
             © {year} {site.name}. {t.footer.rights}{" "}
             <Link
               href={path("/privacy")}

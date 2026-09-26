@@ -20,6 +20,7 @@
   --accent-text: #f5b544;
   --accent-soft: rgba(245, 181, 68, 0.12);
   --accent-glow: rgba(245, 181, 68, 0.4);
+  --danger: #f87171;
   --scrollbar: rgba(255, 255, 255, 0.16);
   color-scheme: dark;
 }
@@ -41,6 +42,7 @@
   --accent-text: #9a5b0e;
   --accent-soft: rgba(224, 149, 26, 0.14);
   --accent-glow: rgba(224, 149, 26, 0.28);
+  --danger: #b91c1c;
   --scrollbar: rgba(20, 18, 12, 0.2);
   color-scheme: light;
 }
@@ -61,6 +63,7 @@
   --color-accent-contrast: var(--accent-contrast);
   --color-accent-text: var(--accent-text);
   --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
 
   --font-sans: var(--font-inter);
   --font-display: var(--font-bricolage);

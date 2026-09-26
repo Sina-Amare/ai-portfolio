@@ -20,7 +20,7 @@ const components: Components = {
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-accent-text hover:text-accent underline underline-offset-2"
+        className="text-accent-text underline underline-offset-2 hover:decoration-2"
       >
         {children}
       </a>
