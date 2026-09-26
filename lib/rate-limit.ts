@@ -75,7 +75,9 @@ export const loginRateLimit = windowLimiter(CONTACT_WINDOW_MS, CONTACT_MAX);
 /**
  * Global daily cap on LLM-bound chat requests. Shared through Redis when configured
  * (one INCR, plus an EXPIRE on the day's first request); falls back to this instance's
- * own counter without Redis, or when Redis errors.
+ * own counter without Redis, or when Redis errors. Shared across environments on purpose:
+ * dev and preview spend the same provider API keys, so their chats belong in the same
+ * budget (unlike analytics, where dev traffic is just noise).
  */
 export async function globalDailyOk(now = Date.now()): Promise<boolean> {
   const r = redis();
