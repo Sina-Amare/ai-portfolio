@@ -172,7 +172,8 @@ export function ChatHero() {
               >
                 <RefreshCcw className="h-3.5 w-3.5" /> {t.newChat}
               </button>
-              <LocaleToggle />
+              {/* Switching language remounts this page, and the turn is saved only at rest. */}
+              <LocaleToggle disabled={isStreaming} />
             </div>
 
             <Transcript scrollLabel={t.scrollLatest}>

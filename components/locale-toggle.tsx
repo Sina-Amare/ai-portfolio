@@ -22,7 +22,7 @@ function rememberLocale(l: Locale) {
  * work without JS, open in a new tab); a plain click also remembers the choice
  * for the proxy and keeps the current #section.
  */
-export function LocaleToggle({ className }: { className?: string }) {
+export function LocaleToggle({ className, disabled }: { className?: string; disabled?: boolean }) {
   const { locale, t } = useLocale();
   const bare = useBarePath();
   const router = useRouter();
@@ -40,7 +40,13 @@ export function LocaleToggle({ className }: { className?: string }) {
     <div
       role="group"
       aria-label={t.nav.language}
-      className={cn("border-border inline-flex items-center rounded-full border p-0.5", className)}
+      // inert: no clicks, no focus. Switching is a navigation that would drop an in-flight chat answer.
+      inert={disabled}
+      className={cn(
+        "border-border inline-flex items-center rounded-full border p-0.5 transition-opacity",
+        disabled && "opacity-50",
+        className,
+      )}
     >
       {LOCALES.map((l) => (
         <Link
