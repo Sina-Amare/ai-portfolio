@@ -190,6 +190,14 @@ describe("analytics/auth", () => {
     expect(mac).not.toBe(naive);
   });
 
+  it("ends live sessions when ADMIN_PASSWORD is removed, even with ADMIN_SESSION_SECRET", () => {
+    process.env.ADMIN_SESSION_SECRET = "a-separate-long-random-secret";
+    const token = createSessionToken();
+    expect(verifySessionToken(token)).toBe(true);
+    delete process.env.ADMIN_PASSWORD;
+    expect(verifySessionToken(token)).toBe(false);
+  });
+
   it("prefers an explicit ADMIN_SESSION_SECRET when set", () => {
     const withDerived = createSessionToken(1_000_000);
     process.env.ADMIN_SESSION_SECRET = "a-separate-long-random-secret";

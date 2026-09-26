@@ -64,7 +64,9 @@ export function createSessionToken(now = Date.now()): string {
 }
 
 export function verifySessionToken(token: string | undefined, now = Date.now()): boolean {
-  if (!token || !secret()) return false;
+  // Removing ADMIN_PASSWORD turns the admin off, live sessions included — even
+  // when an explicit ADMIN_SESSION_SECRET would still verify their signatures.
+  if (!token || !adminConfigured() || !secret()) return false;
   const parts = token.split(".");
   if (parts.length !== 3) return false;
   const [expRaw, nonce, mac] = parts as [string, string, string];
