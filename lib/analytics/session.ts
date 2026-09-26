@@ -95,12 +95,17 @@ export async function recordBeacon(v: Visitor, b: Beacon, now = Date.now()): Pro
     else await engage(tx, sid, b, now);
     return tx.n;
   }
+  // A flush with no active time and no action (a background tab closed after
+  // the visit timed out) is not activity: it must not conjure a "returning" visit.
+  if (b.t === "eng" && !b.ms && !Object.keys(b.events).length) return tx.n;
 
   const sid = `${dayKey(new Date(now))}_${randomBytes(6).toString("hex")}`;
   await r.set(ptr, sid, { ex: IDLE_S });
   tx.n += 1;
   // Activity after 30 idle minutes is a new visit even when it's an engagement
-  // flush, with that page as its entry (again GA4's rule).
+  // flush, with that page as its entry (again GA4's rule). Unlike GA4 that page
+  // also counts as the visit's first page view: the visit did see it, so pages
+  // per visit stays ≥ 1 and a page's average time (pms ÷ pv) has a view to divide by.
   await startVisit(tx, sid, vid, v, b.path, b.t === "pv" ? b.referrer : "Direct", now);
   if (b.t === "eng") await engage(tx, sid, b, now);
   return tx.n;

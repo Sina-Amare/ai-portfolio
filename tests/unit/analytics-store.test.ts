@@ -224,6 +224,17 @@ describe("visits (sessions)", () => {
     expect(o.kpis.uniqueVisitors).toBe(1); // still one person
   });
 
+  it("does not start a visit from an empty flush after 30 idle minutes", async () => {
+    await recordBeacon(visitor(), pv("/"));
+    await recordBeacon(visitor(), eng(5000));
+    at(40 * MIN); // the tab sat in the background, then was closed
+    await recordBeacon(visitor(), eng(0));
+    const o = await insights();
+    expect(o.kpis.visits).toBe(1);
+    expect(o.kpis.returningVisits).toBe(0);
+    expect(o.recent).toHaveLength(1);
+  });
+
   it("does not count a reload of the same page within 15 s as a page view", async () => {
     await recordBeacon(visitor(), pv("/"));
     at(10_000);
