@@ -35,6 +35,7 @@ import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+
 /**
  * One time budget for the whole request, shared by the embedding call and every
  * ladder rung, so the graceful fallback is always written before Vercel kills
@@ -302,6 +303,8 @@ export async function POST(req: Request) {
           const result = streamText({
             onError: ({ error }) => {
               failure = error;
+              // Keep what the SDK's default handler logged, plus which rung failed.
+              console.error(`[chat] ${provider.id} failed:`, error);
             },
             model: provider.model,
             system,
