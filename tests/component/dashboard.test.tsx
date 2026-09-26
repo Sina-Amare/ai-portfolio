@@ -113,8 +113,9 @@ describe("Dashboard", () => {
     expect(screen.getByText("Engaged visits").nextSibling).toHaveTextContent("12");
     expect(screen.getByText(/60% of all visits/)).toBeInTheDocument();
     expect(screen.getByText("Avg active time").nextSibling).toHaveTextContent("2m 5s");
-    // gap-5: breakdowns say which months they cover.
-    expect(screen.getByText("Aug 2026 – Sep 2026")).toBeInTheDocument();
+    // gap-5: every card read from the month hashes says which months it covers:
+    // pages by time, sections, what visitors did, and acquisition.
+    expect(screen.getAllByText("Aug 2026 – Sep 2026")).toHaveLength(4);
     expect(screen.getByText(/Peak:/)).toHaveTextContent("Peak: Sep 26, 14 visits (9 engaged)");
     expect(screen.getByText("100% · avg 20s")).toBeInTheDocument();
     expect(screen.getByText("GitHub profile")).toBeInTheDocument();
@@ -133,7 +134,7 @@ describe("Dashboard", () => {
     expect(screen.getByText("بازدیدهای با تعامل").nextSibling).toHaveTextContent("۱۲");
     expect(screen.getByText(/۶۰٪/)).toBeInTheDocument();
     expect(screen.getByText("۳۰ روز")).toBeInTheDocument();
-    expect(screen.getByText("اوت ۲۰۲۶ – سپتامبر ۲۰۲۶")).toBeInTheDocument();
+    expect(screen.getAllByText("اوت ۲۰۲۶ – سپتامبر ۲۰۲۶")).toHaveLength(4);
     expect(screen.getByText("۳ ساعت پیش")).toBeInTheDocument();
     expect(screen.getByText("🇳🇱 هلند")).toBeInTheDocument();
     expect(screen.getByText("د")).toBeInTheDocument();

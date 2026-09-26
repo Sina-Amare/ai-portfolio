@@ -90,11 +90,27 @@ function Stat({ label, value, hint }: { label: string; value: string; hint: stri
 type Row = { label: string; count: number; value?: string; share?: number };
 
 /** Horizontal bars: proportions read faster than a column of raw numbers. */
-function Bars({ title, rows, f, empty }: { title: string; rows: Row[]; f: Fmt; empty: string }) {
+function Bars({
+  title,
+  note,
+  rows,
+  f,
+  empty,
+}: {
+  title: string;
+  /** Beside the title, e.g. the months a card covers. */
+  note?: string;
+  rows: Row[];
+  f: Fmt;
+  empty: string;
+}) {
   const max = Math.max(0, ...rows.map((r) => r.count));
   return (
     <Card>
-      <div className="eyebrow text-[10px]">{title}</div>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div className="eyebrow text-[10px]">{title}</div>
+        {note && <div className="text-muted text-xs">{note}</div>}
+      </div>
       {rows.length === 0 || max === 0 ? (
         <p className="text-muted mt-3 text-sm">{empty}</p>
       ) : (
@@ -366,6 +382,13 @@ export function Dashboard({ data, locale }: { data: Insights; locale: Locale }) 
     .filter((m) => m !== undefined)
     .map(f.month)
     .join(" – ");
+  // Everything read from the month hashes says so: under "7 days" on the 3rd,
+  // these cards still include all of last month (gap-5).
+  const period = (
+    <>
+      {p.monthsNote} <span className="text-text">{months || "—"}</span>
+    </>
+  );
 
   return (
     <div className="space-y-4">
@@ -428,6 +451,7 @@ export function Dashboard({ data, locale }: { data: Insights; locale: Locale }) 
         />
         <Bars
           title={p.pagesTitle}
+          note={months}
           rows={data.pages.map((pg) => ({
             label: pg.path,
             count: pg.avgMs,
@@ -441,7 +465,9 @@ export function Dashboard({ data, locale }: { data: Insights; locale: Locale }) 
       <section className="space-y-4 pt-6">
         <div>
           <h2 className="eyebrow">{p.sectionsTitle}</h2>
-          <p className="text-muted mt-2 max-w-3xl text-xs leading-relaxed">{p.sectionsHint}</p>
+          <p className="text-muted mt-2 max-w-3xl text-xs leading-relaxed">
+            {p.sectionsHint} {period}
+          </p>
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
           <Bars title={p.homeSections} rows={sectionRows(true)} f={f} empty={none} />
@@ -450,7 +476,10 @@ export function Dashboard({ data, locale }: { data: Insights; locale: Locale }) 
       </section>
 
       <section className="space-y-4 pt-6">
-        <h2 className="eyebrow">{p.doTitle}</h2>
+        <div>
+          <h2 className="eyebrow">{p.doTitle}</h2>
+          <p className="text-muted mt-2 text-xs leading-relaxed">{period}</p>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Bars
             title={p.chatAsked}
@@ -477,7 +506,7 @@ export function Dashboard({ data, locale }: { data: Insights; locale: Locale }) 
         <div>
           <h2 className="eyebrow">{p.acqTitle}</h2>
           <p className="text-muted mt-2 text-xs leading-relaxed">
-            {p.acqHint} <span className="text-text">{months || "—"}</span>
+            {p.acqHint} {period}
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

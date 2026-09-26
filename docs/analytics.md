@@ -275,12 +275,15 @@ The dashboard, top to bottom (EN/FA, Persian digits in Persian):
    (answered, from cache, declined as off-topic or abusive, small talk, daily limit,
    failed), chat topics, other actions and outbound links by target.
 6. **Where visits come from**, counted once per visit: sources, entry pages, countries,
-   cities, devices, browsers, language, and the local hour/weekday. These are stored per
-   calendar month, so the section is labelled with the months it covers: "7 days" on the
-   3rd includes all of last month.
+   cities, devices, browsers, language, and the local hour/weekday.
 7. **Recent visits**, the last 50: when, where, device and browser, source, language,
    active time, the pages in order, sections seen (with dwell) and actions, with
    new/returning and engaged badges. This is the "who really visited" view.
+
+The headline cards (except visitors and returning, which are this month's), the daily
+trend and the active-time buckets follow the range to the day. Pages by active time and sections 4–6 are stored per calendar month, so each is
+labelled with the months it covers: "7 days" on the 3rd includes all of last month. That
+is why the chip/typed card can show more questions than the chat-questions headline card.
 
 Definitions worth keeping in mind:
 
