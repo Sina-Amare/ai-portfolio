@@ -28,6 +28,14 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - **Hydration mismatch** — React's error when the HTML the server rendered differs from the client's
   first render. Here `usePathname()` is `/en/projects` on the server but `/projects` in the browser, so
   rendered code uses `useBarePath()`, which strips the prefix on both sides.
+- **Calque** — a word-for-word translation of a foreign term («پس‌کرانه» for "backend"). Iranian
+  developers say the English term, so the Persian system prompt lists calques the model must never use.
+- **Majority-script direction** — deciding RTL/LTR by which script most words use, instead of "any
+  Persian letter means RTL". Here `detectDir` counts words, so "ScrapeGPT چیه؟" stays RTL and an English
+  answer quoting «فارسی» stays LTR; ties go RTL.
+- **Near-miss pair (cache calibration)** — two questions that look alike but need different answers
+  ("What is ScrapeGPT?" / "What is Aigram?"). A semantic cache must score them below its threshold, or
+  one gets the other's answer; `npm run eval` measures this against the 0.94 cut-off.
 
 ## Study briefs
 

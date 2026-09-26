@@ -45,7 +45,13 @@ checklist to verify.
       the hero's language switch is locked while an answer streams (the nav toggle still drops an
       in-flight turn, like any navigation). `/nope` 404 regression (blank without JS) accepted and
       documented in decision 001 + yagni.md.
-- [ ] B5 chatbot Persian quality
+- [x] B5 chatbot Persian quality — Persian anti-calque + «بدونی/بدونم» prompt guards restored (and
+      tested), Persian canned replies speak as Sina, a Persian-script question gets a Persian answer
+      whatever the toggle (Finglish stays with it), Finglish small talk, majority-script bubble
+      direction (BOM ignored), Arabic ي/ك folded before matching/embedding, Persian source chips,
+      jailbreak filter matches commands not topics, cached replies at the live 4ms/word pace.
+      `npm run eval` now also checks entity-swapped chips vs the 0.94 semantic-cache cut-off: 94/94,
+      closest pair 0.62. The greeting keeps "I'm Sina's AI assistant" in both languages on purpose.
 - [ ] B7 analytics v2
 - [ ] B6 UI/UX + accessibility polish
 - [ ] B8 performance
@@ -54,7 +60,7 @@ checklist to verify.
 
 ## Current task
 
-B5 — chatbot Persian quality.
+B7 — analytics v2 (real visits, engaged time, section reach, no noise).
 
 ## Blocker
 
@@ -75,7 +81,7 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B5 (then B7 analytics v2, which can now use the /fa-prefixed page labels as a language breakdown).
+Start B7 analytics v2 (it can use the /fa-prefixed page labels as a language breakdown).
 Owner, before deploying B2: set `CRON_SECRET` in Vercel (the digest cron now fails closed without it).
 
 _Last updated: 2026-09-26_
