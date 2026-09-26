@@ -78,7 +78,7 @@ export function ChatHero() {
   useEffect(() => {
     if (status === "ready") {
       autoRetries.current = 0;
-    } else if (status === "error" && autoRetries.current < 2) {
+    } else if (status === "error" && autoRetries.current < 1) {
       autoRetries.current += 1;
       regenerate({ body: { lang } });
     }

@@ -11,6 +11,7 @@ const chatting = [
   { id: "a1", role: "assistant", parts: [{ type: "text", text: "Hel" }] },
 ];
 let messages = chatting;
+const regenerate = vi.fn();
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
@@ -22,7 +23,7 @@ vi.mock("@ai-sdk/react", () => ({
     status,
     sendMessage: vi.fn(),
     stop: vi.fn(),
-    regenerate: vi.fn(),
+    regenerate,
     setMessages: vi.fn(),
   }),
 }));
@@ -57,5 +58,19 @@ describe("ChatHero", () => {
       ["chat_ask", "typed"],
     ]);
     messages = chatting;
+  });
+
+  it("retries a failed answer on its own once, then leaves it to the visitor", () => {
+    regenerate.mockClear();
+    status = "error";
+    const { rerender } = render(hero());
+    expect(regenerate).toHaveBeenCalledTimes(1);
+
+    status = "submitted";
+    rerender(hero());
+    status = "error";
+    rerender(hero());
+    expect(regenerate).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("alert")).toBeInTheDocument();
   });
 });
