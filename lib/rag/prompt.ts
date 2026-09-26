@@ -4,9 +4,13 @@ import type { ScoredChunk } from "./types";
 
 export const MAX_INPUT_CHARS = 600;
 
-// Guard 3: cheap pre-filter for obvious jailbreak / prompt-injection attempts.
+// Guard 3: cheap pre-filter for obvious jailbreak / prompt-injection COMMANDS
+// only. Bare nouns ("system prompt", "prompt injection", "jailbreak") are what
+// recruiters ask an LLM engineer about, so they reach RAG; anything subtler is
+// left to the SAFETY rule in the system prompt. The last branch is Persian
+// («دستورهای قبلی رو نادیده بگیر»).
 const JAILBREAK_RE =
-  /ignore (all |the )?(previous |above )?(instructions|rules)|system prompt|you are now|jailbreak|developer mode|disregard (the |all )?(previous|above)|reveal your (system )?prompt|prompt injection/i;
+  /\b(?:ignore|disregard|forget)\s+(?:(?:all\s+(?:of\s+)?)?(?:the\s+|your\s+|my\s+)?(?:previous|prior|above|earlier|preceding)|all|your)\s+(?:instructions|rules|prompts?)\b|\bdisregard\s+(?:(?:all|the)\s+)?(?:previous|prior|above)\b|\breveal\s+your\s+(?:system\s+)?prompt\b|\b(?:print|repeat|show\s+me)\s+your\s+system\s+prompt\b|(?:^|[.!?]\s*)you\s+are\s+now\b|\b(?:enable|enter|activate|switch\s+to|turn\s+on)\s+developer\s+mode\b|(?:دستور|قانون|قوانین|قواعد)\S*\s+(?:\S+\s+){0,2}(?:نادیده[\s‌]?بگیر|فراموش[\s‌]?کن)(?:ید)?(?![؀-ۿ])/i;
 
 /**
  * Arabic Yeh/Kaf (ي U+064A, ك U+0643), which some keyboards and pasted text
