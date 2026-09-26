@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { FileText, Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
@@ -11,11 +11,16 @@ import { Container } from "./ui/container";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleToggle } from "./locale-toggle";
 
+const noSubscribe = () => () => {};
+const onMac = () => /Mac|iPhone|iPad/.test(navigator.platform);
+
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = useBarePath();
   const { t, path } = useLocale();
+  // The server renders "Ctrl K" (most visitors); Macs switch to ⌘K on hydration.
+  const mac = useSyncExternalStore(noSubscribe, onMac, () => false);
 
   // Every nav item targets a section of the home page, so they all glide instead
   // of jumping. "Projects" points at the #work section (which already lists every
@@ -111,7 +116,7 @@ export function Nav() {
               className="text-muted hover:text-text border-border hover:border-accent/40 ms-1 hidden items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs transition-colors lg:inline-flex"
             >
               <Search className="h-3.5 w-3.5" />
-              <kbd className="font-mono text-[10px] tracking-wide">⌘K</kbd>
+              <kbd className="font-mono text-[10px] tracking-wide">{mac ? "⌘K" : "Ctrl K"}</kbd>
             </button>
             <LocaleToggle className="ms-1" />
             <ThemeToggle className="ms-1" />
