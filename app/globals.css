@@ -390,6 +390,12 @@ h5 {
 [dir="rtl"] {
   line-height: 1.9;
 }
+/* The h1–h5 element rule would otherwise win over the inherited Vazirmatn in an
+   RTL island on an English page (e.g. a Persian chat answer's markdown heading). */
+[dir="rtl"] :is(h1, h2, h3, h4, h5) {
+  font-family: var(--font-fa), var(--font-sans), sans-serif;
+  letter-spacing: normal;
+}
 
 /* Whole-site Persian mode: use Vazirmatn for headings/eyebrows too, and kill
    letter-spacing — negative/positive tracking breaks Persian letter-joining. */
