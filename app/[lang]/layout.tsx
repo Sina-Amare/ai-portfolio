@@ -34,9 +34,6 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
   display: "swap",
-  // The generated fallback is local Arial, which has Arabic glyphs and would
-  // catch Persian characters before --font-mono reaches Vazirmatn.
-  adjustFontFallback: false,
 });
 
 const vazirmatn = Vazirmatn({
