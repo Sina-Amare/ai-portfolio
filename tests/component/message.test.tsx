@@ -59,6 +59,14 @@ describe("Message", () => {
     expect(screen.getByText("Something new")).toBeInTheDocument(); // unknown → raw label
   });
 
+  it("keeps code left-to-right inside a Persian answer", () => {
+    const md = "با `C++` کار کردم\n\n```\nx = f(1)\n```";
+    const { container } = render(<Message message={mkMessage("assistant", md)} sourcesLabel="" />);
+    const [inline, block] = container.querySelectorAll("code");
+    expect(inline).toHaveAttribute("dir", "ltr");
+    expect(block.closest("pre")).toHaveAttribute("dir", "ltr");
+  });
+
   it("renders Persian assistant text right-to-left", () => {
     const { container } = render(
       <Message message={mkMessage("assistant", "سلام دنیا")} sourcesLabel="Sources" />,

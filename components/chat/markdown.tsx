@@ -35,19 +35,27 @@ const components: Components = {
   h1: ({ children }) => <h3 className="mt-3 mb-1 text-base font-semibold">{children}</h3>,
   h2: ({ children }) => <h3 className="mt-3 mb-1 text-base font-semibold">{children}</h3>,
   h3: ({ children }) => <h4 className="mt-2 mb-1 text-sm font-semibold">{children}</h4>,
+  // Code is always LTR (dir isolates it), so C++ doesn't read ++C in a Persian
+  // answer. A fence without a language has no class; `pre` resets the chip style.
   code: ({ className, children }) => {
     const isBlock = (className ?? "").includes("language-");
     if (isBlock) {
       return <code className="font-mono text-[0.85em]">{children}</code>;
     }
     return (
-      <code className="text-accent-text bg-accent-soft rounded px-1.5 py-0.5 font-mono text-[0.85em]">
+      <code
+        dir="ltr"
+        className="text-accent-text bg-accent-soft rounded px-1.5 py-0.5 font-mono text-[0.85em]"
+      >
         {children}
       </code>
     );
   },
   pre: ({ children }) => (
-    <pre className="border-border my-3 overflow-x-auto rounded-lg border bg-black/40 p-3 text-[0.85em]">
+    <pre
+      dir="ltr"
+      className="border-border my-3 overflow-x-auto rounded-lg border bg-black/40 p-3 text-[0.85em] [&>code]:bg-transparent [&>code]:p-0 [&>code]:text-inherit"
+    >
       {children}
     </pre>
   ),
