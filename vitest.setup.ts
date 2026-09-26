@@ -26,4 +26,6 @@ if (typeof window !== "undefined") {
     disconnect() {}
   }
   globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+  // motion's whileInView (<Reveal>) observes intersections.
+  globalThis.IntersectionObserver = ResizeObserverStub as unknown as typeof IntersectionObserver;
 }

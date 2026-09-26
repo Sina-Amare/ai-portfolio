@@ -54,16 +54,13 @@ export const dict = {
     work: {
       number: "02",
       eyebrow: "At work",
-      title: "Agents built for real workflows",
+      title: "Agents I shipped at work",
       description:
-        "Two workplace agents for focused social research and department-level decisions, with sources and manager feedback kept in the loop.",
+        "Two private systems I designed and built end to end: a research agent that turns social feeds into source-linked briefs, and a multi-agent BI system that turns department data into checked, actionable reports.",
       projectLabel: "Workplace agent",
-      problem: "The problem",
-      workflow: "How it works",
-      decision: "The important decision",
-      value: "What changed",
-      highlights: "At a glance",
-      more: "Explore the work projects",
+      more: "Read the full breakdowns",
+      privateNote:
+        "Private codebase, built at work. Specifics are generalized and no internal data is shown.",
     },
     about: {
       number: "03",
@@ -221,16 +218,13 @@ export const dict = {
     work: {
       number: "۰۲",
       eyebrow: "پروژه‌های کاری",
-      title: "ایجنت‌هایی که یه کار واقعی رو جلو بردن",
+      title: "ایجنت‌هایی که سر کار ساختم",
       description:
-        "دو ایجنت کاری برای تحقیق دقیق‌تر و تصمیم‌گیری دربارهٔ واحدهای کسب‌وکار؛ یکی با لینک منبع، یکی با بازخورد مدیر.",
+        "دو سیستم خصوصی که از طراحی تا اجرا خودم ساختم: یه ایجنت تحقیق که پست‌های شبکه‌های اجتماعی رو به گزارش کوتاه با لینک منبع تبدیل می‌کنه، و یه سیستم چندایجنتی که داده‌های واحدها رو به گزارش دقیق و قابل اجرا می‌رسونه.",
       projectLabel: "ایجنت کاری",
-      problem: "چه مشکلی رو حل کرد؟",
-      workflow: "چطور کار می‌کنه؟",
-      decision: "تصمیم فنی مهم",
-      value: "چه چیزی بهتر شد؟",
-      highlights: "در یک نگاه",
-      more: "دیدن پروژه‌های کاری",
+      more: "جزئیات کامل رو ببین",
+      privateNote:
+        "کدش خصوصیه و سر کار ساخته شده؛ جزئیات رو کلی گفتم و هیچ دادهٔ داخلی‌ای نشون داده نمی‌شه.",
     },
     about: {
       number: "۰۳",
