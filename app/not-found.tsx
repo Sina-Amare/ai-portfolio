@@ -13,12 +13,8 @@ export default function NotFound() {
     <section className="flex min-h-[72vh] items-center">
       <Container className="text-center">
         <div className="eyebrow">{p.eyebrow}</div>
-        <h1 className="text-gradient mt-4 text-5xl font-semibold tracking-tight">
-          {p.title}
-        </h1>
-        <p className="text-muted mx-auto mt-4 max-w-md leading-relaxed">
-          {p.body}
-        </p>
+        <h1 className="text-gradient mt-4 text-5xl font-semibold tracking-tight">{p.title}</h1>
+        <p className="text-muted mx-auto mt-4 max-w-md leading-relaxed">{p.body}</p>
         <Link
           href="/"
           className="bg-accent text-accent-contrast hover:bg-accent-hover mt-8 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors"

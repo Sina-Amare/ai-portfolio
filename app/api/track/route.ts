@@ -84,10 +84,7 @@ export async function POST(req: Request) {
       userAgent,
       host,
       path: normalizePath(typeof body.path === "string" ? body.path : "/", SLUGS),
-      referrer: normalizeReferrer(
-        typeof body.referrer === "string" ? body.referrer : "",
-        host,
-      ),
+      referrer: normalizeReferrer(typeof body.referrer === "string" ? body.referrer : "", host),
       country,
       timezone,
       city: cityFrom(req.headers, country),

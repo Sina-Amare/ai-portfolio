@@ -8,13 +8,7 @@ import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
 import { GitHubIcon } from "@/components/icons";
 
-export function ProjectCard({
-  project,
-  className,
-}: {
-  project: Project;
-  className?: string;
-}) {
+export function ProjectCard({ project, className }: { project: Project; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const { locale } = useLocale();
   const tagline = locale === "fa" ? project.taglineFa : project.tagline;
@@ -34,7 +28,7 @@ export function ProjectCard({
       ref={ref}
       onMouseMove={onMove}
       className={cn(
-        "group glass hover:bg-card-hover relative flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong",
+        "group glass hover:bg-card-hover hover:border-border-strong relative flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] p-6 transition-all duration-200 hover:-translate-y-0.5",
         className,
       )}
     >
@@ -74,11 +68,11 @@ export function ProjectCard({
               rel="noopener noreferrer"
               aria-label={`${project.name} — ${repoLabel}`}
               title={repoLabel}
-              className="text-muted hover:text-text pointer-events-auto relative z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border transition-colors hover:border-accent/50"
+              className="text-muted hover:text-text border-border hover:border-accent/50 pointer-events-auto relative z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
             >
               <GitHubIcon className="h-4 w-4" />
             </a>
-            <ArrowUpRight className="text-muted group-hover:text-accent h-5 w-5 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            <ArrowUpRight className="text-muted group-hover:text-accent h-5 w-5 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </div>
         </div>
 
@@ -88,7 +82,7 @@ export function ProjectCard({
           {project.stack.map((s) => (
             <span
               key={s}
-              className="text-muted font-mono rounded-full border border-border px-2 py-0.5 text-[10px]"
+              className="text-muted border-border rounded-full border px-2 py-0.5 font-mono text-[10px]"
             >
               {s}
             </span>

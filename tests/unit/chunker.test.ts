@@ -45,10 +45,9 @@ describe("chunkDocument", () => {
   });
 
   it("splits very long sections into multiple chunks of the same section", () => {
-    const long = Array.from(
-      { length: 30 },
-      (_, i) => `Paragraph ${i} ` + "x".repeat(60),
-    ).join("\n\n");
+    const long = Array.from({ length: 30 }, (_, i) => `Paragraph ${i} ` + "x".repeat(60)).join(
+      "\n\n",
+    );
     const chunks = chunkDocument({ id: "t", source: "CV", text: `## Big\n${long}` });
     expect(chunks.length).toBeGreaterThan(1);
     expect(chunks.every((c) => c.section === "Big")).toBe(true);

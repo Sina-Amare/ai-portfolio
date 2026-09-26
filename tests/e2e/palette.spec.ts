@@ -16,7 +16,5 @@ test("command palette opens with Ctrl+K and navigates", async ({ page }) => {
 
 test("contact CTA renders on the home page", async ({ page }) => {
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: /build something together/i }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: /build something together/i })).toBeVisible();
 });

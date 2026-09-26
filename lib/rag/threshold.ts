@@ -15,9 +15,6 @@ export function topScore(scored: ScoredChunk[]): number {
   return scored.length ? scored[0].score : 0;
 }
 
-export function isInScope(
-  scored: ScoredChunk[],
-  threshold = RELEVANCE_THRESHOLD,
-): boolean {
+export function isInScope(scored: ScoredChunk[], threshold = RELEVANCE_THRESHOLD): boolean {
   return topScore(scored) >= threshold;
 }

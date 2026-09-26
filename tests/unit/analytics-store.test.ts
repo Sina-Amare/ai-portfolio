@@ -10,73 +10,73 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 // vi.mock's factory is hoisted above every import, so the fake has to be built
 // inside vi.hoisted() to exist by the time the factory runs.
 const { store, FakeRedis } = vi.hoisted(() => {
-const store = {
-  kv: new Map<string, string>(),
-  sets: new Map<string, Set<string>>(),
-  hashes: new Map<string, Map<string, number>>(),
-};
-
-class FakeRedis {
-  async get<T>(k: string): Promise<T | null> {
-    return (store.kv.has(k) ? (store.kv.get(k) as unknown as T) : null);
-  }
-  async set(k: string, v: string, opts?: { nx?: boolean }) {
-    if (opts?.nx && store.kv.has(k)) return null;
-    store.kv.set(k, v);
-    return "OK";
-  }
-  async incr(k: string) {
-    const n = Number(store.kv.get(k) ?? 0) + 1;
-    store.kv.set(k, String(n));
-    return n;
-  }
-  async sadd(k: string, m: string) {
-    const s = store.sets.get(k) ?? new Set<string>();
-    const isNew = !s.has(m);
-    s.add(m);
-    store.sets.set(k, s);
-    return isNew ? 1 : 0;
-  }
-  async scard(k: string) {
-    return store.sets.get(k)?.size ?? 0;
-  }
-  async hincrby(k: string, f: string, by: number) {
-    const h = store.hashes.get(k) ?? new Map<string, number>();
-    const n = (h.get(f) ?? 0) + by;
-    h.set(f, n);
-    store.hashes.set(k, h);
-    return n;
-  }
-  async hgetall(k: string) {
-    const h = store.hashes.get(k);
-    return h ? Object.fromEntries(h) : null;
-  }
-  async expire() {
-    return 1;
-  }
-  async zadd() {
-    return 1;
-  }
-  pipeline = () => {
-    const ops: (() => Promise<unknown>)[] = [];
-    const api = {
-      get: (k: string) => (ops.push(() => this.get(k)), api),
-      incr: (k: string) => (ops.push(() => this.incr(k)), api),
-      sadd: (k: string, m: string) => (ops.push(() => this.sadd(k, m)), api),
-      scard: (k: string) => (ops.push(() => this.scard(k)), api),
-      hincrby: (k: string, f: string, b: number) => (ops.push(() => this.hincrby(k, f, b)), api),
-      hgetall: (k: string) => (ops.push(() => this.hgetall(k)), api),
-      expire: () => (ops.push(() => this.expire()), api),
-      zadd: () => (ops.push(() => this.zadd()), api),
-      exec: async () => {
-        const out: unknown[] = [];
-        for (const op of ops) out.push(await op());
-        return out;
-      },
-    };
-    return api;
+  const store = {
+    kv: new Map<string, string>(),
+    sets: new Map<string, Set<string>>(),
+    hashes: new Map<string, Map<string, number>>(),
   };
-}
+
+  class FakeRedis {
+    async get<T>(k: string): Promise<T | null> {
+      return store.kv.has(k) ? (store.kv.get(k) as unknown as T) : null;
+    }
+    async set(k: string, v: string, opts?: { nx?: boolean }) {
+      if (opts?.nx && store.kv.has(k)) return null;
+      store.kv.set(k, v);
+      return "OK";
+    }
+    async incr(k: string) {
+      const n = Number(store.kv.get(k) ?? 0) + 1;
+      store.kv.set(k, String(n));
+      return n;
+    }
+    async sadd(k: string, m: string) {
+      const s = store.sets.get(k) ?? new Set<string>();
+      const isNew = !s.has(m);
+      s.add(m);
+      store.sets.set(k, s);
+      return isNew ? 1 : 0;
+    }
+    async scard(k: string) {
+      return store.sets.get(k)?.size ?? 0;
+    }
+    async hincrby(k: string, f: string, by: number) {
+      const h = store.hashes.get(k) ?? new Map<string, number>();
+      const n = (h.get(f) ?? 0) + by;
+      h.set(f, n);
+      store.hashes.set(k, h);
+      return n;
+    }
+    async hgetall(k: string) {
+      const h = store.hashes.get(k);
+      return h ? Object.fromEntries(h) : null;
+    }
+    async expire() {
+      return 1;
+    }
+    async zadd() {
+      return 1;
+    }
+    pipeline = () => {
+      const ops: (() => Promise<unknown>)[] = [];
+      const api = {
+        get: (k: string) => (ops.push(() => this.get(k)), api),
+        incr: (k: string) => (ops.push(() => this.incr(k)), api),
+        sadd: (k: string, m: string) => (ops.push(() => this.sadd(k, m)), api),
+        scard: (k: string) => (ops.push(() => this.scard(k)), api),
+        hincrby: (k: string, f: string, b: number) => (ops.push(() => this.hincrby(k, f, b)), api),
+        hgetall: (k: string) => (ops.push(() => this.hgetall(k)), api),
+        expire: () => (ops.push(() => this.expire()), api),
+        zadd: () => (ops.push(() => this.zadd()), api),
+        exec: async () => {
+          const out: unknown[] = [];
+          for (const op of ops) out.push(await op());
+          return out;
+        },
+      };
+      return api;
+    };
+  }
 
   return { store, FakeRedis };
 });
@@ -144,9 +144,27 @@ describe("analytics store aggregation", () => {
   });
 
   it("maps breakdowns to the right buckets (guards the pipeline index math)", async () => {
-    await recordVisit(visit({ path: "/a", country: "DE", timezone: "Europe/Berlin", referrer: "google.com" }));
-    await recordVisit(visit({ ip: "5.5.5.5", path: "/a", country: "US", timezone: "America/New_York", referrer: "Direct" }));
-    await recordVisit(visit({ ip: "6.6.6.6", path: "/b", country: "US", timezone: "America/New_York", referrer: "google.com" }));
+    await recordVisit(
+      visit({ path: "/a", country: "DE", timezone: "Europe/Berlin", referrer: "google.com" }),
+    );
+    await recordVisit(
+      visit({
+        ip: "5.5.5.5",
+        path: "/a",
+        country: "US",
+        timezone: "America/New_York",
+        referrer: "Direct",
+      }),
+    );
+    await recordVisit(
+      visit({
+        ip: "6.6.6.6",
+        path: "/b",
+        country: "US",
+        timezone: "America/New_York",
+        referrer: "google.com",
+      }),
+    );
 
     const o = await getOverview(30);
     // Each breakdown must land in its OWN card — a shifted index would swap them.
@@ -203,7 +221,15 @@ describe("analytics store aggregation", () => {
   });
 
   it("records the detailed dimensions and keeps time buckets in clock order", async () => {
-    await recordVisit(visit({ hour: "21:00", weekday: "Fri", city: "Amsterdam, NL", device: "Mobile", browser: "Safari" }));
+    await recordVisit(
+      visit({
+        hour: "21:00",
+        weekday: "Fri",
+        city: "Amsterdam, NL",
+        device: "Mobile",
+        browser: "Safari",
+      }),
+    );
     await recordVisit(visit({ ip: "2.2.2.2", hour: "09:00", weekday: "Mon", city: "Berlin, DE" }));
     await recordVisit(visit({ ip: "3.3.3.3", hour: "09:00", weekday: "Mon", city: "Berlin, DE" }));
 

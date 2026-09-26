@@ -7,9 +7,7 @@ import { pageCopy } from "@/lib/page-copy";
 /** "NL" → 🇳🇱, by mapping the two letters to regional-indicator code points. */
 function flagOf(code: string): string {
   if (!/^[A-Z]{2}$/.test(code)) return "🌐";
-  return String.fromCodePoint(
-    ...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
-  );
+  return String.fromCodePoint(...[...code].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
 }
 
 // Intl gives real country names for free — no lookup table to maintain.
@@ -26,21 +24,11 @@ function countryLabel(code: string, locale: Locale): string {
 
 const RANGES = [7, 30, 90] as const;
 
-function Stat({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-}) {
+function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="glass rounded-[var(--radius-card)] p-5">
       <div className="eyebrow text-[10px]">{label}</div>
-      <div className="mt-2 text-3xl font-semibold tracking-tight tabular-nums">
-        {value}
-      </div>
+      <div className="mt-2 text-3xl font-semibold tracking-tight tabular-nums">{value}</div>
       {hint && <div className="text-muted mt-1 text-xs">{hint}</div>}
     </div>
   );
@@ -91,13 +79,7 @@ function BreakdownCard({
 }
 
 /** Pure-CSS sparkline; no chart dependency for one small graph. */
-function Series({
-  series,
-  locale,
-}: {
-  series: Overview["series"];
-  locale: Locale;
-}) {
+function Series({ series, locale }: { series: Overview["series"]; locale: Locale }) {
   const p = pageCopy[locale].admin;
   const max = Math.max(1, ...series.map((d) => d.views));
   return (
@@ -143,9 +125,7 @@ function WhenCard({
   });
   const maxH = Math.max(1, ...slots.map((s) => s.count));
   const maxD = Math.max(1, ...weekdays.map((d) => d.count));
-  const busiest = hours.length
-    ? [...hours].sort((a, b) => b.count - a.count)[0]!
-    : null;
+  const busiest = hours.length ? [...hours].sort((a, b) => b.count - a.count)[0]! : null;
 
   return (
     <div className="glass rounded-[var(--radius-card)] p-5">
@@ -213,32 +193,21 @@ function WhenCard({
   );
 }
 
-export function Dashboard({
-  data,
-  locale,
-}: {
-  data: Overview;
-  locale: Locale;
-}) {
+export function Dashboard({ data, locale }: { data: Overview; locale: Locale }) {
   const p = pageCopy[locale].admin;
   const { totals } = data;
   // Share of this month's distinct visitors who came back at least once. This
   // is a people ratio, not a page ratio — counting repeat *views* would just be
   // measuring pages-per-session and calling it loyalty.
   const repeatPct =
-    totals.visitors > 0
-      ? Math.round((totals.repeatVisitors / totals.visitors) * 100)
-      : 0;
-  const viewsPerVisitor =
-    totals.visitors > 0 ? (totals.views / totals.visitors).toFixed(1) : "—";
+    totals.visitors > 0 ? Math.round((totals.repeatVisitors / totals.visitors) * 100) : 0;
+  const viewsPerVisitor = totals.visitors > 0 ? (totals.views / totals.visitors).toFixed(1) : "—";
 
   if (data.degraded) {
     return (
       <div className="glass rounded-[var(--radius-card)] p-6">
         <h2 className="text-base font-semibold">{p.datastore}</h2>
-        <p className="text-muted mt-2 text-sm leading-relaxed">
-          {p.datastoreBody}
-        </p>
+        <p className="text-muted mt-2 text-sm leading-relaxed">{p.datastoreBody}</p>
       </div>
     );
   }
@@ -271,21 +240,13 @@ export function Dashboard({
           value={totals.views.toLocaleString()}
           hint={p.pageViewsHint}
         />
-        <Stat
-          label={p.visitors}
-          value={totals.visitors.toLocaleString()}
-          hint={p.visitorsHint}
-        />
+        <Stat label={p.visitors} value={totals.visitors.toLocaleString()} hint={p.visitorsHint} />
         <Stat
           label={p.returned}
           value={totals.repeatVisitors.toLocaleString()}
           hint={`${repeatPct}% ${p.returnedHint}`}
         />
-        <Stat
-          label={p.perVisitor}
-          value={viewsPerVisitor}
-          hint={p.perVisitorHint}
-        />
+        <Stat label={p.perVisitor} value={viewsPerVisitor} hint={p.perVisitorHint} />
       </div>
 
       <Series series={data.series} locale={locale} />
@@ -301,27 +262,11 @@ export function Dashboard({
           format={(code) => countryLabel(code, locale)}
         />
         <BreakdownCard title={p.pages} rows={data.paths} empty={p.noVisits} />
-        <BreakdownCard
-          title={p.referrers}
-          rows={data.referrers}
-          empty={p.noVisits}
-        />
-        <BreakdownCard
-          title={p.timezones}
-          rows={data.timezones}
-          empty={p.noVisits}
-        />
+        <BreakdownCard title={p.referrers} rows={data.referrers} empty={p.noVisits} />
+        <BreakdownCard title={p.timezones} rows={data.timezones} empty={p.noVisits} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 lg:gap-4">
-          <BreakdownCard
-            title={p.devices}
-            rows={data.devices}
-            empty={p.noVisits}
-          />
-          <BreakdownCard
-            title={p.browsers}
-            rows={data.browsers}
-            empty={p.noVisits}
-          />
+          <BreakdownCard title={p.devices} rows={data.devices} empty={p.noVisits} />
+          <BreakdownCard title={p.browsers} rows={data.browsers} empty={p.noVisits} />
         </div>
       </div>
 

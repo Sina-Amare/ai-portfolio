@@ -50,8 +50,7 @@ function credentialsFromEnv(): { url: string; token: string } | null {
   for (const [key, value] of Object.entries(process.env)) {
     if (!value || !SUFFIX.test(key) || !/^https?:\/\//.test(value)) continue;
     const prefix = key.replace(SUFFIX, "");
-    const token =
-      process.env[`${prefix}REST_API_TOKEN`] ?? process.env[`${prefix}REST_TOKEN`];
+    const token = process.env[`${prefix}REST_API_TOKEN`] ?? process.env[`${prefix}REST_TOKEN`];
     if (token) return { url: value, token };
   }
   return null;
@@ -128,12 +127,7 @@ async function currentSalt(r: Redis, month: string): Promise<string> {
 }
 
 /** Pseudonymous per-visitor id. Not reversible once the month's salt expires. */
-export function visitorHash(
-  salt: string,
-  ip: string,
-  userAgent: string,
-  host: string,
-): string {
+export function visitorHash(salt: string, ip: string, userAgent: string, host: string): string {
   return createHash("sha256")
     .update(`${salt}|${ip}|${userAgent}|${host}`)
     .digest("hex")

@@ -33,8 +33,7 @@ export function ContactForm() {
   const error = errorKey ? errorText[errorKey] : "";
 
   const set =
-    (k: keyof typeof form) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
 
   function fail(key: Exclude<ErrKey, "">) {

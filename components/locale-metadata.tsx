@@ -36,9 +36,7 @@ export function LocaleMetadata() {
       description = "";
     } else if (pathname === "/") {
       title =
-        locale === "fa"
-          ? "سینا عماره — توسعه‌دهندهٔ بک‌اند و AI"
-          : `${site.name} — ${site.role}`;
+        locale === "fa" ? "سینا عماره — توسعه‌دهندهٔ بک‌اند و AI" : `${site.name} — ${site.role}`;
       description =
         locale === "fa"
           ? "من سینا عماره‌ام؛ با Python بک‌اند و برنامه‌های AI می‌سازم. از پروژه‌ها و تجربه‌هام از دستیار سایت بپرس."
@@ -49,9 +47,7 @@ export function LocaleMetadata() {
     }
 
     document.title = pathname === "/" ? title : `${title} — ${site.name}`;
-    document
-      .querySelector('meta[name="description"]')
-      ?.setAttribute("content", description);
+    document.querySelector('meta[name="description"]')?.setAttribute("content", description);
   }, [locale, pathname]);
 
   return null;

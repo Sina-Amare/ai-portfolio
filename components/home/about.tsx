@@ -49,7 +49,7 @@ export function About() {
                 {a.strengths.map((s) => (
                   <li
                     key={s}
-                    className="text-text relative ps-4 text-[14px] leading-relaxed before:absolute before:top-2.5 before:size-1.5 before:rounded-full before:bg-accent before:content-[''] before:inset-s-0"
+                    className="text-text before:bg-accent relative ps-4 text-[14px] leading-relaxed before:absolute before:inset-s-0 before:top-2.5 before:size-1.5 before:rounded-full before:content-['']"
                   >
                     {s}
                   </li>
@@ -72,7 +72,7 @@ export function About() {
                     {g.items.map((s) => (
                       <span
                         key={s}
-                        className="font-mono text-muted rounded-full border border-border px-2.5 py-1 text-[11px]"
+                        className="text-muted border-border rounded-full border px-2.5 py-1 font-mono text-[11px]"
                       >
                         {s}
                       </span>
@@ -86,12 +86,7 @@ export function About() {
               <ButtonLink href={site.resume} external variant="outline" size="md">
                 <FileText className="h-4 w-4" /> {t.nav.resume}
               </ButtonLink>
-              <ButtonLink
-                href={site.socials.emailCompose}
-                external
-                variant="ghost"
-                size="md"
-              >
+              <ButtonLink href={site.socials.emailCompose} external variant="ghost" size="md">
                 {site.email} <ArrowUpRight className="h-4 w-4" />
               </ButtonLink>
             </div>
@@ -102,14 +97,12 @@ export function About() {
             <div className="eyebrow text-[10px]">{a.experienceLabel}</div>
             <div className="mt-4 space-y-6">
               {a.experience.map((e) => (
-                <div key={e.org} className="border-s border-border ps-4">
+                <div key={e.org} className="border-border border-s ps-4">
                   <div className="flex items-baseline justify-between gap-3">
                     <h3 className="text-sm font-medium">
                       {e.role} <span className="text-accent">· {e.org}</span>
                     </h3>
-                    <span className="text-muted font-mono shrink-0 text-[11px]">
-                      {e.period}
-                    </span>
+                    <span className="text-muted shrink-0 font-mono text-[11px]">{e.period}</span>
                   </div>
                   <p className="text-muted mt-1.5 text-[13px] leading-relaxed">{e.note}</p>
                 </div>
@@ -119,12 +112,10 @@ export function About() {
             <div className="eyebrow mt-8 text-[10px]">{a.educationLabel}</div>
             <div className="mt-4 space-y-4">
               {a.education.map((e) => (
-                <div key={e.degree} className="border-s border-border ps-4">
+                <div key={e.degree} className="border-border border-s ps-4">
                   <div className="flex items-baseline justify-between gap-3">
                     <h3 className="text-sm font-medium">{e.degree}</h3>
-                    <span className="text-muted font-mono shrink-0 text-[11px]">
-                      {e.period}
-                    </span>
+                    <span className="text-muted shrink-0 font-mono text-[11px]">{e.period}</span>
                   </div>
                   <p className="text-muted mt-1 text-[13px]">{e.org}</p>
                 </div>

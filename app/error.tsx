@@ -24,12 +24,8 @@ export default function Error({
     <section className="flex min-h-[72vh] items-center">
       <Container className="text-center">
         <div className="eyebrow">{p.eyebrow}</div>
-        <h1 className="text-gradient mt-4 text-4xl font-semibold tracking-tight">
-          {p.title}
-        </h1>
-        <p className="text-muted mx-auto mt-4 max-w-md leading-relaxed">
-          {p.body}
-        </p>
+        <h1 className="text-gradient mt-4 text-4xl font-semibold tracking-tight">{p.title}</h1>
+        <p className="text-muted mx-auto mt-4 max-w-md leading-relaxed">{p.body}</p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <button
             type="button"

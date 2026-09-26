@@ -85,7 +85,7 @@ export function Transcript({
           type="button"
           onClick={toBottom}
           aria-label={scrollLabel}
-          className="glass-strong text-muted hover:text-text absolute bottom-3 left-1/2 z-10 inline-flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full shadow-md transition-colors hover:border-accent/50"
+          className="glass-strong text-muted hover:text-text hover:border-accent/50 absolute bottom-3 left-1/2 z-10 inline-flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full shadow-md transition-colors"
         >
           <ArrowDown className="h-4 w-4" />
         </button>

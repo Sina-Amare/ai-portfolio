@@ -1,9 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-test("home renders the hero and nav with no console errors", async ({
-  page,
-}) => {
+test("home renders the hero and nav with no console errors", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => {
@@ -11,19 +9,13 @@ test("home renders the hero and nav with no console errors", async ({
   });
 
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: /Ask me anything/i, level: 1 }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Ask me anything/i, level: 1 })).toBeVisible();
   await expect(page.getByText("Sina Amareh").first()).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "Projects" }).first(),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Projects" }).first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test("home has no serious/critical accessibility violations", async ({
-  page,
-}) => {
+test("home has no serious/critical accessibility violations", async ({ page }) => {
   await page.goto("/");
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa"])
@@ -47,36 +39,22 @@ test("navigates from home to a project case study", async ({ page }) => {
     .first()
     .click();
   await expect(page).toHaveURL(/\/projects\/scrapegpt$/);
-  await expect(
-    page.getByRole("heading", { name: "ScrapeGPT", level: 1 }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "ScrapeGPT", level: 1 })).toBeVisible();
 });
 
 // Every nav item targets a home-page section, so none of them should hard-jump.
-test("nav 'Projects' scrolls to the work section instead of leaving the page", async ({
-  page,
-}) => {
+test("nav 'Projects' scrolls to the work section instead of leaving the page", async ({ page }) => {
   await page.goto("/");
-  await page
-    .getByRole("link", { name: "Projects", exact: true })
-    .first()
-    .click();
+  await page.getByRole("link", { name: "Projects", exact: true }).first().click();
   await expect(page).toHaveURL(/#work$/);
   await expect(page.locator("#work")).toBeInViewport();
 });
 
-test("nav 'Home' scrolls back to the top rather than snapping", async ({
-  page,
-}) => {
+test("nav 'Home' scrolls back to the top rather than snapping", async ({ page }) => {
   await page.goto("/");
-  await page
-    .getByRole("link", { name: "Contact", exact: true })
-    .first()
-    .click();
+  await page.getByRole("link", { name: "Contact", exact: true }).first().click();
   await expect(page).toHaveURL(/#contact$/);
-  await expect
-    .poll(() => page.evaluate(() => window.scrollY))
-    .toBeGreaterThan(100);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
 
   await page.getByRole("link", { name: "Home", exact: true }).first().click();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(50);
@@ -92,29 +70,19 @@ test("workplace agents have a home preview and detailed, source-free project ent
   const cards = page.locator("#workplace article");
   await expect(cards).toHaveCount(2);
   await expect(cards.first().getByText("The important decision")).toBeVisible();
-  await expect(
-    cards.first().getByText("Search the right sources"),
-  ).toBeVisible();
+  await expect(cards.first().getByText("Search the right sources")).toBeVisible();
   await expect(cards.nth(1).getByText("Learn from the review")).toBeVisible();
-  await expect(
-    cards.nth(1).getByRole("heading", { name: "What changed" }),
-  ).toBeVisible();
+  await expect(cards.nth(1).getByRole("heading", { name: "What changed" })).toBeVisible();
   await expect(cards.locator("a")).toHaveCount(0);
 });
 
-test("Persian copy covers workplace agents, image captions, and privacy", async ({
-  page,
-}) => {
+test("Persian copy covers workplace agents, image captions, and privacy", async ({ page }) => {
   await page.goto("/projects");
   await page.getByRole("button", { name: "فا", exact: true }).first().click();
   await expect(page.locator("html")).toHaveAttribute("lang", "fa");
   await expect(page).toHaveTitle(/پروژه‌ها/);
-  await expect(
-    page.getByRole("heading", { name: "ایجنت رصد شبکه‌های اجتماعی" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "ایجنت‌های تحلیل و گزارش‌گیری" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "ایجنت رصد شبکه‌های اجتماعی" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "ایجنت‌های تحلیل و گزارش‌گیری" })).toBeVisible();
   await expect(page.getByText("از نظر مدیر یاد می‌گیره")).toBeVisible();
 
   await page.goto("/projects/scrapegpt");

@@ -34,17 +34,13 @@ export function CaseStudy({ project }: { project: Project }) {
           <article className="min-w-0">
             <Reveal>
               <div className="flex items-center gap-3">
-                <span className="text-accent font-mono text-xs">
-                  {project.year}
-                </span>
+                <span className="text-accent font-mono text-xs">{project.year}</span>
                 <span className="eyebrow">{tagline}</span>
               </div>
               <h1 className="text-gradient mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
                 {project.name}
               </h1>
-              <p className="text-text mt-5 max-w-2xl text-lg leading-relaxed">
-                {summary}
-              </p>
+              <p className="text-text mt-5 max-w-2xl text-lg leading-relaxed">{summary}</p>
             </Reveal>
 
             {project.media && project.media.length > 0 && (
@@ -55,16 +51,12 @@ export function CaseStudy({ project }: { project: Project }) {
 
             <Reveal delay={0.05} className="mt-12">
               <h2 className="eyebrow">{p.problem}</h2>
-              <p className="text-text mt-3 max-w-2xl leading-[1.75]">
-                {c.problem}
-              </p>
+              <p className="text-text mt-3 max-w-2xl leading-[1.75]">{c.problem}</p>
             </Reveal>
 
             <Reveal delay={0.05} className="mt-10">
               <h2 className="eyebrow">{p.myRole}</h2>
-              <p className="text-text mt-3 max-w-2xl leading-[1.75]">
-                {c.role}
-              </p>
+              <p className="text-text mt-3 max-w-2xl leading-[1.75]">{c.role}</p>
             </Reveal>
 
             <Reveal delay={0.05} className="mt-10">
@@ -80,9 +72,7 @@ export function CaseStudy({ project }: { project: Project }) {
                 {c.highlights.map((h) => (
                   <div key={h.title} className="glass rounded-xl p-5">
                     <h3 className="text-sm font-semibold">{h.title}</h3>
-                    <p className="text-muted mt-1.5 text-[13px] leading-relaxed">
-                      {h.body}
-                    </p>
+                    <p className="text-muted mt-1.5 text-[13px] leading-relaxed">{h.body}</p>
                   </div>
                 ))}
               </div>
@@ -94,9 +84,7 @@ export function CaseStudy({ project }: { project: Project }) {
                 {c.outcomes.map((o) => (
                   <li key={o} className="flex gap-2.5">
                     <Check className="text-accent mt-0.5 h-4 w-4 shrink-0" />
-                    <span className="text-text text-[15px] leading-relaxed">
-                      {o}
-                    </span>
+                    <span className="text-text text-[15px] leading-relaxed">{o}</span>
                   </li>
                 ))}
               </ul>

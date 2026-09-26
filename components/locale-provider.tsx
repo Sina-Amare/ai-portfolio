@@ -45,10 +45,7 @@ export function LocaleProvider({
     [locale, apply],
   );
 
-  const toggle = useCallback(
-    () => apply(locale === "fa" ? "en" : "fa"),
-    [locale, apply],
-  );
+  const toggle = useCallback(() => apply(locale === "fa" ? "en" : "fa"), [locale, apply]);
 
   const value = useMemo<LocaleContextValue>(
     () => ({ locale, setLocale, toggle, t: dict[locale] as Dict }),

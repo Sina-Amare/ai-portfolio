@@ -24,7 +24,10 @@ export function cityFrom(headers: Headers, country: string): string {
   } catch {
     city = raw;
   }
-  city = city.replace(/[^\p{L}\p{N}\s'.-]/gu, "").trim().slice(0, 64);
+  city = city
+    .replace(/[^\p{L}\p{N}\s'.-]/gu, "")
+    .trim()
+    .slice(0, 64);
   if (!city) return "Unknown";
   return country === "Unknown" ? city : `${city}, ${country}`;
 }
@@ -35,7 +38,10 @@ export function cityFrom(headers: Headers, country: string): string {
  * than the UTC hour, and it needs no data from the device — the timezone
  * already came from Vercel's header.
  */
-export function localTimeFrom(timezone: string, now = new Date()): {
+export function localTimeFrom(
+  timezone: string,
+  now = new Date(),
+): {
   hour: string;
   weekday: string;
 } {

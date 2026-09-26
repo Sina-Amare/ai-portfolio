@@ -14,11 +14,7 @@ export const RETRIEVAL_TOP_K = 6;
  * Rank chunks against a (normalized) query embedding and return the top-k.
  * Both query and chunk embeddings are L2-normalized, so dot == cosine.
  */
-export function retrieve(
-  chunks: KBChunk[],
-  queryEmbedding: number[],
-  k = 5,
-): ScoredChunk[] {
+export function retrieve(chunks: KBChunk[], queryEmbedding: number[], k = 5): ScoredChunk[] {
   const scored: ScoredChunk[] = chunks.map((chunk) => ({
     chunk,
     score: dot(queryEmbedding, chunk.embedding),

@@ -12,10 +12,7 @@ export function LocaleToggle({ className }: { className?: string }) {
     <div
       role="group"
       aria-label={t.nav.language}
-      className={cn(
-        "border-border inline-flex items-center rounded-full border p-0.5",
-        className,
-      )}
+      className={cn("border-border inline-flex items-center rounded-full border p-0.5", className)}
     >
       {(["en", "fa"] as const).map((l) => (
         <button
@@ -26,9 +23,7 @@ export function LocaleToggle({ className }: { className?: string }) {
           className={cn(
             // Bigger tap target on touch/mobile (>=40px), compact on md+ desktop.
             "inline-flex min-h-[40px] items-center justify-center rounded-full px-3 py-2 font-mono text-xs transition-colors md:min-h-0 md:px-2.5 md:py-1 md:text-[11px]",
-            locale === l
-              ? "bg-accent-soft text-accent-text"
-              : "text-muted hover:text-text",
+            locale === l ? "bg-accent-soft text-accent-text" : "text-muted hover:text-text",
           )}
         >
           {LABELS[l]}

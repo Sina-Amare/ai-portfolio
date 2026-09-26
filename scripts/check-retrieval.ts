@@ -28,9 +28,7 @@ const outScope = [
 ];
 
 async function main() {
-  const kb = JSON.parse(
-    await readFile(join(ROOT, "lib", "kb.json"), "utf8"),
-  ) as KnowledgeBase;
+  const kb = JSON.parse(await readFile(join(ROOT, "lib", "kb.json"), "utf8")) as KnowledgeBase;
 
   async function run(label: string, qs: string[]) {
     console.log(`\n=== ${label} ===`);

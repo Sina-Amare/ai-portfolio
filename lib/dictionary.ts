@@ -148,8 +148,7 @@ export const dict = {
         errGeneric: "Something went wrong. Please try again.",
         errNetwork: "Network error. Please try again.",
         errRate: "Too many messages — please try again in a few minutes.",
-        errConfig:
-          "The contact channel isn't set up yet — please email me directly.",
+        errConfig: "The contact channel isn't set up yet — please email me directly.",
       },
     },
     footer: {
@@ -164,8 +163,7 @@ export const dict = {
       description:
         "Explore the open-source projects in full, then read about two private workplace agents and the problems they solved.",
       moreOnGithub: "More on GitHub",
-      moreOnGithubNote:
-        "Source for the open-source projects above, plus smaller experiments.",
+      moreOnGithubNote: "Source for the open-source projects above, plus smaller experiments.",
       back: "All projects",
       year: "Year",
       stack: "Stack",
@@ -216,8 +214,7 @@ export const dict = {
       number: "۰۱",
       eyebrow: "نمونه‌کارها",
       title: "چیزهایی که ساختم",
-      description:
-        "پروژه‌های متن‌بازی که از یه ایده شروع شدن و تا یه محصول قابل استفاده جلو رفتن.",
+      description: "پروژه‌های متن‌بازی که از یه ایده شروع شدن و تا یه محصول قابل استفاده جلو رفتن.",
       all: "همهٔ پروژه‌ها",
     },
     work: {
@@ -320,15 +317,13 @@ export const dict = {
         errEmail: "به‌نظر میاد آدرس ایمیل درست نیست. یه بار دیگه چکش کن.",
         errGeneric: "یه مشکلی پیش اومد. لطفاً دوباره امتحان کن.",
         errNetwork: "مشکل شبکه. لطفاً دوباره تلاش کن.",
-        errRate:
-          "چندتا پیام پشت سر هم فرستادی. چند دقیقه دیگه دوباره امتحان کن.",
+        errRate: "چندتا پیام پشت سر هم فرستادی. چند دقیقه دیگه دوباره امتحان کن.",
         errConfig: "کانال تماس هنوز آماده نیست — لطفاً مستقیم بهم ایمیل بزن.",
       },
     },
     footer: {
       tagline: "مهندس بک‌اند Python و AI/LLM · تهران، ایران (UTC+3:30).",
-      builtWith:
-        "این سایت رو با Next.js ساختم. دستیار RAG بالای صفحه هم روی کد خودم اجرا می‌شه.",
+      builtWith: "این سایت رو با Next.js ساختم. دستیار RAG بالای صفحه هم روی کد خودم اجرا می‌شه.",
       rights: "همهٔ حقوق محفوظه.",
     },
     projects: {
@@ -337,8 +332,7 @@ export const dict = {
       description:
         "پروژه‌های متن‌بازم رو اینجا با جزئیات می‌بینی. پایین‌تر هم از دو ایجنت کاری گفتم که سورسشون خصوصی‌ه.",
       moreOnGithub: "بیشتر تو GitHub",
-      moreOnGithubNote:
-        "سورس پروژه‌های متن‌باز بالا و چند تجربهٔ کوچیک‌تر اونجاست.",
+      moreOnGithubNote: "سورس پروژه‌های متن‌باز بالا و چند تجربهٔ کوچیک‌تر اونجاست.",
       back: "همهٔ پروژه‌ها",
       year: "سال",
       stack: "تکنولوژی‌ها",

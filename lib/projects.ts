@@ -137,32 +137,26 @@ export const projects: Project[] = [
         src: "/projects/scrapegpt/extraction-results.webp",
         caption:
           "The payoff — 96 records scraped into a clean table, each with its source URL, ready to export as CSV / JSON / XLSX",
-        captionFa:
-          "۹۶ ردیف دادهٔ تمیز، هرکدوم با لینک منبع؛ آمادهٔ خروجی CSV / JSON / XLSX",
+        captionFa: "۹۶ ردیف دادهٔ تمیز، هرکدوم با لینک منبع؛ آمادهٔ خروجی CSV / JSON / XLSX",
       },
       {
         type: "image",
         src: "/projects/scrapegpt/workspace.webp",
-        caption:
-          "Guided analyze → review → scope → extract, with the AI's confidence per page",
-        captionFa:
-          "از تحلیل صفحه تا بازبینی و استخراج؛ میزان اطمینان AI هم برای هر صفحه مشخصه",
+        caption: "Guided analyze → review → scope → extract, with the AI's confidence per page",
+        captionFa: "از تحلیل صفحه تا بازبینی و استخراج؛ میزان اطمینان AI هم برای هر صفحه مشخصه",
       },
       {
         type: "image",
         src: "/projects/scrapegpt/quality.webp",
         caption:
           "Trust signals after a run — 96 records, nothing blocked or failed, and 100% coverage on every field",
-        captionFa:
-          "نتیجهٔ اجرا: ۹۶ ردیف، بدون صفحهٔ مسدود یا ناموفق، با پوشش کامل همهٔ فیلدها",
+        captionFa: "نتیجهٔ اجرا: ۹۶ ردیف، بدون صفحهٔ مسدود یا ناموفق، با پوشش کامل همهٔ فیلدها",
       },
       {
         type: "image",
         src: "/projects/scrapegpt/providers.webp",
-        caption:
-          "Bring-your-own-key providers, encrypted at rest and tested before use",
-        captionFa:
-          "سرویس‌های AI با کلید خودت؛ کلیدها رمزنگاری و قبل از استفاده تست می‌شن",
+        caption: "Bring-your-own-key providers, encrypted at rest and tested before use",
+        captionFa: "سرویس‌های AI با کلید خودت؛ کلیدها رمزنگاری و قبل از استفاده تست می‌شن",
       },
     ],
   },
@@ -255,8 +249,7 @@ export const projects: Project[] = [
         src: "/projects/aigram/chat-dark.webp",
         caption:
           "A real Telegram messenger on your own account — grouped bubbles, inline media, live typing, dark + light",
-        captionFa:
-          "مسنجر روی اکانت خودت؛ پیام‌ها، عکس و ویس، وضعیت لحظه‌ای و تم روشن و تیره",
+        captionFa: "مسنجر روی اکانت خودت؛ پیام‌ها، عکس و ویس، وضعیت لحظه‌ای و تم روشن و تیره",
       },
       {
         type: "image",
@@ -269,17 +262,14 @@ export const projects: Project[] = [
       {
         type: "image",
         src: "/projects/aigram/ai-sheet.webp",
-        caption:
-          "The ✨ AI sheet — analyze, ask, prompt, translate, image, TTS/STT",
+        caption: "The ✨ AI sheet — analyze, ask, prompt, translate, image, TTS/STT",
         captionFa: "منوی AI برای تحلیل، پرسش، ترجمه، تصویر و تبدیل متن و صدا",
       },
       {
         type: "image",
         src: "/projects/aigram/chat-mobile.webp",
-        caption:
-          "Installable PWA — the full messenger on your phone over a free Cloudflare Tunnel",
-        captionFa:
-          "نسخهٔ قابل نصب روی گوشی، با دسترسی از راه Cloudflare Tunnel",
+        caption: "Installable PWA — the full messenger on your phone over a free Cloudflare Tunnel",
+        captionFa: "نسخهٔ قابل نصب روی گوشی، با دسترسی از راه Cloudflare Tunnel",
       },
     ],
   },
@@ -372,16 +362,14 @@ export const projects: Project[] = [
         src: "/projects/promptamp/preserve.webp",
         caption:
           "Keeps what you paste — code comes back byte-for-byte, only the ask gets engineered, in your draft's language",
-        captionFa:
-          "کدی که paste کردی دقیقاً همون‌طور می‌مونه؛ فقط درخواستت بهتر نوشته می‌شه",
+        captionFa: "کدی که paste کردی دقیقاً همون‌طور می‌مونه؛ فقط درخواستت بهتر نوشته می‌شه",
       },
       {
         type: "image",
         src: "/projects/promptamp/languages.webp",
         caption:
           "Any rough idea, in any language — a Persian draft becomes a polished English prompt",
-        captionFa:
-          "پیش‌نویس رو به هر زبونی بنویس؛ مثلاً از متن فارسی یه prompt انگلیسی بگیر",
+        captionFa: "پیش‌نویس رو به هر زبونی بنویس؛ مثلاً از متن فارسی یه prompt انگلیسی بگیر",
       },
     ],
   },
@@ -472,26 +460,21 @@ export const projects: Project[] = [
       {
         type: "image",
         src: "/projects/github-code-review/live-evaluation.webp",
-        caption:
-          "Live per-criterion evaluation streaming to an accept / review / reject decision",
-        captionFa:
-          "نمرهٔ هر معیار زنده میاد و در آخر نتیجهٔ قبول، بازبینی یا رد مشخص می‌شه",
+        caption: "Live per-criterion evaluation streaming to an accept / review / reject decision",
+        captionFa: "نمرهٔ هر معیار زنده میاد و در آخر نتیجهٔ قبول، بازبینی یا رد مشخص می‌شه",
       },
       {
         type: "image",
         src: "/projects/github-code-review/report.webp",
         caption:
           "Final report — every verdict carries evidence, each citation highlighted against the real file in Monaco (the VS Code editor)",
-        captionFa:
-          "گزارش نهایی؛ مدرک هر نتیجه روی خط‌های واقعی فایل نشون داده می‌شه",
+        captionFa: "گزارش نهایی؛ مدرک هر نتیجه روی خط‌های واقعی فایل نشون داده می‌شه",
       },
       {
         type: "image",
         src: "/projects/github-code-review/task-builder.webp",
-        caption:
-          "Rubric as data — weighted criteria and gates, versioned and content-hashed",
-        captionFa:
-          "ساخت rubric با معیارهای وزن‌دار و شرط‌های لازم؛ هر نسخه hash خودش رو داره",
+        caption: "Rubric as data — weighted criteria and gates, versioned and content-hashed",
+        captionFa: "ساخت rubric با معیارهای وزن‌دار و شرط‌های لازم؛ هر نسخه hash خودش رو داره",
       },
       {
         type: "image",

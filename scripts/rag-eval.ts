@@ -24,24 +24,17 @@ type Golden = {
 };
 
 async function main() {
-  const kb = JSON.parse(
-    await readFile(join(ROOT, "lib", "kb.json"), "utf8"),
-  ) as KnowledgeBase;
-  const golden = JSON.parse(
-    await readFile(join(ROOT, "eval", "golden.json"), "utf8"),
-  ) as Golden;
+  const kb = JSON.parse(await readFile(join(ROOT, "lib", "kb.json"), "utf8")) as KnowledgeBase;
+  const golden = JSON.parse(await readFile(join(ROOT, "eval", "golden.json"), "utf8")) as Golden;
 
   let pass = 0;
   const failures: string[] = [];
-  console.log(
-    `RAG eval · threshold=${RELEVANCE_THRESHOLD} · ${kb.count} chunks\n`,
-  );
+  console.log(`RAG eval · threshold=${RELEVANCE_THRESHOLD} · ${kb.count} chunks\n`);
 
   for (const item of golden.inScope) {
     const top = retrieve(kb.chunks, await embedText(item.q, "RETRIEVAL_QUERY"), 5);
     const sources = top.map((t) => t.chunk.source);
-    const ok =
-      isInScope(top) && (!item.expectSource || sources.includes(item.expectSource));
+    const ok = isInScope(top) && (!item.expectSource || sources.includes(item.expectSource));
     if (ok) pass++;
     else
       failures.push(

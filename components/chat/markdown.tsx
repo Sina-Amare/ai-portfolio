@@ -16,9 +16,7 @@ const components: Components = {
       {children}
     </a>
   ),
-  p: ({ children }) => (
-    <p className="my-2 leading-relaxed first:mt-0 last:mb-0">{children}</p>
-  ),
+  p: ({ children }) => <p className="my-2 leading-relaxed first:mt-0 last:mb-0">{children}</p>,
   ul: ({ children }) => <ul className="my-2 list-disc space-y-1 ps-5">{children}</ul>,
   ol: ({ children }) => <ol className="my-2 list-decimal space-y-1 ps-5">{children}</ol>,
   li: ({ children }) => <li className="leading-relaxed">{children}</li>,
@@ -33,13 +31,13 @@ const components: Components = {
       return <code className="font-mono text-[0.85em]">{children}</code>;
     }
     return (
-      <code className="text-accent-text bg-accent-soft font-mono rounded px-1.5 py-0.5 text-[0.85em]">
+      <code className="text-accent-text bg-accent-soft rounded px-1.5 py-0.5 font-mono text-[0.85em]">
         {children}
       </code>
     );
   },
   pre: ({ children }) => (
-    <pre className="my-3 overflow-x-auto rounded-lg border border-border bg-black/40 p-3 text-[0.85em]">
+    <pre className="border-border my-3 overflow-x-auto rounded-lg border bg-black/40 p-3 text-[0.85em]">
       {children}
     </pre>
   ),

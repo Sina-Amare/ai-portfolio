@@ -5,11 +5,7 @@ import { Dashboard } from "@/components/analytics/dashboard";
 import { LoginForm } from "@/components/analytics/login-form";
 import { SignOut } from "@/components/analytics/sign-out";
 import { AdminLocaleRefresh } from "@/components/analytics/locale-refresh";
-import {
-  ADMIN_COOKIE,
-  adminConfigured,
-  verifySessionToken,
-} from "@/lib/analytics/auth";
+import { ADMIN_COOKIE, adminConfigured, verifySessionToken } from "@/lib/analytics/auth";
 import { analyticsEnabled, getOverview } from "@/lib/analytics/store";
 import { pageCopy } from "@/lib/page-copy";
 
@@ -48,9 +44,7 @@ export default async function AdminPage({
           <>
             <LoginForm />
             {!adminConfigured() && (
-              <p className="text-muted mx-auto mt-4 max-w-sm text-center text-xs">
-                {p.setup}
-              </p>
+              <p className="text-muted mx-auto mt-4 max-w-sm text-center text-xs">{p.setup}</p>
             )}
           </>
         ) : (
@@ -70,9 +64,7 @@ export default async function AdminPage({
             ) : (
               <div className="glass rounded-[var(--radius-card)] p-6">
                 <h2 className="text-base font-semibold">{p.disconnected}</h2>
-                <p className="text-muted mt-2 text-sm leading-relaxed">
-                  {p.disconnectedBody}
-                </p>
+                <p className="text-muted mt-2 text-sm leading-relaxed">{p.disconnectedBody}</p>
               </div>
             )}
           </>

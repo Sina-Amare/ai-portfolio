@@ -37,7 +37,19 @@ describe("prompt", () => {
 
   describe("detectSmallTalk", () => {
     it("treats a message that is ONLY a greeting as small talk", () => {
-      for (const q of ["hi", "Hello!", "hey there", "hey Sina 👋", "good morning", "yo", "سلام", "سلام 🙂", "چطوری؟", "خوبی؟", "درود"]) {
+      for (const q of [
+        "hi",
+        "Hello!",
+        "hey there",
+        "hey Sina 👋",
+        "good morning",
+        "yo",
+        "سلام",
+        "سلام 🙂",
+        "چطوری؟",
+        "خوبی؟",
+        "درود",
+      ]) {
         expect(detectSmallTalk(q), q).toBe("greeting");
       }
     });
@@ -49,7 +61,13 @@ describe("prompt", () => {
     });
 
     it("treats an identity/capability question as small talk", () => {
-      for (const q of ["who are you?", "what can you do?", "what can I ask?", "کی هستی؟", "چیکار می‌تونی؟"]) {
+      for (const q of [
+        "who are you?",
+        "what can you do?",
+        "what can I ask?",
+        "کی هستی؟",
+        "چیکار می‌تونی؟",
+      ]) {
         expect(detectSmallTalk(q), q).toBe("capability");
       }
     });
@@ -70,7 +88,11 @@ describe("prompt", () => {
     });
 
     it("returns null for ordinary questions with no pleasantry", () => {
-      for (const q of ["what's your tech stack?", "tell me about RubricEval", "مهارت‌های اصلیت چیه؟"]) {
+      for (const q of [
+        "what's your tech stack?",
+        "tell me about RubricEval",
+        "مهارت‌های اصلیت چیه؟",
+      ]) {
         expect(detectSmallTalk(q), q).toBeNull();
       }
     });

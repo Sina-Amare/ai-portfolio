@@ -25,12 +25,8 @@ export function ChatHero() {
   const { locale, setLocale, t: dt } = useLocale();
   const lang = locale as Lang;
   const [input, setInput] = useState("");
-  const transport = useMemo(
-    () => new DefaultChatTransport({ api: "/api/chat" }),
-    [],
-  );
-  const { messages, sendMessage, status, stop, regenerate, setMessages } =
-    useChat({ transport });
+  const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat" }), []);
+  const { messages, sendMessage, status, stop, regenerate, setMessages } = useChat({ transport });
   const reduce = useReducedMotion();
   const hydrated = useRef(false);
 
@@ -111,9 +107,7 @@ export function ChatHero() {
   }
 
   const eyebrow =
-    dir === "rtl"
-      ? "بک‌اند Python · مهندس AI / LLM"
-      : "Python backend · AI / LLM engineer";
+    dir === "rtl" ? "بک‌اند Python · مهندس AI / LLM" : "Python backend · AI / LLM engineer";
 
   return (
     <section className="relative isolate overflow-hidden">
@@ -141,18 +135,12 @@ export function ChatHero() {
               key="headline"
               initial={reduce ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={
-                reduce
-                  ? { opacity: 0 }
-                  : { opacity: 0, y: -12, height: 0, marginBottom: 0 }
-              }
+              exit={reduce ? { opacity: 0 } : { opacity: 0, y: -12, height: 0, marginBottom: 0 }}
               transition={{ duration: 0.34, ease: EASE }}
               className="mb-9 flex flex-col items-center overflow-hidden text-center"
               dir={dir}
             >
-              <span className={cn("eyebrow mb-4", dir === "rtl" && "font-fa")}>
-                {eyebrow}
-              </span>
+              <span className={cn("eyebrow mb-4", dir === "rtl" && "font-fa")}>{eyebrow}</span>
               <h1
                 className={cn(
                   "headline-sheen max-w-2xl text-[2.4rem] leading-[1.04] font-semibold tracking-tight text-balance sm:text-[3.3rem]",
@@ -180,7 +168,7 @@ export function ChatHero() {
               <button
                 type="button"
                 onClick={reset}
-                className="text-muted hover:text-text inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs transition-colors hover:border-accent/40"
+                className="text-muted hover:text-text border-border hover:border-accent/40 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors"
               >
                 <RefreshCcw className="h-3.5 w-3.5" /> {t.newChat}
               </button>

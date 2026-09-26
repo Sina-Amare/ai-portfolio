@@ -8,13 +8,7 @@ import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
 
 /** Case-study screenshot / video gallery with a keyboard-navigable lightbox. */
-export function MediaGallery({
-  items,
-  label,
-}: {
-  items: MediaItem[];
-  label: string;
-}) {
+export function MediaGallery({ items, label }: { items: MediaItem[]; label: string }) {
   const { locale } = useLocale();
   const captionOf = (item: MediaItem) =>
     locale === "fa" ? (item.captionFa ?? item.caption) : item.caption;
@@ -25,10 +19,7 @@ export function MediaGallery({
 
   const close = useCallback(() => setIndex(null), []);
   const go = useCallback(
-    (dir: number) =>
-      setIndex((i) =>
-        i === null ? i : (i + dir + items.length) % items.length,
-      ),
+    (dir: number) => setIndex((i) => (i === null ? i : (i + dir + items.length) % items.length)),
     [items.length],
   );
 
@@ -59,9 +50,7 @@ export function MediaGallery({
             key={m.src}
             type="button"
             onClick={() => setIndex(i)}
-            aria-label={
-              captionOf(m) ?? (locale === "fa" ? "دیدن تصویر" : "Open preview")
-            }
+            aria-label={captionOf(m) ?? (locale === "fa" ? "دیدن تصویر" : "Open preview")}
             className="group bg-surface border-border hover:border-accent/50 relative block aspect-video w-full overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -138,10 +127,7 @@ export function MediaGallery({
               </>
             )}
 
-            <div
-              className="relative z-[1] w-full max-w-5xl"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="relative z-[1] w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current.src}

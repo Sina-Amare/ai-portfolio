@@ -11,11 +11,7 @@ import {
   normalizeReferrer,
 } from "@/lib/analytics/collect";
 import { visitorHash, dayKey, monthKey } from "@/lib/analytics/store";
-import {
-  createSessionToken,
-  verifySessionToken,
-  passwordMatches,
-} from "@/lib/analytics/auth";
+import { createSessionToken, verifySessionToken, passwordMatches } from "@/lib/analytics/auth";
 
 describe("analytics/collect", () => {
   it("treats crawlers and non-browsers as bots, real browsers as human", () => {
@@ -50,9 +46,7 @@ describe("analytics/collect", () => {
   });
 
   it("bounds referrer hosts and rejects malformed ones", () => {
-    expect(normalizeReferrer(`https://${"a".repeat(300)}.com/x`, "sinaamareh.ir")).toBe(
-      "Other",
-    );
+    expect(normalizeReferrer(`https://${"a".repeat(300)}.com/x`, "sinaamareh.ir")).toBe("Other");
   });
 
   it("reduces referrers to a bare host and treats self/invalid as Direct", () => {

@@ -31,7 +31,7 @@ export function Suggestions({
           onClick={() => onPick(s)}
           variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="text-muted hover:text-text hover:bg-accent-soft rounded-full border border-border px-3 py-1.5 text-[13px] transition-colors hover:border-accent/50"
+          className="text-muted hover:text-text hover:bg-accent-soft border-border hover:border-accent/50 rounded-full border px-3 py-1.5 text-[13px] transition-colors"
         >
           {s}
         </motion.button>

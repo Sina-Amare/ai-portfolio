@@ -19,9 +19,6 @@ describe("LangToggle", () => {
 
   it("marks the active language with aria-pressed", () => {
     render(<LangToggle lang="fa" onChange={() => {}} />);
-    expect(screen.getByText("فا").closest("button")).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    expect(screen.getByText("فا").closest("button")).toHaveAttribute("aria-pressed", "true");
   });
 });

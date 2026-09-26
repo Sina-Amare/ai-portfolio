@@ -14,10 +14,7 @@ export function LangToggle({
 }) {
   return (
     <div
-      className={cn(
-        "inline-flex items-center rounded-full border border-border p-0.5",
-        className,
-      )}
+      className={cn("border-border inline-flex items-center rounded-full border p-0.5", className)}
     >
       {(["en", "fa"] as const).map((l) => (
         <button
@@ -27,9 +24,7 @@ export function LangToggle({
           aria-pressed={lang === l}
           className={cn(
             "rounded-full px-3.5 py-1.5 font-mono text-[11px] transition-colors",
-            lang === l
-              ? "bg-accent-soft text-accent-text"
-              : "text-muted hover:text-text",
+            lang === l ? "bg-accent-soft text-accent-text" : "text-muted hover:text-text",
           )}
         >
           {ui[l].label}

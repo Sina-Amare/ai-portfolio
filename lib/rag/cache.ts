@@ -80,7 +80,11 @@ export const answerCache = {
    * `keyPrefix` (e.g. "fa:") scopes the match to one language — embeddings are
    * multilingual, so a Persian question must never be served an English answer.
    */
-  findSimilar(embedding: number[], threshold: number, keyPrefix?: string): CachedAnswer | undefined {
+  findSimilar(
+    embedding: number[],
+    threshold: number,
+    keyPrefix?: string,
+  ): CachedAnswer | undefined {
     const now = Date.now();
     let best: CachedAnswer | undefined;
     let bestSim = threshold;

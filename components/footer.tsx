@@ -22,12 +22,8 @@ export function Footer() {
           <div className="text-heading font-mono text-sm font-semibold">
             sina<span className="text-accent">.</span>amareh
           </div>
-          <p className="text-muted mt-3 text-sm leading-relaxed">
-            {t.footer.tagline}
-          </p>
-          <p className="text-muted mt-4 text-xs opacity-80">
-            {t.footer.builtWith}
-          </p>
+          <p className="text-muted mt-3 text-sm leading-relaxed">{t.footer.tagline}</p>
+          <p className="text-muted mt-4 text-xs opacity-80">{t.footer.builtWith}</p>
         </div>
 
         <div className="flex flex-col gap-4 sm:items-end">
@@ -38,9 +34,7 @@ export function Footer() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={
-                  label === "Email" && locale === "fa" ? "ایمیل" : label
-                }
+                aria-label={label === "Email" && locale === "fa" ? "ایمیل" : label}
                 className="text-muted hover:text-text border-border hover:border-accent/50 inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors"
               >
                 <Icon className="h-[18px] w-[18px]" />

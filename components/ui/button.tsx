@@ -10,8 +10,7 @@ const base =
 const variants: Record<Variant, string> = {
   primary:
     "bg-accent text-accent-contrast hover:bg-accent-hover hover:-translate-y-px shadow-[0_10px_28px_-14px_var(--accent-glow)]",
-  outline:
-    "border border-border-strong text-text hover:border-accent/60 hover:bg-accent-soft",
+  outline: "border border-border-strong text-text hover:border-accent/60 hover:bg-accent-soft",
   ghost: "text-muted hover:bg-accent-soft hover:text-text",
 };
 
@@ -26,18 +25,8 @@ type ButtonProps = {
   size?: Size;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-export function Button({
-  variant = "primary",
-  size = "md",
-  className,
-  ...props
-}: ButtonProps) {
-  return (
-    <button
-      className={cn(base, variants[variant], sizes[size], className)}
-      {...props}
-    />
-  );
+export function Button({ variant = "primary", size = "md", className, ...props }: ButtonProps) {
+  return <button className={cn(base, variants[variant], sizes[size], className)} {...props} />;
 }
 
 type ButtonLinkProps = {
@@ -61,13 +50,7 @@ export function ButtonLink({
   const cls = cn(base, variants[variant], sizes[size], className);
   if (external) {
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cls}
-        {...rest}
-      >
+      <a href={href} target="_blank" rel="noopener noreferrer" className={cls} {...rest}>
         {children}
       </a>
     );

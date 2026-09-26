@@ -24,15 +24,10 @@ export const workProjects: WorkProject[] = [
     stack: ["Python", "LangGraph", "LLM"],
     en: {
       name: "Social Research Agent",
-      tagline:
-        "Research across topics, people, and followers without losing the source",
+      tagline: "Research across topics, people, and followers without losing the source",
       preview:
         "An agent for daily discovery and focused questions. It searches topic categories, selected people, or followers' posts, then returns relevant tweets with short summaries and links to the originals.",
-      highlights: [
-        "Daily and on-demand",
-        "Follower and account search",
-        "Source-linked results",
-      ],
+      highlights: ["Daily and on-demand", "Follower and account search", "Source-linked results"],
       problem:
         "The team needed both a daily view of important conversations and answers to specific questions, such as what followers were saying about a topic. Searching categories, individual accounts, and tweets by hand meant repeating the same work and still missing useful posts.",
       workflow:
@@ -96,8 +91,7 @@ export const workProjects: WorkProject[] = [
         },
         {
           title: "نتیجهٔ قابل چک کردن می‌ده",
-          detail:
-            "یه لیست روزانه یا جواب متمرکز می‌سازه؛ هر مورد خلاصه و لینک توییت اصلی رو داره.",
+          detail: "یه لیست روزانه یا جواب متمرکز می‌سازه؛ هر مورد خلاصه و لینک توییت اصلی رو داره.",
         },
       ],
       decision:
@@ -114,11 +108,7 @@ export const workProjects: WorkProject[] = [
       tagline: "Department analysis that improves with manager feedback",
       preview:
         "Specialist agents evaluate business departments, compare current data with past reports, suggest next steps, and use saved manager feedback to make later reports more useful.",
-      highlights: [
-        "Department evaluations",
-        "Actionable recommendations",
-        "Feedback memory",
-      ],
+      highlights: ["Department evaluations", "Actionable recommendations", "Feedback memory"],
       problem:
         "Business departments kept data and reports in different tools. Managers needed more than a fresh set of numbers: they needed an evaluation of what changed, useful recommendations, and a way for their corrections to carry into the next report.",
       workflow:
@@ -155,11 +145,7 @@ export const workProjects: WorkProject[] = [
       tagline: "تحلیل واحدهای کسب‌وکار که از بازخورد مدیر بهتر می‌شه",
       preview:
         "ایجنت‌های تخصصی عملکرد واحدهای کسب‌وکار رو ارزیابی می‌کنن، داده‌ها رو با گزارش‌های قبلی می‌سنجن، پیشنهاد می‌دن و بازخورد مدیر رو برای گزارش‌های بعدی به خاطر می‌سپارن.",
-      highlights: [
-        "ارزیابی واحدهای کسب‌وکار",
-        "پیشنهادهای قابل پیگیری",
-        "حافظهٔ بازخورد مدیر",
-      ],
+      highlights: ["ارزیابی واحدهای کسب‌وکار", "پیشنهادهای قابل پیگیری", "حافظهٔ بازخورد مدیر"],
       problem:
         "داده‌ها و گزارش‌های واحدهای مختلف توی چند ابزار پخش بود. مدیر فقط عدد جدید نمی‌خواست؛ باید می‌فهمید عملکرد هر بخش چه تغییری کرده، چه کاری ارزش پیگیری داره و نکته‌هایی که به گزارش قبلی گفته، توی گزارش بعدی هم لحاظ می‌شن یا نه.",
       workflow:
@@ -167,8 +153,7 @@ export const workProjects: WorkProject[] = [
       steps: [
         {
           title: "اطلاعات قبلی و جدید رو کنار هم می‌ذاره",
-          detail:
-            "داده‌های هر واحد، گزارش‌های قبلی و بازخوردهای مرتبط مدیر رو می‌گیره.",
+          detail: "داده‌های هر واحد، گزارش‌های قبلی و بازخوردهای مرتبط مدیر رو می‌گیره.",
         },
         {
           title: "اول عددها رو چک می‌کنه",

@@ -85,7 +85,7 @@ export function ChatInput({
           onClick={onStop}
           aria-label={stopLabel}
           className={cn(
-            "text-text inline-flex shrink-0 items-center justify-center rounded-xl border border-border-strong transition-colors hover:border-accent/60",
+            "text-text border-border-strong hover:border-accent/60 inline-flex shrink-0 items-center justify-center rounded-xl border transition-colors",
             btnSize,
           )}
         >
@@ -97,7 +97,7 @@ export function ChatInput({
           disabled={!value.trim()}
           aria-label={sendLabel}
           className={cn(
-            "bg-accent text-accent-contrast inline-flex shrink-0 items-center justify-center rounded-xl shadow-[0_8px_20px_-10px_var(--accent-glow)] transition-all hover:-translate-y-px hover:bg-accent-hover disabled:translate-y-0 disabled:opacity-40",
+            "bg-accent text-accent-contrast hover:bg-accent-hover inline-flex shrink-0 items-center justify-center rounded-xl shadow-[0_8px_20px_-10px_var(--accent-glow)] transition-all hover:-translate-y-px disabled:translate-y-0 disabled:opacity-40",
             btnSize,
           )}
         >

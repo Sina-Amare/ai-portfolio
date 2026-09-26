@@ -27,7 +27,7 @@ export function Avatar({
       />
       <span
         aria-hidden
-        className="absolute inset-0 rounded-full ring-1 ring-inset ring-[color:var(--border)]"
+        className="absolute inset-0 rounded-full ring-1 ring-[color:var(--border)] ring-inset"
         style={{ boxShadow: "0 0 0 4px var(--accent-soft)" }}
       />
       {status && (

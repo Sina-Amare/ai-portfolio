@@ -15,8 +15,7 @@ export const pageCopy = {
       adminCookie:
         "The one cookie the site can set is for the private admin dashboard, and only for me when I sign in.",
       recordedTitle: "What is recorded",
-      recordedLead:
-        "For each page view, the server records only aggregate counters:",
+      recordedLead: "For each page view, the server records only aggregate counters:",
       recorded: [
         "the page path (for example, /projects)",
         "the referring site's hostname (for example, google.com), never the full URL or search terms",
@@ -106,11 +105,9 @@ export const pageCopy = {
       cookiesTitle: "بدون cookie تحلیلی یا ردیابی بین سایت‌ها",
       cookies:
         "برای آمار بازدیدها cookie نمی‌ذارم و چیزی روی دستگاهت ذخیره نمی‌کنم. این سایت تو رو در سایت‌های دیگه دنبال نمی‌کنه و بازدیدت رو با دادهٔ جای دیگه کنار هم نمی‌ذاره.",
-      adminCookie:
-        "تنها cookie احتمالی برای صفحهٔ مدیریت خودمه؛ اون هم فقط وقتی خودم واردش می‌شم.",
+      adminCookie: "تنها cookie احتمالی برای صفحهٔ مدیریت خودمه؛ اون هم فقط وقتی خودم واردش می‌شم.",
       recordedTitle: "چه چیزهایی ثبت می‌شن؟",
-      recordedLead:
-        "برای هر بازدید از صفحه، سرور فقط چند شمارندهٔ کلی ثبت می‌کنه:",
+      recordedLead: "برای هر بازدید از صفحه، سرور فقط چند شمارندهٔ کلی ثبت می‌کنه:",
       recorded: [
         "مسیر صفحه، مثلاً /projects",
         "نام سایت ارجاع‌دهنده، مثلاً google.com؛ آدرس کامل یا عبارت جست‌وجو ثبت نمی‌شه",

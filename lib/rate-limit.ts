@@ -39,10 +39,7 @@ export function getClientIp(req: Request): string {
   return req.headers.get("x-real-ip") ?? "anonymous";
 }
 
-export function rateLimit(
-  ip: string,
-  now = Date.now(),
-): { ok: boolean; retryAfter: number } {
+export function rateLimit(ip: string, now = Date.now()): { ok: boolean; retryAfter: number } {
   const key = bucketKey(ip);
   sweep(ipBuckets, now);
   const b = ipBuckets.get(key);

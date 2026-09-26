@@ -3,9 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { POST } from "@/app/api/contact/route";
 
 let ip = 0;
-const fetchMock = vi.fn(
-  async () => new Response(JSON.stringify({ ok: true }), { status: 200 }),
-);
+const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }));
 
 function call(body: unknown, fixedIp?: string) {
   return POST(

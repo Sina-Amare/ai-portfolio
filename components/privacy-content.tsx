@@ -5,19 +5,11 @@ import { pageCopy } from "@/lib/page-copy";
 import { useLocale } from "@/components/locale-provider";
 import { Container } from "@/components/ui/container";
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-10">
       <h2 className="eyebrow">{title}</h2>
-      <div className="text-text mt-3 max-w-2xl space-y-3 leading-[1.75]">
-        {children}
-      </div>
+      <div className="text-text mt-3 max-w-2xl space-y-3 leading-[1.75]">{children}</div>
     </section>
   );
 }
@@ -33,9 +25,7 @@ export function PrivacyContent() {
         <h1 className="text-gradient mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
           {p.title}
         </h1>
-        <p className="text-text mt-5 max-w-2xl text-lg leading-relaxed">
-          {p.intro}
-        </p>
+        <p className="text-text mt-5 max-w-2xl text-lg leading-relaxed">{p.intro}</p>
 
         <Section title={p.cookiesTitle}>
           <p>{p.cookies}</p>

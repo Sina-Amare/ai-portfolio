@@ -212,10 +212,7 @@ export function errorMessage(lang: Lang): string {
 
 export function buildContextBlock(scored: ScoredChunk[]): string {
   return scored
-    .map(
-      (s, i) =>
-        `[${i + 1}] (${s.chunk.source} › ${s.chunk.section})\n${s.chunk.text}`,
-    )
+    .map((s, i) => `[${i + 1}] (${s.chunk.source} › ${s.chunk.section})\n${s.chunk.text}`)
     .join("\n\n");
 }
 

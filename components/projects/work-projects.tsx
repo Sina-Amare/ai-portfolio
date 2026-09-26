@@ -31,11 +31,7 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
           />
         </Reveal>
 
-        <div
-          className={
-            preview ? "mt-10 grid gap-4 lg:grid-cols-2" : "mt-10 grid gap-5"
-          }
-        >
+        <div className={preview ? "mt-10 grid gap-4 lg:grid-cols-2" : "mt-10 grid gap-5"}>
           {workProjects.map((project, index) => {
             const copy = project[locale];
             const Icon = index === 0 ? Search : BarChart3;
@@ -80,18 +76,14 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
                         >
                           {copy.name}
                         </h3>
-                        <p className="text-muted mt-1 text-sm">
-                          {copy.tagline}
-                        </p>
+                        <p className="text-muted mt-1 text-sm">{copy.tagline}</p>
                       </div>
                     </div>
                   </div>
 
                   {preview ? (
                     <div className="border-border flex flex-1 flex-col border-t px-6 py-5 sm:px-8">
-                      <p className="text-text flex-1 text-sm leading-[1.8]">
-                        {copy.preview}
-                      </p>
+                      <p className="text-text flex-1 text-sm leading-[1.8]">{copy.preview}</p>
                       <ul className="mt-5 flex flex-wrap gap-2">
                         {copy.highlights.map((highlight) => (
                           <li
@@ -107,24 +99,14 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
                     <>
                       <div className="border-border grid flex-1 border-t lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                         <div className="lg:border-border p-6 sm:p-8 lg:border-e">
-                          <h4 className="text-accent text-sm font-semibold">
-                            {labels.problem}
-                          </h4>
-                          <p className="text-text mt-3 text-sm leading-[1.8]">
-                            {copy.problem}
-                          </p>
+                          <h4 className="text-accent text-sm font-semibold">{labels.problem}</h4>
+                          <p className="text-text mt-3 text-sm leading-[1.8]">{copy.problem}</p>
                           <div className="bg-accent-soft border-accent/15 mt-7 rounded-xl border p-5">
-                            <h4 className="text-accent text-sm font-semibold">
-                              {labels.value}
-                            </h4>
-                            <p className="text-text mt-2 text-sm leading-[1.8]">
-                              {copy.value}
-                            </p>
+                            <h4 className="text-accent text-sm font-semibold">{labels.value}</h4>
+                            <p className="text-text mt-2 text-sm leading-[1.8]">{copy.value}</p>
                           </div>
                           <div className="mt-7">
-                            <h4 className="text-muted text-xs font-medium">
-                              {labels.highlights}
-                            </h4>
+                            <h4 className="text-muted text-xs font-medium">{labels.highlights}</h4>
                             <ul className="mt-3 flex flex-wrap gap-2">
                               {copy.highlights.map((highlight) => (
                                 <li
@@ -138,18 +120,11 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
                           </div>
                         </div>
                         <div className="border-border border-t p-6 sm:p-8 lg:border-t-0">
-                          <h4 className="text-accent text-sm font-semibold">
-                            {labels.workflow}
-                          </h4>
-                          <p className="text-text mt-3 text-sm leading-[1.8]">
-                            {copy.workflow}
-                          </p>
+                          <h4 className="text-accent text-sm font-semibold">{labels.workflow}</h4>
+                          <p className="text-text mt-3 text-sm leading-[1.8]">{copy.workflow}</p>
                           <ol className="border-border divide-border mt-5 divide-y border-t">
                             {copy.steps.map((step, stepIndex) => (
-                              <li
-                                key={step.title}
-                                className="flex gap-4 py-3.5"
-                              >
+                              <li key={step.title} className="flex gap-4 py-3.5">
                                 <span
                                   className={
                                     locale === "fa"
@@ -173,9 +148,7 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
                         </div>
                       </div>
                       <div className="border-border bg-bg-2/50 border-t p-6 sm:p-8">
-                        <h4 className="text-accent text-sm font-semibold">
-                          {labels.decision}
-                        </h4>
+                        <h4 className="text-accent text-sm font-semibold">{labels.decision}</h4>
                         <p className="text-text mt-2 max-w-5xl text-sm leading-[1.8]">
                           {copy.decision}
                         </p>

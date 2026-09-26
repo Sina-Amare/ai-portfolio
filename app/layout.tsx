@@ -1,10 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Bricolage_Grotesque,
-  Inter,
-  JetBrains_Mono,
-  Vazirmatn,
-} from "next/font/google";
+import { Bricolage_Grotesque, Inter, JetBrains_Mono, Vazirmatn } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
 import { site } from "@/lib/site";
@@ -100,12 +95,9 @@ export const viewport: Viewport = {
   ],
 };
 
-export default async function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const cookieStore = await cookies();
-  const locale: Locale =
-    cookieStore.get("locale")?.value === "fa" ? "fa" : "en";
+  const locale: Locale = cookieStore.get("locale")?.value === "fa" ? "fa" : "en";
   return (
     <html
       lang={locale}
@@ -115,10 +107,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${bricolage.variable} ${inter.variable} ${jetbrainsMono.variable} ${vazirmatn.variable} h-full`}
     >
-      <body
-        suppressHydrationWarning
-        className="bg-bg text-text flex min-h-dvh flex-col font-sans"
-      >
+      <body suppressHydrationWarning className="bg-bg text-text flex min-h-dvh flex-col font-sans">
         <ThemeProvider>
           <LocaleProvider initial={locale}>
             <SkipLink />

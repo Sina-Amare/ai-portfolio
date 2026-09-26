@@ -78,7 +78,7 @@ export function CommandPalette() {
           <Command.Input
             autoFocus
             placeholder={c.placeholder}
-            className="text-text placeholder:text-muted w-full border-b border-border bg-transparent px-4 py-3.5 text-[15px] outline-none"
+            className="text-text placeholder:text-muted border-border w-full border-b bg-transparent px-4 py-3.5 text-[15px] outline-none"
           />
           <Command.List className="max-h-[360px] overflow-auto p-2">
             <Command.Empty className="text-muted px-3 py-6 text-center text-sm">
@@ -89,10 +89,7 @@ export function CommandPalette() {
               <Command.Item className={itemCls} onSelect={run(() => router.push("/"))}>
                 <Home className="h-4 w-4" /> {c.home}
               </Command.Item>
-              <Command.Item
-                className={itemCls}
-                onSelect={run(() => router.push("/projects"))}
-              >
+              <Command.Item className={itemCls} onSelect={run(() => router.push("/projects"))}>
                 <FolderGit2 className="h-4 w-4" /> {c.projects}
               </Command.Item>
               <Command.Item className={itemCls} onSelect={goSection("about")}>
@@ -133,9 +130,7 @@ export function CommandPalette() {
             <Command.Group heading={c.groupTheme}>
               <Command.Item
                 className={itemCls}
-                onSelect={run(() =>
-                  setTheme(resolvedTheme === "dark" ? "light" : "dark"),
-                )}
+                onSelect={run(() => setTheme(resolvedTheme === "dark" ? "light" : "dark"))}
               >
                 {resolvedTheme === "dark" ? (
                   <Sun className="h-4 w-4" />

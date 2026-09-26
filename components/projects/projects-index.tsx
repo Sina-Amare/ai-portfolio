@@ -33,10 +33,7 @@ export function ProjectsIndex() {
             2-col span there would leave holes. */}
         <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => (
-            <RevealItem
-              key={p.slug}
-              className={cn(p.span === "wide" && "lg:col-span-2")}
-            >
+            <RevealItem key={p.slug} className={cn(p.span === "wide" && "lg:col-span-2")}>
               <ProjectCard project={p} />
             </RevealItem>
           ))}
@@ -58,12 +55,8 @@ export function ProjectsIndex() {
                 <ArrowUpRight className="text-muted group-hover:text-accent h-5 w-5 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold tracking-tight">
-                  {t.projects.moreOnGithub}
-                </h3>
-                <p className="text-muted mt-1 text-sm">
-                  {t.projects.moreOnGithubNote}
-                </p>
+                <h3 className="text-lg font-semibold tracking-tight">{t.projects.moreOnGithub}</h3>
+                <p className="text-muted mt-1 text-sm">{t.projects.moreOnGithubNote}</p>
               </div>
             </a>
           </RevealItem>

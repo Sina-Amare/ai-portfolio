@@ -238,17 +238,15 @@ describe("POST /api/chat", () => {
   });
 
   it("does NOT cache a truncated answer (finishReason 'length')", async () => {
-    vi.mocked(streamText).mockImplementationOnce(
-      ((opts: { system: string }) => {
-        capture.system = opts.system;
-        return {
-          textStream: (async function* () {
-            yield "At Dekamond I ";
-          })(),
-          finishReason: Promise.resolve("length"),
-        };
-      }) as unknown as typeof streamText,
-    );
+    vi.mocked(streamText).mockImplementationOnce(((opts: { system: string }) => {
+      capture.system = opts.system;
+      return {
+        textStream: (async function* () {
+          yield "At Dekamond I ";
+        })(),
+        finishReason: Promise.resolve("length"),
+      };
+    }) as unknown as typeof streamText);
 
     const first = await callChat({
       messages: [userMessage("What did Sina build at Dekamond?")],
@@ -268,18 +266,16 @@ describe("POST /api/chat", () => {
   });
 
   it("marks a provider stream error after partial text as failed", async () => {
-    vi.mocked(streamText).mockImplementationOnce(
-      ((opts: { system: string }) => {
-        capture.system = opts.system;
-        return {
-          textStream: (async function* () {
-            yield "At Dekamond I ";
-            throw new Error("upstream disconnected");
-          })(),
-          finishReason: Promise.resolve("error"),
-        };
-      }) as unknown as typeof streamText,
-    );
+    vi.mocked(streamText).mockImplementationOnce(((opts: { system: string }) => {
+      capture.system = opts.system;
+      return {
+        textStream: (async function* () {
+          yield "At Dekamond I ";
+          throw new Error("upstream disconnected");
+        })(),
+        finishReason: Promise.resolve("error"),
+      };
+    }) as unknown as typeof streamText);
 
     const partial = await callChat({
       messages: [userMessage("What did Sina build at Dekamond?")],
@@ -299,14 +295,12 @@ describe("POST /api/chat", () => {
 
     // First provider dies BEFORE emitting any text → the ladder must try the
     // next one. The default mock answers the second call normally.
-    vi.mocked(streamText).mockImplementationOnce(
-      (() => ({
-        textStream: (async function* () {
-          throw new Error("first provider down");
-        })(),
-        finishReason: Promise.resolve("error"),
-      })) as unknown as typeof streamText,
-    );
+    vi.mocked(streamText).mockImplementationOnce((() => ({
+      textStream: (async function* () {
+        throw new Error("first provider down");
+      })(),
+      finishReason: Promise.resolve("error"),
+    })) as unknown as typeof streamText);
 
     const res = await callChat({
       messages: [userMessage("What did Sina build at Dekamond?")],

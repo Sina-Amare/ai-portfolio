@@ -26,9 +26,7 @@ export function Contact() {
               <h2 className="text-gradient mt-4 max-w-md text-3xl font-semibold tracking-tight sm:text-[2.6rem] sm:leading-[1.08]">
                 {t.contact.title}
               </h2>
-              <p className="text-muted mt-5 max-w-md leading-relaxed">
-                {t.contact.pitch}
-              </p>
+              <p className="text-muted mt-5 max-w-md leading-relaxed">{t.contact.pitch}</p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <a
                   href={site.socials.emailCompose}

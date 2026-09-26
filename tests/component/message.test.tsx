@@ -5,18 +5,11 @@ import { Message } from "@/components/chat/message";
 
 type Source = { source: string; section: string };
 
-function mkMessage(
-  role: "user" | "assistant",
-  text: string,
-  sources?: Source[],
-): UIMessage {
+function mkMessage(role: "user" | "assistant", text: string, sources?: Source[]): UIMessage {
   return {
     id: "1",
     role,
-    parts: [
-      ...(sources ? [{ type: "data-sources", data: sources }] : []),
-      { type: "text", text },
-    ],
+    parts: [...(sources ? [{ type: "data-sources", data: sources }] : []), { type: "text", text }],
   } as unknown as UIMessage;
 }
 
@@ -27,9 +20,7 @@ describe("Message", () => {
   });
 
   it("renders assistant markdown (bold)", () => {
-    render(
-      <Message message={mkMessage("assistant", "**bold** text")} sourcesLabel="Sources" />,
-    );
+    render(<Message message={mkMessage("assistant", "**bold** text")} sourcesLabel="Sources" />);
     expect(screen.getByText("bold")).toBeInTheDocument();
   });
 

@@ -18,9 +18,7 @@ function textOf(message: UIMessage): string {
 }
 
 function uniqueSourcesOf(message: UIMessage): string[] {
-  const part = (message.parts ?? []).find(
-    (p): p is SourcesPart => p.type === "data-sources",
-  );
+  const part = (message.parts ?? []).find((p): p is SourcesPart => p.type === "data-sources");
   const list = Array.isArray(part?.data) ? part.data : [];
   return [...new Set(list.map((s) => s.source))];
 }
@@ -67,9 +65,9 @@ export const Message = memo(function Message({
         className={cn(
           // min-w-0 lets the flex item shrink; overflow-wrap:anywhere breaks long
           // unbreakable tokens (URLs, paths) instead of overflowing the chat.
-          "text-[15px] leading-relaxed min-w-0 wrap-anywhere",
+          "min-w-0 text-[15px] leading-relaxed wrap-anywhere",
           isUser
-            ? "text-text max-w-[85%] rounded-2xl border border-border bg-surface px-4 py-2.5"
+            ? "text-text border-border bg-surface max-w-[85%] rounded-2xl border px-4 py-2.5"
             : // Assistant text is borderless and must span the full width, otherwise
               // it shrinks to its content and `dir`-based alignment is invisible
               // (short Persian answers looked left-aligned). Full width → RTL aligns
@@ -92,7 +90,7 @@ export const Message = memo(function Message({
             {sources.map((s) => (
               <span
                 key={s}
-                className="text-muted font-mono rounded-full border border-border px-2 py-0.5 text-[10px]"
+                className="text-muted border-border rounded-full border px-2 py-0.5 font-mono text-[10px]"
               >
                 {s}
               </span>

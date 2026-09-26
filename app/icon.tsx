@@ -5,24 +5,22 @@ export const contentType = "image/png";
 
 export default function Icon() {
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(135deg, #f5b544, #ffc869)",
-          color: "#1a1206",
-          fontSize: 22,
-          fontWeight: 700,
-          borderRadius: 7,
-        }}
-      >
-        S
-      </div>
-    ),
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #f5b544, #ffc869)",
+        color: "#1a1206",
+        fontSize: 22,
+        fontWeight: 700,
+        borderRadius: 7,
+      }}
+    >
+      S
+    </div>,
     { ...size },
   );
 }

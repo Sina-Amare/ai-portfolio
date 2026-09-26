@@ -9,3 +9,6 @@ package-lock.json
 lib/kb.json
 public
 *.pdf
+NDA
+.kilo
+content

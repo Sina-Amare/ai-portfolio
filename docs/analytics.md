@@ -9,11 +9,11 @@ free tiers — no third-party script, no data leaving your own infrastructure.
 It's free on Hobby (50k events/month) and worth enabling alongside this, but it
 cannot answer two of the three questions this panel was built for:
 
-| | Vercel WA | Cloudflare WA | This panel |
-| --- | --- | --- | --- |
-| Page views | ✅ | ✅ | ✅ |
-| **Timezone** | ❌ (no such dimension, any tier) | ❌ | ✅ |
-| **New vs returning** | ❌ | ❌ (no uniques at all) | ✅ |
+|                      | Vercel WA                        | Cloudflare WA          | This panel |
+| -------------------- | -------------------------------- | ---------------------- | ---------- |
+| Page views           | ✅                               | ✅                     | ✅         |
+| **Timezone**         | ❌ (no such dimension, any tier) | ❌                     | ✅         |
+| **New vs returning** | ❌                               | ❌ (no uniques at all) | ✅         |
 
 Vercel's visitor hash "is valid for a single day, at which point it is automatically
 reset", so a person visiting on five days counts as five unique visitors and
@@ -23,7 +23,7 @@ limitation by design.
 ## Setup (about 3 minutes, free, no card)
 
 Note that **Integrations and Storage live in the account/team sidebar, not inside the
-project** — Redis is provisioned once for the account and then *connected* to a project.
+project** — Redis is provisioned once for the account and then _connected_ to a project.
 
 ### 1. Provision Redis
 
@@ -92,7 +92,7 @@ would each be handed their own fresh budget and could drain a month of quota in 
 
 ## Privacy model
 
-- **No cookies** are set for tracking, so no consent banner is triggered by *this*
+- **No cookies** are set for tracking, so no consent banner is triggered by _this_
   panel's storage. (The `/admin` login cookie is strictly functional and only ever set
   for you.)
 - **Raw IP addresses are never stored.** A visitor is
@@ -157,11 +157,11 @@ monthly, so cross-month visitor identity genuinely doesn't exist.
 
 ## Reading the numbers honestly
 
-- **Visitors** = distinct people seen *this calendar month*, read from one set. It is
+- **Visitors** = distinct people seen _this calendar month_, read from one set. It is
   deliberately not the sum of daily uniques — that would count a person who visits on
   five days as five people.
 - **Came back** = how many of those visitors viewed more than once this month. It
-  counts *people*, not page views: someone who reads six pages in one session is one
+  counts _people_, not page views: someone who reads six pages in one session is one
   visitor who came back once, not six returning visits. (An earlier version of this
   dashboard labelled pages-per-session as "returning visits", which flattered the
   numbers — worth knowing if you compare against old screenshots.)

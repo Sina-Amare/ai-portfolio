@@ -53,10 +53,7 @@ export async function POST(req: Request) {
   const ip = getClientIp(req);
   const rl = contactRateLimit(ip);
   if (!rl.ok) {
-    return json(
-      { error: "Too many messages — please try again in a few minutes." },
-      429,
-    );
+    return json({ error: "Too many messages — please try again in a few minutes." }, 429);
   }
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -90,16 +87,10 @@ export async function POST(req: Request) {
     });
 
     if (!tg.ok) {
-      return json(
-        { error: "Couldn't deliver the message. Please email me directly." },
-        502,
-      );
+      return json({ error: "Couldn't deliver the message. Please email me directly." }, 502);
     }
     return json({ ok: true }, 200);
   } catch {
-    return json(
-      { error: "Network error while sending. Please try again or email me." },
-      502,
-    );
+    return json({ error: "Network error while sending. Please try again or email me." }, 502);
   }
 }

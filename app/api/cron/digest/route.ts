@@ -28,10 +28,7 @@ function bar(value: number, max: number, width = 10): string {
 function buildMessage(o: Awaited<ReturnType<typeof getOverview>>): string {
   const today = o.series[o.series.length - 1];
   const yesterday = o.series[o.series.length - 2];
-  const delta =
-    yesterday && today
-      ? today.views - yesterday.views
-      : 0;
+  const delta = yesterday && today ? today.views - yesterday.views : 0;
   const arrow = delta > 0 ? `▲ +${delta}` : delta < 0 ? `▼ ${delta}` : "no change";
 
   const top = (rows: { label: string; count: number }[], n = 3) =>
@@ -42,9 +39,7 @@ function buildMessage(o: Awaited<ReturnType<typeof getOverview>>): string {
           .join("\n")
       : "  • (none yet)";
 
-  const busiest = o.hours.length
-    ? [...o.hours].sort((a, b) => b.count - a.count)[0]!
-    : null;
+  const busiest = o.hours.length ? [...o.hours].sort((a, b) => b.count - a.count)[0]! : null;
   const max = Math.max(...o.series.map((d) => d.views), 1);
   const spark = o.series
     .slice(-14)
