@@ -21,7 +21,7 @@ export function Avatar({
         alt="Sina Amareh"
         fill
         sizes={`${size * 2}px`}
-        priority
+        loading="eager"
         className="rounded-full object-cover"
         style={{ objectPosition: "57% 22%", filter: "saturate(0.95) contrast(1.02)" }}
       />
