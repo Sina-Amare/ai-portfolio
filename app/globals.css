@@ -67,7 +67,9 @@
 
   --font-sans: var(--font-inter);
   --font-display: var(--font-bricolage);
-  --font-mono: var(--font-jetbrains);
+  /* JetBrains Mono is Latin-only; Persian in mono text (dates, the فا toggle)
+     falls through to Vazirmatn instead of a system font. */
+  --font-mono: var(--font-jetbrains), var(--font-vazirmatn), monospace;
   --font-fa: var(--font-vazirmatn);
 
   --radius-card: 16px;
@@ -251,6 +253,10 @@ body {
   text-transform: uppercase;
   color: var(--muted);
   padding: 10px 12px 4px;
+}
+[data-locale="fa"] [cmdk-group-heading] {
+  letter-spacing: normal;
+  text-transform: none;
 }
 [cmdk-item][data-selected="true"],
 [cmdk-item][aria-selected="true"] {
