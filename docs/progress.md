@@ -79,7 +79,11 @@ checklist to verify.
       these B6 items are done). v1 `getOverview` removed. For B9: `.env.example` needs
       ANALYTICS_RPM=30, ANALYTICS_DAILY_COMMANDS=12000 (replaces ANALYTICS_DAILY_MAX) and
       ANALYTICS_IN_DEV. For B10: look at `/admin` with real data after deploy (flag emoji don't render
-      on Windows Chromium; they do on phones).
+      on Windows Chromium; they do on phones). Review follow-up: every card read from the month hashes
+      (pages by time, sections, what visitors did, acquisition) now shows its months (gap-5), the
+      chip/typed card no longer shares the chat KPI's title, the visit log's "+N" uses Persian digits,
+      the digest names the months its chat topics cover, and a route-change flush credits time only
+      (it no longer reads the next page's sections).
 - [ ] B6 UI/UX + accessibility polish
 - [ ] B8 performance
 - [ ] B9 tests, docs, CI
@@ -113,4 +117,4 @@ Start B6. Analytics v2 is complete end to end (B7a + B7b), so the branch no long
 half-migrated dashboard. Owner, before deploying: set `CRON_SECRET` in Vercel (the digest cron fails
 closed without it).
 
-_Last updated: 2026-09-27 (B7b done)_
+_Last updated: 2026-09-27 (B7b done, review follow-up applied)_
