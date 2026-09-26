@@ -24,6 +24,18 @@ describe("Message", () => {
     expect(screen.getByText("bold")).toBeInTheDocument();
   });
 
+  it("never renders images, and links only to http(s)/mailto", () => {
+    const md =
+      "![pixel](https://evil.example/p.png) [site](https://sinaamareh.ir) [mail](mailto:a@b.co) [irc](irc://evil.example) [rel](/x)";
+    const { container } = render(
+      <Message message={mkMessage("assistant", md)} sourcesLabel="Sources" />,
+    );
+    expect(container.querySelector("img")).toBeNull();
+    const hrefs = [...container.querySelectorAll("a")].map((a) => a.getAttribute("href"));
+    expect(hrefs).toEqual(["https://sinaamareh.ir", "mailto:a@b.co"]);
+    expect(container.textContent).toContain("irc"); // the label survives as plain text
+  });
+
   it("renders active streaming assistant text without markdown parsing", () => {
     render(
       <Message

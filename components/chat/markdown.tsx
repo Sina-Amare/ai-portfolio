@@ -4,18 +4,27 @@ import { memo } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+// Model output is untrusted (history is client-sent, answers get replayed):
+// links only to http(s)/mailto, and no images at all — an <img> fetches a
+// third-party URL (a tracking pixel) the moment it renders.
+const safeUrl = (url: string) => (/^(https?:|mailto:)/i.test(url) ? url : undefined);
+const NO_IMAGES = ["img"];
+
 // Memoized so only the streaming message re-parses; safe (no raw HTML).
 const components: Components = {
-  a: ({ href, children }) => (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-accent-text hover:text-accent underline underline-offset-2"
-    >
-      {children}
-    </a>
-  ),
+  a: ({ href, children }) =>
+    !href ? (
+      <>{children}</>
+    ) : (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-accent-text hover:text-accent underline underline-offset-2"
+      >
+        {children}
+      </a>
+    ),
   p: ({ children }) => <p className="my-2 leading-relaxed first:mt-0 last:mb-0">{children}</p>,
   ul: ({ children }) => <ul className="my-2 list-disc space-y-1 ps-5">{children}</ul>,
   ol: ({ children }) => <ol className="my-2 list-decimal space-y-1 ps-5">{children}</ol>,
@@ -45,7 +54,12 @@ const components: Components = {
 
 export const Markdown = memo(function Markdown({ content }: { content: string }) {
   return (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={components}
+      disallowedElements={NO_IMAGES}
+      urlTransform={safeUrl}
+    >
       {content}
     </ReactMarkdown>
   );
