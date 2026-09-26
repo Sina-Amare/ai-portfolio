@@ -2,8 +2,8 @@ export type Lang = "en" | "fa";
 
 // Persian / Arabic Unicode blocks. Ends at U+FEFC so a stray BOM (U+FEFF) in
 // pasted text doesn't count as Persian.
-const RTL_RE = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-ﻼ]/;
-const LATIN_RE = /[A-Za-zÀ-ɏ]/;
+const RTL_RE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFC]/;
+const LATIN_RE = /[A-Za-z\u00C0-\u024F]/;
 
 /**
  * Detect text direction from content: the script most words are written in

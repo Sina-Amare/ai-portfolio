@@ -20,8 +20,8 @@ describe("i18n", () => {
   });
 
   it("ignores a stray BOM", () => {
-    expect(detectDir("﻿hello world")).toBe("ltr");
-    expect(detectDir("﻿")).toBe("ltr");
+    expect(detectDir("\uFEFFhello world")).toBe("ltr");
+    expect(detectDir("\uFEFF")).toBe("ltr");
   });
 
   it("isRTL is true only for Persian", () => {

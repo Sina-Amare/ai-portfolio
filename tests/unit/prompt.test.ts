@@ -32,9 +32,9 @@ describe("prompt", () => {
   });
 
   it("folds Arabic Yeh/Kaf into Persian ی/ک (Arabic keyboard layouts, pasted text)", () => {
-    expect(detectSmallTalk("مرسي")).toBe("thanks");
-    expect(detectSmallTalk("خوبي؟")).toBe("greeting");
-    expect(sanitizeInput("كار")).toBe("کار");
+    expect(detectSmallTalk("مرس\u064A")).toBe("thanks");
+    expect(detectSmallTalk("خوب\u064A؟")).toBe("greeting");
+    expect(sanitizeInput("\u0643ار")).toBe("کار");
   });
 
   it("isAbusive flags jailbreak / prompt-injection commands", () => {

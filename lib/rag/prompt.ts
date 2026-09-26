@@ -10,14 +10,14 @@ export const MAX_INPUT_CHARS = 600;
 // left to the SAFETY rule in the system prompt. The last branch is Persian
 // («دستورهای قبلی رو نادیده بگیر»).
 const JAILBREAK_RE =
-  /\b(?:ignore|disregard|forget)\s+(?:(?:all\s+(?:of\s+)?)?(?:the\s+|your\s+|my\s+)?(?:previous|prior|above|earlier|preceding)|all|your)\s+(?:instructions|rules|prompts?)\b|\bdisregard\s+(?:(?:all|the)\s+)?(?:previous|prior|above)\b|\breveal\s+your\s+(?:system\s+)?prompt\b|\b(?:print|repeat|show\s+me)\s+your\s+system\s+prompt\b|(?:^|[.!?]\s*)you\s+are\s+now\b|\b(?:enable|enter|activate|switch\s+to|turn\s+on)\s+developer\s+mode\b|(?:دستور|قانون|قوانین|قواعد)\S*\s+(?:\S+\s+){0,2}(?:نادیده[\s‌]?بگیر|فراموش[\s‌]?کن)(?:ید)?(?![؀-ۿ])/i;
+  /\b(?:ignore|disregard|forget)\s+(?:(?:all\s+(?:of\s+)?)?(?:the\s+|your\s+|my\s+)?(?:previous|prior|above|earlier|preceding)|all|your)\s+(?:instructions|rules|prompts?)\b|\bdisregard\s+(?:(?:all|the)\s+)?(?:previous|prior|above)\b|\breveal\s+your\s+(?:system\s+)?prompt\b|\b(?:print|repeat|show\s+me)\s+your\s+system\s+prompt\b|(?:^|[.!?]\s*)you\s+are\s+now\b|\b(?:enable|enter|activate|switch\s+to|turn\s+on)\s+developer\s+mode\b|(?:دستور|قانون|قوانین|قواعد)\S*\s+(?:\S+\s+){0,2}(?:نادیده[\s\u200C]?بگیر|فراموش[\s\u200C]?کن)(?:ید)?(?![\u0600-\u06FF])/i;
 
 /**
  * Arabic Yeh/Kaf (ي U+064A, ك U+0643), which some keyboards and pasted text
  * produce, folded into the Persian ی/ک that the patterns, chips and KB use.
  */
 function foldArabicLetters(s: string): string {
-  return s.replace(/ي/g, "ی").replace(/ك/g, "ک");
+  return s.replace(/\u064A/g, "\u06CC").replace(/\u0643/g, "\u06A9");
 }
 
 /** Applied before small talk, embedding and the cache key alike. */
