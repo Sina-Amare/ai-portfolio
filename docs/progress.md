@@ -41,6 +41,10 @@ checklist to verify.
       `docs/decisions/001-locale-prefixed-urls.md`. Known cost: page-level 404s render after hydration
       (Next's error shell), status still 404. Local e2e: run with `--workers=2` (dev server times out
       under 8 parallel workers on this machine). `next dev` re-appends a block to AGENTS.md — revert it.
+      Review follow-up: /privacy now names the `locale` cookie, manifest no longer claims `standalone`,
+      the hero's language switch is locked while an answer streams (the nav toggle still drops an
+      in-flight turn, like any navigation). `/nope` 404 regression (blank without JS) accepted and
+      documented in decision 001 + yagni.md.
 - [ ] B5 chatbot Persian quality
 - [ ] B7 analytics v2
 - [ ] B6 UI/UX + accessibility polish
