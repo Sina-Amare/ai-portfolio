@@ -8,8 +8,17 @@ export const MAX_INPUT_CHARS = 600;
 const JAILBREAK_RE =
   /ignore (all |the )?(previous |above )?(instructions|rules)|system prompt|you are now|jailbreak|developer mode|disregard (the |all )?(previous|above)|reveal your (system )?prompt|prompt injection/i;
 
+/**
+ * Arabic Yeh/Kaf (ي U+064A, ك U+0643), which some keyboards and pasted text
+ * produce, folded into the Persian ی/ک that the patterns, chips and KB use.
+ */
+function foldArabicLetters(s: string): string {
+  return s.replace(/ي/g, "ی").replace(/ك/g, "ک");
+}
+
+/** Applied before small talk, embedding and the cache key alike. */
 export function sanitizeInput(text: string): string {
-  return text.replace(/\s+/g, " ").trim().slice(0, MAX_INPUT_CHARS);
+  return foldArabicLetters(text.replace(/\s+/g, " ").trim()).slice(0, MAX_INPUT_CHARS);
 }
 
 export function isAbusive(text: string): boolean {
@@ -139,10 +148,10 @@ const FILLER = new Set([
 /**
  * Lowercase and drop the invisible zero-width / bidi marks that pepper Persian
  * text — so colloquial spellings like "می‌تونی" (with a ZWNJ) match the same
- * pattern as "می تونی" / "میتونی".
+ * pattern as "می تونی" / "میتونی"; Arabic ي/ك count as Persian ی/ک.
  */
 function normalize(s: string): string {
-  return s.toLowerCase().replace(/[‌‍‎‏﻿]/g, "");
+  return foldArabicLetters(s.toLowerCase().replace(/[‌‍‎‏﻿]/g, ""));
 }
 
 /**
