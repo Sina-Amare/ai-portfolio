@@ -12,7 +12,7 @@ type ErrKey = "" | "required" | "email" | "rate" | "config" | "generic" | "netwo
 const EMPTY = { name: "", email: "", contact: "", message: "", company: "" };
 
 const fieldCls =
-  "w-full rounded-xl border border-border bg-surface/60 px-4 py-3 text-[15px] text-text placeholder:text-muted outline-none transition-colors focus:border-accent/60 focus:bg-surface focus:ring-2 focus:ring-accent-soft";
+  "w-full rounded-xl border border-border bg-surface/60 px-4 py-3 text-[15px] text-text placeholder:text-muted outline-none transition-colors focus:border-accent/60 focus:bg-surface";
 
 export function ContactForm() {
   const { t } = useLocale();

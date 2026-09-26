@@ -86,7 +86,7 @@ export const Message = memo(function Message({
 
         {sources.length > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            <span className="eyebrow text-[10px]">{sourcesLabel}</span>
+            <span className="eyebrow">{sourcesLabel}</span>
             {sources.map((s) => (
               <span
                 key={s}

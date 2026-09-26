@@ -44,7 +44,7 @@ export function About() {
             <p className="text-text text-base leading-[1.85]">{a.bio}</p>
 
             <div className="mt-8">
-              <div className="eyebrow text-[10px]">{a.strengthsLabel}</div>
+              <div className="eyebrow">{a.strengthsLabel}</div>
               <ul className="mt-3 space-y-2">
                 {a.strengths.map((s) => (
                   <li
@@ -67,7 +67,7 @@ export function About() {
             <div className="mt-8 space-y-5">
               {stackGroups.map((g) => (
                 <div key={g.label}>
-                  <div className="eyebrow text-[10px]">{g.label}</div>
+                  <div className="eyebrow">{g.label}</div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {g.items.map((s) => (
                       <span
@@ -94,7 +94,7 @@ export function About() {
 
           {/* Right: experience + education + recognition */}
           <Reveal delay={0.1}>
-            <div className="eyebrow text-[10px]">{a.experienceLabel}</div>
+            <div className="eyebrow">{a.experienceLabel}</div>
             <div className="mt-4 space-y-6">
               {a.experience.map((e) => (
                 <div key={e.org} className="border-border border-s ps-4">
@@ -109,7 +109,7 @@ export function About() {
               ))}
             </div>
 
-            <div className="eyebrow mt-8 text-[10px]">{a.educationLabel}</div>
+            <div className="eyebrow mt-8">{a.educationLabel}</div>
             <div className="mt-4 space-y-4">
               {a.education.map((e) => (
                 <div key={e.degree} className="border-border border-s ps-4">
@@ -122,7 +122,7 @@ export function About() {
               ))}
             </div>
 
-            <div className="eyebrow mt-8 text-[10px]">{a.recognitionLabel}</div>
+            <div className="eyebrow mt-8">{a.recognitionLabel}</div>
             <ul className="mt-4 space-y-2 text-[13px] leading-relaxed">
               {a.recognition.map((r) => (
                 <li key={r} className="text-muted">

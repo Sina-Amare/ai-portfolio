@@ -102,11 +102,11 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
                   <GlassCard className="p-5">
                     <dl className="space-y-4 text-sm">
                       <div>
-                        <dt className="eyebrow text-[10px]">{t.projects.year}</dt>
+                        <dt className="eyebrow">{t.projects.year}</dt>
                         <dd className="mt-1.5">{p.year}</dd>
                       </div>
                       <div>
-                        <dt className="eyebrow text-[10px]">{t.projects.stack}</dt>
+                        <dt className="eyebrow">{t.projects.stack}</dt>
                         <dd className="mt-2 flex flex-wrap gap-1.5">
                           {p.stack.map((s) => (
                             <span

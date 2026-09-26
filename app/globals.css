@@ -90,14 +90,18 @@ body {
   letter-spacing: -0.005em;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5 {
-  font-family: var(--font-display), var(--font-sans), sans-serif;
-  color: var(--heading);
-  letter-spacing: -0.02em;
+/* Base layer, so a class on a heading (.eyebrow on a section label, text-*,
+   tracking-*) wins over these defaults. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: var(--font-display), var(--font-sans), sans-serif;
+    color: var(--heading);
+    letter-spacing: -0.02em;
+  }
 }
 
 ::selection {
@@ -121,13 +125,19 @@ h5 {
   background-clip: padding-box;
 }
 
-/* Focus — deliberate double ring on any surface */
+/* Focus — deliberate double ring on any surface. The ring stays unlayered so it
+   beats shadow utilities; the radius is only a default (base layer), so a
+   rounded-full pill or rounded-xl field keeps its own shape on focus. */
 :focus-visible {
   outline: none;
   box-shadow:
     0 0 0 2px var(--bg),
     0 0 0 4px var(--accent);
-  border-radius: 6px;
+}
+@layer base {
+  :focus-visible {
+    border-radius: 6px;
+  }
 }
 
 /* ---------- Utilities ---------- */
@@ -175,18 +185,18 @@ h5 {
   }
 }
 
-.eyebrow {
-  font-family: var(--font-mono), monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-/* Solid surface card (replaces the old glassmorphism). Layered as components
-   so utilities on the same element (hover:bg-*, border-accent/*, shadow-*)
-   win; unlayered CSS beats every Tailwind utility. */
+/* Layered as components so utilities on the same element (hover:bg-*,
+   border-accent/*, text-*) win; unlayered CSS beats every Tailwind utility. */
 @layer components {
+  .eyebrow {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Solid surface card (replaces the old glassmorphism). */
   .glass {
     background: var(--card);
     border: 1px solid var(--border);

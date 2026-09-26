@@ -78,7 +78,7 @@ function Card({ className, children }: { className?: string; children: React.Rea
 function Stat({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
     <Card className="p-4 sm:p-5">
-      <div className="eyebrow text-[10px]">{label}</div>
+      <div className="eyebrow">{label}</div>
       <div className="mt-2 text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl">
         {value}
       </div>
@@ -108,7 +108,7 @@ function Bars({
   return (
     <Card>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div className="eyebrow text-[10px]">{title}</div>
+        <div className="eyebrow">{title}</div>
         {note && <div className="text-muted text-xs">{note}</div>}
       </div>
       {rows.length === 0 || max === 0 ? (
@@ -154,7 +154,7 @@ function Trend({ data, f, p }: { data: Insights; f: Fmt; p: Copy }) {
   return (
     <Card>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div className="eyebrow text-[10px]">{p.trend}</div>
+        <div className="eyebrow">{p.trend}</div>
         <div className="text-muted flex items-center gap-3 text-xs">
           <span className="inline-flex items-center gap-1.5">
             <span className="bg-accent/25 size-2 rounded-sm" /> {p.allVisits}
@@ -219,7 +219,7 @@ function When({ data, f, p }: { data: Insights; f: Fmt; p: Copy }) {
   return (
     <Card>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div className="eyebrow text-[10px]">{p.when}</div>
+        <div className="eyebrow">{p.when}</div>
         {busiest && (
           <div className="text-muted text-xs">
             {p.busiest} <span className="text-text">{busiest.label}</span>

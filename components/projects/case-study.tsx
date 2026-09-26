@@ -57,11 +57,11 @@ export function CaseStudy({ project }: { project: Project }) {
             <div className="glass rounded-[var(--radius-card)] p-5">
               <dl className="space-y-4 text-sm">
                 <div>
-                  <dt className="eyebrow text-[10px]">{p.year}</dt>
+                  <dt className="eyebrow">{p.year}</dt>
                   <dd className="mt-1.5">{project.year}</dd>
                 </div>
                 <div>
-                  <dt className="eyebrow text-[10px]">{p.stack}</dt>
+                  <dt className="eyebrow">{p.stack}</dt>
                   <dd className="mt-2 flex flex-wrap gap-1.5">
                     {project.stack.map((s) => (
                       <span

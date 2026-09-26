@@ -107,7 +107,7 @@ export function ProjectCardView({
                 <Icon aria-hidden="true" className="h-5 w-5" />
               </div>
             )}
-            <div className="eyebrow text-[10px]">{eyebrow}</div>
+            <div className="eyebrow">{eyebrow}</div>
             <h3 className="mt-1.5 text-lg font-semibold tracking-tight">{name}</h3>
             <p className="text-muted mt-0.5 text-[13px]">{tagline}</p>
           </div>
