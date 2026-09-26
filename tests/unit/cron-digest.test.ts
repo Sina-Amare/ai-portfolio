@@ -43,6 +43,7 @@ function insights(yesterdayVisits: number): Insights {
   const partial: Partial<Insights> = {
     enabled: true,
     degraded: false,
+    months: ["2026-09"],
     series: [
       { day: "2026-09-25", visits: 4, engaged: 2, pageviews: 6, engagedMs: 100_000 },
       { day: "2026-09-26", visits: yesterdayVisits, engaged: 3, pageviews: 9, engagedMs: 375_000 },
@@ -103,6 +104,8 @@ describe("GET /api/cron/digest", () => {
     expect(text).not.toContain("google.com");
     expect(text).toContain("Amsterdam, NL · Desktop/Chrome · from linkedin.com · 3m 5s active");
     expect(text).toContain("résumé");
+    // Topics are stored per month: named by the months read, not "this month".
+    expect(text).toContain("*Chat topics (2026-09)*\n  • ScrapeGPT — 4");
   });
 
   it("stays silent when nobody visited yesterday", async () => {

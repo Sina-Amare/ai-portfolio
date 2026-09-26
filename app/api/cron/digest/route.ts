@@ -113,7 +113,9 @@ function buildMessage(o: Insights, day: string): string | null {
     `*Sections seen*`,
     top(tally(visits.flatMap((v) => v.sections.map((s) => s.section)))),
     ``,
-    `*Chat topics this month*`,
+    // Stored per month: the months the two days touch, not "this month" (on the
+    // 1st, yesterday belongs to last month; on the 2nd, the pair spans both).
+    `*Chat topics (${o.months.join(", ")})*`,
     top(new Map(o.chat.topics.map((t) => [t.label, t.count]))),
     ...(notable.length
       ? [``, `*Notable visits*`, ...notable.map((v) => `  • ${visitLine(v)}`)]

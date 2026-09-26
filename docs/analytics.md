@@ -227,8 +227,9 @@ lowest-risk category — but it is a judgement call, not an exemption you can po
 Hobby allows one run per day with ±59 min precision). It reports **yesterday**, a whole
 UTC day, against the day before: visits, engaged visits and engagement rate, average
 active time per engaged visit, yesterday's top sources and sections seen (from the visit
-log), this month's chat topics, and up to three notable visits (2+ minutes active, or a
-contact message or résumé download). It reuses the `TELEGRAM_BOT_TOKEN` /
+log), chat topics for the month or months those two days fall in (stored per month, and
+labelled with them), and up to three notable visits (2+ minutes active, or a contact
+message or résumé download). It reuses the `TELEGRAM_BOT_TOKEN` /
 `TELEGRAM_CHAT_ID` the contact form already uses, so there's no email provider and no
 extra cost. (It used to report "today" at 07:00, seven hours of data against a whole
 day, so nearly every digest showed a drop.)
