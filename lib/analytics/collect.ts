@@ -124,8 +124,11 @@ export function normalizePath(raw: string, knownSlugs: readonly string[] = []): 
   if (p.length > 1) p = p.replace(/\/+$/, "");
   p = p.slice(0, MAX_LABEL) || "/";
 
-  if (p === "/" || p === "/projects") return p;
-  const m = /^\/projects\/([^/]+)$/.exec(p);
+  // Persian pages are validated as their English route but keep the /fa label,
+  // so the page breakdown doubles as a language breakdown.
+  const base = p === "/fa" ? "/" : p.startsWith("/fa/") ? p.slice(3) : p;
+  if (base === "/" || base === "/projects" || base === "/privacy") return p;
+  const m = /^\/projects\/([^/]+)$/.exec(base);
   if (m && knownSlugs.includes(m[1]!)) return p;
   return OTHER;
 }

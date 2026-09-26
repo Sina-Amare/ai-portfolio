@@ -32,6 +32,19 @@ describe("analytics/collect", () => {
     expect(normalizePath("", slugs)).toBe("/");
     expect(normalizePath("/", slugs)).toBe("/");
     expect(normalizePath("/projects/scrapegpt", slugs)).toBe("/projects/scrapegpt");
+    expect(normalizePath("/privacy", slugs)).toBe("/privacy");
+  });
+
+  it("keeps Persian /fa labels but validates them as their English route", () => {
+    const slugs = ["scrapegpt"];
+    expect(normalizePath("/fa", slugs)).toBe("/fa");
+    expect(normalizePath("/fa/", slugs)).toBe("/fa");
+    expect(normalizePath("/fa/projects", slugs)).toBe("/fa/projects");
+    expect(normalizePath("/fa/projects/scrapegpt", slugs)).toBe("/fa/projects/scrapegpt");
+    expect(normalizePath("/fa/privacy", slugs)).toBe("/fa/privacy");
+    expect(normalizePath("/fa/projects/not-real", slugs)).toBe("Other");
+    expect(normalizePath("/fa/fa", slugs)).toBe("Other");
+    expect(normalizePath("/fast", slugs)).toBe("Other");
   });
 
   it("folds unknown paths into one bucket so a flood can't grow the store", () => {

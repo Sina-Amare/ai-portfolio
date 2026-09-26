@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { stripLocale } from "@/lib/locale";
+
+// Module scope, not refs: switching language re-mounts the [lang] layout (and
+// this component), and a fresh ref would re-send the entry referrer and credit
+// one arrival from Google twice.
+let lastSent: string | null = null;
+let firstBeacon = true;
 
 /**
  * Fires one beacon per page view, including client-side route changes (this is
@@ -13,28 +20,27 @@ import { usePathname } from "next/navigation";
  * and referrer travel in the body.
  */
 export function Tracker() {
+  // Only a change signal: the value is "/en/..." under the proxy's rewrite, so
+  // the beacon reads the public URL from window.location instead.
   const pathname = usePathname();
-  const lastSent = useRef<string | null>(null);
-  const firstBeacon = useRef(true);
 
   useEffect(() => {
-    if (!pathname || lastSent.current === pathname) return;
+    const path = window.location.pathname;
+    if (lastSent === path) return;
     // Don't count the owner reading their own dashboard — otherwise every visit
     // to /admin inflates the very numbers being read.
-    if (pathname === "/admin" || pathname.startsWith("/admin/")) return;
-    lastSent.current = pathname;
+    const bare = stripLocale(path);
+    if (bare === "/admin" || bare.startsWith("/admin/")) return;
+    lastSent = path;
 
     // document.referrer does NOT change on client-side navigation — it keeps
     // returning the original external referrer for the life of the document.
     // Sending it every time would credit one arrival from Google to every page
     // in the session, so only the first beacon carries it.
-    const isEntry = firstBeacon.current;
-    firstBeacon.current = false;
+    const isEntry = firstBeacon;
+    firstBeacon = false;
 
-    const body = JSON.stringify({
-      path: pathname,
-      referrer: isEntry ? document.referrer : "",
-    });
+    const body = JSON.stringify({ path, referrer: isEntry ? document.referrer : "" });
 
     // keepalive lets the request survive the page unloading mid-flight.
     void fetch("/api/track", {
