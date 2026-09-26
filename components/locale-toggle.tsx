@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useBarePath, useLocale } from "@/components/locale-provider";
 import { LOCALE_COOKIE, LOCALES, localizedPath, type Locale } from "@/lib/locale";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics/client";
 
 const LABELS = { en: "EN", fa: "فا" } as const;
 
@@ -32,6 +33,7 @@ export function LocaleToggle({ className, disabled }: { className?: string; disa
     e.preventDefault();
     rememberLocale(l);
     if (l !== locale) {
+      track("lang_switch", l);
       router.push(localizedPath(bare, l) + window.location.search + window.location.hash);
     }
   };

@@ -9,6 +9,7 @@ import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { dirOf } from "@/lib/dictionary";
 import { scrollToSectionId } from "@/lib/scroll";
+import { linkEvent, track } from "@/lib/analytics/client";
 import { useLocale } from "./locale-provider";
 import { GitHubIcon, LinkedInIcon } from "./icons";
 
@@ -41,10 +42,22 @@ export function CommandPalette() {
     };
   }, []);
 
+  useEffect(() => {
+    if (open) track("palette_open");
+  }, [open]);
+
   const run = (fn: () => void) => () => {
     setOpen(false);
     fn();
   };
+
+  // window.open isn't a link click, so the tracker's link listener can't see it.
+  const openLink = (href: string) =>
+    run(() => {
+      const ev = linkEvent(href, window.location.origin);
+      if (ev) track(...ev);
+      window.open(href, "_blank");
+    });
 
   // Jump to an on-page section using the precise scroller; if the section isn't
   // on this route, navigate home with the hash (ScrollToHash finishes on arrival).
@@ -104,28 +117,16 @@ export function CommandPalette() {
             </Command.Group>
 
             <Command.Group heading={c.groupLinks}>
-              <Command.Item
-                className={itemCls}
-                onSelect={run(() => window.open(site.resume, "_blank"))}
-              >
+              <Command.Item className={itemCls} onSelect={openLink(site.resume)}>
                 <FileText className="h-4 w-4" /> {c.resume}
               </Command.Item>
-              <Command.Item
-                className={itemCls}
-                onSelect={run(() => window.open(site.socials.github, "_blank"))}
-              >
+              <Command.Item className={itemCls} onSelect={openLink(site.socials.github)}>
                 <GitHubIcon className="h-4 w-4" /> {c.github}
               </Command.Item>
-              <Command.Item
-                className={itemCls}
-                onSelect={run(() => window.open(site.socials.linkedin, "_blank"))}
-              >
+              <Command.Item className={itemCls} onSelect={openLink(site.socials.linkedin)}>
                 <LinkedInIcon className="h-4 w-4" /> {c.linkedin}
               </Command.Item>
-              <Command.Item
-                className={itemCls}
-                onSelect={run(() => window.open(site.socials.emailCompose, "_blank"))}
-              >
+              <Command.Item className={itemCls} onSelect={openLink(site.socials.emailCompose)}>
                 <Mail className="h-4 w-4" /> {c.email}
               </Command.Item>
             </Command.Group>

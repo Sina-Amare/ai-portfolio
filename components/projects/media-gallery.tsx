@@ -7,6 +7,7 @@ import type { MediaItem } from "@/lib/projects";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
 import { dirOf } from "@/lib/dictionary";
+import { track } from "@/lib/analytics/client";
 
 /** Case-study screenshot / video gallery with a keyboard-navigable lightbox. */
 export function MediaGallery({ items, label }: { items: MediaItem[]; label: string }) {
@@ -52,7 +53,10 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
           <button
             key={m.src}
             type="button"
-            onClick={() => setIndex(i)}
+            onClick={() => {
+              setIndex(i);
+              track("gallery_open");
+            }}
             aria-label={captionOf(m) ?? t.projects.openPreview}
             className="group bg-surface border-border hover:border-accent/50 relative block aspect-video w-full overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5"
           >

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowRight, Check, Loader2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
+import { track } from "@/lib/analytics/client";
 
 type Status = "idle" | "submitting" | "success" | "error";
 type ErrKey = "" | "required" | "email" | "rate" | "config" | "generic" | "network";
@@ -60,6 +61,7 @@ export function ContactForm() {
         body: JSON.stringify(form),
       });
       if (res.ok) {
+        track("contact_submit");
         setForm(EMPTY);
         setStatus("success");
       } else {

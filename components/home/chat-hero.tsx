@@ -17,6 +17,7 @@ import { ChatInput } from "@/components/chat/chat-input";
 import { Suggestions } from "@/components/chat/suggestions";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { Transcript } from "@/components/chat/transcript";
+import { track } from "@/lib/analytics/client";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const CHAT_STORAGE_KEY = "sina-chat:v1";
@@ -93,6 +94,7 @@ export function ChatHero() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
     setInput("");
+    track("chat_ask", (t.suggestions as readonly string[]).includes(v) ? "chip" : "typed");
     void sendMessage({ text: v }, { body: { lang } });
   }
 
