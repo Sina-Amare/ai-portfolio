@@ -69,3 +69,13 @@ describe("sitemap", () => {
     });
   });
 });
+
+describe("opengraph-image", () => {
+  it("serves the Chromium-rendered Persian card, since Satori reverses Persian word order", async () => {
+    const { default: Image } = await import("@/app/[lang]/opengraph-image");
+    const res = await Image({ params: Promise.resolve({ lang: "fa" }) });
+    expect(res.headers.get("content-type")).toBe("image/png");
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    expect(Array.from(bytes.slice(1, 4), (b) => String.fromCharCode(b)).join("")).toBe("PNG");
+  });
+});

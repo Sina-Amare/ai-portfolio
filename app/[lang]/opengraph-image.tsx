@@ -1,10 +1,27 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { LOCALES } from "@/lib/locale";
 
 export const alt = "Sina Amareh — Software Developer · Backend & AI";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Image() {
+export function generateStaticParams() {
+  return LOCALES.map((lang) => ({ lang }));
+}
+
+// Satori can't lay out Persian (words come out in reverse order), so the /fa
+// card is a Chromium screenshot: scripts/og-fa.mjs regenerates it. Both cards
+// are prerendered at build time, so the file is only read there.
+
+export default async function Image({ params }: { params: Promise<{ lang: string }> }) {
+  if ((await params).lang === "fa") {
+    const png = await readFile(join(process.cwd(), "app/[lang]/og-fa.png"));
+    return new Response(new Uint8Array(png), {
+      headers: { "Content-Type": contentType },
+    });
+  }
   return new ImageResponse(
     <div
       style={{
