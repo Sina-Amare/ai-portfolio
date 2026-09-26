@@ -43,6 +43,12 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   action). Here it separates recruiters who read from bounces, which raw visit counts can't.
 - **Idempotent write (HSETNX)** — a write that has the same effect however many times it runs. Two beacons
   can both decide "this visit is now engaged"; HSETNX lets only the first one count it.
+- **Active time vs time on page** — "time on page" is the gap between two page views, so a tab left
+  open overnight reads as hours of reading. Active time only counts seconds when the tab is visible and
+  the visitor did something in the last minute; the tracker samples it once a second.
+- **sendBeacon / keepalive** — browser APIs for a request that must survive the page closing. A
+  normal `fetch` started in `pagehide` is cancelled with the page; the tracker's last engagement flush
+  uses `navigator.sendBeacon`, falling back to `fetch(…, {keepalive: true})`.
 
 ## Study briefs
 

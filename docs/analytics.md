@@ -1,19 +1,24 @@
 # Visit analytics + `/admin`
 
-A self-hosted, cookieless analytics panel at `/admin`: page views, unique visitors,
-new vs returning, timezones, countries, top pages and referrers. Runs entirely on
-free tiers — no third-party script, no data leaving your own infrastructure.
+A self-hosted, cookieless analytics panel at `/admin` that answers "who really visited,
+how long did they actually engage, what did they look at and what did they do": visits
+(not raw page views), engaged visits, active time, how far people get through each
+page, their actions (chat questions, résumé, outbound links, contact), where they came
+from, and a log of the last 50 visits. Runs entirely on free tiers — no third-party
+script, no data leaving your own infrastructure.
 
 ## Why not just use Vercel Web Analytics?
 
 It's free on Hobby (50k events/month) and worth enabling alongside this, but it
-cannot answer two of the three questions this panel was built for:
+cannot answer most of the questions this panel was built for:
 
-|                      | Vercel WA                        | Cloudflare WA          | This panel |
-| -------------------- | -------------------------------- | ---------------------- | ---------- |
-| Page views           | ✅                               | ✅                     | ✅         |
-| **Timezone**         | ❌ (no such dimension, any tier) | ❌                     | ✅         |
-| **New vs returning** | ❌                               | ❌ (no uniques at all) | ✅         |
+|                              | Vercel WA                        | Cloudflare WA          | This panel |
+| ---------------------------- | -------------------------------- | ---------------------- | ---------- |
+| Page views                   | ✅                               | ✅                     | ✅         |
+| **Timezone**                 | ❌ (no such dimension, any tier) | ❌                     | ✅         |
+| **New vs returning**         | ❌                               | ❌ (no uniques at all) | ✅         |
+| **Active time, sections**    | ❌                               | ❌                     | ✅         |
+| **Per-visit timeline (log)** | ❌                               | ❌                     | ✅         |
 
 Vercel's visitor hash "is valid for a single day, at which point it is automatically
 reset", so a person visiting on five days counts as five unique visitors and
@@ -96,6 +101,48 @@ instance sees the day over budget it refuses beacons without touching Redis. Tha
 ~100 real visits a day, or ~400 beacons from a script inventing a new visitor each
 time. (`ANALYTICS_DAILY_MAX`, a beacon count, is no longer read.)
 
+Reading is cheap by comparison: a 30-day `/admin` load is about 90 commands (one hash
+per day, one per month touched, two set sizes, 50 visit records; under 250 at 90 days),
+and the daily digest about 210 (it reads up to 200 visit records to find yesterday's),
+so ~6.5k a month.
+
+## What the browser sends (`components/analytics/tracker.tsx`)
+
+Two beacon types, both `POST /api/track` (contract in `lib/analytics/beacon.ts`):
+
+- **Page view** `{t: "pv", path, referrer}` on every route change, including client-side
+  navigation. Only the first beacon of a page load carries `document.referrer`, which
+  otherwise keeps returning the original external referrer for the whole visit.
+- **Engagement flush** `{t: "eng", path, ms, sections, events}` for the page being left:
+  on route change, when the tab is hidden, on `pagehide`, and at most once a minute
+  while active. Sent with `navigator.sendBeacon` (survives the tab closing), falling back
+  to `fetch(…, {keepalive: true})`. A flush with under a second of active time and no
+  action is not sent.
+
+**Active time** is sampled once a second and counts only while the tab is visible AND the
+visitor scrolled, pointed, tapped or typed in the last 60 s (opening a page counts as
+activity). A background tab or someone who walked away adds nothing; a laptop waking
+from sleep can't credit the hours it slept.
+
+**Sections** are the elements marked `data-analytics-section` (home: `hero`, `featured`,
+`workplace`, `about`, `contact`; `/projects`: `projects-list`, `workplace-detail`; a case
+study: `case-study`). Each second the tracker checks which marked sections are on screen:
+one on screen at two samples (about a second) is **seen**, and the one taking most of the
+viewport gets that second as **dwell**. Rect checks on a handful of elements once a second
+were chosen over an IntersectionObserver because they follow route changes and
+re-rendered sections with no bookkeeping.
+
+**Actions** are whitelisted names noted with `track()` (`lib/analytics/client.ts`) and
+sent with the next flush: `chat_ask` (chip | typed), `contact_submit` (after the server
+accepted it), `resume_download`, `outbound` (github | repo | linkedin | email | telegram),
+`gallery_open`, `palette_open`, `lang_switch` (en | fa). Link clicks are classified by
+one delegated listener, so every résumé and outbound link on the site is covered
+without touching each component; command-palette links call it directly.
+
+The tracker sends nothing on `/admin` and nothing at all when `navigator.webdriver` is
+true (Playwright, Selenium, headless crawlers). Everything lives in page memory; nothing
+is written to cookies or storage.
+
 ## Data model (v2, since the deploy that shipped it)
 
 A **visit** is every beacon from one visitor hash with under 30 minutes of inactivity
@@ -132,7 +179,8 @@ nothing), and a live admin session counts too.
 - **No cookies** are set for tracking, so no consent banner is triggered by _this_
   panel's storage. (The `/admin` login cookie and the `sa_owner` mark that keeps your
   own visits out are only ever set for you.) The 30-minute visit pointer lives in
-  Redis, keyed by the pseudonymous hash, not on the device.
+  Redis, keyed by the pseudonymous hash, not on the device, and the tracker keeps its
+  active-time and section counters in page memory only.
 - **Raw IP addresses are never stored.** A visitor is
   `sha256(salt + ip + user-agent + host)`, truncated to 32 hex chars.
 - **The salt is unique per calendar month** (`an:salt:<YYYY-MM>`) and expires with it,
@@ -148,7 +196,11 @@ nothing), and a live admin session counts too.
   fingerprint. The header never touches the device.
 - **Referrers are reduced to a bare hostname** (`google.com`), never the full URL,
   which keeps search queries and tracking parameters out of storage.
-- **Bots are dropped** before any write, via `isbot` plus the fact that the beacon only
+- **Chat questions are never stored.** A turn is recorded as its outcome, its topic (the
+  knowledge-base source the answer leaned on) and chip-or-typed. The question itself goes
+  only to the LLM providers that answer it, which the privacy page names.
+- **Bots are dropped** before any write, via `isbot`, the tracker staying silent in
+  automated browsers (`navigator.webdriver`), and the fact that the beacon only
   fires from a real browser executing JS. This matters more than it sounds: Plausible
   reports raw server logs carrying ~18× the real pageview count.
 
@@ -172,12 +224,16 @@ lowest-risk category — but it is a judgement call, not an exemption you can po
 ## Daily digest to Telegram
 
 `vercel.json` registers a cron that hits `/api/cron/digest` once a day (07:00 UTC;
-Hobby allows one run per day with ±59 min precision). It sends today's views and
-visitors, the trend vs yesterday, a 14-day sparkline, and the top pages, referrers and
-countries — reusing the same `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` the contact form
-already uses, so there's no email provider and no extra cost.
+Hobby allows one run per day with ±59 min precision). It reports **yesterday**, a whole
+UTC day, against the day before: visits, engaged visits and engagement rate, average
+active time per engaged visit, yesterday's top sources and sections seen (from the visit
+log), this month's chat topics, and up to three notable visits (2+ minutes active, or a
+contact message or résumé download). It reuses the `TELEGRAM_BOT_TOKEN` /
+`TELEGRAM_CHAT_ID` the contact form already uses, so there's no email provider and no
+extra cost. (It used to report "today" at 07:00, seven hours of data against a whole
+day, so nearly every digest showed a drop.)
 
-It stays silent on days with no traffic, and skips cleanly if Telegram or Upstash
+It stays silent when yesterday had no visits, and skips cleanly if Telegram or Upstash
 isn't configured. `CRON_SECRET` is **required**: Vercel sends it as a bearer token and
 the route rejects anything else. With no secret set the endpoint answers 401 to every
 request (fail closed), so the digest simply doesn't run until you add it.
@@ -196,17 +252,47 @@ cross-month visitor identity genuinely doesn't exist.
 
 ## Reading the numbers honestly
 
-- **Visits** are sessions (see the data model), not page views. **Pages per visit** divides
-  page views by visits over the same days.
+The dashboard, top to bottom (EN/FA, Persian digits in Persian):
+
+1. **Headline cards.** Lead with **engaged visits** and the engagement rate: a visit with
+   10 s+ of active time, 2+ pages, or a key action (chat question, contact message, résumé,
+   outbound link, gallery). All visits sit next to it, so bounces are visible but don't
+   dominate. **Avg active time** is per engaged visit. **Pages per visit** divides page
+   views by visits over the same days. Chat questions come from the chat route itself;
+   contact messages from the form's success.
+2. **Visits per day**, all vs engaged, with the peak day printed under the chart (touch
+   screens can't show bar tooltips). The page-view total for the range includes the days
+   before v2, which have page views only; the "since" date at the top says where visit
+   data starts.
+3. **Active time per visit** (buckets under 10 s … 10 min+) and **pages by average active
+   time** (a page's active time ÷ its views).
+4. **How far visits get.** For each section: **reach** = share of the visits that opened
+   its page and had it on screen for about a second, and **avg** = how long it was the
+   main thing on screen per visit that reached it. Reach divides by the visits that
+   opened the section's page (home, /projects or a case study), not by all visits:
+   someone who landed on a case study and left is not a drop-off in the home funnel.
+5. **What visitors did.** Chat questions (suggested chip vs typed), chat outcomes
+   (answered, from cache, declined as off-topic or abusive, small talk, daily limit,
+   failed), chat topics, other actions and outbound links by target.
+6. **Where visits come from**, counted once per visit: sources, entry pages, countries,
+   cities, devices, browsers, language, and the local hour/weekday. These are stored per
+   calendar month, so the section is labelled with the months it covers: "7 days" on the
+   3rd includes all of last month.
+7. **Recent visits**, the last 50: when, where, device and browser, source, language,
+   active time, the pages in order, sections seen (with dwell) and actions, with
+   new/returning and engaged badges. This is the "who really visited" view.
+
+Definitions worth keeping in mind:
+
+- **Visits** are sessions (see the data model), not page views.
 - **Visitors** = distinct people seen _this calendar month_, read from one set. It is
   deliberately not the sum of daily uniques — that would count a person who visits on
   five days as five people.
 - **Returning visitors** = visitors with 2+ visits this month. A second page in the same
   visit is not a return. (v1's "came back" counted anyone with a second page view, which
   flattered the number — worth knowing if you compare against old screenshots.)
-- **Section reach** is a share of the visits that opened the section's page (home,
-  /projects or a case study), not of all visits: someone who landed on a case study
-  and left is not a drop-off in the home funnel.
+- **Active time** undercounts rather than overcounts: someone reading a long page without
+  touching anything for over a minute stops accruing until they scroll again.
 - In a new month everyone is new again, because the salt rotated. That is the privacy
   design working, not a gap in the data.
 
