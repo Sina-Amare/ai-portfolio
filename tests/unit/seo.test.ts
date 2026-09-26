@@ -51,3 +51,21 @@ describe("absoluteUrl", () => {
     expect(absoluteUrl("/fa/projects")).toBe(`${new URL(site.url).origin}/fa/projects`);
   });
 });
+
+describe("sitemap", () => {
+  it("lists every page in both languages with hreflang and no fake lastmod", async () => {
+    const { default: sitemap } = await import("@/app/sitemap");
+    const entries = sitemap();
+    const origin = new URL(site.url).origin;
+    const urls = entries.map((e) => e.url);
+    expect(urls).toEqual(expect.arrayContaining([origin, `${origin}/fa`, `${origin}/privacy`]));
+    expect(urls).toContain(`${origin}/fa/projects/scrapegpt`);
+    expect(entries.every((e) => e.lastModified === undefined)).toBe(true);
+    const fa = entries.find((e) => e.url === `${origin}/fa/projects`)!;
+    expect(fa.alternates?.languages).toEqual({
+      en: `${origin}/projects`,
+      fa: `${origin}/fa/projects`,
+      "x-default": `${origin}/projects`,
+    });
+  });
+});
