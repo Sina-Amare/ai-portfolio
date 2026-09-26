@@ -249,6 +249,17 @@ describe("POST /api/chat", () => {
     expect(capture.system).toContain("Persian");
   });
 
+  it("answers a question typed in Persian in Persian even with the toggle on English", async () => {
+    await callChat({ messages: [userMessage("سینا تو دکاموند چی ساخت؟")], lang: "en" });
+    expect(capture.system).toContain("Reply in Persian");
+    expect(chatLadder).toHaveBeenLastCalledWith("fa");
+
+    // Finglish is Latin script: it stays with the toggle.
+    await callChat({ messages: [userMessage("Sina to Dekamond chi sakht?")], lang: "en" });
+    expect(capture.system).toContain("Reply in English");
+    expect(chatLadder).toHaveBeenLastCalledWith("en");
+  });
+
   it("serves a semantically-similar repeat from cache WITHOUT a second LLM call", async () => {
     const first = await callChat({
       messages: [userMessage(CHIP)],

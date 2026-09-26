@@ -25,12 +25,13 @@ export function isAbusive(text: string): boolean {
 // رو ساختی؟" ("چطوری" = "how" in colloquial Persian), so those never reached
 // retrieval and the bot felt like a scripted reply instead of real RAG.
 //
-// English tokens are wrapped in \b; the Persian alternatives are bare because
-// \b is ASCII-only and doesn't sit against Persian letters.
+// English and Finglish ("salam", "mersi", "chetori") tokens are wrapped in \b;
+// the Persian alternatives are bare because \b is ASCII-only and doesn't sit
+// against Persian letters.
 const GREETING =
-  /\b(?:hi+|hey+|hello+|heya|hiya|yo|sup|howdy|hola|greetings|g'?day|good\s?(?:morning|afternoon|evening|day)|how\s?(?:are|r)\s?(?:you|u|ya)|how'?s\s?(?:it\s?going|things)|how\s?do\s?you\s?do|what'?s\s?up|whats\s?up|nice\s?to\s?meet(?:\s?you)?|bye+|goodbye|good\s?bye|see\s?(?:ya|you))\b|salaam?|dorood|سلام|درود|علیک|صبح بخیر|عصر بخیر|ظهر بخیر|شب بخیر|چطوری|چطورین|چطورید|چطوره|حالت چطوره|حالتون چطوره|حال شما|خوبی|خوبین|خوبید|چه خبر|چخبر|خداحافظ|خدافظ|بدرود|فعلا|بای/i;
+  /\b(?:hi+|hey+|hello+|heya|hiya|yo|sup|howdy|hola|greetings|g'?day|good\s?(?:morning|afternoon|evening|day)|how\s?(?:are|r)\s?(?:you|u|ya)|how'?s\s?(?:it\s?going|things)|how\s?do\s?you\s?do|what'?s\s?up|whats\s?up|nice\s?to\s?meet(?:\s?you)?|bye+|goodbye|good\s?bye|see\s?(?:ya|you)|sala+m|dorood|chetor[iy]|kh(?:oo|u)bi)\b|سلام|درود|علیک|صبح بخیر|عصر بخیر|ظهر بخیر|شب بخیر|چطوری|چطورین|چطورید|چطوره|حالت چطوره|حالتون چطوره|حال شما|خوبی|خوبین|خوبید|چه خبر|چخبر|خداحافظ|خدافظ|بدرود|فعلا|بای/i;
 const THANKS =
-  /\b(?:thanks|thank\s?you|thankyou|thx|tnx|ty|cheers|much\s?appreciated|appreciate\s?(?:it|you))\b|مرسی|ممنونم|ممنون|متشکرم|تشکر|سپاسگزارم|سپاس|مچکرم|دمت گرم|دستت درد نکنه|لطف کردی|قربونت/i;
+  /\b(?:thanks|thank\s?you|thankyou|thx|tnx|ty|cheers|much\s?appreciated|appreciate\s?(?:it|you)|mer[cs]i|mamn(?:oo|u)n(?:am)?)\b|مرسی|ممنونم|ممنون|متشکرم|تشکر|سپاسگزارم|سپاس|مچکرم|دمت گرم|دستت درد نکنه|لطف کردی|قربونت/i;
 // Identity / "what is this thing" questions about the assistant itself — a
 // greeting-style reply is the right answer, but only when that IS the message.
 const CAPABILITY =
@@ -255,7 +256,7 @@ export function buildSystemPrompt(lang: Lang, scored: ScoredChunk[]): string {
     `- Show real personality and light, tasteful humor when it fits — you're a person, not a corporate bot — but never force it, and never at the expense of being clear and accurate.`,
     ``,
     `CONVERSATION:`,
-    `- This may be a multi-turn chat. Read the earlier messages and resolve follow-ups ("what about the challenges?", "tell me more", "and in Persian?") against what was just discussed — don't ask the user to repeat themselves.`,
+    `- This may be a multi-turn chat. Read the earlier messages and resolve follow-ups ("what about the challenges?", "tell me more") against what was just discussed — don't ask the user to repeat themselves.`,
     `- Don't repeat the same opener or re-introduce yourself every turn; just continue naturally.`,
     ``,
     `EDGE CASES (handle these gracefully):`,

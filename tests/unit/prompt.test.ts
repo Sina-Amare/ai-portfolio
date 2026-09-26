@@ -51,13 +51,26 @@ describe("prompt", () => {
         "چطوری؟",
         "خوبی؟",
         "درود",
+        "salam",
+        "chetori?",
+        "khoobi?",
       ]) {
         expect(detectSmallTalk(q), q).toBe("greeting");
       }
     });
 
     it("treats a message that is ONLY thanks as small talk", () => {
-      for (const q of ["thanks!", "thank you so much", "thx", "مرسی", "ممنون", "خیلی ممنون"]) {
+      for (const q of [
+        "thanks!",
+        "thank you so much",
+        "thx",
+        "مرسی",
+        "ممنون",
+        "خیلی ممنون",
+        "mersi",
+        "merci!",
+        "mamnoon",
+      ]) {
         expect(detectSmallTalk(q), q).toBe("thanks");
       }
     });
@@ -84,6 +97,7 @@ describe("prompt", () => {
         "چطوری RAG رو ساختی؟",
         "سلام، درباره‌ی ScrapeGPT بگو",
         "خوبی؟ بگو ببینم تو دکاموند چیکار کردی",
+        "chetori RAG ro sakhti?",
       ]) {
         expect(detectSmallTalk(q), q).toBeNull();
       }

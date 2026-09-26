@@ -10,7 +10,7 @@ import {
   type UIMessage,
 } from "ai";
 import { z } from "zod";
-import { ui, type Lang } from "@/lib/i18n";
+import { detectDir, ui, type Lang } from "@/lib/i18n";
 import { getKnowledgeBase } from "@/lib/rag/kb";
 import { embedText } from "@/lib/rag/embed";
 import { retrieve, RETRIEVAL_TOP_K } from "@/lib/rag/retrieve";
@@ -207,19 +207,22 @@ export async function POST(req: Request) {
 
   const parsed = BodySchema.safeParse(raw);
   if (!parsed.success) return badRequest("Invalid request body");
-  const lang: Lang = parsed.data.lang;
   // Counted before trimming: the answer cache is for a conversation's opening question.
   const firstTurn = parsed.data.messages.length === 1;
   // Regenerate resends the same opening question; serving the cache would just
   // replay the answer the visitor asked to replace.
   const readCache = firstTurn && parsed.data.trigger !== "regenerate-message";
   const messages = toUIMessages(parsed.data.messages.slice(-MAX_HISTORY));
+  const question = sanitizeInput(lastUserText(messages));
+  // A question typed in Persian script gets a Persian answer whatever the toggle
+  // says (prompt, ladder and cache key all follow). Finglish is Latin script, so
+  // it stays with the toggle.
+  const lang: Lang = detectDir(question) === "rtl" ? "fa" : parsed.data.lang;
 
   // Abuse protection: per-IP rate limit.
   const rl = rateLimit(getClientIp(req));
   if (!rl.ok) return cannedResponse(rateLimitMessage(lang));
 
-  const question = sanitizeInput(lastUserText(messages));
   if (!question) return badRequest("Empty message");
 
   // Red flag: jailbreak / prompt-injection pre-filter (instant, no LLM).
