@@ -31,8 +31,8 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - **Calque** — a word-for-word translation of a foreign term («پس‌کرانه» for "backend"). Iranian
   developers say the English term, so the Persian system prompt lists calques the model must never use.
 - **Majority-script direction** — deciding RTL/LTR by which script most words use, instead of "any
-  Persian letter means RTL". Here `detectDir` counts words, so "ScrapeGPT چیه؟" stays RTL and an English
-  answer quoting «فارسی» stays LTR; ties go RTL.
+  Persian letter means RTL". Here `detectDir` counts words with Persian words weighted double, so
+  "LLM API RAG MCP رو توضیح بده" stays RTL and an English answer quoting «فارسی» stays LTR.
 - **Near-miss pair (cache calibration)** — two questions that look alike but need different answers
   ("What is ScrapeGPT?" / "What is Aigram?"). A semantic cache must score them below its threshold, or
   one gets the other's answer; `npm run eval` measures this against the 0.94 cut-off.

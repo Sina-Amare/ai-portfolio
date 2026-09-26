@@ -6,10 +6,10 @@ const RTL_RE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFE
 const LATIN_RE = /[A-Za-z\u00C0-\u024F]/;
 
 /**
- * Detect text direction from content: the script most words are written in
- * wins, so an English answer quoting «فارسی» stays LTR. Counted per word, not
- * per letter, because Persian answers carry long Latin terms ("ScrapeGPT چیه؟");
- * a tie goes to RTL for the same reason.
+ * Detect text direction from content by counting words per script, so an
+ * English answer quoting «فارسی» stays LTR. Counted per word, not per letter,
+ * and each Persian word counts double, because Persian questions and answers
+ * carry runs of Latin tech terms ("LLM API RAG MCP رو توضیح بده").
  */
 export function detectDir(text: string): "rtl" | "ltr" {
   let rtl = 0;
@@ -18,7 +18,7 @@ export function detectDir(text: string): "rtl" | "ltr" {
     if (RTL_RE.test(word)) rtl++;
     else if (LATIN_RE.test(word)) ltr++;
   }
-  return rtl > 0 && rtl >= ltr ? "rtl" : "ltr";
+  return rtl > 0 && rtl * 2 >= ltr ? "rtl" : "ltr";
 }
 
 export function isRTL(lang: Lang): boolean {

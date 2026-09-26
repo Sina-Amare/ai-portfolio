@@ -11,10 +11,11 @@ describe("i18n", () => {
     expect(detectDir("hello world")).toBe("ltr");
   });
 
-  it("decides mixed text by the script most words use", () => {
+  it("decides mixed text by word count, Persian words counting double", () => {
     // Persian with Latin tech terms — including a chip where the Latin word is longer.
     expect(detectDir("ScrapeGPT چیه؟")).toBe("rtl");
     expect(detectDir("چطوری RAG رو با FastAPI و Redis ساختی؟")).toBe("rtl");
+    expect(detectDir("LLM API RAG MCP رو توضیح بده")).toBe("rtl");
     // English quoting one Persian word stays LTR.
     expect(detectDir("I grew up speaking Persian (فارسی) and English.")).toBe("ltr");
   });
