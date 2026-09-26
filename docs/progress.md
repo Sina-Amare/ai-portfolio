@@ -31,8 +31,8 @@ checklist to verify.
 - [x] B4 workplace section — rebuilt on `ProjectCardView` + `CaseStudySections` (home cards link to
       `/projects#<id>`, mini case studies on /projects), EN/FA copy rewritten, EN workplace chip + every
       chip in the golden set, gallery/arrows mirror in RTL, card focus ring, `.glass` layered.
-      **Open:** `lib/kb.json` not re-embedded — Google answered 403 (region block) during B4, so
-      `npm run embed && npm run eval` is still owed (content + golden are committed).
+      Review follow-up: `lib/kb.json` re-embedded (eval 88/88), headings in RTL islands use Vazirmatn,
+      BI "every number traces to the data" outcome softened.
 - [ ] B3 `/fa` locale-prefixed routing + SEO metadata
 - [ ] B5 chatbot Persian quality
 - [ ] B7 analytics v2
@@ -64,8 +64,7 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B3. With VPN on: `npm run embed && npm run eval`, commit `lib/kb.json` (B4 content is not in the
-chatbot until then).
+Start B3.
 Owner, before deploying B2: set `CRON_SECRET` in Vercel (the digest cron now fails closed without it).
 
 _Last updated: 2026-09-26_
