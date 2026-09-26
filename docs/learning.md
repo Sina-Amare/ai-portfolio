@@ -36,6 +36,13 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - **Near-miss pair (cache calibration)** — two questions that look alike but need different answers
   ("What is ScrapeGPT?" / "What is Aigram?"). A semantic cache must score them below its threshold, or
   one gets the other's answer; `npm run eval` measures this against the 0.94 cut-off.
+- **Session (visit) with sliding expiry** — a group of requests that belong together, ended by
+  inactivity rather than a fixed length. Here `an:s:<vid>` gets a fresh 30-minute TTL on every beacon, so
+  reloading or coming back within half an hour is the same visit; after lunch it is a new one.
+- **Engaged visit** — a visit that shows real attention (GA4: 10 s of active time, 2+ pages, or a key
+  action). Here it separates recruiters who read from bounces, which raw visit counts can't.
+- **Idempotent write (HSETNX)** — a write that has the same effect however many times it runs. Two beacons
+  can both decide "this visit is now engaged"; HSETNX lets only the first one count it.
 
 ## Study briefs
 

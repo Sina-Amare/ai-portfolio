@@ -78,23 +78,58 @@ Upstash free: **256 MB, 500,000 commands/month**, no credit card, and — unlike
 (sleeps after 5 min), Supabase (pauses after 7 days) or Turso (archives after 10 days)
 — **no idle pause**, which matters for a portfolio that can go days without a visit.
 
-A recorded page view costs ~10 Redis commands (the month's salt is cached in instance
-memory, and TTLs are only written when a key is first created), so the free allowance
-covers well over **40,000 views/month**. Vercel Hobby allows 1,000,000 function
-invocations/month, so that is never the binding constraint.
+Measured costs (pinned by `tests/unit/analytics-store.test.ts`): a visit's first beacon
+~27 Redis commands (31 for a returning visitor), a page view inside a running visit 5–7,
+an engagement flush 10–30 depending on sections and events. A typical 3-page visit
+spends ~110 commands over ~8 beacons, gate included. TTLs are written only when a key
+can be new, never per write. Vercel Hobby allows 1,000,000 function invocations/month,
+so that is never the binding constraint.
 
-`/api/track` is unauthenticated, so it is gated three ways before it can spend a single
-command: the request must carry our own `Origin`, the caller must be under a **shared**
-per-IP limit (`ANALYTICS_RPM`, default 20/min), and the site must be under a global
-daily budget (`ANALYTICS_DAILY_MAX`, default 1200 accepted beacons/day). The shared part
-matters — the in-memory limiter used elsewhere is per-lambda, so concurrent requests
-would each be handed their own fresh budget and could drain a month of quota in hours.
+`/api/track` is unauthenticated, so everything that costs nothing runs first: owner,
+dev and bot filters, our own `Origin`, a ≤ 4 KB well-formed beacon, and an in-memory
+per-IP limit (`ANALYTICS_RPM`, default 30/min). Only then does it spend commands: a
+**shared** per-IP counter in Redis (the in-memory one is per-lambda, so concurrent
+requests would each get a fresh budget), then the write. Each accepted beacon charges
+what it actually spent to a daily budget (`ANALYTICS_DAILY_COMMANDS`, default 12,000
+≈ 360k/month, leaving ~140k for the dashboard, chat recording and login); once an
+instance sees the day over budget it refuses beacons without touching Redis. That is
+~100 real visits a day, or ~400 beacons from a script inventing a new visitor each
+time. (`ANALYTICS_DAILY_MAX`, a beacon count, is no longer read.)
+
+## Data model (v2, since the deploy that shipped it)
+
+A **visit** is every beacon from one visitor hash with under 30 minutes of inactivity
+(GA4's rule). The pointer `an:s:<vid>` → visit id slides 30 minutes on every beacon, so a
+reload, the back button or a quick return is the same visit; activity after 30 idle
+minutes starts a new one. A reload of the same page within 15 s is not a new page view.
+
+| Key               | What                                                                                                                                                                                | TTL              |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| `an:s:<vid>`      | current visit id                                                                                                                                                                    | 30 min, sliding  |
+| `an:sess:<sid>`   | one visit: start/last, country, city, device, browser, lang, entry referrer + page, pages in order (first 20), active ms, per-section ms, events, returning, engaged                | 90 days          |
+| `an:recent`       | last 500 visit ids, newest first                                                                                                                                                    | 90 days, sliding |
+| `an:d:<day>`      | visits, engaged, returning, pages, active ms (`ms`, engaged-only `ems`), time buckets `b0`–`b5`, chat, contact                                                                      | 400 days         |
+| `an:m:<month>`    | per visit: `ref:` `entry:` `co:` `city:` `dev:` `br:` `hr:` `wd:` `lang:` `tz:`; per page: `pv:` `pms:`; sections `sr:` (reach) `sms:` (dwell); `ev:`; chat `chat:` `topic:` `ask:` | 400 days         |
+| `an:seen:<month>` | distinct visitors                                                                                                                                                                   | 400 days         |
+| `an:ret:<month>`  | visitors with 2+ visits                                                                                                                                                             | 400 days         |
+| `an:since`        | first day of v2 data (one date, nothing personal)                                                                                                                                   | none             |
+
+A visit counts as **engaged** once it has ≥ 10 s of active time, ≥ 2 pages, or a key event
+(chat question, contact message, résumé download, outbound link, gallery open). Chat
+turns are stored as outcome, topic (the knowledge-base source the answer leaned on) and
+chip-or-typed only — never the question. The v1 per-pageview keys (`an:v`, `an:u`,
+`an:path`, …) are no longer written; days before `an:since` still read `an:v`.
+
+Nothing is written outside production (`ANALYTICS_IN_DEV=1` opts in locally), from bots,
+or from the owner's browser: admin login sets a year-long `sa_owner` cookie (it grants
+nothing), and a live admin session counts too.
 
 ## Privacy model
 
 - **No cookies** are set for tracking, so no consent banner is triggered by _this_
-  panel's storage. (The `/admin` login cookie is strictly functional and only ever set
-  for you.)
+  panel's storage. (The `/admin` login cookie and the `sa_owner` mark that keeps your
+  own visits out are only ever set for you.) The 30-minute visit pointer lives in
+  Redis, keyed by the pseudonymous hash, not on the device.
 - **Raw IP addresses are never stored.** A visitor is
   `sha256(salt + ip + user-agent + host)`, truncated to 32 hex chars.
 - **The salt is unique per calendar month** (`an:salt:<YYYY-MM>`) and expires with it,
@@ -152,19 +187,20 @@ the number sizes a Redis pipeline, so an arbitrary `?range=100000` would turn on
 load into a huge command burst.
 
 Breakdowns are stored per month, so a 90-day range reads every month it touches and
-merges them. Visitors and "came back" always stay current-month: the salt rotates
-monthly, so cross-month visitor identity genuinely doesn't exist.
+merges them; `getInsights` returns those `months` so the dashboard can label them.
+Unique and returning visitors always stay current-month: the salt rotates monthly, so
+cross-month visitor identity genuinely doesn't exist.
 
 ## Reading the numbers honestly
 
+- **Visits** are sessions (see the data model), not page views. **Pages per visit** divides
+  page views by visits over the same days.
 - **Visitors** = distinct people seen _this calendar month_, read from one set. It is
   deliberately not the sum of daily uniques — that would count a person who visits on
   five days as five people.
-- **Came back** = how many of those visitors viewed more than once this month. It
-  counts _people_, not page views: someone who reads six pages in one session is one
-  visitor who came back once, not six returning visits. (An earlier version of this
-  dashboard labelled pages-per-session as "returning visits", which flattered the
-  numbers — worth knowing if you compare against old screenshots.)
+- **Returning visitors** = visitors with 2+ visits this month. A second page in the same
+  visit is not a return. (v1's "came back" counted anyone with a second page view, which
+  flattered the number — worth knowing if you compare against old screenshots.)
 - In a new month everyone is new again, because the salt rotated. That is the privacy
   design working, not a gap in the data.
 
@@ -175,4 +211,6 @@ ADMIN_PASSWORD=dev-password npm run build && ADMIN_PASSWORD=dev-password npm sta
 ```
 
 Without Upstash vars set locally, `/admin` renders the "not connected" state — which is
-exactly what production looks like before step 1.
+exactly what production looks like before step 1. With them (e.g. after `vercel env
+pull`), `/admin` reads the real data but nothing local is written unless you set
+`ANALYTICS_IN_DEV=1`.
