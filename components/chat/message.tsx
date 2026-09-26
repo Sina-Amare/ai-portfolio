@@ -4,7 +4,7 @@ import { memo, useState } from "react";
 import type { UIMessage } from "ai";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { detectDir } from "@/lib/i18n";
+import { detectDir, sourceLabel } from "@/lib/i18n";
 import { Markdown } from "./markdown";
 
 type TextPart = { type: "text"; text: string };
@@ -90,9 +90,13 @@ export const Message = memo(function Message({
             {sources.map((s) => (
               <span
                 key={s}
-                className="text-muted border-border rounded-full border px-2 py-0.5 font-mono text-[10px]"
+                className={cn(
+                  "text-muted border-border rounded-full border px-2 py-0.5 text-[10px]",
+                  // The mono font has no Persian glyphs; RTL chips inherit Vazirmatn.
+                  dir === "ltr" && "font-mono",
+                )}
               >
-                {s}
+                {sourceLabel(s, dir === "rtl" ? "fa" : "en")}
               </span>
             ))}
           </div>

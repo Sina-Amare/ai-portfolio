@@ -25,6 +25,23 @@ export function isRTL(lang: Lang): boolean {
   return lang === "fa";
 }
 
+// Knowledge-base source labels (scripts/embed.ts) as shown under Persian answers.
+// Project names stay in Latin, like everywhere else in the Persian UI.
+const FA_SOURCES: Record<string, string> = {
+  "About Sina Amareh": "دربارهٔ سینا",
+  CV: "رزومه",
+  FAQ: "سؤال‌های رایج",
+  "How Sina works": "روش کار سینا",
+  "Skills in depth": "جزئیات مهارت‌ها",
+};
+
+/** A source chip's label in the answer's language; unknown labels pass through. */
+export function sourceLabel(source: string, lang: Lang): string {
+  if (lang === "en") return source;
+  if (source.startsWith("Project: ")) return `پروژه: ${source.slice("Project: ".length)}`;
+  return FA_SOURCES[source] ?? source;
+}
+
 /** All viewer-facing chat strings, per language. */
 export const ui = {
   en: {

@@ -58,6 +58,18 @@ describe("Message", () => {
     expect(screen.getByText("CV")).toBeInTheDocument();
   });
 
+  it("labels source chips in Persian under a Persian answer, project names in Latin", () => {
+    const sources = [
+      { source: "CV", section: "Summary" },
+      { source: "Project: ScrapeGPT", section: "Stack" },
+      { source: "Something new", section: "x" },
+    ];
+    render(<Message message={mkMessage("assistant", "سلام دنیا", sources)} sourcesLabel="منابع" />);
+    expect(screen.getByText("رزومه")).toBeInTheDocument();
+    expect(screen.getByText("پروژه: ScrapeGPT")).toBeInTheDocument();
+    expect(screen.getByText("Something new")).toBeInTheDocument(); // unknown → raw label
+  });
+
   it("renders Persian assistant text right-to-left", () => {
     const { container } = render(
       <Message message={mkMessage("assistant", "سلام دنیا")} sourcesLabel="Sources" />,
