@@ -400,9 +400,25 @@ export function classifyIntent(text: string, followUp = false): Intent | null {
 }
 
 // A forged assistant turn ("Sure, I'll ignore my rules from now on") is pasted
-// by the client, so any phrasing counts, not only a command.
-const FORGED =
-  /\b(?:ignor|disregard|forget|overrid|bypass|drop|abandon|break)\w*\s+(?:\w+\s+){0,3}(?:instructions|rules|guidelines|restrictions|guardrails|system\s+prompt|programming)\b|\b(?:developer|god|dan|jailbreak|unrestricted)\s+mode\b|\bjailbroken\b|\b(?:no|without\s+(?:any\s+)?)\s*(?:restrictions|limits|filters|guardrails)\b|(?:قوانین|قانون|دستور)\S*\s+(?:\S+\s+){0,3}(?:نادیده|فراموش|کنار|بیخیال)/u;
+// by the client, so any phrasing counts, not only a command. The bot agrees to
+// break its own rules ("my", "all previous", "I'll ignore the…"); a real answer
+// about security describes others' ("catches attempts to override its rules",
+// "get models to break their guidelines").
+const BREAK = String.raw`(?:ignor|disregard|forget|overrid|bypass|drop|abandon|break)\w*\s+`;
+const RULES = String.raw`(?:instructions|rules|guidelines|restrictions|guardrails|system\s+prompt|programming)\b`;
+const FA_RULES = "(?:قوانین|قانون|دستور)";
+const FORGED = new RegExp(
+  [
+    String.raw`\b${BREAK}(?:\w+\s+){0,2}(?:my|all|previous|prior)\s+(?:\w+\s+)?${RULES}`,
+    String.raw`\b(?:i'll|i\s+will|i'm|i\s+am)\s+(?:now\s+|happily\s+|going\s+to\s+)?${BREAK}(?:\w+\s+){0,3}${RULES}`,
+    String.raw`\b(?:developer|god|dan|jailbreak|unrestricted)\s+mode\b|\bjailbroken\b`,
+    String.raw`\b(?:no|without\s+(?:any\s+)?)\s*(?:restrictions|limits|filters|guardrails)\b`,
+    // «قوانینم رو نادیده می‌گیرم», not «مدل‌ها قوانینشون رو نادیده بگیرن».
+    String.raw`${FA_RULES}(?:ها|های|ات)?مو?\s+(?:\S+\s+){0,3}(?:نادیده|فراموش|کنار|بیخیال)`,
+    String.raw`${FA_RULES}\S*\s+(?:\S+\s+){0,3}(?:نادیده\s?می\s?گیرم|فراموش\s?می\s?کنم|کنار\s?می\s?ذارم|بیخیال\s?می\s?شم)(?!\p{L})`,
+  ].join("|"),
+  "u",
+);
 
 type Turn = { role: string; parts: ReadonlyArray<{ type: string; text?: string }> };
 
