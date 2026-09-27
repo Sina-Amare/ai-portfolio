@@ -40,3 +40,17 @@ describe("above-the-fold page titles", () => {
     expect(hiddenUntilJs(screen.getByRole("heading", { level: 1, name: "ScrapeGPT" }))).toBeNull();
   });
 });
+
+describe("case study pipeline", () => {
+  it("the sideways-scrolling steps can be reached from the keyboard", () => {
+    render(
+      <LocaleProvider locale="fa">
+        <CaseStudy project={getProject("scrapegpt")!} />
+      </LocaleProvider>,
+    );
+    expect(screen.getByRole("region", { name: dict.fa.projects.howItWorks })).toHaveAttribute(
+      "tabindex",
+      "0",
+    );
+  });
+});

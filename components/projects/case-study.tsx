@@ -115,7 +115,13 @@ export function CaseStudySections({ c, level = 2 }: { c: Project["fa"]; level?: 
 
       <Reveal delay={0.05} className="mt-10">
         <H className="eyebrow">{p.howItWorks}</H>
-        <div className="mt-4 overflow-x-auto pb-2">
+        {/* A scroller must take focus, or keyboard users can't reach the steps it hides. */}
+        <div
+          role="region"
+          aria-label={p.howItWorks}
+          tabIndex={0}
+          className="mt-4 overflow-x-auto pb-2"
+        >
           <ArchDiagram steps={c.architecture} />
         </div>
       </Reveal>
