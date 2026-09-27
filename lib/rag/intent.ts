@@ -232,7 +232,7 @@ const SMALL_TALK: [Intent, RegExp][] = (
     ],
     [
       "insult",
-      /stupid|dumb(?:ass)?|idiot(?:ic)?|useless|trash|garbage|rubbish|suck(?:s|ed)?|shit(?:ty)?|crap(?:py)?|terrible|awful|horrible|worst|pathetic|lame|boring|annoying|moron(?:ic)?|clown|loser|fake|fraud|scam|bullshit|wtf|stfu|shut\s+up|f+u+c+k+(?:ing|er|off)?|fck|damn|bitch|bastard|asshole|dick|jerk|incompetent|worthless|(?:احمق|خنگ|بی\s?شعور|نفهم|مزخرف|آشغال|چرت|چرند|بی\s?خاصیت|به\s?درد\s?نخور|بدرد\s?نخور|افتضاح|داغون|کثافت|الاغ|گاو|خر|اسکل|کسخل|جاکش|گوه)(?:ی|ه|ید|ین|ای)?|خفه\s?شو|گم\s?شو|khafe\s*sho|gom\s*sho|ahmagh|ahmaq|bishoor|bishur|kheng(?:i)?|mozakhraf|ashghal|oskol|khar(?:i)?/u,
+      /stupid|dumb(?:ass)?|idiot(?:ic)?|useless|trash|garbage|rubbish|suck(?:s|ed)?|shit(?:ty)?|crap(?:py)?|terrible|awful|horrible|worst|pathetic|lame|boring|annoying|moron(?:ic)?|clown|loser|fake|fraud|scam|bullshit|wtf|stfu|shut\s+up|f+u+c+k+(?:ing|er|off)?|fck|bitch|bastard|asshole|dick|jerk|incompetent|worthless|(?:احمق|خنگ|بی\s?شعور|نفهم|مزخرف|آشغال|چرت|چرند|بی\s?خاصیت|به\s?درد\s?نخور|بدرد\s?نخور|افتضاح|داغون|کثافت|الاغ|گاو|خر|اسکل|کسخل|جاکش|گوه)(?:ی|ه|ید|ین|ای)?|خفه\s?شو|گم\s?شو|khafe\s*sho|gom\s*sho|ahmagh|ahmaq|bishoor|bishur|kheng(?:i)?|mozakhraf|ashghal|oskol|khar(?:i)?/u,
     ],
     [
       "capability",
@@ -256,15 +256,15 @@ const SMALL_TALK: [Intent, RegExp][] = (
     ],
     [
       "thanks",
-      /thanks?(?:\s+(?:a\s+lot|so\s+much|a\s+ton|again|anyway))?(?:\s+for\s+(?:the|your|that|this)(?:\s+(?:info|information|help|time|answer|chat|reply))?)?|thank\s?(?:you|u)(?:\s+(?:so|very)\s+much)?(?:\s+for\s+(?:the|your|that|this)(?:\s+(?:info|information|help|time|answer|chat|reply))?)?|thx|tnx|tks|ty|tysm|cheers|much\s+appreciated|appreciate\s+(?:it|you|that)|many\s+thanks|🙏|mer[cs]i|mamn(?:oo|u)n(?:am)?|damet\s+garm|dastet\s+dard\s+nakone|tashakor|مرسی|ممنونم|ممنون|متشکرم|متشکر|تشکر|سپاسگزارم|سپاس|مچکرم|مچکر|دمت\s?گرم|دستت\s?درد\s?نکنه|لطف\s?کردی|قربونت|قربانت/u,
+      /thanks?(?:\s+(?:a\s+lot|so\s+much|a\s+ton|again|anyway))?(?:\s+for\s+(?:the|your|that|this)(?:\s+(?:info|information|help|time|answer|chat|reply))?)?|thank\s?(?:you|u)(?:\s+(?:so|very)\s+much)?(?:\s+for\s+(?:the|your|that|this)(?:\s+(?:info|information|help|time|answer|chat|reply))?)?|thx|tnx|tks|ty|tysm|cheers|much\s+appreciated|appreciate\s+(?:it|you|that)|many\s+thanks|🙏|mer[cs]i|mamn(?:oo|u)n(?:am)?|damet\s+garm|dastet\s+dard\s+nakone|tashakor|(?:مرسی|ممنونم|ممنون|متشکرم|سپاس)\s+(?:از|بابت|برای)\s+(?:توضیح|جواب|وقت|راهنمایی|کمک|اطلاعات)(?:ات|ت|تون|ها|هات)?|مرسی|ممنونم|ممنون|متشکرم|متشکر|تشکر|سپاسگزارم|سپاس|مچکرم|مچکر|دمت\s?گرم|دستت\s?درد\s?نکنه|لطف\s?کردی|قربونت|قربانت/u,
     ],
     [
       "compliment",
-      /awesome|amazing|impressive|brilliant|excellent|fantastic|incredible|beautiful|genius|legend|goat|wonderful|superb|outstanding|stunning|not\s+bad|well\s+done|kudos|bravo|(?:nice|great|cool|good|neat|solid)\s+(?:work|job|site|website|portfolio|bot|chatbot|project|projects|design|stuff|answer|one)|(?:you(?:'re|\s+are|\s+r)|u\s+r|ur)\s+(?:(?:so|very|really|pretty|super)\s+)*(?:cool|nice|great|smart|good|the\s+best|funny|clever)|(?:i\s+)?love\s+(?:it|this|you|your\s+(?:site|work|portfolio|bot|projects))|❤️?|😍|🔥|👏|💯|🤩|🙌|ایول|آفرین|باریکلا|خفنی|خفنه|باحاله|باحالی|چه\s?باحال|نابغه(?:ای)?|فوق\s?العاده(?:ای)?|محشره|محشری|قشنگه|عالیه|کارت\s?درسته|دست\s?مریزاد|حرف\s?نداری|حرف\s?نداره|خوشم\s?اومد|eyval|ey\s+val|afarin|khafan[ie]?|bahal[ie]?|baahal[ie]?|mahshar[ie]/u,
+      /awesome|amazing|impressive|brilliant|excellent|fantastic|incredible|beautiful|genius|legend|goat|wonderful|superb|outstanding|stunning|not\s+bad|well\s+done|kudos|bravo|(?:nice|great|cool|good|neat|solid)\s+(?:work|job|site|website|portfolio|bot|chatbot|project|projects|design|stuff|answer|one)|that'?s\s+(?:(?:so|very|really|pretty|super)\s+)*(?:cool|nice|great|awesome|neat|impressive|amazing|sick|dope)|(?:you(?:'re|\s+are|\s+r)|u\s+r|ur)\s+(?:(?:so|very|really|pretty|super)\s+)*(?:cool|nice|great|smart|good|the\s+best|funny|clever)|(?:i\s+)?love\s+(?:it|this|you|your\s+(?:site|work|portfolio|bot|projects))|❤️?|😍|🔥|👏|💯|🤩|🙌|ایول|آفرین|باریکلا|خفنی|خفنه|باحاله|باحالی|چه\s?باحال|نابغه(?:ای)?|فوق\s?العاده(?:ای)?|محشره|محشری|قشنگه|عالیه|کارت\s?درسته|دست\s?مریزاد|حرف\s?نداری|حرف\s?نداره|خوشم\s?اومد|eyval|ey\s+val|afarin|khafan[ie]?|bahal[ie]?|baahal[ie]?|mahshar[ie]/u,
     ],
     [
       "greeting",
-      /hi+|hey+|hello+|helo|hallo|heya|hiya|yo|howdy|hola|greetings|g'?day|good\s?(?:morning|afternoon|evening|day)|morning|evening|nice\s+to\s+meet\s+(?:you|u)|pleased\s+to\s+meet\s+you|👋|سلام|درود|علیک|سلام\s?علیکم|صبح\s?بخیر|عصر\s?بخیر|ظهر\s?بخیر|وقت\s?بخیر|روز\s?بخیر|sala+m|salam\s+aleykom|dorood|dorud|sobh\s+bekheir|vaght\s+bekheir/u,
+      /hi+|hey+|hello+|helo|hallo|heya|hiya|yo|howdy|hola|greetings|g'?day|good\s?(?:morning|afternoon|evening|day)|morning|evening|nice\s+to\s+meet\s+(?:you|u)|pleased\s+to\s+meet\s+you|👋|سلام|درود|علیک|سلام\s?علیکم|خسته\s?نباشی(?:د|ن)?|صبح\s?بخیر|عصر\s?بخیر|ظهر\s?بخیر|وقت\s?بخیر|روز\s?بخیر|sala+m|salam\s+aleykom|dorood|dorud|sobh\s+bekheir|vaght\s+bekheir|khaste\s+nabashi(?:d|n)?/u,
     ],
     [
       "ack",
@@ -283,8 +283,8 @@ const FILLER = new Set(
     "coder guy again just so well ok okay kk cool nice great awesome lovely dear hey hi hello " +
     "you u me my your for lot lots very much really too then now and or hmm umm uh oh yo yes " +
     "yeah yep no nope is are am was be this that it such totally honestly literally actually " +
-    "today s re m ll ve d t " +
-    "جان جون عزیز عزیزم دوست رفیق من تو شما بابا آقا خانم لطفا لطفاً خیلی زیاد هم دیگه یه رو و خب " +
+    "today damn s re m ll ve d t " +
+    "جان جون عزیز عزیزم دوست رفیق من تو شما خودت بابا آقا خانم لطفا لطفاً خیلی زیاد هم دیگه یه رو و خب " +
     "اها آها اوکی بله آره نه ممنونم یا این اینجا که هستی هست سایت ربات بات واقعا واقعاً اصلا چقدر " +
     "حالا پس آخه برنامهنویس " +
     "ham kheili vaghean dige hasti ya ro joon jan dadash aziz"
@@ -297,7 +297,7 @@ const ACK_FILLER = new Set(
   (
     "a the so well just ok okay kk cool nice great awesome hey hi hello oh yo yes yeah yep no " +
     "nope then now and or too very much really lot lots bro dude man buddy friend mate pal sir " +
-    "please plz pls hmm umm uh " +
+    "please plz pls hmm umm uh damn " +
     "جان جون عزیز عزیزم رفیق بابا آقا لطفا لطفاً خیلی هم دیگه و خب اها آها اوکی بله آره نه حالا پس " +
     "ham kheili dige joon jan dadash aziz"
   ).split(" "),
@@ -326,13 +326,23 @@ function isGibberishWord(w: string): boolean {
 }
 
 function smallTalk(t: string): Intent | null {
-  const hits = SMALL_TALK.filter(([, re]) => re.test(t));
-  if (hits.length) {
-    let rest = t;
+  // «سلاااام», "thanksssss": letters stretched for warmth, not a cat on the keys.
+  const forms = new Set([
+    t,
+    t.replace(/(\p{L})\1{2,}/gu, "$1$1"),
+    t.replace(/(\p{L})\1{2,}/gu, "$1"),
+  ]);
+  let matched = false;
+  for (const form of forms) {
+    const hits = SMALL_TALK.filter(([, re]) => re.test(form));
+    if (!hits.length) continue;
+    matched = true;
+    let rest = form;
     for (const [, re] of hits) rest = rest.replace(new RegExp(re.source, "gu"), " ");
     const intent = hits[0]![0];
-    return onlyFiller(rest, intent === "ack" ? ACK_FILLER : FILLER) ? intent : null;
+    if (onlyFiller(rest, intent === "ack" ? ACK_FILLER : FILLER)) return intent;
   }
+  if (matched) return null;
   if (!/[\p{L}\p{N}]/u.test(t)) return /\p{Extended_Pictographic}/u.test(t) ? "ack" : "gibberish";
   const words = t.split(/[^\p{L}]+/u).filter(Boolean);
   return words.length > 0 && words.every(isGibberishWord) ? "gibberish" : null;

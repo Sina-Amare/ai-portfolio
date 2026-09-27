@@ -490,6 +490,46 @@
       "intent": "capability"
     },
     {
+      "id": "st-fa-stretched-salam",
+      "class": "smalltalk",
+      "lang": "fa",
+      "q": "سلاااام",
+      "expect": "smalltalk",
+      "intent": "greeting"
+    },
+    {
+      "id": "st-fa-stretched-thanks",
+      "class": "smalltalk",
+      "lang": "fa",
+      "q": "مرسیییی",
+      "expect": "smalltalk",
+      "intent": "thanks"
+    },
+    {
+      "id": "st-fa-khaste-nabashid",
+      "class": "smalltalk",
+      "lang": "fa",
+      "q": "سلام خسته نباشید",
+      "expect": "smalltalk",
+      "intent": "greeting"
+    },
+    {
+      "id": "st-fa-thanks-explain",
+      "class": "smalltalk",
+      "lang": "fa",
+      "q": "ممنون از توضیحت",
+      "expect": "smalltalk",
+      "intent": "thanks"
+    },
+    {
+      "id": "st-damn-cool",
+      "class": "smalltalk",
+      "lang": "en",
+      "q": "damn, that's cool",
+      "expect": "smalltalk",
+      "intent": "compliment"
+    },
+    {
       "id": "fp-fired",
       "class": "false-premise",
       "lang": "en",
