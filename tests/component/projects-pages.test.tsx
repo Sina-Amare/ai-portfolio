@@ -20,6 +20,17 @@ describe("above-the-fold page titles", () => {
     expect(hiddenUntilJs(h1)).toBeNull();
   });
 
+  it("/projects loads the first cover (the desktop LCP) eagerly, the rest lazily", () => {
+    const { container } = render(
+      <LocaleProvider locale="en">
+        <ProjectsIndex />
+      </LocaleProvider>,
+    );
+    const loading = [...container.querySelectorAll("img")].map((i) => i.getAttribute("loading"));
+    expect(loading[0]).toBe("eager");
+    expect(loading.slice(1)).not.toContain("eager");
+  });
+
   it("a case study's h1 is visible before hydration", () => {
     render(
       <LocaleProvider locale="en">

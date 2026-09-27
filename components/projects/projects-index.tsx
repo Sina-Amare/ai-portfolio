@@ -33,9 +33,10 @@ export function ProjectsIndex() {
             Below lg everything is one column wide (a clean 2×2 on sm), since a
             2-col span there would leave holes. */}
           <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {projects.map((p) => (
+            {projects.map((p, i) => (
               <RevealItem key={p.slug} className={cn(p.span === "wide" && "lg:col-span-2")}>
-                <ProjectCard project={p} />
+                {/* On a desktop screen the first cover is the page's LCP. */}
+                <ProjectCard project={p} eager={i === 0} />
               </RevealItem>
             ))}
 

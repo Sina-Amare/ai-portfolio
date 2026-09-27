@@ -9,7 +9,15 @@ import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
 import { GitHubIcon } from "@/components/icons";
 
-export function ProjectCard({ project, className }: { project: Project; className?: string }) {
+export function ProjectCard({
+  project,
+  eager,
+  className,
+}: {
+  project: Project;
+  eager?: boolean;
+  className?: string;
+}) {
   const { locale, path } = useLocale();
   const tagline = locale === "fa" ? project.taglineFa : project.tagline;
   return (
@@ -22,6 +30,7 @@ export function ProjectCard({ project, className }: { project: Project; classNam
       summary={locale === "fa" ? project.summaryFa : project.summary}
       stack={project.stack}
       cover={project.cover}
+      eager={eager}
       repo={project.repo}
       className={className}
     />
@@ -39,6 +48,7 @@ export function ProjectCardView({
   summary,
   stack,
   cover,
+  eager,
   repo,
   icon: Icon,
   className,
@@ -52,6 +62,8 @@ export function ProjectCardView({
   summary: string;
   stack: string[];
   cover?: string;
+  /** Load the cover with the page: set on the card that is the LCP above the fold. */
+  eager?: boolean;
   /** GitHub button only when set. */
   repo?: string;
   /** Shown when there is no cover. */
@@ -98,6 +110,7 @@ export function ProjectCardView({
               src={cover}
               alt=""
               fill
+              loading={eager ? "eager" : undefined}
               sizes="(min-width: 1180px) 550px, (min-width: 640px) 50vw, 100vw"
               className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
             />
