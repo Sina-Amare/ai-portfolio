@@ -307,6 +307,13 @@ Definitions worth keeping in mind:
 - **Returning visitors** = visitors with 2+ visits this month. A second page in the same
   visit is not a return. (v1's "came back" counted anyone with a second page view, which
   flattered the number — worth knowing if you compare against old screenshots.)
+- **A visitor is an IP + browser pair, not a person.** When someone's IP changes (a phone
+  moving between networks, a VPN switching servers, which many Iranian visitors use), the
+  hash changes too: mid-visit that splits one visit into two, and later it makes a
+  returning visitor look new. The other way round, people behind one shared IP with the
+  same browser, version and OS (carrier NAT, an office) merge into one visitor. So treat
+  visits and returning visitors as close estimates; with a mostly-VPN audience they lean
+  high on visits and low on returning.
 - **Active time** undercounts rather than overcounts: someone reading a long page without
   touching anything for over a minute stops accruing until they scroll again.
 - In a new month everyone is new again, because the salt rotated. That is the privacy
