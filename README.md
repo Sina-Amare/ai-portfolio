@@ -42,10 +42,12 @@ cleanly with **no LLM call**, so it never makes things up.
   Each provider rotates across multiple comma-separated API keys; if one errors, times out, or hits
   quota, the next key/provider takes over automatically and invisibly.
 - **Light LLM load** — greetings, thanks, and off-topic asks get instant canned replies with **no LLM
-  call**; a **semantic answer cache** serves paraphrases of already-answered questions without a new
+  call**; an **answer cache** serves the suggested questions (and paraphrases of them) without a new
   model call; embeddings are cached and key-rotated too.
-- **Bilingual + RTL** — viewer-selectable English / فارسی (Vazirmatn font, right-to-left layout,
-  warm colloquial Persian — not stiff machine translation, tech terms kept in Latin).
+- **Bilingual + RTL** — English at `/`, Persian at real `/fa/...` URLs: statically rendered,
+  indexable and hreflang-linked, and a Persian browser lands there on its first visit (Vazirmatn
+  font, right-to-left layout, warm colloquial Persian — not stiff machine translation, tech terms
+  kept in Latin).
 - **Workplace agents** — two anonymized case studies explain the problems, workflows, engineering
   decisions, and practical value of private research and business-reporting agents. Their source
   code and internal data are not published.
@@ -53,8 +55,14 @@ cleanly with **no LLM call**, so it never makes things up.
   background, and motion that respects `prefers-reduced-motion`.
 - **Polished details** — ⌘K command palette, cursor-spotlight cards, precise scroll-to-section nav,
   an auto-scrolling transcript, and a Telegram-delivered contact form.
-- **Tested** — 103 unit/component/route tests, Playwright E2E specs (LLM mocked), and a RAG retrieval
-  gate (100% refusal on out-of-scope).
+- **Self-hosted analytics at `/admin`** — cookieless for visitors, no raw IPs, free-tier Redis:
+  real visits (30-minute sessions, so a quick return isn't a new visit), engaged visits, active
+  time, how far people get through each page, what they did (chat topics, résumé, links,
+  contact), where they came from, and a log of recent visits, plus a daily Telegram digest. How it
+  works and how to read it: [`docs/analytics.md`](docs/analytics.md).
+- **Tested** — Vitest unit/component/route tests, Playwright E2E specs (LLM mocked), a check that
+  `lib/kb.json` still matches `content/`, and a RAG retrieval gate (100% refusal on
+  out-of-scope). A failing unit test blocks the Vercel deploy.
 
 ---
 
@@ -63,12 +71,13 @@ cleanly with **no LLM call**, so it never makes things up.
 ```text
 Browser ── React UI (useChat) ──▶ /api/chat  (Node serverless route)
                                      1. validate + rate-limit; canned reply for greeting/abuse (no LLM)
-                                     2. embed the question (Gemini, 768-dim, key-rotated + cached)
-                                     3. answer cache — exact + semantic paraphrase hit ▶ instant, no LLM
+                                     2. exact answer cache (first question) ▶ instant, no embed, no LLM
+                                     3. embed the question (Gemini, 768-dim, key-rotated + cached)
                                      4. cosine vs kb.json (in-memory, <1ms)
-                                     5. THRESHOLD GATE ─ below 0.60? ▶ instant refusal, NO LLM call
-                                     6. build a grounded prompt from the top-k chunks
-                                     7. streamText() with the language-aware provider failover ladder
+                                     5. semantic answer cache (a paraphrase) ▶ instant, no LLM
+                                     6. THRESHOLD GATE ─ below 0.60? ▶ instant refusal, NO LLM call
+                                     7. build a grounded prompt from the top-k chunks
+                                     8. streamText() with the language-aware provider failover ladder
                                   SSE token stream ──▶ smooth render + source chips
 
 content/*.md + content/projects/*.md ──(npm run embed)──▶ lib/kb.json   (committed; deploys never re-embed)
@@ -100,6 +109,7 @@ the client only ever calls our own `/api/chat`.
 | LLM providers    | **Groq** (Llama, fastest first-token) · **Google Gemini** (chat + embeddings) · **OpenRouter** (free-model fallback) — language-aware failover + multi-key rotation |
 | Retrieval        | **In-memory cosine** over a committed `kb.json` — no vector DB, with exact + semantic answer caching                                                                |
 | Contact          | **Telegram bot** delivery (server-side)                                                                                                                             |
+| Analytics        | **Upstash Redis** (REST, free tier) — self-hosted, cookieless visits + Vercel cron digest                                                                           |
 | Testing          | **Vitest** · **Testing Library** · **Playwright** · custom RAG eval                                                                                                 |
 | Hosting          | **Vercel** (Hobby / free tier)                                                                                                                                      |
 
@@ -139,10 +149,17 @@ Then open `.env.local` and paste your keys:
 GOOGLE_GENERATIVE_AI_API_KEY=your-google-ai-studio-key
 GROQ_API_KEY=your-groq-key                 # optional, recommended (speed)
 OPENROUTER_API_KEY=your-openrouter-key     # optional (extra fallback)
-# Optional: the contact form delivers to Telegram
+# Optional: the contact form (and the analytics digest) deliver to Telegram
 # TELEGRAM_BOT_TOKEN=...
 # TELEGRAM_CHAT_ID=...
+# Optional: /admin analytics (see docs/analytics.md)
+# UPSTASH_REDIS_REST_URL=...
+# UPSTASH_REDIS_REST_TOKEN=...
+# ADMIN_PASSWORD=...          (a long random value)
+# CRON_SECRET=...             (required for the daily digest)
 ```
+
+[`.env.example`](.env.example) documents every variable, including the optional limits.
 
 > Any key var accepts **comma-separated** values for multi-key rotation.
 > `.env.local` is gitignored — secrets never get committed.
@@ -163,9 +180,10 @@ Open **<http://localhost:3000>** and ask the chatbot anything. 🎉
 | `npm run build` / `npm start`        | Production build / serve it                                            |
 | `npm test`                           | Unit + component + route tests (Vitest)                                |
 | `npm run test:e2e`                   | Playwright E2E (LLM mocked — no keys needed)                           |
-| `npm run eval`                       | RAG retrieval gate (needs the Google key)                              |
+| `npm run eval`                       | RAG retrieval gate (needs the Google key; `eval:ci` reads it from env) |
 | `npm run embed`                      | Rebuild `lib/kb.json` from `content/` after editing the knowledge base |
 | `npm run typecheck` / `npm run lint` | TypeScript / ESLint                                                    |
+| `npm run format` / `format:check`    | Prettier: rewrite / check                                              |
 
 ---
 
@@ -179,25 +197,37 @@ npm run embed   # re-chunks + re-embeds → lib/kb.json (commit the result)
 ```
 
 `kb.json` is committed, so deploys never re-embed. **Anything in it is publicly answerable once
-deployed** — review before committing.
+deployed** — review before committing. `npm test` fails if you edit `content/` and forget to
+re-embed.
 
 ---
 
 ## Project structure
 
 ```text
+proxy.ts                   # locale routing: English unprefixed, Persian at /fa
 app/
+  [lang]/page.tsx          # home: chat hero + featured + workplace + about + contact
+  [lang]/projects/         # index + [slug] case studies
+  [lang]/privacy/          # what the site measures
+  [lang]/admin/            # analytics dashboard (password)
   api/chat/route.ts        # RAG + language-aware provider failover + streaming
   api/contact/route.ts     # contact form → Telegram (validated, rate-limited)
-  page.tsx                 # home: chat hero + featured + about + contact
-  projects/                # index + [slug] case studies
+  api/track/route.ts       # analytics beacon (cookieless, noise-filtered)
+  api/admin/login/         # admin sign-in
+  api/cron/digest/         # daily Telegram digest (Vercel cron)
 components/
   home/chat-hero.tsx       # the centerpiece chatbot
-  chat/                    # transcript, input, message, suggestions, lang toggle
+  chat/                    # transcript, input, message, markdown, suggestions
+  analytics/               # tracker, dashboard, login form
   ...                      # nav, footer, command palette, theme, motion, ui/
 content/                   # the knowledge base (markdown → kb.json)
 lib/rag/                   # chunker, cosine, retrieve, threshold, prompt, providers, cache
+lib/analytics/             # visits, beacon contract, limits, admin auth, insights
+lib/locale.ts, lib/seo.ts  # locales, per-page canonical + hreflang
 scripts/embed.ts           # content/*.md → lib/kb.json
+eval/golden.json           # RAG retrieval gate questions (npm run eval)
+docs/                      # analytics guide, decisions, progress
 tests/                     # unit · component · e2e
 ```
 
@@ -208,7 +238,10 @@ tests/                     # unit · component · e2e
 1. Push to GitHub and import at **[vercel.com/new](https://vercel.com/new)** (auto-detected as Next.js).
 2. Add the environment variables under **Project → Settings → Environment Variables**.
 3. Deploy. The chatbot works immediately — `kb.json` ships with the build, so there's no embedding
-   step at deploy time.
+   step at deploy time. `vercel.json` runs `npm test` before the build, so a failing unit test
+   stops the deploy, and schedules the daily digest cron.
+4. Optional: `/admin` analytics — Upstash Redis from the Vercel Marketplace, `ADMIN_PASSWORD`
+   and `CRON_SECRET`; step by step in [`docs/analytics.md`](docs/analytics.md).
 
 ---
 
