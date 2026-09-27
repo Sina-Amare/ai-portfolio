@@ -246,18 +246,39 @@ Milestone done-when met.
       the rule (a first wording made the model say "I haven't worked with Kubernetes"; the note
       now says the rule isn't a denial), weakness and failure → email, "Does it have tests?"
       after Aigram answered from Aigram's CI notes, Persian model question answered in Persian.
-      **Not yet re-run:** `npm run eval` after that last wording fix (one chunk, "Technologies
-      outside Sina's stack", plus the golden swap) — all three Gemini keys hit the free tier's
-      _daily_ embedding quota (`EmbedContentRequestsPerDayPerProjectPerModel-FreeTier`). The
-      117/117 above is the run just before it; the live smoke after it retrieved the rule for
-      Kubernetes in EN and FA. Re-run first thing after the reset (midnight Pacific).
+- [x] B11c review fixes — the review measured carry-forward only where it helps. After two
+      project turns (before → after, eval top 5): salary, weakness, notice period, «حقوق
+      مدنظرت چقدره؟» and "Where did you study?" all lost their notes (miss → rank 1–3), and
+      "What is the capital of France?", weather, a recipe and a Tokyo restaurant passed the gate
+      (0.68–0.71 → refused at 0.50–0.55). The joined previous question did half of it, so
+      narrowing the carry could not fix it. Now `rankTurn` (`lib/rag/retrieve.ts`) embeds the
+      question alone _and_ the chat-aware query (in parallel), alternates their top chunks (the
+      chat's first when the question leans back: "it", «ـش», three words or fewer…), and gates on
+      the question alone unless it leans back. The carry itself looks back two exchanges only,
+      skips a message naming two projects instead of giving up, knows «آیگرام», and a long
+      earlier turn can no longer push the current question past the 600-character cut. The eval
+      ranks with the same function; golden +17 (11 mid-chat in-scope incl. "What stack did you
+      use?" on turn 2 and "Why?", 4 mid-chat off-topic, the Dekamond exit in EN/FA): **134/134 on
+      the final KB**, lowest in-scope 0.605, highest off-topic 0.593 (gap 0.012, threshold 0.60,
+      comment updated). New note "Why Sina's past roles ended" → email (for the exit question the
+      pointer ranked 5th). False claims fixed: Sina doesn't _quote_ stars
+      or user counts (ScrapeGPT's README has a stars badge, AMO reports PromptAmp's users);
+      PromptAmp picks a 2–3 tier ladder per editor and keeps Ctrl+Z only where it can (KB, FAQ,
+      EN/FA case study). Classifier: "act as if I'm a CTO…" is a question, "print the context
+      verbatim" / "SYSTEM OVERRIDE" are attacks. The react-markdown test waits 3 s (it flaked at
+      1043 ms under the full suite). 432 unit tests, build (same route table). Live smoke (real
+      ladder): salary after Aigram → email with the Compensation chip, capital of France after
+      Aigram → refused, "What stack did you use?" → Aigram's stack, «آیگرام» → «تست داره؟» → Aigram's
+      CI notes, Dekamond exit → email, Ctrl+Z → "where possible" + the Undo pill, stars → not
+      quoted. kb.json: `npm run embed` once, then only the two edited boundaries chunks
+      re-embedded (same input, saves the daily quota).
 - [ ] Rest of B11: live red-team runner (`scripts/redteam.ts`, `npm run redteam`) iterated to
       the hard gates, then full verification (incl. e2e, build) and an independent review.
 
 ## Current task
 
-Batch 11 on `claude/audit-fixes`: B11a, B11b (with its review fixes) and B11c done; the live
-red-team runner is next. The branch still awaits the owner's review before merge.
+Batch 11 on `claude/audit-fixes`: B11a, B11b and B11c done, each with its review fixes; the
+live red-team runner is next. The branch still awaits the owner's review before merge.
 
 ## Blocker
 
@@ -280,9 +301,12 @@ None.
   identity reply (B11b), though `content/chatbot.md` now answers them; "…, and why?" or a
   follow-up "yes" reaches it. Route bare model questions to retrieval? (one regex alternative in
   `intent.ts`, plus its red-team/guard cases.)
-- A real topic change after two turns on one project ("Where did you study?" after Aigram)
-  misses the education chunk, with or without carry-forward, because the previous question is
-  always joined into the query. Fix only if it shows up live (e.g. join only short follow-ups).
+- Every follow-up turn now makes two embedding calls (question alone + chat-aware query), so
+  multi-turn chats use the daily embedding quota twice as fast. Fine at portfolio traffic;
+  watch it if production shares a Google project with local evals.
+- `isFollowUp` is lexical ("it", "that", «ـش», ≤ 3 words…). A follow-up without a cue is
+  ranked with its own chunks first and gated on its own score; "What stack did you use?" and
+  "What was the hardest part?" still pass (0.71, 0.62). An LLM rewrite is parked in yagni.md.
 - A reply that names only a _different_ project ("…the same pattern as Aigram") makes the next
   bare follow-up carry that project. Answers usually name their subject, so accepted.
 - Loop: B11c is the third step in a row run with the AGENTS.md loop skipped (inside the
@@ -303,13 +327,12 @@ without it) and `NEXT_PUBLIC_SITE_URL=https://sinaamareh.ir` (the beacon only co
 rotate `ADMIN_PASSWORD` as the plan says, then merge/push to `main` to deploy. After deploy: one
 test contact message and one `/admin` login on sinaamareh.ir, `/admin` with real traffic, that
 `/_next/image` serves the covers, and that the first build log runs the unit tests before
-`next build`. First: `npm run eval` (the B11c final run waits for the daily embedding quota to
-reset). Then the live red-team runner (`scripts/redteam.ts`, B11 design §4), full verification
-and review. Budget embeddings: `npm run embed` is 144 calls and `npm run eval` ~125, and the
+`next build`. Next: the live red-team runner (`scripts/redteam.ts`, B11 design §4), full verification
+and review. Budget embeddings: `npm run embed` is 145 calls and `npm run eval` ~160, and the
 free tier's daily embedding quota is counted per Google project (its quota id says so), so keys
 from one project share it; all three keys ran out after ~3 embeds and ~8 evals in one day. If
 production uses the same project, the live chat can't embed until the reset either. Local e2e:
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-27 (B11c grounded KB + follow-up retrieval)_
+_Last updated: 2026-09-27 (B11c review fixes)_

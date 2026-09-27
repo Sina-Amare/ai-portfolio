@@ -118,6 +118,11 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - **Query rewriting (follow-up resolution)** — changing what gets embedded so a follow-up like "does
   it have tests?" still finds the right notes. Here it is one cheap rule (carry the last project
   named); the alternative, asking an LLM to rewrite the question, costs a model call per turn.
+- **Multi-query retrieval** — embedding more than one reading of a turn and merging the results.
+  Here a mid-chat question is embedded alone _and_ with the chat around it, and the two top-6 lists
+  alternate: "What stack did you use?" after Aigram gets Aigram's stack from the chat reading, and
+  "What are your salary expectations?" after Aigram gets the email pointer from its own. The cost is
+  a second embedding call on every follow-up turn (in parallel, so no extra wait, but double quota).
 
 ## Study briefs
 
@@ -250,18 +255,26 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   above Aigram's (Aigram was 6th, outside the top 5 the eval checks). `retrievalQuery` in
   `lib/rag/retrieve.ts` now puts the last project or employer the chat named in front of the
   query ("Aigram What stack…"). Measured on 6 follow-ups: two misses (not in the top 6) and two
-  weak hits (ranks 4 and 6) all moved to rank 1–2; the other two stayed at or rose to rank 1. Known cost: a real topic change ("Where did you study?" after two Aigram turns)
-  gets Aigram chunks too; the education chunk was already missing there before, because the
-  previous question is always joined in.
+  weak hits (ranks 4 and 6) all moved to rank 1–2; the other two stayed at or rose to rank 1.
+  The review then measured the other direction: after two Aigram turns, "What are your salary
+  expectations?", "What's your biggest weakness?", "What's your notice period?" and "Where did you
+  study?" all lost their notes (the carried name _and_ the joined previous question pulled in
+  Aigram), and "What is the capital of France?" passed the relevance gate. So `rankTurn` now
+  embeds the question alone as well, alternates both top lists (the chat's first when the question
+  leans back: "it", "that", «ـش», three words or fewer), and gates on the question alone unless it
+  leans back. All 15 mid-chat golden cases pass, and all 4 off-topic questions asked mid-chat
+  are refused.
 - **Depth:** L2 — can use it with docs
-- **Question you must be able to answer:** why does the carried name go at the _start_ of the
-  query, and why is nothing carried when the last reply names two projects?
+- **Question you must be able to answer:** why does the relevance gate read the question _alone_
+  (not the chat-aware query) unless the question leans back, and what breaks if it always read the
+  chat-aware one?
 - **Don't go into:** LLM-based query rewriting, conversation summarisation, re-ranking models.
 - **Stop when:** you can add a multi-turn case with `history` to `eval/golden.json`, predict its
   rank, and read the before/after in `npm run eval`.
-- **Read first:** `lib/rag/retrieve.ts` (`ALIASES`, `retrievalQuery`) → `tests/unit/retrieve.test.ts`
-  → `scripts/rag-eval.ts` (`queryFor`) → the `history` entries at the end of `eval/golden.json`.
-- **Terms used:** query rewriting, coreference ("it" → Aigram), top-k, recall.
+- **Read first:** `lib/rag/retrieve.ts` (`retrievalQuery`, `isFollowUp`, `rankTurn`) →
+  `tests/unit/retrieve.test.ts` → `scripts/rag-eval.ts` (`rank`) → the `history` entries at the
+  end of `eval/golden.json`.
+- **Terms used:** query rewriting, coreference ("it" → Aigram), multi-query retrieval, top-k, recall.
 
 ## Decision journal
 
