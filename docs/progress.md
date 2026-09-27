@@ -127,12 +127,17 @@ checklist to verify.
       earlier: chat-10 realistic stream mocks (B2), e2e for /fa + hreflang (B3) and workplace (B4).
       Docs: README (analytics at /admin, /fa URLs, exact cache before embed, env, structure, scripts)
       (health-10), docs/analytics.md checked against the code (HKDF session key, prefixed Redis
-      vars, CRON_SECRET in setup, monthly salt, PowerShell-friendly local dev) (health-11, sec-10),
+      vars, CRON*SECRET in setup, monthly salt, PowerShell-friendly local dev) (health-11, sec-10),
       `.env.example` lists every variable the code reads with current defaults (health-12; the
       0.60 threshold comment was already right). CI (health-13): `vercel.json` runs `npm test`
       before the build, so a red unit test blocks the deploy; vitest pins NODE_ENV=test because 53
       tests fail if the build shell exports production; a skipped RAG eval shows a ::warning::.
       Four study briefs + terms in learning.md. `npm test && npm run build` passes locally.
+      Review follow-up: the Vercel build hands the tests the production env, and the Upstash
+      integration's `KV_REST_API*\*`made one fail (every deploy blocked). vitest.config.ts now drops
+    every variable`.env.example`documents plus any Redis REST credential, so tests never read
+    real secrets or tuned limits; CI runs them with fakes to prove it. The admin cookies'`Secure`
+      flag in production is pinned too. 226 tests, green under a fake full Vercel env.
 - [ ] B10 final verification + report
 
 ## Current task
@@ -164,4 +169,4 @@ final independent review of the branch, then the owner report. After deploy: che
 running before `next build`. Owner, before deploying: set `CRON_SECRET` in Vercel (the digest cron
 fails closed without it).
 
-_Last updated: 2026-09-27 (B9 done)_
+_Last updated: 2026-09-27 (B9 done, review fixes in)_
