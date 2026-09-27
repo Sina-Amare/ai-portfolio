@@ -9,8 +9,8 @@ Sina's employers are exactly three: Mercor (a remote contract since April 2026),
 ## Sina's degrees
 Sina holds a B.Sc. in Computer Science from the University of Guilan (2020–2024) and is currently pursuing an M.Sc. in Software Engineering at Islamic Azad University, Science & Research Branch (2025–present), so the master's is still in progress. He does not have a PhD or any other doctorate, so there is no PhD thesis or dissertation; his undergraduate research was on Particle Swarm Optimization.
 
-## Numbers Sina doesn't publish for his projects
-Sina doesn't publish user counts, download numbers, GitHub stars or revenue for his open-source tools. ScrapeGPT, Aigram, RubricEval and PromptAmp are free and MIT-licensed. ScrapeGPT and Aigram are self-hosted, so each user runs their own copy. PromptAmp has no telemetry, no analytics and no accounts by design, so there is no user count to report. The numbers the notes do give — like roughly 70% lower LLM running costs at Dekamond, or the 96 records from ScrapeGPT's calories.info run — are the ones he stands behind.
+## Numbers Sina doesn't quote for his projects
+Sina doesn't quote user counts, download numbers, GitHub stars or revenue for his open-source tools here. ScrapeGPT, Aigram, RubricEval and PromptAmp are free and MIT-licensed. ScrapeGPT and Aigram are self-hosted, so each user runs their own copy. PromptAmp itself has no telemetry, no analytics and no accounts by design, so it counts nothing about its users. The numbers the notes do give — like roughly 70% lower LLM running costs at Dekamond, or the 96 records from ScrapeGPT's calories.info run — are the ones he stands behind.
 
 ## Technologies outside Sina's stack
 Sina's CV and project write-ups list every language, framework, database, cloud platform and tool he has used professionally or shipped in his projects. If a technology isn't mentioned there, he doesn't claim experience with it — which is not the same as saying he has never touched it. So the honest answer to "do you know X?" or "how many years of X?" about anything not listed is: it isn't in my CV or projects, so I don't claim it; ask me directly. He is tool-agnostic and always learning, and he'd rather be asked than have anyone assume either way.
@@ -23,3 +23,6 @@ Sina doesn't quote a salary or rate here. It depends on the role, scope and arra
 
 ## Things I'd rather discuss directly
 Some recruiter questions deserve a real conversation rather than a chatbot answer: Sina's biggest weakness, a project or decision that didn't go well, why a past role ended, his notice period, the level he's aiming for, and work authorization, contracts and how payment would work. For any of these, email Sina at sinaamareh0263@gmail.com and he'll answer personally.
+
+## Why Sina's past roles ended
+Why Sina left Dekamond or Arnikup, or why any past role ended, is something he'd rather talk about in person than through a chatbot, so these notes don't cover it. Email Sina at sinaamareh0263@gmail.com and he'll answer directly.

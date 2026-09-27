@@ -291,7 +291,7 @@ export const projects: Project[] = [
     highlights: [
       {
         title: "Works in any text field",
-        body: "Injecting text into other sites is the genuinely hard part — modern editors like the ones ChatGPT and Notion use silently reject it. PromptAmp's insertion engine tries five strategies in order, each writing the way real typing does, so the page's editor keeps working and your Ctrl+Z survives — and it checks the text actually landed, rolling the field back if it didn't.",
+        body: "Injecting text into other sites is the genuinely hard part — modern editors like the ones ChatGPT and Notion use silently reject it. PromptAmp's insertion engine has five strategies and tries the ones that suit each kind of editor, best first. Each writes the way real typing does, so the page's editor keeps working and, where it can, your Ctrl+Z too — and it checks the text actually landed, rolling the field back if it didn't.",
       },
       {
         title: "Your keys, eight providers",
@@ -325,7 +325,7 @@ export const projects: Project[] = [
       highlights: [
         {
           title: "توی هر فیلد متنی کار می‌کنه",
-          body: "ادیتورهای سایت‌ها یک‌شکل نیستن؛ بعضی‌ها متنی رو که اکستنشن وارد می‌کنه بی‌سروصدا رد می‌کنن. PromptAmp پنج روش درج رو به ترتیب امتحان می‌کنه و چک می‌کنه متن واقعاً ثبت شده باشه؛ اگه نشده باشه، فیلد رو به حالت قبل برمی‌گردونه. Ctrl+Z هم کار می‌کنه.",
+          body: "ادیتورهای سایت‌ها یک‌شکل نیستن؛ بعضی‌ها متنی رو که اکستنشن وارد می‌کنه بی‌سروصدا رد می‌کنن. PromptAmp پنج روش درج داره و برای هر نوع ادیتور، اون‌هایی رو که بهش می‌خورن امتحان می‌کنه و چک می‌کنه متن واقعاً ثبت شده باشه؛ اگه نشده باشه، فیلد رو به حالت قبل برمی‌گردونه. هر جا بشه، Ctrl+Z خود مرورگر هم کار می‌کنه.",
         },
         {
           title: "کلید و انتخاب سرویس دست خودته",
