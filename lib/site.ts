@@ -5,7 +5,7 @@ export const site = {
   name: "Sina Amareh",
   /** The name in each page's language: tab titles, link previews, the footer.
    *  The Latin name stays the visual brand (nav logo, hero chip). */
-  localName: { en: "Sina Amareh", fa: "سینا عماره" },
+  localName: { en: "Sina Amareh", fa: "سینا آماره" },
   firstName: "Sina",
   role: "Software Developer · Backend & AI",
   tagline: "Python backend + AI/LLM engineer",

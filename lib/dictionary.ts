@@ -185,7 +185,7 @@ export const dict = {
       resume: "رزومه",
       command: "دسترسی سریع",
       menu: "منو",
-      homeLabel: "سینا عماره — خانه",
+      homeLabel: "سینا آماره — خانه",
       openMenu: "باز کردن منو",
       closeMenu: "بستن منو",
       language: "زبان سایت",

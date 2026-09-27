@@ -567,7 +567,7 @@ const REPLIES: Record<Reply, Record<Lang, readonly string[]>> = {
       "I go by Sina here, the AI edition. The original built me to talk about his work, so fire away.",
     ],
     fa: [
-      "اسمم؟ نسخهٔ AI سینا عماره‌ام 😄 خود سینا منو ساخته. از پروژه‌ها یا تجربه‌هام بپرس.",
+      "اسمم؟ نسخهٔ AI سینا آماره‌ام 😄 خود سینا منو ساخته. از پروژه‌ها یا تجربه‌هام بپرس.",
       "اینجا منو سینا صدا کن، البته نسخهٔ AIش 😄 خود سینا منو ساخته که دربارهٔ کارهاش حرف بزنم. بپرس!",
     ],
   },

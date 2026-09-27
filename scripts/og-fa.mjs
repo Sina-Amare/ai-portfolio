@@ -2,7 +2,7 @@
  * Renders the Persian link-preview card → app/[lang]/og-fa.png (1200×630).
  *
  * Satori (next/og) shapes Persian letters but lays words out left-to-right and
- * drops ZWNJ, so "سینا عماره" comes out reversed. Chromium gets bidi right, so
+ * drops ZWNJ, so "سینا آماره" comes out reversed. Chromium gets bidi right, so
  * the Persian card is a committed screenshot instead. Re-run after changing the
  * copy: `node scripts/og-fa.mjs` (needs network for Google Fonts).
  */
@@ -25,7 +25,7 @@ const html = `<!doctype html>
   .handle { margin-top: 36px; font: 500 26px "JetBrains Mono", monospace; color: #f5b544; direction: ltr; text-align: right; }
 </style></head><body>
   <div class="eyebrow">مهندس بک‌اند Python و AI/LLM</div>
-  <h1>سینا عماره</h1>
+  <h1>سینا آماره</h1>
   <p>با Python بک‌اند و برنامه‌های AI می‌سازم. از پروژه‌ها و تجربه‌هام از دستیار سایت بپرس.</p>
   <div class="handle">sina.amareh</div>
 </body></html>`;
