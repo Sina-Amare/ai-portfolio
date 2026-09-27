@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { createHmac } from "node:crypto";
 import {
   browserFrom,
@@ -13,8 +13,11 @@ import {
 import { visitorHash, dayKey, monthKey } from "@/lib/analytics/store";
 import { parseBeacon } from "@/lib/analytics/beacon";
 import {
+  clearedCookie,
   createSessionToken,
   isOwner,
+  ownerCookie,
+  sessionCookie,
   verifySessionToken,
   passwordMatches,
 } from "@/lib/analytics/auth";
@@ -220,6 +223,7 @@ describe("analytics/auth", () => {
   });
   afterEach(() => {
     process.env.ADMIN_PASSWORD = OLD;
+    vi.unstubAllEnvs();
   });
 
   it("accepts the right password and rejects wrong ones (incl. length mismatch)", () => {
@@ -282,6 +286,14 @@ describe("analytics/auth", () => {
     expect(isOwner("sa_admin=forged.token.deadbeef")).toBe(false);
     expect(isOwner("sa_owner=0; not_sa_owner=1")).toBe(false);
     expect(isOwner(null)).toBe(false);
+  });
+
+  it("marks every admin cookie Secure in production, so it never travels over plain HTTP", () => {
+    expect(sessionCookie("t")).not.toContain("Secure"); // http://localhost in dev
+    vi.stubEnv("NODE_ENV", "production");
+    for (const cookie of [sessionCookie("t"), ownerCookie(), clearedCookie()]) {
+      expect(cookie).toMatch(/; HttpOnly; SameSite=Lax; .*; Secure$/);
+    }
   });
 
   it("prefers an explicit ADMIN_SESSION_SECRET when set", () => {
