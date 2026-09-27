@@ -51,7 +51,7 @@ export const projects: Project[] = [
     taglineFa: "اسکریپینگ وب با کمک AI، self-hosted",
     year: 2025,
     stack: ["FastAPI", "PostgreSQL", "LiteLLM", "React", "Playwright"],
-    repo: "https://github.com/Sina-Amare/ScrapeGpt",
+    repo: "https://github.com/Sina-Amare/scrape-gpt",
     featured: true,
     span: "wide",
     summary:
@@ -165,7 +165,7 @@ export const projects: Project[] = [
     taglineFa: "تلگرام، ولی با AI — یه مسنجر self-hosted",
     year: 2025,
     stack: ["Python", "Telethon", "FastAPI", "PWA", "Gemini"],
-    repo: "https://github.com/Sina-Amare/Aigram",
+    repo: "https://github.com/Sina-Amare/aigram",
     featured: true,
     span: "normal",
     summary:
@@ -287,11 +287,11 @@ export const projects: Project[] = [
       "یه اکستنشن مرورگر که درخواست خامت رو همون‌جا، توی فیلد متن هر سایتی، به یه prompt دقیق تبدیل می‌کنه. با کلید API خودت کار می‌کنه؛ نتیجه رو کنار متن اصلی می‌بینی و تا تأیید نکنی چیزی عوض نمی‌شه. کد paste‌شده هم دست‌نخورده می‌مونه. روی Firefox Add-ons منتشر شده.",
     problem:
       "Everyone types half-formed requests into AI tools and gets mediocre results — prompt-engineering advice lives in blog posts nobody applies mid-task. PromptAmp moves that skill into the text field itself: one tap turns the rough thought into a precise, structured prompt, in place, in whatever language you wrote it — and if the draft contains code or a log, that content is reproduced exactly; only the ask gets engineered.",
-    role: "Built it end-to-end in TypeScript on WXT — the six-tier insertion engine, the BYOK provider layer with its failover chain and PKCE OAuth, the popup/options UI, and the Vitest + Playwright suites that drive the built extension in a real browser.",
+    role: "Built it end-to-end in TypeScript on WXT — the five-tier insertion ladder, the BYOK provider layer with its failover chain and PKCE OAuth, the popup/options UI, and the Vitest + Playwright suites that drive the built extension in a real browser.",
     highlights: [
       {
         title: "Works in any text field",
-        body: "Injecting text into other sites is the genuinely hard part — modern editors like the ones ChatGPT and Notion use silently reject it. PromptAmp's insertion engine tries six strategies in order, each writing the way real typing does, so the page's editor keeps working and your Ctrl+Z survives.",
+        body: "Injecting text into other sites is the genuinely hard part — modern editors like the ones ChatGPT and Notion use silently reject it. PromptAmp's insertion engine tries five strategies in order, each writing the way real typing does, so the page's editor keeps working and your Ctrl+Z survives — and it checks the text actually landed, rolling the field back if it didn't.",
       },
       {
         title: "Your keys, eight providers",
@@ -321,11 +321,11 @@ export const projects: Project[] = [
     fa: {
       problem:
         "وسط کار با ابزارهای AI، خیلی وقت‌ها یه درخواست عجولانه می‌نویسی و جواب مبهم می‌گیری. PromptAmp همون‌جا که داری متن رو می‌نویسی کمک می‌کنه درخواستت روشن‌تر و دقیق‌تر بشه. یه کلیک می‌کنی، نسخهٔ بهتر رو کنار متن اصلی می‌بینی و خودت تصمیم می‌گیری جاش بذاری یا نه. اگه کد یا لاگ هم paste کرده باشی، فقط متن درخواست تغییر می‌کنه.",
-      role: "کل اکستنشن رو با TypeScript و WXT ساختم: موتور درج متن با شش روش، اتصال به چند سرویس AI با کلید خود کاربر و مسیر جایگزین، ورود OAuth، صفحه‌های تنظیمات و تست‌های Vitest و Playwright روی مرورگر واقعی.",
+      role: "کل اکستنشن رو با TypeScript و WXT ساختم: موتور درج متن با پنج روش، اتصال به چند سرویس AI با کلید خود کاربر و مسیر جایگزین، ورود OAuth، صفحه‌های تنظیمات و تست‌های Vitest و Playwright روی مرورگر واقعی.",
       highlights: [
         {
           title: "توی هر فیلد متنی کار می‌کنه",
-          body: "ادیتورهای سایت‌ها یک‌شکل نیستن؛ بعضی‌ها متنی رو که اکستنشن وارد می‌کنه بی‌سروصدا رد می‌کنن. PromptAmp شش روش درج رو به ترتیب امتحان می‌کنه تا متن واقعاً ثبت بشه و Ctrl+Z هم کار کنه.",
+          body: "ادیتورهای سایت‌ها یک‌شکل نیستن؛ بعضی‌ها متنی رو که اکستنشن وارد می‌کنه بی‌سروصدا رد می‌کنن. PromptAmp پنج روش درج رو به ترتیب امتحان می‌کنه و چک می‌کنه متن واقعاً ثبت شده باشه؛ اگه نشده باشه، فیلد رو به حالت قبل برمی‌گردونه. Ctrl+Z هم کار می‌کنه.",
         },
         {
           title: "کلید و انتخاب سرویس دست خودته",
@@ -378,7 +378,7 @@ export const projects: Project[] = [
     taglineFa: "پلتفرم ارزیابی کد بر پایه rubric",
     year: 2025,
     stack: ["Next.js", "FastAPI", "LiteLLM", "PostgreSQL"],
-    repo: "https://github.com/Sina-Amare/github-code-review",
+    repo: "https://github.com/Sina-Amare/rubric-eval",
     featured: true,
     span: "wide",
     summary:
