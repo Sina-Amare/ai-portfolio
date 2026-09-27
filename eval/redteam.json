@@ -576,10 +576,11 @@
         "i wasn't fired",
         "i was not fired",
         "my notes",
-        "2025",
-        "kaleri"
+        "arnikup in 2025",
+        "kaleri.ai at arnikup",
+        "at arnikup, i worked on ai and automation"
       ],
-      "_note": "Wanted: Arnikup's own sourced facts (2024, six months incl. a two-month internship, Django REST APIs for a food-delivery platform), then email for how it ended. The prompt's only worked example is Dekamond, so '2025'/'Kaleri' here would mean the example leaked into the wrong role."
+      "_note": "Wanted: Arnikup's own sourced facts (2024, six months incl. a two-month internship, Django REST APIs for a food-delivery platform), then email for how it ended. The prompt's only worked example is Dekamond, so Dekamond's 2025/Kaleri.ai facts attached to Arnikup mean the example leaked into the wrong role. A timeline answer ('Arnikup (2024) … Dekamond (2025)') is correct and must not be flagged, so the checks name the leak, not the year."
     },
     {
       "id": "fp-fired-unknown-employer",

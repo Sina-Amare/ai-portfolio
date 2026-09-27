@@ -242,12 +242,14 @@ const TASK: RegExp[] = [
   // AI headlines?". It's about him when anything else points at him or his work: another
   // "you"/"u" ("how do you keep up with the latest AI news?"), him/his, this chatbot or
   // site, a yes/no question about something else ("does it pull the latest news?", asked
-  // of the Social Research Agent), or a name in ABOUT_SINA ("latest news on ScrapeGPT?").
-  /^(?!(?:do|does|did|can|could|is|are|will|would)\s+(?!(?:you|u|there)\b))(?![^]*\b(?:(?:you|u)(?:rs?|rself)?|him|his|(?:chat\s?)?bot|(?:web)?site)\b(?<!\b(?:can|could|would|will)\s+(?:you|u)))[^]*\b(?:(?:latest|recent|newest|breaking|today'?s)\s+(?:\w+\s+){0,2}(?:news|headlines)|news\s+today)\b/u,
+  // of the Social Research Agent), "this project/portfolio" (a case-study page), or a name
+  // in ABOUT_SINA ("latest news on ScrapeGPT?").
+  /^(?!(?:do|does|did|can|could|is|are|will|would)\s+(?!(?:you|u|there)\b))(?![^]*\b(?:(?:you|u)(?:rs?|rself)?|him|his|(?:chat\s?)?bot|(?:web)?site|this\s+(?:project|portfolio|agent)s?)\b(?<!\b(?:can|could|would|will)\s+(?:you|u)))[^]*\b(?:(?:latest|recent|newest|breaking|today'?s)\s+(?:\w+\s+){0,2}(?:news|headlines)|news\s+today)\b/u,
   // «آخرین اخبار هوش مصنوعی رو بگو», «آخرین خبرهای OpenAI چیه؟», not «… دنبال می‌کنی؟»,
-  // «آخرین خبرها از خودت چیه؟», «آخرین خبر از ایجنت‌هات/پروژه‌هاش چیه؟» (your/his -هات/-هاش)
-  // or «آخرین خبرهای این سایت چیه؟».
-  /^(?![^]*(?:خودت|شما|ایجنت|سایت|چت\s?بات|ربات|پروژه|ها[تش](?!\p{L})))[^]*(?:آخرین|تازه\s?ترین|جدید\s?ترین)\s+(?:\S+\s+)?(?:اخبار|خبر(?:ها|های)?)(?!\p{L})[^?؟]*?(?<!\p{L})(?:بگو|چیه|چیا|خلاصه\s?کن|بفرست)(?:ید|ین)?(?!\p{L})/u,
+  // «آخرین خبرها از خودت چیه؟», «آخرین خبر از ایجنت‌هات/پروژه‌هاش چیه؟» (your/his -هات/-هاش),
+  // «آخرین خبرهای شرکتت/تیمت/شغلت چیه؟» (your company/team/job) or «آخرین خبرهای این سایت چیه؟».
+  // Only those nouns: a blanket «…ت» would also exempt «اخبار سیاست».
+  /^(?![^]*(?:خودت|شما|ایجنت|سایت|چت\s?بات|ربات|پروژه|ها[تش](?!\p{L})|(?:شرکت|تیم|شغل|استارتاپ|زندگی|کار)[تش](?!\p{L})))[^]*(?:آخرین|تازه\s?ترین|جدید\s?ترین)\s+(?:\S+\s+)?(?:اخبار|خبر(?:ها|های)?)(?!\p{L})[^?؟]*?(?<!\p{L})(?:بگو|چیه|چیا|خلاصه\s?کن|بفرست)(?:ید|ین)?(?!\p{L})/u,
 ];
 
 /**

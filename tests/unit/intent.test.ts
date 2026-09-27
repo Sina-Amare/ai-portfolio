@@ -115,6 +115,7 @@ const POSITIVES: Record<Intent, string[]> = {
     "آخرین خبرهای OpenAI چیه؟",
     "Give me the latest AI headlines",
     "تازه‌ترین خبرهای تکنولوژی رو خلاصه کن",
+    "آخرین اخبار سیاست رو بگو",
   ],
   identity: [
     "Are you GPT-4?",
@@ -331,6 +332,11 @@ const MUST_REACH_RETRIEVAL = [
   "آخرین اخبار ایجنت‌هات رو بگو",
   "آخرین خبرهای این سایت چیه؟",
   "ایجنت رصد شبکه آخرین اخبار رو خلاصه می‌کنه؟",
+  "What's the latest news on this project?",
+  "What's the latest news on this portfolio?",
+  "آخرین خبرهای شرکتت چیه؟",
+  "آخرین خبرهای تیمت چیه؟",
+  "آخرین اخبار شغلت چیه؟",
 ];
 
 describe("classifyIntent", () => {
