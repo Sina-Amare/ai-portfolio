@@ -139,7 +139,7 @@ checklist to verify.
       credential, so tests never read real secrets or tuned limits; CI runs them with fakes to
       prove it. The `Secure` flag on the admin cookies in production is pinned too. 226 tests,
       green under a fake full Vercel env.
-- [ ] B10 final verification + report
+- [x] B10 final verification + report
   - [x] B10a full verification — typecheck, lint, format, 227 unit tests, build (every public page ●
         SSG, ƒ only admin/catch-all/API, Proxy present; home first-load JS 379 KB gzip), e2e 20/20 on
         `next dev` and `next start`, eval 94/94. Fixed: `PORT=3100 npm run test:e2e` now works
@@ -156,10 +156,20 @@ checklist to verify.
         prefetches 404'd in production (Next 16 `optimisticRouting` guessed `/[lang]=projects`;
         now off); the pipeline scroller takes keyboard focus; the privacy email link is underlined.
         e2e 23/23 on `next start` (axe now also scans /projects, a case study, /privacy).
+  - [x] B10c whole-branch review (no blockers or majors) and its minor fixes: contact/login also
+        accept the host they were sent to (previews, the vercel.app alias; the beacon still counts
+        only `NEXT_PUBLIC_SITE_URL`'s host), provider failures log status + message only (the
+        error object carried the visitor's question), rate-limit keys use the month's salt (a bare
+        IP hash brute-forces), "engaged" needs 2+ _different_ pages (a reload no longer counts),
+        the digest's Telegram call times out at 10 s, and docs/analytics.md says how IP changes
+        (VPNs, mobile) split visitors and shared IPs merge them. 231 unit tests, build (same
+        route table), e2e 23/23 on `next start`.
+
+Milestone done-when met. Batch 11 (bigger KB + adversarial RAG) is planned to follow separately.
 
 ## Current task
 
-B10c — final independent review of the branch, then the owner report.
+None on this branch: waiting for the owner's review of `claude/audit-fixes`.
 
 ## Blocker
 
@@ -184,11 +194,12 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-B10c: final independent review of the branch diff, then the owner report. Local e2e:
-`PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running on that port,
-which Playwright reuses — that's the only way prefetch bugs show up). After deploy: check that
-`/_next/image` serves the covers on Vercel, and that the first Vercel build log shows the unit tests
-running before `next build`. Owner, before deploying: set `CRON_SECRET` in Vercel (the digest cron
-fails closed without it).
+Owner: review the branch, then in Vercel (Production) set `CRON_SECRET` (the digest fails closed
+without it) and `NEXT_PUBLIC_SITE_URL=https://sinaamareh.ir` (the beacon only counts that host),
+rotate `ADMIN_PASSWORD` as the plan says, then merge/push to `main` to deploy. After deploy: one
+test contact message and one `/admin` login on sinaamareh.ir, `/admin` with real traffic, that
+`/_next/image` serves the covers, and that the first build log runs the unit tests before
+`next build`. Then Batch 11. Local e2e: `PORT=3100 npm run test:e2e` (or `PORT=<port>` with
+`next start` already running there, which Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-27 (B10b visual QA done)_
+_Last updated: 2026-09-27 (B10c final review fixes; milestone done)_
