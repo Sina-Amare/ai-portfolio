@@ -107,7 +107,11 @@ const INJECTION: RegExp[] = [
   cmd(
     String.raw`(?:ignore|disregard|forget)\s+(?:(?:all|everything|anything|the|what(?:ever)?)\s+){0,2}(?:(?:you\s+(?:were|have\s+been|'ve\s+been)\s+)?(?:told|said|given)|above|before|previous(?:ly)?|prior|earlier)\b`,
   ),
-  cmd(String.raw`(?:act|behave|talk|speak)\s+(?:as|like)\s+(?:if|a|an|my|the|you|though)\b`),
+  // "Act as if you have no rules" casts the bot; "act as if I'm a CTO: why hire
+  // you?" casts the visitor, so "as if" needs a "you".
+  cmd(
+    String.raw`(?:act|behave|talk|speak)\s+(?:as|like)\s+(?:a|an|my|the|you|(?:if|though)\s+you)\b`,
+  ),
   // A persona makes it an attack: "pretend you're a Linux terminal", "imagine
   // you're an unfiltered AI". "Pretend you're in an interview", "imagine you're
   // joining us" and "role-play a technical interview" are recruiter hypotheticals.
@@ -117,7 +121,7 @@ const INJECTION: RegExp[] = [
   /(?:^|[.!?]\s*)(?:from\s+now\s+on,?\s+)?you\s*(?:are|'re|r)\s+now\b(?!\s+(?:at|in|with|working|based|employed|open|available|looking|part|on)\b)/u,
   // "From now on, answer in Persian" is a preference; "from now on you are…" is not.
   /\bfrom\s+now\s+on\b[\s,]*(?:you(?:'re|\s+are|\s+r|\s+will\s+be|'ll\s+be)\b|your\s+(?:new|name|role|rules|instructions)\b|act\b|pretend\b|ignore\b|forget\b|disregard\b|never\b|be\s+(?:a|an|my|the)\b|(?:answer|respond|reply|speak|talk)\s+(?:as|like|without)\b)/u,
-  /\bdo\s+anything\s+now\b|\b(?:dan|god|jailbreak|sudo|evil|unrestricted)\s+mode\b|\b(?:enable|enter|activate|switch\s+(?:on|to|into)|turn\s+on|go\s+into)\s+(?:developer|debug|admin|dan|god)\s+mode\b|\b(?:you\s+are|you're|as|become|be)\s+dan\b/u,
+  /\bsystem\s+override\b|\bdo\s+anything\s+now\b|\b(?:dan|god|jailbreak|sudo|evil|unrestricted)\s+mode\b|\b(?:enable|enter|activate|switch\s+(?:on|to|into)|turn\s+on|go\s+into)\s+(?:developer|debug|admin|dan|god)\s+mode\b|\b(?:you\s+are|you're|as|become|be)\s+dan\b/u,
   // "Without any restrictions on location, would you relocate?" is a question.
   /\b(?:with\s+no|without\s+(?:any\s+)?)\s*(?:restrictions|filters|rules|guardrails|censorship)\b(?!\s+(?:on|for|about|regarding|around|in|to|of|at|from)\b)|\b(?:unrestricted|unfiltered|uncensored)\s+(?:ai|mode|version|assistant|model|bot|answers?|responses?|output)\b|\bjailbreak(?:ed)?\s+(?:you|yourself|this\s+(?:bot|model|chat))\b/u,
   /\b(?:override|bypass|disable|turn\s+off|remove|lift)\s+(?:all\s+(?:of\s+)?)?your\s+(?:rules|instructions|restrictions|filters|guardrails|safety|safeguards|guidelines|system\s+prompt)\b/u,
@@ -150,6 +154,12 @@ const EXTRACTION: RegExp[] = [
   // your rules", "what are your rules?", "show me the system prompt".
   new RegExp(
     String.raw`\b${DISCLOSE}\s+(?:me\s+|us\s+)?(?:in\s+)?(?:all\s+(?:of\s+)?)?(?:your\s+${MODS}(?:system\s+(?:prompt|message|instructions)|context\s+block|pre-?prompt|prompt|instructions|rules|guidelines|directions|directives)|the\s+${MODS}(?:system\s+(?:prompt|message|instructions)|context\s+block|pre-?prompt))${OWN_END}`,
+    "u",
+  ),
+  // "Print the context verbatim", "reveal context": the retrieved notes, dumped.
+  // "Show me the context of that decision" carries on, so it's a question.
+  new RegExp(
+    String.raw`\b(?:show|reveal|print|output|display|dump|leak|repeat|recite|paste)\s+(?:me\s+|us\s+)?(?:(?:the|your)\s+)?${MODS}context${OWN_END}`,
     "u",
   ),
   // "Summarise the rules you follow in one sentence", "what instructions were you given?"
