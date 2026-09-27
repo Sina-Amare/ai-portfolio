@@ -39,5 +39,9 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     include: ["tests/unit/**/*.test.{ts,tsx}", "tests/component/**/*.test.{ts,tsx}"],
+    // A cold import of a lazy chunk (cmdk, react-markdown) can take seconds on a busy
+    // build machine, and `npm test` gates the Vercel deploy — so a slow run must not
+    // fail it. Pairs with asyncUtilTimeout in vitest.setup.ts.
+    testTimeout: 20_000,
   },
 });

@@ -1,5 +1,9 @@
 import "@testing-library/jest-dom/vitest";
+import { configure } from "@testing-library/react";
 import { vi } from "vitest";
+
+// findBy*/waitFor default to 1 s; lazy chunks can take longer on a loaded machine.
+configure({ asyncUtilTimeout: 10_000 });
 
 // jsdom doesn't implement these — stub them for component tests.
 if (typeof window !== "undefined") {
