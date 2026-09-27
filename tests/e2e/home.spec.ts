@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test("home renders the hero and nav with no console errors", async ({ page }) => {
@@ -80,6 +80,33 @@ test("workplace agent cards link to their write-ups on /projects", async ({ page
   await expect(articles.nth(1).getByText("Numbers first, narrative second")).toBeVisible();
   // Private code: no repo or source links inside the write-ups.
   await expect(articles.locator("a")).toHaveCount(0);
+});
+
+test("How it works wraps beside the sidebar on wide screens and scrolls sideways on phones", async ({
+  page,
+}) => {
+  const clippedSteps = (region: Locator) =>
+    region.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return [...el.querySelectorAll("li")].filter((li) => {
+        const b = li.getBoundingClientRect();
+        return b.left < r.left - 1 || b.right > r.right + 1;
+      }).length;
+    });
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  // The longest pipeline, one in RTL, and both workplace agents.
+  for (const url of ["/projects/github-code-review", "/fa/projects/scrapegpt", "/projects"]) {
+    await page.goto(url);
+    const regions = await page.getByRole("region", { name: /^(How it works|مسیر کار)$/ }).all();
+    expect(regions.length).toBeGreaterThan(0);
+    for (const region of regions) expect(await clippedSteps(region)).toBe(0);
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/projects/scrapegpt");
+  const region = page.getByRole("region", { name: "How it works" });
+  expect(await region.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
 });
 
 test("Persian copy covers workplace agents, image captions, and privacy", async ({ page }) => {
