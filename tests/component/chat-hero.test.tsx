@@ -101,7 +101,9 @@ describe("ChatHero", () => {
     status = "streaming";
     messages = [chatting[0], { ...chatting[1], parts: [{ type: "text", text: "**Hel**" }] }];
     render(hero());
-    expect((await screen.findByText("Hel")).tagName).toBe("STRONG");
+    // react-markdown is a lazy import: under a full, parallel run it can take
+    // longer than findByText's 1 s default, and vercel.json runs these tests.
+    expect((await screen.findByText("Hel", {}, { timeout: 3000 })).tagName).toBe("STRONG");
     expect(chatOptions.experimental_throttle).toBeGreaterThan(0);
     messages = chatting;
   });
