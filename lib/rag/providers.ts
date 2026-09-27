@@ -38,10 +38,24 @@ const GEMINI_MODELS = [
   { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite" },
   { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
 ];
-const OPENROUTER_MODELS = [
-  { id: "qwen/qwen3-next-80b-a3b-instruct:free", label: "Qwen3 Next 80B · OpenRouter" },
-  { id: "meta-llama/llama-3.3-70b-instruct:free", label: "Llama 3.3 70B · OpenRouter" },
-];
+// Picked 2026-09-27 on an EN+FA battery with the real prompt (the old Qwen3 Next and
+// Llama 3.3 `:free` slugs 404; Gemma 4 and Qwen3.8 were rate-limited upstream all day).
+// Ultra wrote the only colloquial Persian, so Persian tries it first. It streams at about
+// 8 tokens/s (one English answer took 50 s, the route's whole deadline), so English tries
+// Super first: grounded English, streams far faster (a Persian answer in 3 s), but formal
+// Persian. Reasoning off: with it on, Ultra's first Persian token took 18 s.
+const NEMOTRON_ULTRA = {
+  id: "nvidia/nemotron-3-ultra-550b-a55b:free",
+  label: "Nemotron 3 Ultra · OpenRouter",
+};
+const NEMOTRON_SUPER = {
+  id: "nvidia/nemotron-3-super-120b-a12b:free",
+  label: "Nemotron 3 Super · OpenRouter",
+};
+const OPENROUTER_MODELS: Record<Lang, { id: string; label: string }[]> = {
+  en: [NEMOTRON_SUPER, NEMOTRON_ULTRA],
+  fa: [NEMOTRON_ULTRA, NEMOTRON_SUPER],
+};
 
 // Round-robin offset so load spreads across keys instead of always hammering the
 // first one — it raises the effective per-minute ceiling, and the failover loop
@@ -83,9 +97,13 @@ export function chatLadder(lang: Lang = "en"): ChatProvider[] {
     );
   }
   const openrouter: ChatProvider[] = [];
-  for (const m of OPENROUTER_MODELS) {
+  for (const m of OPENROUTER_MODELS[lang]) {
     rotate(openrouterProviders, by).forEach(([p, k]) =>
-      openrouter.push({ id: `or:${m.id}#${k}`, label: m.label, model: p.chat(m.id) }),
+      openrouter.push({
+        id: `or:${m.id}#${k}`,
+        label: m.label,
+        model: p.chat(m.id, { reasoning: { effort: "none" } }),
+      }),
     );
   }
 

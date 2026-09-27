@@ -43,4 +43,27 @@ describe("chatLadder", () => {
     expect(fa.slice(0, 2).every((id) => id.startsWith("gemini-3.1-flash-lite#"))).toBe(true);
     expect(fa).toHaveLength(2 * (2 + 3 + 2)); // 2 keys × 7 models
   });
+
+  // The old `:free` slugs started answering 404 and the backstop died silently.
+  // Persian gets Ultra first (the only colloquial Persian), English gets the faster Super.
+  it("backs up with free Nemotron 3 models, Persian Ultra first, reasoning off", async () => {
+    vi.stubEnv("GROQ_API_KEY", "");
+    vi.stubEnv("GOOGLE_GENERATIVE_AI_API_KEY", "");
+    vi.stubEnv("OPENROUTER_API_KEY", "o1");
+    vi.resetModules();
+    const { chatLadder } = await import("@/lib/rag/providers");
+
+    const ultra = "or:nvidia/nemotron-3-ultra-550b-a55b:free#0";
+    const superId = "or:nvidia/nemotron-3-super-120b-a12b:free#0";
+    expect(chatLadder("fa").map((p) => p.id)).toEqual([ultra, superId]);
+    expect(chatLadder("en").map((p) => p.id)).toEqual([superId, ultra]);
+    for (const lang of ["en", "fa"] as const) {
+      // With reasoning on, Ultra's first Persian token took 18 s (measured 2026-09-27).
+      for (const p of chatLadder(lang)) {
+        expect((p.model as unknown as { settings: object }).settings).toMatchObject({
+          reasoning: { effort: "none" },
+        });
+      }
+    }
+  });
 });
