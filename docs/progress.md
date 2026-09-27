@@ -417,10 +417,32 @@ Milestone done-when met.
 
 ## Current task
 
-None on the agent side: the milestone's work, Batch 11 included, is done and reviewed, with
-every verified finding fixed or consciously skipped. What remains is the owner's checklist
-(next likely action): review and merge the branch, the Vercel settings, and one judged red-team
-run once Gemini's quota resets. The four owner calls (B11f) are done.
+**PAUSED by the owner (2026-09-27 ~13:15 UTC) — resume here.** The four owner calls (B11f) are
+committed (up to `c09c847`) and reviewed; the review's fix step was stopped midway. Resume steps:
+
+1. B11f review fixes (the stopped step; its partial edit is in `git stash` as
+   "paused: partial fix:owner-calls review fixes (lib/rag/intent.ts)" — inspect, then apply or
+   drop it and redo):
+   - major: the news-task pattern (`lib/rag/intent.ts` ~244) sends questions about Sina's own
+     workplace agents / this chatbot to the "not a free ChatGPT" clapback — extend `ABOUT_SINA`
+     (social research, business intelligence, BI agents, workplace agents, chatbot, this site/bot,
+     his/him) or the news regex's negative lookahead; add guard cases.
+   - major: the Persian news pattern only exempts «خودت|شما»; exempt any noun with the possessive
+     -ت/-هات (e.g. «آخرین خبرت», «اخبارت») so FA matches EN's "your" guard; add guard cases.
+   - minor: role-ended rule — add red-team cases fp-fired-arnikup and fp-fired-unknown-employer
+     ("Why were you fired from Google?").
+   - minor: fp-fired mustNot += "fired", "let go"; fp-fa-fired mustNot += «اخراج», «در واقع».
+2. Persian name: the owner's name is **«سینا آماره»**, not «سینا عماره». Fix all 14 occurrences
+   in 8 files (lib/site.ts, lib/page-copy.ts ×2, lib/dictionary.ts, lib/rag/intent.ts,
+   scripts/og-fa.mjs ×2, tests/unit/seo.test.ts ×3, tests/e2e/i18n.spec.ts ×3) and regenerate the
+   Persian OG image with `scripts/og-fa.mjs`. No content/ change, so no re-embed.
+3. Checks (typecheck, lint, format, test, build, `PORT=3100 npm run test:e2e`), then fast-forward
+   `main` to the branch and push `main` (the owner asked for the push; production deploys from
+   `main`). Watch the deploy, then verify the live site (pages, /fa, head tags, chat small talk +
+   a RAG answer + a jailbreak, /admin loads).
+
+Note: `claude/audit-fixes` is already on GitHub (pushed by an agent at `c09c847`, which gives it a
+Vercel preview). `main` is untouched, so production still runs the old code.
 
 ## Blocker
 
@@ -512,4 +534,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-27 (B11f owner calls done; milestone done, owner checklist next)_
+_Last updated: 2026-09-27 (paused by the owner mid B11f review fixes — see Current task)_
