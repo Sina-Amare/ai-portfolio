@@ -161,6 +161,7 @@ export async function GET(req: Request) {
         parse_mode: "Markdown",
         disable_web_page_preview: true,
       }),
+      signal: AbortSignal.timeout(10_000),
     });
     if (!res.ok) {
       return Response.json({ error: "telegram_failed" }, { status: 502 });

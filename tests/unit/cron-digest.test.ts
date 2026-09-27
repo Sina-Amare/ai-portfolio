@@ -73,7 +73,7 @@ async function digest(data: Insights) {
   vi.stubGlobal("fetch", fetchMock);
   const res = await call({ authorization: "Bearer s3cret" });
   const sent = fetchMock.mock.calls.map(([, init]) => JSON.parse(init.body).text as string);
-  return { res, sent };
+  return { res, sent, init: fetchMock.mock.calls[0]?.[1] as RequestInit | undefined };
 }
 
 describe("GET /api/cron/digest", () => {
@@ -90,8 +90,9 @@ describe("GET /api/cron/digest", () => {
   });
 
   it("reports yesterday, a whole UTC day, against the day before (health-4)", async () => {
-    const { res, sent } = await digest(insights(6));
+    const { res, sent, init } = await digest(insights(6));
     expect(res.status).toBe(200);
+    expect(init?.signal).toBeInstanceOf(AbortSignal); // a hung Telegram can't hold the function
     // Two days ending yesterday, and enough of the visit log to reach back to it.
     const [days, end] = getInsights.mock.calls[0]!;
     expect([days, (end as Date).toISOString().slice(0, 10)]).toEqual([2, "2026-09-26"]);
