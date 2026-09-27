@@ -146,10 +146,20 @@ checklist to verify.
         (Hyper-V reserves 2941–3040 here); the first /projects cover loads eagerly (it was the lazy
         LCP image Next warned about). Known dev-only noise: next-themes' inline script logs React's
         "script tag" console.error when the layout remounts on a language switch (not in production).
+  - [x] B10b visual + behavioral QA on `next start` — 13 pages × 390/1440 px × dark/light: no
+        horizontal overflow, RTL mirrored, Vazirmatn loaded on /fa, axe (incl. contrast) clean after
+        fixes; keyboard pass on /, /projects, /fa; toggle keeps the hash both ways; ⌘K and the
+        gallery `<dialog>` open/close with Escape and hand focus back; chat suggestions → thinking →
+        answer, and a 500 shows the Persian/English alert with Retry; admin wrong-password alert and
+        the "not connected" state; head tags on /, /projects/scrapegpt, /fa/projects/scrapegpt;
+        chat system role → 400, cron without secret → 401. Fixed: English /projects and /privacy
+        prefetches 404'd in production (Next 16 `optimisticRouting` guessed `/[lang]=projects`;
+        now off); the pipeline scroller takes keyboard focus; the privacy email link is underlined.
+        e2e 23/23 on `next start` (axe now also scans /projects, a case study, /privacy).
 
 ## Current task
 
-B10b — Playwright visual QA matrix, curl checks, final independent review, owner report.
+B10c — final independent review of the branch, then the owner report.
 
 ## Blocker
 
@@ -163,6 +173,10 @@ None.
 ## Open questions
 
 - Should chat analytics ever store the free-text question? Default: no (topics + chip labels only).
+- Persian pages keep the Latin "Sina Amareh" in tab titles (`پروژه‌ها — Sina Amareh`), the hero
+  chip and the footer, while the /fa home title says «سینا عماره». Keep, or use the Persian name?
+- The "How it works" pipeline scrolls sideways even at 1440 px (ScrapeGPT, both workplace agents),
+  so the last step shows cut off. Keep the single line, or let it wrap on wide screens?
 
 ## Parking lot
 
@@ -170,11 +184,11 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-B10b: the Playwright visual QA matrix (390/1440 px × dark/light, keyboard, axe), curl checks
-(canonical/hreflang, chat 400/41-turn history, cron 401), final independent review of the branch,
-then the owner report. Local e2e: `PORT=3100 npm run test:e2e`. After deploy: check that
+B10c: final independent review of the branch diff, then the owner report. Local e2e:
+`PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running on that port,
+which Playwright reuses — that's the only way prefetch bugs show up). After deploy: check that
 `/_next/image` serves the covers on Vercel, and that the first Vercel build log shows the unit tests
 running before `next build`. Owner, before deploying: set `CRON_SECRET` in Vercel (the digest cron
 fails closed without it).
 
-_Last updated: 2026-09-27 (B10a verification done)_
+_Last updated: 2026-09-27 (B10b visual QA done)_
