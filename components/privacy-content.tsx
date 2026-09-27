@@ -61,7 +61,7 @@ export function PrivacyContent() {
           <p>
             {p.contact}{" "}
             <a
-              className="text-accent-text underline-offset-4 hover:underline"
+              className="text-accent-text underline underline-offset-4"
               href={`mailto:${site.email}`}
             >
               {site.email}

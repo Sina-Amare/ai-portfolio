@@ -15,18 +15,20 @@ test("home renders the hero and nav with no console errors", async ({ page }) =>
   expect(errors).toEqual([]);
 });
 
-test("home has no serious/critical accessibility violations", async ({ page }) => {
-  await page.goto("/");
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa"])
-    // Dark-theme muted text is an intentional design choice; gate on structural a11y.
-    .disableRules(["color-contrast"])
-    .analyze();
-  const serious = results.violations.filter(
-    (v) => v.impact === "serious" || v.impact === "critical",
-  );
-  expect(serious).toEqual([]);
-});
+for (const path of ["/", "/projects", "/projects/scrapegpt", "/privacy"]) {
+  test(`${path} has no serious/critical accessibility violations`, async ({ page }) => {
+    await page.goto(path);
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa"])
+      // Dark-theme muted text is an intentional design choice; gate on structural a11y.
+      .disableRules(["color-contrast"])
+      .analyze();
+    const serious = results.violations.filter(
+      (v) => v.impact === "serious" || v.impact === "critical",
+    );
+    expect(serious).toEqual([]);
+  });
+}
 
 test("navigates from home to a project case study", async ({ page }) => {
   await page.goto("/");
