@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import { sourceLabel, type Lang } from "@/lib/i18n";
 import { site } from "@/lib/site";
 import { foldArabicLetters } from "./intent";
 import type { ScoredChunk } from "./types";
@@ -29,9 +29,13 @@ export function errorMessage(lang: Lang): string {
     : `Sorry — I couldn't answer just now. Try again in a moment, or email me at ${site.email}.`;
 }
 
+/** Each chunk under the source name a visitor sees on its chip, so the model echoes that one. */
 export function buildContextBlock(scored: ScoredChunk[]): string {
   return scored
-    .map((s, i) => `[${i + 1}] (${s.chunk.source} › ${s.chunk.section})\n${s.chunk.text}`)
+    .map(
+      (s, i) =>
+        `[${i + 1}] (${sourceLabel(s.chunk.source, "en")} › ${s.chunk.section})\n${s.chunk.text}`,
+    )
     .join("\n\n");
 }
 

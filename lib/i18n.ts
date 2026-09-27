@@ -25,23 +25,29 @@ export function isRTL(lang: Lang): boolean {
   return lang === "fa";
 }
 
-// Knowledge-base source labels (scripts/embed.ts) as shown under Persian answers.
-// Project names stay in Latin, like everywhere else in the Persian UI.
-const FA_SOURCES: Record<string, string> = {
-  "About Sina Amareh": "دربارهٔ سینا",
-  "About this chatbot": "دربارهٔ این چت‌بات",
-  "What Sina doesn't claim": "چیزهایی که سینا ادعا نمی‌کنه",
-  CV: "رزومه",
-  FAQ: "سؤال‌های رایج",
-  "How Sina works": "روش کار سینا",
-  "Skills in depth": "جزئیات مهارت‌ها",
+// Knowledge-base source labels (scripts/embed.ts) as shown on answer chips. Project
+// names stay in Latin, like everywhere else in the Persian UI. "What Sina doesn't
+// claim" (content/boundaries.md) framed background answers as a list of negatives;
+// renaming its H1 re-embeds every chunk of it, so for now only the chip is neutral.
+const SOURCES: Record<Lang, Record<string, string>> = {
+  en: { "What Sina doesn't claim": "Background at a glance" },
+  fa: {
+    "About Sina Amareh": "دربارهٔ سینا",
+    "About this chatbot": "دربارهٔ این چت‌بات",
+    "What Sina doesn't claim": "نگاهی به سوابق",
+    CV: "رزومه",
+    FAQ: "سؤال‌های رایج",
+    "How Sina works": "روش کار سینا",
+    "Skills in depth": "جزئیات مهارت‌ها",
+  },
 };
 
 /** A source chip's label in the answer's language; unknown labels pass through. */
 export function sourceLabel(source: string, lang: Lang): string {
-  if (lang === "en") return source;
-  if (source.startsWith("Project: ")) return `پروژه: ${source.slice("Project: ".length)}`;
-  return FA_SOURCES[source] ?? source;
+  if (lang === "fa" && source.startsWith("Project: ")) {
+    return `پروژه: ${source.slice("Project: ".length)}`;
+  }
+  return SOURCES[lang][source] ?? source;
 }
 
 /** All viewer-facing chat strings, per language. */

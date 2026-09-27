@@ -128,4 +128,14 @@ describe("prompt", () => {
   it("buildContextBlock labels each chunk with its source and section", () => {
     expect(buildContextBlock(scored)).toContain("CV › Summary");
   });
+
+  // The model sees the chip's neutral name, so it can't echo "What Sina doesn't claim".
+  it("buildContextBlock uses the chip's name for the boundaries note", () => {
+    const [first] = scored;
+    const block = buildContextBlock([
+      { ...first!, chunk: { ...first!.chunk, source: "What Sina doesn't claim", section: "X" } },
+    ]);
+    expect(block).toContain("(Background at a glance › X)");
+    expect(block).not.toContain("doesn't claim");
+  });
 });

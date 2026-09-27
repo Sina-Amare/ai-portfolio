@@ -44,6 +44,18 @@ describe("i18n", () => {
     }
   });
 
+  // Owner call: background answers wore a chip that read as a list of negatives.
+  it("shows the boundaries note under a neutral chip in both languages", () => {
+    expect(sourceLabel("What Sina doesn't claim", "en")).toBe("Background at a glance");
+    expect(sourceLabel("What Sina doesn't claim", "fa")).toBe("نگاهی به سوابق");
+    expect(sourceLabel("CV", "en")).toBe("CV");
+    for (const { source } of getKnowledgeBase().chunks) {
+      for (const lang of ["en", "fa"] as const) {
+        expect(sourceLabel(source, lang), source).not.toMatch(/doesn't claim|ادعا/);
+      }
+    }
+  });
+
   // A chip the retrieval gate refuses would be the bot declining its own
   // suggestion; `npm run eval` only catches that if the chip is in the set.
   it("puts every suggestion chip in the RAG golden set", () => {
