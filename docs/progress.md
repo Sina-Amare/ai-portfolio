@@ -119,12 +119,25 @@ checklist to verify.
       cancels), so it no longer looks dead on a slow network; a video media item must have a poster
       (the type enforces it: next/image can't resize an .mp4); the static-orb rule is `width < 40rem`,
       the exact complement of Tailwind's `sm`. e2e 20/20 again.
-- [ ] B9 tests, docs, CI
+- [x] B9 tests, docs, CI — tests: admin login 401 / cookie flags / 429 (in-memory and shared) /
+      Redis down still signs in, beacon with no Origin (health-5; the digest's 401 and silent-at-0
+      were already covered); EN/FA ladder order (health-6; rotation was covered); `lib/kb.json` ↔
+      `content/` sync with no network, using the embed script's own walk, now
+      `scripts/collect-docs.ts` (health-7); dead coverage config gone (health-16). Already done
+      earlier: chat-10 realistic stream mocks (B2), e2e for /fa + hreflang (B3) and workplace (B4).
+      Docs: README (analytics at /admin, /fa URLs, exact cache before embed, env, structure, scripts)
+      (health-10), docs/analytics.md checked against the code (HKDF session key, prefixed Redis
+      vars, CRON_SECRET in setup, monthly salt, PowerShell-friendly local dev) (health-11, sec-10),
+      `.env.example` lists every variable the code reads with current defaults (health-12; the
+      0.60 threshold comment was already right). CI (health-13): `vercel.json` runs `npm test`
+      before the build, so a red unit test blocks the deploy; vitest pins NODE_ENV=test because 53
+      tests fail if the build shell exports production; a skipped RAG eval shows a ::warning::.
+      Four study briefs + terms in learning.md. `npm test && npm run build` passes locally.
 - [ ] B10 final verification + report
 
 ## Current task
 
-B9 — tests, docs, CI (next in the execution order: B9 → B10).
+B10 — final verification + report (last batch in the execution order).
 
 ## Blocker
 
@@ -145,9 +158,10 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B9 (tests health-5/6/7, chat-10, e2e for /fa + workplace; README, docs/analytics.md,
-`.env.example` incl. the B2/B7 variables; CI gate in `vercel.json`). B10: after deploy, check that
-`/_next/image` serves the covers on Vercel. Owner, before deploying: set `CRON_SECRET` in Vercel (the
-digest cron fails closed without it).
+Start B10: production build + `npm start` + e2e, the Playwright visual QA matrix, curl checks,
+final independent review of the branch, then the owner report. After deploy: check that
+`/_next/image` serves the covers on Vercel, and that the first Vercel build log shows the unit tests
+running before `next build`. Owner, before deploying: set `CRON_SECRET` in Vercel (the digest cron
+fails closed without it).
 
-_Last updated: 2026-09-27 (B8 done, review follow-up applied)_
+_Last updated: 2026-09-27 (B9 done)_
