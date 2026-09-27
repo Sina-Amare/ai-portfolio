@@ -131,12 +131,14 @@ body {
 
 /* Focus — deliberate double ring on any surface. The ring stays unlayered so it
    beats shadow utilities; the radius is only a default (base layer), so a
-   rounded-full pill or rounded-xl field keeps its own shape on focus. */
+   rounded-full pill or rounded-xl field keeps its own shape on focus.
+   --accent-text, not --accent: light mode's #e0951a is 2.4:1 on the page, under
+   WCAG's 3:1 for focus indicators (dark mode's two tokens are the same color). */
 :focus-visible {
   outline: none;
   box-shadow:
     0 0 0 2px var(--bg),
-    0 0 0 4px var(--accent);
+    0 0 0 4px var(--accent-text);
 }
 @layer base {
   :focus-visible {
@@ -231,13 +233,15 @@ body {
     border-color 0.15s ease,
     box-shadow 0.15s ease;
 }
-.chat-input-box:focus-within {
-  border-color: var(--border-strong);
+/* The site's focus ring, drawn when the text field has focus (not on Send/Stop,
+   which have their own, so the two don't double up). */
+.chat-input-box:has(textarea:focus) {
   box-shadow:
-    0 0 0 3px var(--accent-soft),
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--accent-text),
     0 16px 40px -22px rgba(0, 0, 0, 0.22);
 }
-/* The box's ring already marks the text field; Send/Stop keep their own ring. */
+/* The box's ring already marks the text field. */
 .chat-input-box textarea:focus-visible {
   box-shadow: none;
   outline: none;
