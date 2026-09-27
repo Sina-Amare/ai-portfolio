@@ -10,6 +10,7 @@ import {
   type Reply,
 } from "@/lib/rag/intent";
 import { site } from "@/lib/site";
+import golden from "@/eval/golden.json";
 
 const PERSIAN = /[؀-ۿ]/;
 
@@ -261,6 +262,14 @@ describe("classifyIntent", () => {
 
   it("lets real questions through, even ones about prompts, injection or with a greeting", () => {
     for (const q of MUST_REACH_RETRIEVAL) expect(classifyIntent(q), q).toBeNull();
+  });
+
+  // `npm run eval` scores these against the KB; a canned reply would mean the
+  // live route never retrieves for them, and the eval would pass for nothing.
+  it("lets every golden in-scope question reach retrieval", () => {
+    for (const item of golden.inScope) {
+      expect(classifyIntent(item.q, "history" in item), item.q).toBeNull();
+    }
   });
 
   // "yes" to "Want to hear how I built it?" answers the offer; so does "?".

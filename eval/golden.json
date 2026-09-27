@@ -208,7 +208,7 @@
     { "q": "When did you work at Google?", "expectSource": "What Sina doesn't claim" },
     { "q": "What was your PhD thesis about?", "expectSource": "What Sina doesn't claim" },
     { "q": "Kubernetes بلدی؟", "expectSource": "What Sina doesn't claim" },
-    { "q": "Which model powers this chatbot?", "expectSource": "About this chatbot" },
+    { "q": "Which model powers this chatbot, and why?", "expectSource": "About this chatbot" },
     {
       "q": "How do you defend this chatbot against prompt injection?",
       "expectSource": "About this chatbot"
