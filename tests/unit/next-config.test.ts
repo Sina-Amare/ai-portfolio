@@ -21,6 +21,11 @@ describe("next.config", () => {
     // /[lang]=projects and 404 in production (not in dev, which doesn't prefetch).
     expect(nextConfig.experimental?.optimisticRouting).toBe(false);
   });
+
+  it("keeps next dev from rewriting AGENTS.md, which already carries the docs rule", () => {
+    expect(nextConfig.agentRules).toBe(false);
+    expect(readFileSync("AGENTS.md", "utf8")).toContain("node_modules/next/dist/docs/");
+  });
 });
 
 describe("vercel.json", () => {

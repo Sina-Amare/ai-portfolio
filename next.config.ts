@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
   poweredByHeader: false,
+  // `next dev` would otherwise append its "read the bundled docs" block to
+  // AGENTS.md whenever it detects a coding agent. AGENTS.md §1 already says it.
+  agentRules: false,
   experimental: {
     // The router learns "/[lang]" from /fa and then guesses that English /projects
     // and /privacy are that route too, so their prefetch 404s (the proxy rewrites
