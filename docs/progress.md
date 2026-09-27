@@ -491,6 +491,14 @@ See `docs/yagni.md`.
 
 Owner checklist, in order:
 
+0. **Live chat outage (found 2026-09-27 ~15:50 UTC, after the deploy):** every retrieval question
+   answers "Sorry — I couldn't answer just now" because `gemini-embedding-001` returns 429
+   `EmbedContentRequestsPerDayPerProjectPerModel-FreeTier` (limit 1000/day per Google project).
+   Production's key evidently shares the Google project with the local `.env.local` keys, and the
+   day's eval/red-team runs used it up. Canned replies and every page still work. Fix: create a
+   Gemini key in a **new** Google project (AI Studio → Get API key → Create API key in new
+   project), put it first in Vercel's `GOOGLE_GENERATIVE_AI_API_KEY`, redeploy; keep local and
+   production keys in separate projects from now on. Otherwise it recovers at 07:00 UTC.
 1. Vercel → Settings → Environment Variables (Production): rotate `ADMIN_PASSWORD` (the owner
    has the new value), add `CRON_SECRET` (the digest fails closed without it), then Redeploy.
    `NEXT_PUBLIC_SITE_URL` is optional: the live site already resolves to `https://sinaamareh.ir`.
