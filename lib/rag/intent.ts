@@ -239,12 +239,15 @@ const TASK: RegExp[] = [
   /ترجمه\s?(?:ش\s)?کن(?:ید|ین)?(?!\p{L})/u,
   /\b(?:baram|barayam|vasam)\s+(?:\w+\s+){0,4}(?:benevis|besaz|hal\s*kon|tarjome\s*kon)\b|\btarjome\s*(?:sh\s+)?kon\b/u,
   // A news feed: "Summarize the latest news about OpenAI", "can you give me today's
-  // AI headlines?". Any other "you" makes it about him ("how do you keep up with the
-  // latest AI news?"), and so does a name in ABOUT_SINA ("latest news on ScrapeGPT?").
-  /^(?![^]*\byou(?:rs?|rself)?\b(?<!\b(?:can|could|would|will)\s+you))[^]*\b(?:(?:latest|recent|newest|breaking|today'?s)\s+(?:\w+\s+){0,2}(?:news|headlines)|news\s+today)\b/u,
-  // «آخرین اخبار هوش مصنوعی رو بگو», «آخرین خبرهای OpenAI چیه؟», not «… دنبال می‌کنی؟»
-  // or «آخرین خبرها از خودت چیه؟».
-  /(?:آخرین|تازه\s?ترین|جدید\s?ترین)\s+(?:\S+\s+)?(?:اخبار|خبر(?:ها|های)?)(?!\p{L})(?:(?!خودت|شما)[^?؟])*?(?<!\p{L})(?:بگو|چیه|چیا|خلاصه\s?کن|بفرست)(?:ید|ین)?(?!\p{L})/u,
+  // AI headlines?". It's about him when anything else points at him or his work: another
+  // "you"/"u" ("how do you keep up with the latest AI news?"), him/his, this chatbot or
+  // site, a yes/no question about something else ("does it pull the latest news?", asked
+  // of the Social Research Agent), or a name in ABOUT_SINA ("latest news on ScrapeGPT?").
+  /^(?!(?:do|does|did|can|could|is|are|will|would)\s+(?!(?:you|u|there)\b))(?![^]*\b(?:(?:you|u)(?:rs?|rself)?|him|his|(?:chat\s?)?bot|(?:web)?site)\b(?<!\b(?:can|could|would|will)\s+(?:you|u)))[^]*\b(?:(?:latest|recent|newest|breaking|today'?s)\s+(?:\w+\s+){0,2}(?:news|headlines)|news\s+today)\b/u,
+  // «آخرین اخبار هوش مصنوعی رو بگو», «آخرین خبرهای OpenAI چیه؟», not «… دنبال می‌کنی؟»,
+  // «آخرین خبرها از خودت چیه؟», «آخرین خبر از ایجنت‌هات/پروژه‌هاش چیه؟» (your/his -هات/-هاش)
+  // or «آخرین خبرهای این سایت چیه؟».
+  /^(?![^]*(?:خودت|شما|ایجنت|سایت|چت\s?بات|ربات|پروژه|ها[تش](?!\p{L})))[^]*(?:آخرین|تازه\s?ترین|جدید\s?ترین)\s+(?:\S+\s+)?(?:اخبار|خبر(?:ها|های)?)(?!\p{L})[^?؟]*?(?<!\p{L})(?:بگو|چیه|چیا|خلاصه\s?کن|بفرست)(?:ید|ین)?(?!\p{L})/u,
 ];
 
 /**
@@ -254,7 +257,7 @@ const TASK: RegExp[] = [
  * So is paid work: "can you write a Telegram bot for me? what's your rate?".
  */
 const ABOUT_SINA =
-  /\b(?:pay|paid|rate|hire|hiring|freelance|contract|budget|quote|available|availability|startup|company)\b|sina|سینا|scrape\s?gpt|aigram|sakaibot|rubric\s?eval|prompt\s?amp|dekamond|arnikup|mercor|kaleri|اسکرپ|ای\s?گرام|پرامپت\s?امپ|روبریک|دکاموند|آرنیکاپ|مرکور|پروژه(?:ها)?ت|کار(?:ها)?ت|مهارت|جواب|ترجمه\s?ش\s?کن|\byourself\b|\byour\s+(?:\w+\s+){0,3}(?:work|projects?|experience|background|skills?|stack|cv|resume|career|portfolio|code|repos?|github|answer|reply)\b|\byou(?:'re|\s+are)\s+(?:interested|available|free|open)\b|\b(?:explain|translate|summari[sz]e|rephrase|simplify|clarify|shorten)\s+(?:it|that)\b|\btranslate\s+(?:to|into)\s+(?:persian|farsi|english)\b(?!\s*:)/u;
+  /\b(?:pay|paid|rate|hire|hiring|freelance|contract|budget|quote|available|availability|startup|company)\b|sina|سینا|scrape\s?gpt|aigram|sakaibot|rubric\s?eval|prompt\s?amp|social\s?research|business\s?intelligence|\bbi\s+agents?\b|workplace\s+agents?|dekamond|arnikup|mercor|kaleri|اسکرپ|رصد\s?شبکه|گزارش\s?گیری|ای\s?گرام|پرامپت\s?امپ|روبریک|دکاموند|آرنیکاپ|مرکور|پروژه(?:ها)?ت|کار(?:ها)?ت|مهارت|جواب|ترجمه\s?ش\s?کن|\byourself\b|\byour\s+(?:\w+\s+){0,3}(?:work|projects?|experience|background|skills?|stack|cv|resume|career|portfolio|code|repos?|github|answer|reply)\b|\byou(?:'re|\s+are)\s+(?:interested|available|free|open)\b|\b(?:explain|translate|summari[sz]e|rephrase|simplify|clarify|shorten)\s+(?:it|that)\b|\btranslate\s+(?:to|into)\s+(?:persian|farsi|english)\b(?!\s*:)/u;
 
 /** Whole-word match that works for Persian too (\b is ASCII-only in JS). */
 const bounded = (re: RegExp) =>

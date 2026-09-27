@@ -113,6 +113,8 @@ const POSITIVES: Record<Intent, string[]> = {
     "Can you give me today's AI headlines?",
     "آخرین اخبار هوش مصنوعی رو بگو",
     "آخرین خبرهای OpenAI چیه؟",
+    "Give me the latest AI headlines",
+    "تازه‌ترین خبرهای تکنولوژی رو خلاصه کن",
   ],
   identity: [
     "Are you GPT-4?",
@@ -317,6 +319,18 @@ const MUST_REACH_RETRIEVAL = [
   "آخرین اخبار AI رو دنبال می‌کنی؟",
   "آخرین خبرها از خودت چیه؟",
   "آخرین خبر از پروژه‌هات چیه؟",
+  // His own agents and this chatbot, named or pointed at (review of the news pattern).
+  "Does the Social Research Agent summarize the latest news?",
+  "Can your workplace agents pull the latest news?",
+  "Does the BI agent read the latest news?",
+  "Does this chatbot know the latest news?",
+  "Does it pull the latest news?",
+  "What's the latest news on his projects?",
+  "u follow the latest AI news?",
+  "آخرین خبرت چیه؟",
+  "آخرین اخبار ایجنت‌هات رو بگو",
+  "آخرین خبرهای این سایت چیه؟",
+  "ایجنت رصد شبکه آخرین اخبار رو خلاصه می‌کنه؟",
 ];
 
 describe("classifyIntent", () => {
