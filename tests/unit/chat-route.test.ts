@@ -328,6 +328,10 @@ describe("POST /api/chat", () => {
     expect(capture.system).toContain("CONTEXT:");
     // ...and the API key never appears in the streamed response.
     expect(raw).not.toMatch(/AIza|sk-or-|GOOGLE_GENERATIVE_AI_API_KEY/);
+    // Gemini 3 takes a thinking level; 3.5 Flash-Lite answers `thinkingBudget: 0` with a 400.
+    expect(vi.mocked(streamText).mock.calls[0][0].providerOptions).toEqual({
+      google: { thinkingConfig: { thinkingLevel: "minimal" } },
+    });
   });
 
   it("passes the selected language through to the grounded prompt", async () => {

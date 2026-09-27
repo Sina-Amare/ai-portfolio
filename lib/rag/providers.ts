@@ -32,13 +32,14 @@ const GROQ_MODELS = [
 ];
 const GEMINI_MODELS = [
   // 3.1 Flash-Lite leads: noticeably better Persian than 2.5 (verified against
-  // the production prompt on an EN+FA battery). The 3.5 models are the next rungs:
-  // Google closed 2.5 Flash / Flash-Lite to projects created after mid-2026 (404
-  // "no longer available to new users", seen 2026-09-27 on the new production key),
-  // so a 2.5 rung would fail on every call there.
+  // the production prompt on an EN+FA battery). Google closed 2.5 Flash / Flash-Lite
+  // to projects created after mid-2026 (404 "no longer available to new users" on the
+  // new production key, 2026-09-27), so the backups are 3.5 Flash-Lite and 3.6 Flash:
+  // both answered a Persian probe in colloquial Persian with a first token in ~2.5 s at
+  // thinkingLevel "minimal". 3.5 Flash was skipped (503s, and 28 s to first token).
   { id: "gemini-3.1-flash-lite", label: "Gemini 3.1 Flash-Lite" },
   { id: "gemini-3.5-flash-lite", label: "Gemini 3.5 Flash-Lite" },
-  { id: "gemini-3.5-flash", label: "Gemini 3.5 Flash" },
+  { id: "gemini-3.6-flash", label: "Gemini 3.6 Flash" },
 ];
 // Picked 2026-09-27 on an EN+FA battery with the real prompt (the old Qwen3 Next and
 // Llama 3.3 `:free` slugs 404; Gemma 4 and Qwen3.8 were rate-limited upstream all day).

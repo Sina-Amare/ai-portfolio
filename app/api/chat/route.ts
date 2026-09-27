@@ -369,12 +369,13 @@ export async function POST(req: Request) {
             // (The client also auto-retries the whole request, so a transient
             // blip still gets a second full pass.)
             maxRetries: 0,
-            // Gemini 2.5 counts "thinking" tokens against maxOutputTokens — left
-            // on, the model can spend its whole budget thinking and truncate the
-            // visible answer mid-sentence. We want fast, direct replies here, so
-            // turn it off. Groq/OpenRouter ignore the google namespace.
+            // Gemini counts "thinking" tokens against maxOutputTokens — left on, the
+            // model can spend its budget thinking and truncate the visible answer.
+            // Gemini 3 takes a thinking *level*: 3.5 Flash-Lite rejects the old
+            // `thinkingBudget: 0` with a 400, and "minimal" gave every rung its first
+            // token in ~2.5 s (2026-09-27). Groq/OpenRouter ignore the google namespace.
             providerOptions: {
-              google: { thinkingConfig: { thinkingBudget: 0 } },
+              google: { thinkingConfig: { thinkingLevel: "minimal" } },
             },
             abortSignal: req.signal,
             // The rest of the budget; once streaming, a 10s gap between chunks
