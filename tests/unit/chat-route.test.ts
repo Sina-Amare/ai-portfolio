@@ -478,6 +478,36 @@ describe("POST /api/chat", () => {
     expect(models()).toEqual(["p1", "p2", "p2"]); // p1 is resting
   });
 
+  it("logs a provider failure without the visitor's question", async () => {
+    const question = "What did Sina build at Dekamond?";
+    vi.mocked(streamText).mockImplementationOnce(((opts: {
+      onError: (e: { error: unknown }) => void;
+    }) => {
+      opts.onError({
+        error: new APICallError({
+          message: "upstream unavailable",
+          url: "https://provider.example",
+          requestBodyValues: { messages: [{ role: "user", content: question }] },
+          statusCode: 503,
+        }),
+      });
+      return {
+        textStream: (async function* () {})(),
+        get finishReason() {
+          return Promise.reject(new Error("upstream unavailable"));
+        },
+      };
+    }) as unknown as typeof streamText);
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      await callChat({ messages: [userMessage(question)], lang: "en" });
+      // One plain line: an error object here would print its request body.
+      expect(log.mock.calls).toEqual([["[chat] mock failed 503: upstream unavailable"]]);
+    } finally {
+      log.mockRestore();
+    }
+  });
+
   it("fails over to the next provider when the first yields no text", async () => {
     vi.mocked(chatLadder).mockReturnValueOnce([
       { id: "p1", label: "P1", model: {} },

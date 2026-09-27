@@ -340,8 +340,11 @@ export async function POST(req: Request) {
           const result = streamText({
             onError: ({ error }) => {
               failure = error;
-              // Keep what the SDK's default handler logged, plus which rung failed.
-              console.error(`[chat] ${provider.id} failed:`, error);
+              // Which rung, its status and message only: the error object carries the
+              // request body, i.e. the visitor's question, which must not reach the logs.
+              const status = APICallError.isInstance(error) ? ` ${error.statusCode}` : "";
+              const message = error instanceof Error ? error.message : "unknown error";
+              console.error(`[chat] ${provider.id} failed${status}: ${message}`);
             },
             model: provider.model,
             system,
