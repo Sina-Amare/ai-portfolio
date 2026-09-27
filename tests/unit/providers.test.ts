@@ -21,4 +21,26 @@ describe("chatLadder", () => {
     expect(second[0]).toBe("groq:llama-3.3-70b-versatile#1");
     expect(new Set(second)).toEqual(new Set(first));
   });
+
+  it("leads English with Groq and Persian with Gemini 3.1, each model across every key", async () => {
+    vi.stubEnv("GROQ_API_KEY", "g1,g2");
+    vi.stubEnv("GOOGLE_GENERATIVE_AI_API_KEY", "k1, k2");
+    vi.stubEnv("OPENROUTER_API_KEY", "o1 o2");
+    vi.resetModules();
+    const { chatLadder } = await import("@/lib/rag/providers");
+
+    // Provider family of each rung, runs collapsed: "groq,gemini,or".
+    const families = (lang: "en" | "fa") =>
+      chatLadder(lang)
+        .map((p) => p.id.split(/[:-]/)[0])
+        .filter((f, i, all) => f !== all[i - 1])
+        .join(",");
+    expect(families("en")).toBe("groq,gemini,or");
+    expect(families("fa")).toBe("gemini,or,groq");
+
+    const fa = chatLadder("fa").map((p) => p.id);
+    // Persian opens on Gemini 3.1 (the best Persian) across both keys; Llama is its last resort.
+    expect(fa.slice(0, 2).every((id) => id.startsWith("gemini-3.1-flash-lite#"))).toBe(true);
+    expect(fa).toHaveLength(2 * (2 + 3 + 2)); // 2 keys × 7 models
+  });
 });
