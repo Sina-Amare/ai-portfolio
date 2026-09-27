@@ -9,6 +9,8 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   report at the end. Skips in a row: 1.
 - loop skipped: 2026-09-27 B11b adversarial + small-talk layer — run inside the owner-approved Batch 11
   workflow ("do what's best"), reported at the end. Skips in a row: 2.
+- loop skipped: 2026-09-27 B11c grounded KB + follow-up retrieval — same workflow. Skips in a row: 3
+  (the owner is asked in progress.md whether the loop should change).
 
 ## Terms
 
@@ -108,6 +110,14 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   an attack it lets through to the model. Here the costs are lopsided: a missed attack still meets the
   system prompt and the leak guard, but a blocked recruiter meets nothing, so the patterns favour
   precision (fewer false positives) and every probe that misfired became a guard test.
+- **Grounded denial** — a "no" the model can quote instead of invent. Asked "When did you work at
+  Google?", a bot with no note about Google either guesses or dodges; `content/boundaries.md` states
+  the three real employers, so the answer is a correction with a source chip. The cost: every such
+  sentence must be true by construction, which is why it states rules ("not in my CV → I don't
+  claim it") rather than lists of things Sina has never done.
+- **Query rewriting (follow-up resolution)** — changing what gets embedded so a follow-up like "does
+  it have tests?" still finds the right notes. Here it is one cheap rule (carry the last project
+  named); the alternative, asking an LLM to rewrite the question, costs a model call per turn.
 
 ## Study briefs
 
@@ -227,9 +237,31 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   classifier catches it, run `npm test`, and explain a false positive you had to avoid.
 - **Read first:** `lib/rag/intent.ts` (`classifyIntent`, `CMD`, `scrubHistory`) →
   `app/api/chat/route.ts` (the `classifyIntent` call, then the leak guard in the stream loop) →
-  `lib/rag/prompt.ts` (`TRICKY QUESTIONS`, `LEAK_MARKERS`) → `eval/redteam.json`.
+  `lib/rag/prompt.ts` (`TRICKY QUESTIONS`, `LEAK_MARKERS`) → `eval/redteam.json` →
+  `content/boundaries.md` (the grounded facts a false premise is corrected from).
 - **Terms used:** prompt injection, defence in depth, false premise, output filter (leak guard),
-  false positive, trust boundary.
+  false positive, trust boundary, grounded denial.
+
+### Brief 6 — Follow-up questions in retrieval (query rewriting)
+
+- **Why it matters here:** the chatbot embeds a _query_, not the chat. "What is Aigram?" →
+  "What stack did you use?" → "Does it have tests?" embeds "What stack did you use? Does it have
+  tests?", which names no project, so retrieval ranked ScrapeGPT's and RubricEval's test notes
+  above Aigram's (Aigram was 6th, outside the top 5 the eval checks). `retrievalQuery` in
+  `lib/rag/retrieve.ts` now puts the last project or employer the chat named in front of the
+  query ("Aigram What stack…"). Measured on 6 follow-ups: two misses (not in the top 6) and two
+  weak hits (ranks 4 and 6) all moved to rank 1–2; the other two stayed at or rose to rank 1. Known cost: a real topic change ("Where did you study?" after two Aigram turns)
+  gets Aigram chunks too; the education chunk was already missing there before, because the
+  previous question is always joined in.
+- **Depth:** L2 — can use it with docs
+- **Question you must be able to answer:** why does the carried name go at the _start_ of the
+  query, and why is nothing carried when the last reply names two projects?
+- **Don't go into:** LLM-based query rewriting, conversation summarisation, re-ranking models.
+- **Stop when:** you can add a multi-turn case with `history` to `eval/golden.json`, predict its
+  rank, and read the before/after in `npm run eval`.
+- **Read first:** `lib/rag/retrieve.ts` (`ALIASES`, `retrievalQuery`) → `tests/unit/retrieve.test.ts`
+  → `scripts/rag-eval.ts` (`queryFor`) → the `history` entries at the end of `eval/golden.json`.
+- **Terms used:** query rewriting, coreference ("it" → Aigram), top-k, recall.
 
 ## Decision journal
 
