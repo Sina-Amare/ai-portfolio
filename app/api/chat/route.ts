@@ -19,15 +19,11 @@ import type { ScoredChunk } from "@/lib/rag/types";
 import {
   buildSystemPrompt,
   busyMessage,
-  detectSmallTalk,
   errorMessage,
-  greetingMessage,
-  isAbusive,
   rateLimitMessage,
-  refusalMessage,
   sanitizeInput,
-  thanksMessage,
 } from "@/lib/rag/prompt";
+import { cannedReply, classifyIntent, isAttack } from "@/lib/rag/intent";
 import { chatLadder, type ChatProvider } from "@/lib/rag/providers";
 import { answerCache, embedCache, normalizeQuery, SEMANTIC_CACHE_THRESHOLD } from "@/lib/rag/cache";
 import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
@@ -236,21 +232,19 @@ export async function POST(req: Request) {
   let topic: string | undefined;
   const note = (outcome: ChatOutcome) => noteChat(req, { outcome, topic, chip });
 
-  // Red flag: jailbreak / prompt-injection pre-filter (instant, no LLM).
-  if (isAbusive(question)) {
-    note("refused");
-    return cannedResponse(refusalMessage(lang));
-  }
+  // Canned wordings rotate: the same question gets the same one, a repeat later
+  // in the chat gets another.
+  const seed = `${normalizeQuery(question)}#${parsed.data.messages.length}`;
 
-  // Small talk — answered warmly with no LLM call (and before retrieval), so a
-  // greeting or a "thanks" never trips the relevance gate. Fires ONLY when the
-  // message is nothing but a pleasantry; "hey, what did you build at Dekamond?"
-  // and the colloquial-Persian "چطوری X رو ساختی؟" fall through to real RAG.
-  const smallTalk = detectSmallTalk(question);
-  if (smallTalk) note("smalltalk");
-  if (smallTalk === "thanks") return cannedResponse(thanksMessage(lang));
-  if (smallTalk === "greeting" || smallTalk === "capability")
-    return cannedResponse(greetingMessage(lang));
+  // Layer 1 (lib/rag/intent.ts): injection, prompt extraction, encoded text and
+  // free-ChatGPT tasks get a clapback; small talk a warm reply, but only when it
+  // is the whole message ("hey, what did you build at Dekamond?" reaches RAG).
+  // No embedding, no LLM, and a greeting never trips the relevance gate.
+  const intent = classifyIntent(question);
+  if (intent) {
+    note(isAttack(intent) ? "refused" : "smalltalk");
+    return cannedResponse(cannedReply(intent, lang, seed));
+  }
 
   // Answer cache (first-turn only): an identical question — e.g. a suggested
   // chip — is served instantly with the same grounded answer, skipping the
@@ -300,7 +294,7 @@ export async function POST(req: Request) {
   // genuinely out-of-scope questions.
   if (!isInScope(scored)) {
     note("refused"); // no topic: the nearest chunk of an off-topic question is noise
-    return cannedResponse(refusalMessage(lang));
+    return cannedResponse(cannedReply("offtopic", lang, seed));
   }
   topic = scored[0]?.chunk.source;
 
