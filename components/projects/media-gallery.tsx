@@ -70,7 +70,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
             {/* A resized thumbnail; the lightbox below keeps the full-size file.
                 Two columns from sm, beside the 270 px sidebar from lg. */}
             <Image
-              src={m.poster ?? m.src}
+              src={m.type === "video" ? m.poster : m.src}
               alt={captionOf(m) ?? ""}
               fill
               sizes="(min-width: 1180px) 385px, (min-width: 640px) 50vw, 100vw"

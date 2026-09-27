@@ -1,12 +1,10 @@
 /** A screenshot or video shown in the case-study gallery. Drop files in
- *  public/projects/<slug>/ and reference them here. Videos use a poster image. */
-export type MediaItem = {
-  type: "image" | "video";
-  src: string;
-  poster?: string;
-  caption?: string;
-  captionFa?: string;
-};
+ *  public/projects/<slug>/ and reference them here. A video needs a poster
+ *  image: it is the gallery thumbnail (next/image can't resize an .mp4). */
+export type MediaItem = { src: string; caption?: string; captionFa?: string } & (
+  | { type: "image" }
+  | { type: "video"; poster: string }
+);
 
 export type Project = {
   slug: string;

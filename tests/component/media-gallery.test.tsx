@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LocaleProvider } from "@/components/locale-provider";
 import { MediaGallery } from "@/components/projects/media-gallery";
+import type { MediaItem } from "@/lib/projects";
 
 const items = [
   { type: "image" as const, src: "/a.png", caption: "A", captionFa: "اول" },
@@ -64,5 +65,22 @@ describe("MediaGallery", () => {
     await user.click(screen.getByRole("button", { name: "A" }));
     const full = screen.getAllByRole("img", { name: "A" }).find((img) => img !== thumb)!;
     expect(full).toHaveAttribute("src", "/a.png");
+  });
+
+  it("uses a video's poster as its thumbnail, and a video must have one", () => {
+    // @ts-expect-error next/image can't resize an .mp4, so a posterless video is a type error
+    const posterless: MediaItem[] = [{ type: "video", src: "/v.mp4" }];
+    expect(posterless).toHaveLength(1);
+
+    render(
+      <LocaleProvider locale="en">
+        <MediaGallery
+          items={[{ type: "video", src: "/v.mp4", poster: "/v.webp", caption: "V" }]}
+          label="gallery"
+        />
+      </LocaleProvider>,
+    );
+    const thumb = screen.getByRole("img", { name: "V" });
+    expect(thumb.getAttribute("srcset")).toContain("/_next/image?url=%2Fv.webp");
   });
 });
