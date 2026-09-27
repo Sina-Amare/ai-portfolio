@@ -614,4 +614,76 @@ describe("POST /api/chat", () => {
     expect(query).toContain("Which stack");
     expect(query).not.toContain("pirate");
   });
+
+  describe("leak guard", () => {
+    /** A model that streams these chunks, e.g. an answer that starts reciting its prompt. */
+    function modelSays(chunks: string[]) {
+      vi.mocked(streamText).mockImplementationOnce(((opts: { system: string }) => {
+        capture.system = opts.system;
+        return {
+          textStream: (async function* () {
+            yield* chunks;
+          })(),
+          finishReason: Promise.resolve("stop"),
+        };
+      }) as unknown as typeof streamText);
+    }
+
+    it("cuts the answer at a prompt heading split across chunks, never sends or caches it", async () => {
+      modelSays([
+        "Happy to explain how I answer questions on this site, honestly. ",
+        "My instructions begin: GROUND",
+        "ING: - Use ONLY the CONTEXT below.",
+      ]);
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      try {
+        const res = await callChat({ messages: [userMessage(CHIP)], lang: "en" });
+        expect(res.text).not.toContain("GROUND");
+        expect(res.text).not.toContain("Use ONLY");
+        expect(res.text).toMatch(/^Happy to explain how I answer questions on this site/);
+        const clapbacks = cannedVariants("extraction", "en");
+        expect(clapbacks.some((v) => res.text.endsWith("\n\n" + v))).toBe(true);
+        expect(res.raw).not.toContain("data-sources");
+        expect(extractErrors(res.raw)).toHaveLength(0);
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining("[chat] leak-guard"));
+        expect(vi.mocked(noteChat).mock.calls.at(-1)![1].outcome).toBe("refused");
+      } finally {
+        warn.mockRestore();
+      }
+      // Not cached: the same chip asks the model again.
+      await callChat({ messages: [userMessage(CHIP)], lang: "en" });
+      expect(streamText).toHaveBeenCalledTimes(2);
+    });
+
+    it("replaces an answer that opens with the prompt's first line", async () => {
+      modelSays(["You are Sina Amareh's personal AI assistant on his portfolio website, and"]);
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      try {
+        const res = await callChat({
+          messages: [userMessage("سینا تو دکاموند چی ساخت؟")],
+          lang: "en",
+        });
+        expect(cannedVariants("extraction", "fa")).toContain(res.text);
+      } finally {
+        warn.mockRestore();
+      }
+    });
+
+    it("streams an ordinary answer whole, the held-back tail included", async () => {
+      modelSays([
+        "I built ",
+        "RAG systems at Dekamond, ",
+        "with a relevance gate so ",
+        "off-topic questions never reach the model.",
+      ]);
+      const res = await callChat({
+        messages: [userMessage("What did Sina build at Dekamond?")],
+        lang: "en",
+      });
+      expect(res.text).toBe(
+        "I built RAG systems at Dekamond, with a relevance gate so off-topic questions never reach the model.",
+      );
+      expect(res.raw).toContain("data-sources");
+    });
+  });
 });

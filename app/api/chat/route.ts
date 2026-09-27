@@ -20,6 +20,7 @@ import {
   buildSystemPrompt,
   busyMessage,
   errorMessage,
+  LEAK_MARKERS,
   rateLimitMessage,
   sanitizeInput,
 } from "@/lib/rag/prompt";
@@ -75,6 +76,12 @@ const cooledUntil = new Map<string, number>();
 /** Turns the model sees; older ones are dropped server-side. */
 const MAX_HISTORY = 12;
 const MAX_ASSISTANT_CHARS = 4000;
+
+/**
+ * Streamed text is held back by this many characters, so a leak marker split
+ * across chunks is caught before any of it reaches the visitor.
+ */
+const LEAK_LOOKAHEAD = Math.max(...LEAK_MARKERS.map((m) => m.length)) - 1;
 
 type Source = { source: string; section: string };
 const COMPLETE_FINISH_REASONS = new Set<FinishReason>(["stop"]);
@@ -326,13 +333,20 @@ export async function POST(req: Request) {
     execute: async ({ writer }) => {
       const id = "0";
       let started = false;
-      let full = "";
+      const send = (delta: string) => {
+        if (!started) {
+          writer.write({ type: "text-start", id });
+          started = true;
+        }
+        writer.write({ type: "text-delta", id, delta });
+      };
 
       for (const provider of ladder) {
         const left = deadline - Date.now();
         if (left < 1_000) break; // out of time → the fallback below
         // streamText reports provider errors here, not by throwing.
         let failure: unknown;
+        let full = ""; // this rung's answer only: a failed rung's unsent text never prefixes it
         try {
           const result = streamText({
             onError: ({ error }) => {
@@ -372,14 +386,33 @@ export async function POST(req: Request) {
             experimental_transform: smoothStream({ chunking: "word", delayInMs: 4 }),
           });
 
+          // Leak guard (layer 4): a model echoing its instructions ends the answer.
+          // The last LEAK_LOOKAHEAD characters wait for the next chunk, so no part
+          // of a marker is ever sent. An answer under way keeps its text up to the
+          // marker; one that opens with the echo becomes just the clapback.
+          let held = "";
+          let leak: string | undefined;
           for await (const delta of result.textStream) {
-            if (!started) {
-              writer.write({ type: "text-start", id });
-              started = true;
-            }
             full += delta;
-            writer.write({ type: "text-delta", id, delta });
+            held += delta;
+            leak = LEAK_MARKERS.find((m) => held.includes(m));
+            if (leak) break;
+            if (held.length > LEAK_LOOKAHEAD) {
+              send(held.slice(0, -LEAK_LOOKAHEAD));
+              held = held.slice(-LEAK_LOOKAHEAD);
+            }
           }
+          if (leak) {
+            console.warn(`[chat] leak-guard: ${provider.id} echoed "${leak}"`);
+            const before = held.slice(0, held.indexOf(leak)).trimEnd();
+            if (started && before) send(before);
+            const clapback = cannedReply("extraction", lang, seed);
+            send(started ? `\n\n${clapback}` : clapback);
+            writer.write({ type: "text-end", id });
+            note("refused"); // no sources, no cache write
+            return;
+          }
+          if (held) send(held);
 
           if (started) {
             const finishReason: FinishReason | "unknown" = await Promise.resolve(

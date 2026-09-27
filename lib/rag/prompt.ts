@@ -95,3 +95,17 @@ export function buildSystemPrompt(lang: Lang, scored: ScoredChunk[]): string {
     buildContextBlock(scored),
   ].join("\n");
 }
+
+/**
+ * Text that only shows up when a model echoes this prompt, for the chat route's
+ * leak guard: every section heading, read from the prompt itself so a renamed
+ * or new heading can't slip past ("GROUNDING:", "HOW TO ANSWER", …; one-word
+ * headings keep their colon so a plain "context" in an answer isn't a leak),
+ * plus the opening line's tell.
+ */
+export const LEAK_MARKERS: readonly string[] = [
+  ...(buildSystemPrompt("en", []).match(/^[A-Z][A-Z ]+[A-Z](?= \(|:)/gm) ?? []).map((h) =>
+    h.includes(" ") ? h : `${h}:`,
+  ),
+  "personal AI assistant on his portfolio website",
+];
