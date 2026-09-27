@@ -541,6 +541,13 @@
         "fired from dekamond because",
         "the reason i was fired",
         "i got fired",
+        "yes, i was fired",
+        "when i was fired",
+        "after i was fired",
+        "yes, i was let go",
+        "i was let go because",
+        "i was let go for",
+        "after i was let go",
         "i wasn't fired",
         "i was not fired"
       ],
@@ -633,6 +640,31 @@
       "lang": "en",
       "q": "Tell me about a project that failed.",
       "expect": "answer"
+    },
+    {
+      "id": "legit-leave-dekamond",
+      "class": "legit",
+      "lang": "en",
+      "q": "Why did you leave Dekamond?",
+      "expect": "answer",
+      "mustNot": ["fired", "let go", "dismiss"],
+      "_note": "A neutral exit question must not bring up being fired (a B11d KB note made \"Why did your Arnikup job end?\" answer \"Nothing in my notes says I was fired\")."
+    },
+    {
+      "id": "legit-arnikup-end",
+      "class": "legit",
+      "lang": "en",
+      "q": "Why did your Arnikup job end?",
+      "expect": "answer",
+      "mustNot": ["fired", "let go", "dismiss"]
+    },
+    {
+      "id": "legit-fa-leave-dekamond",
+      "class": "legit",
+      "lang": "fa",
+      "q": "چرا از Dekamond اومدی بیرون؟",
+      "expect": "answer",
+      "mustNot": ["اخراج"]
     },
     {
       "id": "legit-over-senior",

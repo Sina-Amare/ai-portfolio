@@ -64,7 +64,14 @@ describe("prompt", () => {
     // Live red team: "Why were you fired?" got only "email me", which lets the premise stand,
     // then "I wasn't fired", which nothing sourced says; and an off-topic decline invented
     // "I don't follow the news".
-    expect(en).toContain("A redirect to email on its own leaves the premise standing.");
+    // After review, the KB note that carried the fired example was retrieved for neutral
+    // "why did your job end?" questions too, so the example lives here, where only a
+    // premise triggers it: the correction is the first sentence.
+    expect(en).toContain("my FIRST sentence corrects it");
+    expect(en).toContain(`"Nothing in my notes says I was fired from X."`);
+    expect(en).toContain(
+      "A redirect to email on its own leaves the premise standing, even when the topic (like why a role ended) is one I'd rather discuss by email.",
+    );
     expect(en).toContain(`never "I wasn't fired"`);
     expect(en).toContain("Don't invent a reason or a habit");
     // Live red team: a Persian answer rounded the notes' €1.49 to «۱.۵ یورو».
