@@ -70,7 +70,9 @@ cleanly with **no LLM call**, so it never makes things up.
 
 ```text
 Browser ── React UI (useChat) ──▶ /api/chat  (Node serverless route)
-                                     1. validate + rate-limit; canned reply for greeting/abuse (no LLM)
+                                     1. validate + rate-limit; intent classifier: attacks, tasks and
+                                        small talk ▶ canned reply (no LLM); attack turns are
+                                        scrubbed from the history
                                      2. exact answer cache (first question) ▶ instant, no embed, no LLM
                                      3. embed the question (Gemini, 768-dim, key-rotated + cached),
                                         with the one before it; a follow-up keeps its project
@@ -79,6 +81,7 @@ Browser ── React UI (useChat) ──▶ /api/chat  (Node serverless route)
                                      6. THRESHOLD GATE ─ below 0.60? ▶ instant refusal, NO LLM call
                                      7. build a grounded prompt from the top-k chunks
                                      8. streamText() with the language-aware provider failover ladder
+                                     9. leak guard on the stream: a system-prompt echo is cut off
                                   SSE token stream ──▶ smooth render + source chips
 
 content/*.md + content/projects/*.md ──(npm run embed)──▶ lib/kb.json   (committed; deploys never re-embed)
