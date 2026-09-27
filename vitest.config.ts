@@ -12,10 +12,5 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
     include: ["tests/unit/**/*.test.{ts,tsx}", "tests/component/**/*.test.{ts,tsx}"],
-    coverage: {
-      provider: "v8",
-      include: ["lib/**", "components/**"],
-      exclude: ["**/*.d.ts", "lib/kb.json"],
-    },
   },
 });
