@@ -39,7 +39,10 @@ const RECENT_MAX = 500;
 /** A second page view of the same path this soon is a reload or a double fire. */
 const RELOAD_MS = 15_000;
 const SEQ_MAX = 20;
-/** GA4's engaged-visit bar: this much active time, 2+ pages, or a key event. */
+/**
+ * GA4's engaged-visit bar: this much active time, 2+ pages, or a key event.
+ * Stricter than GA4 on pages: they must differ, so a reload isn't engagement.
+ */
 const ENGAGED_MS = 10_000;
 
 /** Lower edges of active-time buckets b1..b5 (b0 is under 10 s). */
@@ -230,7 +233,7 @@ async function pageview(tx: Tx, sid: string, path: string, now: number) {
   p.hincrby(K.month(monthOf(sid)), `pv:${path}`, 1);
   if (newKind) p.hincrby(K.month(monthOf(sid)), `vk:${kind}`, 1);
   await run(tx, p);
-  if (pages >= 2 && !num(s.eng)) await markEngaged(tx, sid, num(s.ms));
+  if (!num(s.eng) && new Set([...seq, path]).size >= 2) await markEngaged(tx, sid, num(s.ms));
 }
 
 /**

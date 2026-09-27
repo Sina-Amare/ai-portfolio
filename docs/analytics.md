@@ -173,8 +173,10 @@ created with `SET NX`, so tabs opened at the same moment share one visit.
 | `an:ret:<month>`  | visitors with 2+ visits                                                                                                                                                                                          | 400 days         |
 | `an:since`        | first day of v2 data (one date, nothing personal)                                                                                                                                                                | none             |
 
-A visit counts as **engaged** once it has ≥ 10 s of active time, ≥ 2 pages, or a key event
-(chat question, contact message, résumé download, outbound link, gallery open). Chat
+A visit counts as **engaged** once it has ≥ 10 s of active time, ≥ 2 different pages, or a
+key event (chat question, contact message, résumé download, outbound link, gallery open).
+The pages must differ, which is stricter than GA4: reloading one page 20 s later is a
+second page view, not engagement. Chat
 turns are stored as outcome, topic (the knowledge-base source the answer leaned on) and
 chip-or-typed only — never the question. The v1 per-pageview keys (`an:v`, `an:u`,
 `an:path`, …) are no longer written; days before `an:since` still read `an:v`.
@@ -265,7 +267,7 @@ cross-month visitor identity genuinely doesn't exist.
 The dashboard, top to bottom (EN/FA, Persian digits in Persian):
 
 1. **Headline cards.** Lead with **engaged visits** and the engagement rate: a visit with
-   10 s+ of active time, 2+ pages, or a key action (chat question, contact message, résumé,
+   10 s+ of active time, 2+ different pages, or a key action (chat question, contact message, résumé,
    outbound link, gallery). All visits sit next to it, so bounces are visible but don't
    dominate. **Avg active time** is per engaged visit. **Pages per visit** divides page
    views by visits over the same days. Chat questions come from the chat route itself;

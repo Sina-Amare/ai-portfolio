@@ -152,7 +152,7 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   and keeps a Redis pointer from that id to the current visit with a 30-minute TTL that every beacon
   refreshes (a sliding expiry). A reload or a return within 30 minutes continues the same visit;
   after 30 idle minutes a new visit starts. "Active time" counts only seconds when the tab is visible
-  and the visitor did something in the last minute; a visit is "engaged" at 10 s active, 2 pages, or
+  and the visitor did something in the last minute; a visit is "engaged" at 10 s active, 2 different pages, or
   a key action. Free-tier Redis (500k commands/month) sets the budget.
 - **Depth:** L2 — can use it with docs (L3 for the salt trade-off)
 - **Question you must be able to answer:** why does a monthly salt make "returning visitor this month"

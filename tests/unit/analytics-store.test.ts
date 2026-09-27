@@ -251,7 +251,9 @@ describe("visits (sessions)", () => {
     expect((await insights()).kpis.pageviews).toBe(1);
     at(30_000);
     await recordBeacon(visitor(), pv("/")); // came back to it later
-    expect((await insights()).kpis.pageviews).toBe(2);
+    const o = await insights();
+    expect(o.kpis.pageviews).toBe(2);
+    expect(o.kpis.engaged).toBe(0); // the same page twice is not "2+ pages"
   });
 
   it("counts acquisition once per visit, pages once per view", async () => {

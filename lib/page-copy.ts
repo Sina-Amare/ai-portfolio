@@ -100,7 +100,7 @@ export const pageCopy = {
       noData: "No visits recorded yet.",
       kpi: {
         engaged: "Engaged visits",
-        engagedHint: "of all visits · 10 s+ active, 2+ pages or a key action",
+        engagedHint: "of all visits · 10 s+ active, 2+ different pages or a key action",
         visits: "All visits",
         visitsHint: "Page views under 30 min apart are one visit",
         visitors: "Visitors · this month",
@@ -309,7 +309,7 @@ export const pageCopy = {
       noData: "هنوز بازدیدی ثبت نشده.",
       kpi: {
         engaged: "بازدیدهای با تعامل",
-        engagedHint: "از کل بازدیدها · دست‌کم ۱۰ ثانیه فعال، ۲ صفحه یا یک کار مهم",
+        engagedHint: "از کل بازدیدها · دست‌کم ۱۰ ثانیه فعال، ۲ صفحهٔ مختلف یا یک کار مهم",
         visits: "کل بازدیدها",
         visitsHint: "صفحه‌هایی که کمتر از ۳۰ دقیقه فاصله دارن یک بازدیدن",
         visitors: "بازدیدکننده · این ماه",
