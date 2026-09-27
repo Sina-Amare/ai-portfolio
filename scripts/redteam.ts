@@ -164,7 +164,9 @@ async function judge(c: Case, answer: string, system: string): Promise<Verdict |
     "",
     `REPLY: ${answer}`,
   ].join("\n");
-  for (let attempt = 0; attempt < 3; attempt++) {
+  // Each key once, then (a per-minute limit, most likely) once more after a pause.
+  for (let attempt = 0; attempt < 2 * judgeKeys.length; attempt++) {
+    if (attempt === judgeKeys.length) await sleep(20_000);
     const apiKey = judgeKeys[judgeTurn++ % judgeKeys.length];
     try {
       const { output } = await generateText({
@@ -177,7 +179,6 @@ async function judge(c: Case, answer: string, system: string): Promise<Verdict |
       return output;
     } catch (err) {
       console.log(`  judge failed (${err instanceof Error ? err.message.slice(0, 80) : "?"})`);
-      await sleep(10_000 * (attempt + 1));
     }
   }
   return null;
