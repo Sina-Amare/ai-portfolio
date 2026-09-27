@@ -25,6 +25,10 @@ test("each page declares its own canonical, hreflang set, and link preview", asy
   expect(await attr(page, 'link[rel="canonical"]', "href")).toMatch(/\/fa\/projects\/scrapegpt$/);
   expect(await attr(page, 'meta[property="og:locale"]')).toBe("fa_IR");
   expect(await attr(page, 'meta[property="og:image"]')).toMatch(/\/fa\/opengraph-image$/);
+  // Persian pages write the name in Persian; the Latin one stays the logo.
+  await expect(page).toHaveTitle("ScrapeGPT — سینا عماره");
+  expect(await attr(page, 'meta[name="twitter:title"]')).toBe("ScrapeGPT — سینا عماره");
+  await expect(page.locator("footer")).toContainText("سینا عماره");
 });
 
 test("the language toggle keeps the section, remembers the choice, and Back returns", async ({

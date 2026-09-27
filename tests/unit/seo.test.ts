@@ -25,14 +25,21 @@ describe("pageMetadata", () => {
     const m = pageMetadata("fa", "/projects/scrapegpt", copy);
     const og = m.openGraph as Record<string, unknown>;
     expect(og.url).toBe("/fa/projects/scrapegpt");
-    expect(og.title).toBe(`ScrapeGPT — ${site.name}`);
+    expect(og.title).toBe("ScrapeGPT — سینا عماره");
+    expect(og.siteName).toBe("سینا عماره");
     expect(og.locale).toBe("fa_IR");
     expect(og.alternateLocale).toEqual(["en_US"]);
     expect(og.images).toEqual([expect.objectContaining({ url: "/fa/opengraph-image" })]);
     const tw = m.twitter as Record<string, unknown>;
-    expect(tw.title).toBe(`ScrapeGPT — ${site.name}`);
+    expect(tw.title).toBe(og.title);
     expect(tw.images).toEqual(og.images);
-    expect(m.title).toEqual({ absolute: `ScrapeGPT — ${site.name}` });
+    expect(m.title).toEqual({ absolute: "ScrapeGPT — سینا عماره" });
+  });
+
+  it("names Sina in Latin on English pages", () => {
+    const m = pageMetadata("en", "/projects/scrapegpt", copy);
+    expect(m.title).toEqual({ absolute: "ScrapeGPT — Sina Amareh" });
+    expect((m.openGraph as Record<string, unknown>).siteName).toBe("Sina Amareh");
   });
 
   it("uses the home title as-is and the unprefixed OG image for English", () => {

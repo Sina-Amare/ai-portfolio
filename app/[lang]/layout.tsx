@@ -55,10 +55,12 @@ export function generateStaticParams() {
 // per page (lib/seo.ts): metadata merges shallowly, so anything here would
 // leak into every page that doesn't override it.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const home = pageCopy[toLocale((await params).lang)].home;
+  const lang = toLocale((await params).lang);
+  const home = pageCopy[lang].home;
+  const name = site.localName[lang];
   return {
     metadataBase: new URL(site.url),
-    title: { default: home.title, template: `%s — ${site.name}` },
+    title: { default: home.title, template: `%s — ${name}` },
     description: home.description,
     keywords: [
       "Sina Amareh",
@@ -71,8 +73,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       "Django",
       "Next.js",
     ],
-    authors: [{ name: site.name, url: site.url }],
-    creator: site.name,
+    authors: [{ name, url: site.url }],
+    creator: name,
     robots: { index: true, follow: true },
   };
 }

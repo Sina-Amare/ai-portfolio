@@ -28,7 +28,8 @@ export function pageMetadata(
   path: string,
   copy: { title: string; description: string },
 ): Metadata {
-  const title = path === "/" ? copy.title : `${copy.title} — ${site.name}`;
+  const name = site.localName[lang];
+  const title = path === "/" ? copy.title : `${copy.title} — ${name}`;
   const url = localizedPath(path, lang);
   const images = [
     {
@@ -44,7 +45,7 @@ export function pageMetadata(
     alternates: { canonical: url, languages: languageAlternates(path) },
     openGraph: {
       type: "website",
-      siteName: site.name,
+      siteName: name,
       url,
       title,
       description: copy.description,

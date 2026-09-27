@@ -14,7 +14,7 @@ const socials = [
 ] as const;
 
 export function Footer() {
-  const { t, path } = useLocale();
+  const { locale, t, path } = useLocale();
   const year = new Date().getFullYear();
   return (
     <footer className="border-border mt-24 border-t">
@@ -44,7 +44,7 @@ export function Footer() {
           </div>
           {/* The page is prerendered, so the year is build-time; the client may disagree on Jan 1. */}
           <p className="text-muted text-xs" suppressHydrationWarning>
-            © {year} {site.name}. {t.footer.rights}{" "}
+            © {year} {site.localName[locale]}. {t.footer.rights}{" "}
             <Link
               href={path("/privacy")}
               className="hover:text-text underline-offset-2 hover:underline"
