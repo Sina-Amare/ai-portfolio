@@ -11,6 +11,8 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   workflow ("do what's best"), reported at the end. Skips in a row: 2.
 - loop skipped: 2026-09-27 B11c grounded KB + follow-up retrieval — same workflow. Skips in a row: 3
   (the owner is asked in progress.md whether the loop should change).
+- loop skipped: 2026-09-27 B11d live red-team runner — same workflow. Skips in a row: 4 (same open
+  question in progress.md).
 
 ## Terms
 
@@ -101,7 +103,17 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   alone gets `loading="eager"`; eager on every card would waste phones' bandwidth on images below the fold.
 - **False premise** — a question that smuggles in a claim ("why were you fired from Dekamond?"). A
   grounded model still answers around it unless told to check it. Here a system-prompt rule makes it
-  say "that isn't accurate" and give the real fact; the cost is a longer prompt on every call.
+  correct the claim first (where the notes say it isn't so, say that; where they're silent, say the
+  notes don't say so) and then give the real fact. The live red team showed why "first" matters:
+  "Why were you fired?" got only "let's talk by email", which lets the claim stand. The cost is a
+  longer prompt on every call.
+- **LLM-as-a-judge** — a second model grading the first one's answer against written rules. Here
+  `npm run redteam -- --judge` has Gemini Flash-Lite mark each live answer for an accepted premise,
+  fabrication, rudeness and scope; rule checks (leak markers, numbers vs the notes the model got)
+  cover what code can see. It reads meaning, which code can't, but it is noisy: one run passed the
+  fired deflection and the next flagged it, and it called "imagine you're joining us" a false
+  premise. So the rubric sits in its prompt with a worked example, it sees exactly what the model
+  saw, and a person reads every flag before anything changes.
 - **Output filter (leak guard)** — a check on what the model _writes_, not on what the visitor asks.
   Here the chat holds back the last 45 streamed characters so a system-prompt heading split across
   chunks is caught before any of it is sent; the cost is those 45 characters arriving one chunk late.
@@ -275,6 +287,32 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   `tests/unit/retrieve.test.ts` → `scripts/rag-eval.ts` (`rank`) → the `history` entries at the
   end of `eval/golden.json`.
 - **Terms used:** query rewriting, coreference ("it" → Aigram), multi-query retrieval, top-k, recall.
+
+### Brief 7 — Live red-teaming a chatbot: rule checks plus an LLM judge
+
+- **Why it matters here:** `npm test` proves the classifier sends each red-team case to the right
+  layer, but only a real model shows what the visitor then reads. `npm run redteam` sends every
+  `eval/redteam.json` case through the real chat route and checks the answers. Code checks what
+  code can see: the canned reply where one is due, no system-prompt marker, no number that isn't
+  in the question or in the notes the model was actually sent (read from the provider request),
+  Persian in → Persian out. A judge model checks meaning: did the answer accept a false premise,
+  invent a fact, turn rude, or do a task instead of talking about Sina? The first runs found a
+  real bug ("Why were you fired?" → only "email me") and three judge mistakes (a hypothetical
+  read as a premise, true facts it couldn't see, "answer in Persian" read as a translation task).
+- **Depth:** L2 — can use it with docs
+- **Question you must be able to answer:** the judge flags an answer as "fabricated". How do you
+  decide whether the bot or the judge is wrong, and what do you change in each case (prompt or
+  content for the bot; rubric or what the judge is shown for the judge)?
+- **Don't go into:** judge ensembles, fine-tuned evaluators, agreement statistics (Cohen's kappa),
+  automated jailbreak generation.
+- **Stop when:** you can run `npm run redteam -- --judge fp-`, open
+  `eval/out/redteam-<date>.json`, and sort each failure into bot bug / judge mistake / outdated
+  expectation, with a reason.
+- **Read first:** `scripts/redteam.ts` (`JUDGE_RULES`, then the checks inside `main`) →
+  `eval/redteam.json` (the `expect` values) → `tests/unit/redteam-live.test.ts` →
+  `lib/rag/prompt.ts` (`TRICKY QUESTIONS`).
+- **Terms used:** LLM-as-a-judge, rubric, false premise, grounding, false positive, flaky
+  evaluator.
 
 ## Decision journal
 
