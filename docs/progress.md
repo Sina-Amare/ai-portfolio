@@ -507,9 +507,13 @@ Owner checklist, in order:
    134/134 (gap 0.012) and a judged red-team run of the `fp-`/`legit-` cases, 58/61 with every
    hard gate at 0 (the 3 misses: two judge-strictness calls, one mild unsourced framing — "I
    don't follow rigid instructions" on the Mercor question). **Owner:** put the new key in
-   Vercel's `GOOGLE_GENERATIVE_AI_API_KEY` (Production) — on its own, so local testing can never
-   drain production again — and keep the old keys only in `.env.local`. The key is deliberately
-   not written to `.env.local`.
+   Vercel's `GOOGLE_GENERATIVE_AI_API_KEY` (Production). The old keys may stay beside it: every
+   key in the list is used (round-robin start, 429/503 → next key; `lib/rag/embed.ts`,
+   `lib/rag/providers.ts`), but quota is per Google project, so the three old keys add one extra
+   1000/day, not three — and on days local testing drains that project they cost ~0.3 s per dead
+   key tried, not an outage. Best: all four keys in Vercel, plus one more new-project key for
+   `.env.local` so local runs never touch production's quota. The new key is deliberately not
+   written to `.env.local`.
 1. Same Vercel screen: rotate `ADMIN_PASSWORD` (the owner has the new value) and add `CRON_SECRET`
    (the digest fails closed without it). Then deploy: push `main` (see below) — Vercel builds
    with the new env. `NEXT_PUBLIC_SITE_URL` is optional (the site already resolves to
