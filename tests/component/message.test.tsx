@@ -27,7 +27,9 @@ describe("Message", () => {
       <Fresh message={mkMessage("assistant", "**bold** text")} sourcesLabel="" />,
     );
     expect(container.querySelector("p.whitespace-pre-wrap")).toHaveTextContent("**bold** text");
-    expect((await screen.findByText("bold")).tagName).toBe("STRONG");
+    // A fresh import of the parser chunk can take over findBy's 1 s default when the whole
+    // suite runs in parallel (it failed 2 of 3 full runs here), and npm test gates the deploy.
+    expect((await screen.findByText("bold", {}, { timeout: 5000 })).tagName).toBe("STRONG");
   });
 
   it("renders assistant markdown (bold)", async () => {
