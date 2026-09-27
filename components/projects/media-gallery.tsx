@@ -69,10 +69,12 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
             className="group bg-surface border-border hover:border-accent/50 relative block aspect-video w-full overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5"
           >
             {/* A resized thumbnail; the lightbox below keeps the full-size file.
-                Two columns from sm, beside the 270 px sidebar from lg. */}
+                Two columns from sm, beside the 270 px sidebar from lg. The first
+                one is the case study's LCP on a desktop screen: load it with the page. */}
             <Image
               src={m.type === "video" ? m.poster : m.src}
               alt={captionOf(m) ?? ""}
+              loading={i === 0 ? "eager" : undefined}
               fill
               sizes="(min-width: 1180px) 385px, (min-width: 640px) 50vw, 100vw"
               className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"

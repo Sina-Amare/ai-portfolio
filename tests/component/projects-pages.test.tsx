@@ -39,6 +39,18 @@ describe("above-the-fold page titles", () => {
     );
     expect(hiddenUntilJs(screen.getByRole("heading", { level: 1, name: "ScrapeGPT" }))).toBeNull();
   });
+
+  it("a case study loads its first gallery image (the desktop LCP) eagerly, the rest lazily", () => {
+    const { container } = render(
+      <LocaleProvider locale="en">
+        <CaseStudy project={getProject("scrapegpt")!} />
+      </LocaleProvider>,
+    );
+    const loading = [...container.querySelectorAll("img")].map((i) => i.getAttribute("loading"));
+    expect(loading.length).toBeGreaterThan(1);
+    expect(loading[0]).toBe("eager");
+    expect(loading.slice(1)).not.toContain("eager");
+  });
 });
 
 describe("case study pipeline", () => {
