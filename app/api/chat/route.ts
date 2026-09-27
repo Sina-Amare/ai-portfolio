@@ -13,8 +13,8 @@ import { z } from "zod";
 import { detectDir, ui, type Lang } from "@/lib/i18n";
 import { getKnowledgeBase } from "@/lib/rag/kb";
 import { embedText } from "@/lib/rag/embed";
-import { messageText, retrievalQuery, retrieve, RETRIEVAL_TOP_K } from "@/lib/rag/retrieve";
-import { isInScope } from "@/lib/rag/threshold";
+import { messageText, rankTurn, retrievalQuery, RETRIEVAL_TOP_K } from "@/lib/rag/retrieve";
+import { RELEVANCE_THRESHOLD } from "@/lib/rag/threshold";
 import type { ScoredChunk } from "@/lib/rag/types";
 import {
   buildSystemPrompt,
@@ -250,17 +250,33 @@ export async function POST(req: Request) {
     }
   }
 
-  // Retrieve from the knowledge base — using the conversation-aware query so
-  // follow-up questions keep their context.
+  // Retrieve from the knowledge base with the question alone and, after the
+  // first turn, the conversation-aware query too (in parallel), so a follow-up
+  // keeps its project and a change of topic still finds its own notes.
   let scored: ScoredChunk[];
+  let score: number;
   let queryEmbedding: number[] = [];
-  try {
-    const query = sanitizeInput(retrievalQuery(history)) || question;
+  const embedQuery = async (query: string) => {
     const normQuery = normalizeQuery(query);
     const cached = embedCache.get(normQuery);
-    queryEmbedding = cached ?? (await embedText(query, "RETRIEVAL_QUERY", req.signal));
-    if (!cached) embedCache.set(normQuery, queryEmbedding);
-    scored = retrieve(getKnowledgeBase().chunks, queryEmbedding, RETRIEVAL_TOP_K);
+    const embedding = cached ?? (await embedText(query, "RETRIEVAL_QUERY", req.signal));
+    if (!cached) embedCache.set(normQuery, embedding);
+    return embedding;
+  };
+  try {
+    const conversation = sanitizeInput(retrievalQuery(history)) || question;
+    const [alone, chat] = await Promise.all([
+      embedQuery(question),
+      conversation === question ? null : embedQuery(conversation),
+    ]);
+    queryEmbedding = alone;
+    ({ scored, score } = rankTurn(
+      getKnowledgeBase().chunks,
+      question,
+      alone,
+      chat,
+      RETRIEVAL_TOP_K,
+    ));
   } catch {
     note("error");
     return cannedResponse(errorMessage(lang));
@@ -283,7 +299,7 @@ export async function POST(req: Request) {
   // so latency and the LLM quota are protected. Greetings/small-talk were
   // already handled with a fast canned reply above, so this only fires for
   // genuinely out-of-scope questions.
-  if (!isInScope(scored)) {
+  if (score < RELEVANCE_THRESHOLD) {
     note("refused"); // no topic: the nearest chunk of an off-topic question is noise
     return cannedResponse(cannedReply("offtopic", lang, seed));
   }

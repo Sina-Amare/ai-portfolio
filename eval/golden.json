@@ -1,45 +1,123 @@
 {
-  "_comment": "Golden set for the RAG retrieval gate. In-scope items must NOT be refused (top score >= threshold); items with expectSource must surface that source in top-k. Out-of-scope items MUST be refused.",
+  "_comment": "Golden set for the RAG retrieval gate. In-scope items must NOT be refused (gate score >= threshold); items with expectSource must surface that source in the top 5. Out-of-scope items MUST be refused. An item with history is a later turn, ranked as the route ranks it (scripts/rag-eval.ts, rankTurn).",
   "inScope": [
-    { "q": "What did you build at Dekamond?" },
-    { "q": "How much professional experience do you have?" },
-    { "q": "What is your core tech stack?" },
-    { "q": "Are you available for hire?" },
-    { "q": "Do you work remotely?" },
-    { "q": "What databases do you know?" },
-    { "q": "What's your strongest skill?" },
-    { "q": "Where did you study?" },
-    { "q": "What's your educational background?" },
-    { "q": "What was your undergraduate research about?" },
-    { "q": "Have you won any awards?" },
-    { "q": "What languages do you speak?" },
-    { "q": "What did you do at Arnikup?" },
-    { "q": "What do you do at Mercor?" },
-    { "q": "What is Mercor?" },
-    { "q": "Do you have experience evaluating or red-teaming LLMs?" },
-    { "q": "تو Mercor چیکار می‌کنی؟" },
-    { "q": "What's your experience with Docker?" },
-    { "q": "Do you write tests?" },
-    { "q": "Why should we hire you?" },
-    { "q": "What is Kaleri.ai?" },
-    { "q": "What is RAG?" },
-    { "q": "Tell me about a hard problem you solved" },
-    { "q": "What's your working style?" },
-    { "q": "How do you use AI in your work?" },
-    { "q": "What did your employer say about you?" },
-    { "q": "How fast do you deliver?" },
-    { "q": "Are you open to contract work?" },
-    { "q": "What are your salary expectations?" },
-    { "q": "Are you open to relocation?" },
-    { "q": "Can you work with US time zones?" },
-    { "q": "Can you do frontend work?" },
-    { "q": "What are you learning right now?" },
-    { "q": "What's your biggest achievement?" },
-    { "q": "Do you have teaching experience?" },
-    { "q": "How good is your English?" },
-    { "q": "How do you approach a new project?" },
-    { "q": "Can I see your code?" },
-    { "q": "Are you open to new roles?" },
+    {
+      "q": "What did you build at Dekamond?"
+    },
+    {
+      "q": "How much professional experience do you have?"
+    },
+    {
+      "q": "What is your core tech stack?"
+    },
+    {
+      "q": "Are you available for hire?"
+    },
+    {
+      "q": "Do you work remotely?"
+    },
+    {
+      "q": "What databases do you know?"
+    },
+    {
+      "q": "What's your strongest skill?"
+    },
+    {
+      "q": "Where did you study?"
+    },
+    {
+      "q": "What's your educational background?"
+    },
+    {
+      "q": "What was your undergraduate research about?"
+    },
+    {
+      "q": "Have you won any awards?"
+    },
+    {
+      "q": "What languages do you speak?"
+    },
+    {
+      "q": "What did you do at Arnikup?"
+    },
+    {
+      "q": "What do you do at Mercor?"
+    },
+    {
+      "q": "What is Mercor?"
+    },
+    {
+      "q": "Do you have experience evaluating or red-teaming LLMs?"
+    },
+    {
+      "q": "تو Mercor چیکار می‌کنی؟"
+    },
+    {
+      "q": "What's your experience with Docker?"
+    },
+    {
+      "q": "Do you write tests?"
+    },
+    {
+      "q": "Why should we hire you?"
+    },
+    {
+      "q": "What is Kaleri.ai?"
+    },
+    {
+      "q": "What is RAG?"
+    },
+    {
+      "q": "Tell me about a hard problem you solved"
+    },
+    {
+      "q": "What's your working style?"
+    },
+    {
+      "q": "How do you use AI in your work?"
+    },
+    {
+      "q": "What did your employer say about you?"
+    },
+    {
+      "q": "How fast do you deliver?"
+    },
+    {
+      "q": "Are you open to contract work?"
+    },
+    {
+      "q": "What are your salary expectations?"
+    },
+    {
+      "q": "Are you open to relocation?"
+    },
+    {
+      "q": "Can you work with US time zones?"
+    },
+    {
+      "q": "Can you do frontend work?"
+    },
+    {
+      "q": "What are you learning right now?"
+    },
+    {
+      "q": "What's your biggest achievement?"
+    },
+    {
+      "q": "Do you have teaching experience?"
+    },
+    {
+      "q": "How good is your English?"
+    },
+    {
+      "q": "How do you approach a new project?"
+    },
+    {
+      "q": "Can I see your code?"
+    },
+    {
+      "q": "Are you open to new roles?"
+    },
     {
       "q": "What problems did your workplace agents solve?",
       "expectSource": "Project: Business Intelligence Agents"
@@ -48,26 +126,49 @@
       "q": "ایجنت‌های کاری چه مشکلی رو حل کردن؟",
       "expectSource": "Project: Social Research Agent"
     },
-    { "q": "Aigram چه کارهایی می‌کنه؟", "expectSource": "Project: Aigram" },
-    { "q": "برای کار جدید پایه‌ای؟" },
-    { "q": "Tell me about ScrapeGPT", "expectSource": "Project: ScrapeGPT" },
-    { "q": "What is Aigram?", "expectSource": "Project: Aigram" },
+    {
+      "q": "Aigram چه کارهایی می‌کنه؟",
+      "expectSource": "Project: Aigram"
+    },
+    {
+      "q": "برای کار جدید پایه‌ای؟"
+    },
+    {
+      "q": "Tell me about ScrapeGPT",
+      "expectSource": "Project: ScrapeGPT"
+    },
+    {
+      "q": "What is Aigram?",
+      "expectSource": "Project: Aigram"
+    },
     {
       "q": "Explain the GitHub Code Review project",
       "expectSource": "Project: RubricEval"
     },
-    { "q": "What is RubricEval?", "expectSource": "Project: RubricEval" },
-    { "q": "What is ScrapeGPT?", "expectSource": "Project: ScrapeGPT" },
+    {
+      "q": "What is RubricEval?",
+      "expectSource": "Project: RubricEval"
+    },
+    {
+      "q": "What is ScrapeGPT?",
+      "expectSource": "Project: ScrapeGPT"
+    },
     {
       "q": "How does ScrapeGPT's AI selector work?",
       "expectSource": "Project: ScrapeGPT"
     },
-    { "q": "What can Aigram do?", "expectSource": "Project: Aigram" },
+    {
+      "q": "What can Aigram do?",
+      "expectSource": "Project: Aigram"
+    },
     {
       "q": "How does RubricEval decide accept or reject?",
       "expectSource": "Project: RubricEval"
     },
-    { "q": "What is PromptAmp?", "expectSource": "Project: PromptAmp" },
+    {
+      "q": "What is PromptAmp?",
+      "expectSource": "Project: PromptAmp"
+    },
     {
       "q": "Tell me about the browser extension Sina built",
       "expectSource": "Project: PromptAmp"
@@ -124,26 +225,52 @@
       "q": "ایجنت رصد از کجاها پست جمع می‌کنه؟",
       "expectSource": "Project: Social Research Agent"
     },
-    { "q": "PromptAmp چیه؟" },
-    { "q": "ScrapeGPT چیه؟" },
-    { "q": "Aigram چیکار می‌کنه؟" },
-    { "q": "تو دکاموند چی کار کردی؟" },
-    { "q": "مهارت‌های اصلیت چیه؟" },
-    { "q": "آیا برای کار جدید در دسترس هستی؟" },
-    { "q": "کجا درس خوندی؟" },
-    { "q": "سبک کاریت چطوریه؟" },
-    { "q": "از هوش مصنوعی توی کارت چطور استفاده می‌کنی؟" },
-    { "q": "حقوق مدنظرت چقدره؟" },
+    {
+      "q": "PromptAmp چیه؟"
+    },
+    {
+      "q": "ScrapeGPT چیه؟"
+    },
+    {
+      "q": "Aigram چیکار می‌کنه؟"
+    },
+    {
+      "q": "تو دکاموند چی کار کردی؟"
+    },
+    {
+      "q": "مهارت‌های اصلیت چیه؟"
+    },
+    {
+      "q": "آیا برای کار جدید در دسترس هستی؟"
+    },
+    {
+      "q": "کجا درس خوندی؟"
+    },
+    {
+      "q": "سبک کاریت چطوریه؟"
+    },
+    {
+      "q": "از هوش مصنوعی توی کارت چطور استفاده می‌کنی؟"
+    },
+    {
+      "q": "حقوق مدنظرت چقدره؟"
+    },
     {
       "q": "Does it have tests?",
       "expectSource": "Project: Aigram",
       "history": [
-        { "role": "user", "text": "What is Aigram?" },
+        {
+          "role": "user",
+          "text": "What is Aigram?"
+        },
         {
           "role": "assistant",
           "text": "Aigram is a self-hosted web client for my own Telegram account with an AI layer built in: summarize a chat, translate, generate images and handle voice notes without leaving the conversation."
         },
-        { "role": "user", "text": "What stack did you use?" },
+        {
+          "role": "user",
+          "text": "What stack did you use?"
+        },
         {
           "role": "assistant",
           "text": "Python on Telethon, a FastAPI backend serving a vanilla-JS PWA on the same asyncio loop, with Gemini as the primary provider and OpenRouter as the fallback."
@@ -154,12 +281,18 @@
       "q": "What would you do differently?",
       "expectSource": "Project: Aigram",
       "history": [
-        { "role": "user", "text": "Tell me about Aigram" },
+        {
+          "role": "user",
+          "text": "Tell me about Aigram"
+        },
         {
           "role": "assistant",
           "text": "Aigram turns my own Telegram account into a self-hosted AI messenger, with a co-pilot in every chat."
         },
-        { "role": "user", "text": "What was the hardest part?" },
+        {
+          "role": "user",
+          "text": "What was the hardest part?"
+        },
         {
           "role": "assistant",
           "text": "Keeping the account safe: a single audited module is the only place that writes to Telegram, with FloodWait-safe pacing."
@@ -170,12 +303,18 @@
       "q": "محدودیت‌هاش چیه؟",
       "expectSource": "Project: ScrapeGPT",
       "history": [
-        { "role": "user", "text": "ScrapeGPT چیه؟" },
+        {
+          "role": "user",
+          "text": "ScrapeGPT چیه؟"
+        },
         {
           "role": "assistant",
           "text": "ScrapeGPT یه ابزار استخراج داده از وب با کمک AI هست که خودم ساختم؛ مدل سلکتورها رو پیشنهاد می‌ده و برنامه اون‌ها رو روی HTML واقعی چک و درست می‌کنه."
         },
-        { "role": "user", "text": "سخت‌ترین بخشش چی بود؟" },
+        {
+          "role": "user",
+          "text": "سخت‌ترین بخشش چی بود؟"
+        },
         {
           "role": "assistant",
           "text": "اینکه وقتی حدس مدل اشتباهه هم داده برگرده: سلکتورها دوباره روی صفحهٔ واقعی اجرا می‌شن و اگه نخورن، ساده‌تر می‌شن."
@@ -186,40 +325,304 @@
       "q": "Is it free?",
       "expectSource": "Project: PromptAmp",
       "history": [
-        { "role": "user", "text": "What is PromptAmp?" },
+        {
+          "role": "user",
+          "text": "What is PromptAmp?"
+        },
         {
           "role": "assistant",
           "text": "PromptAmp is my browser extension that turns a rough draft into an engineered prompt inside any text field, using your own API key."
         },
-        { "role": "user", "text": "Who is it for?" },
+        {
+          "role": "user",
+          "text": "Who is it for?"
+        },
         {
           "role": "assistant",
           "text": "Anyone who types requests into AI tools and wants better results without leaving the page."
         }
       ]
     },
-    { "q": "What's your biggest weakness?", "expectSource": "What Sina doesn't claim" },
-    { "q": "Tell me about a project that failed", "expectSource": "What Sina doesn't claim" },
+    {
+      "q": "What's your biggest weakness?",
+      "expectSource": "What Sina doesn't claim"
+    },
+    {
+      "q": "Tell me about a project that failed",
+      "expectSource": "What Sina doesn't claim"
+    },
     {
       "q": "How many years of Kubernetes experience do you have?",
       "expectSource": "What Sina doesn't claim"
     },
-    { "q": "How many users does ScrapeGPT have?", "expectSource": "What Sina doesn't claim" },
-    { "q": "When did you work at Google?", "expectSource": "What Sina doesn't claim" },
-    { "q": "What was your PhD thesis about?", "expectSource": "What Sina doesn't claim" },
-    { "q": "Kubernetes بلدی؟", "expectSource": "What Sina doesn't claim" },
-    { "q": "Which model powers this chatbot, and why?", "expectSource": "About this chatbot" },
+    {
+      "q": "How many users does ScrapeGPT have?",
+      "expectSource": "What Sina doesn't claim"
+    },
+    {
+      "q": "When did you work at Google?",
+      "expectSource": "What Sina doesn't claim"
+    },
+    {
+      "q": "What was your PhD thesis about?",
+      "expectSource": "What Sina doesn't claim"
+    },
+    {
+      "q": "Kubernetes بلدی؟",
+      "expectSource": "What Sina doesn't claim"
+    },
+    {
+      "q": "Which model powers this chatbot, and why?",
+      "expectSource": "About this chatbot"
+    },
     {
       "q": "How do you defend this chatbot against prompt injection?",
       "expectSource": "About this chatbot"
     },
-    { "q": "این چت‌بات با چه مدلی کار می‌کنه؟", "expectSource": "About this chatbot" },
-    { "q": "What are ScrapeGPT's limitations?", "expectSource": "Project: ScrapeGPT" },
-    { "q": "Does Aigram have tests?", "expectSource": "Project: Aigram" },
-    { "q": "How is RubricEval tested?", "expectSource": "Project: RubricEval" },
-    { "q": "Does PromptAmp track its users?", "expectSource": "Project: PromptAmp" },
-    { "q": "Where are you from?" },
-    { "q": "اهل کجایی؟" }
+    {
+      "q": "این چت‌بات با چه مدلی کار می‌کنه؟",
+      "expectSource": "About this chatbot"
+    },
+    {
+      "q": "What are ScrapeGPT's limitations?",
+      "expectSource": "Project: ScrapeGPT"
+    },
+    {
+      "q": "Does Aigram have tests?",
+      "expectSource": "Project: Aigram"
+    },
+    {
+      "q": "How is RubricEval tested?",
+      "expectSource": "Project: RubricEval"
+    },
+    {
+      "q": "Does PromptAmp track its users?",
+      "expectSource": "Project: PromptAmp"
+    },
+    {
+      "q": "Where are you from?"
+    },
+    {
+      "q": "اهل کجایی؟"
+    },
+    {
+      "q": "Why did you leave Dekamond?",
+      "expectSource": "What Sina doesn't claim"
+    },
+    {
+      "q": "چرا از دکاموند اومدی بیرون؟",
+      "expectSource": "What Sina doesn't claim"
+    },
+    {
+      "q": "What are your salary expectations?",
+      "expectSource": "What Sina doesn't claim",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is Aigram?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram is my self-hosted web client for my own Telegram account, with an AI layer built in: summarize a chat, translate, generate images and handle voice notes without leaving the conversation."
+        },
+        {
+          "role": "user",
+          "text": "Does it have tests?"
+        },
+        {
+          "role": "assistant",
+          "text": "Yes. Aigram has a pytest suite that CI runs on every push, and opt-in live tests that only ever send to my own Saved Messages."
+        }
+      ]
+    },
+    {
+      "q": "What's your biggest weakness?",
+      "expectSource": "What Sina doesn't claim",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is Aigram?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram is my self-hosted web client for my own Telegram account, with an AI layer built in: summarize a chat, translate, generate images and handle voice notes without leaving the conversation."
+        },
+        {
+          "role": "user",
+          "text": "Does it have tests?"
+        },
+        {
+          "role": "assistant",
+          "text": "Yes. Aigram has a pytest suite that CI runs on every push, and opt-in live tests that only ever send to my own Saved Messages."
+        }
+      ]
+    },
+    {
+      "q": "What's your notice period?",
+      "expectSource": "What Sina doesn't claim",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is ScrapeGPT?"
+        },
+        {
+          "role": "assistant",
+          "text": "ScrapeGPT is my self-hosted, AI-assisted web scraper: an LLM proposes the fields and selectors, and the app re-validates and self-heals them against the real HTML."
+        },
+        {
+          "role": "user",
+          "text": "Is it secure?"
+        },
+        {
+          "role": "assistant",
+          "text": "Yes. ScrapeGPT blocks private and metadata addresses against SSRF, encrypts provider keys with Fernet, and redacts secrets from its logs."
+        }
+      ]
+    },
+    {
+      "q": "Why did you leave Dekamond?",
+      "expectSource": "What Sina doesn't claim",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is Aigram?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram is my self-hosted web client for my own Telegram account, with an AI layer built in: summarize a chat, translate, generate images and handle voice notes without leaving the conversation."
+        },
+        {
+          "role": "user",
+          "text": "What stack did you use?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram runs on Python with Telethon, a FastAPI backend and a vanilla-JS PWA, with Gemini first and OpenRouter as the fallback."
+        }
+      ]
+    },
+    {
+      "q": "Where did you study?",
+      "expectSource": "CV",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is Aigram?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram is my self-hosted web client for my own Telegram account, with an AI layer built in: summarize a chat, translate, generate images and handle voice notes without leaving the conversation."
+        },
+        {
+          "role": "user",
+          "text": "What stack did you use?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram runs on Python with Telethon, a FastAPI backend and a vanilla-JS PWA, with Gemini first and OpenRouter as the fallback."
+        }
+      ]
+    },
+    {
+      "q": "حقوق مدنظرت چقدره؟",
+      "expectSource": "What Sina doesn't claim",
+      "history": [
+        {
+          "role": "user",
+          "text": "ScrapeGPT چیه؟"
+        },
+        {
+          "role": "assistant",
+          "text": "ScrapeGPT یه ابزار استخراج داده از وب با کمک AI هست که خودم ساختم؛ مدل سلکتورها رو پیشنهاد می‌ده و برنامه اون‌ها رو روی HTML واقعی چک و درست می‌کنه."
+        },
+        {
+          "role": "user",
+          "text": "تست داره؟"
+        },
+        {
+          "role": "assistant",
+          "text": "آره، ScrapeGPT کلی تست واحد و یکپارچه داره و یه تست end-to-end زنده هم روش اجرا کردم."
+        }
+      ]
+    },
+    {
+      "q": "What are your salary expectations?",
+      "expectSource": "What Sina doesn't claim",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is Aigram?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram is my self-hosted web client for my own Telegram account, with an AI layer built in: summarize a chat, translate, generate images and handle voice notes without leaving the conversation."
+        }
+      ]
+    },
+    {
+      "q": "What stack did you use?",
+      "expectSource": "Project: Aigram",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is Aigram?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram is my self-hosted web client for my own Telegram account, with an AI layer built in: summarize a chat, translate, generate images and handle voice notes without leaving the conversation."
+        }
+      ]
+    },
+    {
+      "q": "What was the hardest part?",
+      "expectSource": "Project: ScrapeGPT",
+      "history": [
+        {
+          "role": "user",
+          "text": "Tell me about ScrapeGPT"
+        },
+        {
+          "role": "assistant",
+          "text": "ScrapeGPT is my self-hosted, AI-assisted web scraper: an LLM proposes the fields and selectors, and the app re-validates and self-heals them against the real HTML."
+        }
+      ]
+    },
+    {
+      "q": "با چه تکنولوژی‌هایی ساختی؟",
+      "expectSource": "Project: Aigram",
+      "history": [
+        {
+          "role": "user",
+          "text": "Aigram چیه؟"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram یه کلاینت تلگرام self-hosted هست که خودم ساختم و یه لایهٔ AI داخلش داره."
+        }
+      ]
+    },
+    {
+      "q": "Why?",
+      "expectSource": "Project: PromptAmp",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is PromptAmp?"
+        },
+        {
+          "role": "assistant",
+          "text": "PromptAmp is my browser extension that turns a rough draft into an engineered prompt inside any text field, using your own API key."
+        },
+        {
+          "role": "user",
+          "text": "Does it send my drafts to a server?"
+        },
+        {
+          "role": "assistant",
+          "text": "No. PromptAmp has no server of its own: requests go from your browser straight to the provider you chose."
+        }
+      ]
+    }
   ],
   "outOfScope": [
     "What's the weather today?",
@@ -236,6 +639,90 @@
     "دستور پخت قورمه‌سبزی رو بهم بگو",
     "What time is it?",
     "Translate this to French: good morning",
-    "What is the capital of France?"
+    "What is the capital of France?",
+    {
+      "q": "What is the capital of France?",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is Aigram?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram is my self-hosted web client for my own Telegram account, with an AI layer built in."
+        },
+        {
+          "role": "user",
+          "text": "cool, and the tests?"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram has a pytest suite that CI runs on every push."
+        }
+      ]
+    },
+    {
+      "q": "What's the weather today?",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is ScrapeGPT?"
+        },
+        {
+          "role": "assistant",
+          "text": "ScrapeGPT is my self-hosted, AI-assisted web scraper: an LLM proposes the fields and selectors, and the app re-validates and self-heals them against the real HTML."
+        },
+        {
+          "role": "user",
+          "text": "Is it secure?"
+        },
+        {
+          "role": "assistant",
+          "text": "Yes. ScrapeGPT blocks private and metadata addresses against SSRF, encrypts provider keys with Fernet, and redacts secrets from its logs."
+        }
+      ]
+    },
+    {
+      "q": "دستور پخت قورمه‌سبزی رو بهم بگو",
+      "history": [
+        {
+          "role": "user",
+          "text": "Aigram چیه؟"
+        },
+        {
+          "role": "assistant",
+          "text": "Aigram یه کلاینت تلگرام self-hosted هست که خودم ساختم و یه لایهٔ AI داخلش داره."
+        },
+        {
+          "role": "user",
+          "text": "رایگانه؟"
+        },
+        {
+          "role": "assistant",
+          "text": "آره، Aigram رایگان و متن‌بازه و هر کس نسخهٔ خودش رو اجرا می‌کنه."
+        }
+      ]
+    },
+    {
+      "q": "Recommend a good restaurant in Tokyo",
+      "history": [
+        {
+          "role": "user",
+          "text": "What is PromptAmp?"
+        },
+        {
+          "role": "assistant",
+          "text": "PromptAmp is my browser extension that turns a rough draft into an engineered prompt inside any text field, using your own API key."
+        },
+        {
+          "role": "user",
+          "text": "Is it free?"
+        },
+        {
+          "role": "assistant",
+          "text": "Yes, PromptAmp is free and MIT-licensed; you only pay your own provider for the calls."
+        }
+      ]
+    }
   ]
 }

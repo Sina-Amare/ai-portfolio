@@ -1,9 +1,11 @@
 /**
  * Deterministic RAG retrieval gate (no LLM judge needed):
- * - in-scope questions must NOT be refused (top score >= threshold)
+ * - in-scope questions must NOT be refused (gate score >= threshold)
  * - items with expectSource must surface that source in the top-k
- * - items with `history` are follow-ups, embedded with the route's own query
- * - out-of-scope questions MUST be refused (top score < threshold)
+ * - items with `history` are later turns, ranked exactly as the route ranks them
+ *   (the question alone plus the conversation-aware query, `rankTurn`)
+ * - out-of-scope questions MUST be refused (gate score < threshold), after a
+ *   project chat too (an entry with `history`)
  * - a chip and its entity-swapped twin must stay below the semantic-cache threshold
  *
  * Run with `npm run eval` (loads .env.local for the embedding key); pass a path
@@ -20,16 +22,16 @@ import { SEMANTIC_CACHE_THRESHOLD } from "../lib/rag/cache";
 import { cosineNormalized } from "../lib/rag/cosine";
 import { embedText } from "../lib/rag/embed";
 import { sanitizeInput } from "../lib/rag/prompt";
-import { retrievalQuery, retrieve } from "../lib/rag/retrieve";
-import { RELEVANCE_THRESHOLD, isInScope } from "../lib/rag/threshold";
-import type { KnowledgeBase } from "../lib/rag/types";
+import { rankTurn, retrievalQuery } from "../lib/rag/retrieve";
+import { RELEVANCE_THRESHOLD } from "../lib/rag/threshold";
+import type { KBChunk, KnowledgeBase } from "../lib/rag/types";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 type Turn = { role: "user" | "assistant"; text: string };
 type Golden = {
   inScope: { q: string; expectSource?: string; history?: Turn[] }[];
-  outOfScope: string[];
+  outOfScope: (string | { q: string; history: Turn[] })[];
 };
 
 /** [suggestion chip, the same question about a different project]. */
@@ -42,14 +44,20 @@ const NEAR_MISS_PAIRS: [string, string][] = [
   ["Aigram چه کارهایی می‌کنه؟", "PromptAmp چه کارهایی می‌کنه؟"],
 ];
 
-/** The text the chat route embeds for this question after these turns. */
-function queryFor(q: string, history: Turn[] = []): string {
+/** The top 5 and gate score the chat route gets for this question after these turns. */
+async function rank(chunks: KBChunk[], q: string, history: Turn[] = []) {
   const messages: UIMessage[] = [...history, { role: "user" as const, text: q }].map((t, i) => ({
     id: String(i),
     role: t.role,
     parts: [{ type: "text", text: t.role === "user" ? sanitizeInput(t.text) : t.text.trim() }],
   }));
-  return sanitizeInput(retrievalQuery(messages)) || q;
+  const question = sanitizeInput(q);
+  const conversation = sanitizeInput(retrievalQuery(messages)) || question;
+  const [alone, chat] = await Promise.all([
+    embedText(question, "RETRIEVAL_QUERY"),
+    conversation === question ? null : embedText(conversation, "RETRIEVAL_QUERY"),
+  ]);
+  return rankTurn(chunks, question, alone, chat, 5);
 }
 
 async function main() {
@@ -65,32 +73,31 @@ async function main() {
 
   for (const item of golden.inScope) {
     const label = item.history ? `${item.q}  ⟵ ${item.history.length} earlier turns` : item.q;
-    const top = retrieve(
-      kb.chunks,
-      await embedText(queryFor(item.q, item.history), "RETRIEVAL_QUERY"),
-      5,
-    );
-    const sources = top.map((t) => t.chunk.source);
-    const ok = isInScope(top) && (!item.expectSource || sources.includes(item.expectSource));
-    if (top[0].score < minIn.score) minIn = { score: top[0].score, q: label };
+    const { scored, score } = await rank(kb.chunks, item.q, item.history);
+    const sources = scored.map((t) => t.chunk.source);
+    const inScope = score >= RELEVANCE_THRESHOLD;
+    const ok = inScope && (!item.expectSource || sources.includes(item.expectSource));
+    if (score < minIn.score) minIn = { score, q: label };
     if (ok) pass++;
     else
       failures.push(
-        `IN  ✗ [${top[0].score.toFixed(3)}] "${label}"` +
-          (item.expectSource
+        `IN  ✗ [${score.toFixed(3)}] "${label}"` +
+          (item.expectSource && inScope
             ? ` — want ${item.expectSource}, got [${sources.join(", ")}]`
             : " — wrongly refused"),
       );
-    console.log(`${ok ? "✓" : "✗"} IN  ${top[0].score.toFixed(3)}  ${label}`);
+    console.log(`${ok ? "✓" : "✗"} IN  ${score.toFixed(3)}  ${label}`);
   }
 
-  for (const q of golden.outOfScope) {
-    const top = retrieve(kb.chunks, await embedText(queryFor(q), "RETRIEVAL_QUERY"), 5);
-    const refused = !isInScope(top);
-    if (top[0].score > maxOut.score) maxOut = { score: top[0].score, q };
+  for (const item of golden.outOfScope) {
+    const { q, history } = typeof item === "string" ? { q: item, history: undefined } : item;
+    const label = history ? `${q}  ⟵ ${history.length} earlier turns` : q;
+    const { score } = await rank(kb.chunks, q, history);
+    const refused = score < RELEVANCE_THRESHOLD;
+    if (score > maxOut.score) maxOut = { score, q: label };
     if (refused) pass++;
-    else failures.push(`OUT ✗ [${top[0].score.toFixed(3)}] "${q}" — should refuse`);
-    console.log(`${refused ? "✓" : "✗"} OUT ${top[0].score.toFixed(3)}  ${q}`);
+    else failures.push(`OUT ✗ [${score.toFixed(3)}] "${label}" — should refuse`);
+    console.log(`${refused ? "✓" : "✗"} OUT ${score.toFixed(3)}  ${label}`);
   }
 
   // A chip's cached answer is served to any first-turn question this close to

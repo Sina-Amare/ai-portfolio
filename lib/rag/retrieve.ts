@@ -57,7 +57,10 @@ function entitiesIn(text: string): string[] {
   return ALIASES.filter(([, re]) => re.test(text)).map(([name]) => name);
 }
 
-/** How much of the older turn joins the query: a pasted job description one turn back must not drown out the question. */
+/**
+ * How much of the older turn joins the query: a pasted job description one
+ * turn back must not drown out the question being asked.
+ */
 const PREV_TURN_CHARS = 200;
 
 /**
@@ -91,4 +94,56 @@ export function retrievalQuery(messages: UIMessage[]): string {
   // goes in whole and the older turn (and a carried name) get what's left.
   const room = MAX_INPUT_CHARS - current.length - 1;
   return lead && room > 0 ? `${lead.slice(0, room)} ${current}` : current;
+}
+
+/**
+ * "Does it have tests?", "and the challenges?", «تستش چطوره؟», "Why?": a
+ * question that leans on the turn before it. Anything else stands on its own,
+ * even mid-chat ("What's your notice period?" after two Aigram questions).
+ * ponytail: lexical cues, not a classifier. A missed cue puts the question's own
+ * chunks first and gates on it alone; a false one lets the chat's reading past
+ * the gate, where the prompt still keeps the model on Sina. A model-based
+ * rewrite of the question is the upgrade (docs/yagni.md).
+ */
+const LEANS_BACK =
+  /\b(?:it|its|it's|itself|this|that|these|those|they|them|their|there|then|else|more|also|too|same|differently|instead)\b|^(?:and|but|so|what about|how about)\b|(?:^|\s)(?:این|اون|همین|همون|اینو|اونو|اینا|اونا|بیشتر|دیگه)(?=[\s؟?.!،]|$)|\S{2,}ش(?:و|رو)?(?=[\s؟?.!،]|$)/iu;
+
+export function isFollowUp(question: string): boolean {
+  return question.split(/\s+/).filter(Boolean).length <= 3 || LEANS_BACK.test(question);
+}
+
+/**
+ * The chunks for one chat turn, from two embeddings: the question alone and,
+ * after the first turn, the conversation-aware query (`retrievalQuery`). Their
+ * top chunks alternate, the conversation's first when the question leans back,
+ * so "What stack did you use?" after Aigram gets Aigram's stack and "What are
+ * your salary expectations?" after Aigram still gets the email pointer.
+ * `score` is what the relevance gate reads: the question alone, unless it
+ * leans back — two Aigram turns must not carry "What is the capital of
+ * France?" over the gate. Shared with `npm run eval`, which measures this.
+ */
+export function rankTurn(
+  chunks: KBChunk[],
+  question: string,
+  alone: number[],
+  conversation: number[] | null,
+  k: number,
+): { scored: ScoredChunk[]; score: number } {
+  const own = retrieve(chunks, alone, k);
+  const top = (r: ScoredChunk[]) => r[0]?.score ?? 0;
+  if (!conversation) return { scored: own, score: top(own) };
+  const chat = retrieve(chunks, conversation, k);
+  const leans = isFollowUp(question);
+  const [first, second] = leans ? [chat, own] : [own, chat];
+  const scored: ScoredChunk[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < k; i++) {
+    for (const s of [first[i], second[i]]) {
+      if (s && scored.length < k && !seen.has(s.chunk.id)) {
+        seen.add(s.chunk.id);
+        scored.push(s);
+      }
+    }
+  }
+  return { scored, score: leans ? Math.max(top(own), top(chat)) : top(own) };
 }
