@@ -67,10 +67,125 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   GPU already has; animating `background-position` (the headline sheen) re-paints pixels every frame,
   and a `filter: blur()` on a moving layer is re-run by the GPU every frame. Measure with a trace
   (Paint and DrawFrame events per second) rather than guessing.
+- **x-default** — the hreflang value meaning "every other language". Here it points at the
+  unprefixed English URL, so a German visitor from Google lands on English, not Persian.
+- **Prompt injection** — input written to override the model's instructions ("ignore the rules
+  above…"). The dangerous version here hid in the _history_: the browser sends the whole chat, so a
+  forged earlier turn could claim to be a system message. The route now accepts only user/assistant
+  text, caps it and keeps the last 12 turns.
+- **Cache poisoning** — getting a shared cache to store a bad answer that is then served to other
+  people. Here any first question used to be cached for six hours; now only the suggestion chips'
+  answers are written.
+- **Salted hash (pseudonymous id)** — `hash(secret salt + data)`: the same visitor gives the same id
+  while the salt exists, and nobody can reverse it or recompute it once the salt is gone. Here the
+  visitor id is `sha256(monthly salt + IP + user-agent + host)`, so no raw IP is stored and ids
+  can't be linked across months.
+- **307 vs 308** — both are redirects that keep the request method; 308 is permanent (search engines
+  move the page to the new URL), 307 temporary. Here a typed `/en/x` gets 308 (it is never the real
+  URL), while the Persian auto-redirect is 307 because it depends on who is asking.
+- **Trust boundary** — the line where data from someone you don't control enters your code; check
+  everything there. Here the chat history the browser sends is past it, so the server validates and
+  rebuilds every turn instead of trusting the client's shape.
+- **Defence in depth** — several independent layers, so one failing isn't fatal. Here the admin login
+  has an in-memory limiter per instance and a shared Redis limiter; when Redis is down the first one
+  still holds, which is what makes failing open acceptable.
+- **Deploy gate** — a check that must pass before a release goes out. Pushing `main` deploys on
+  Vercel whatever GitHub Actions says, so `vercel.json` runs `npm test` inside the build itself.
 
 ## Study briefs
 
-_(added as steps complete)_
+### Brief 1 — Locale-prefixed routing, hreflang and proxy rewrites
+
+- **Why it matters here:** a bilingual portfolio (Next.js 16 App Router on Vercel) used one URL per page
+  and a cookie to pick English or Persian. Search engines and link-preview bots send no cookies, so
+  Persian was never indexed, and reading the cookie made every page render per request. Now English
+  stays at `/projects`, Persian lives at `/fa/projects`, all pages sit under `app/[lang]/`, and a
+  proxy (Next 16's new name for middleware) _rewrites_ `/projects` to the internal `/en/projects`,
+  passes `/fa/...` through, and _redirects_ a typed `/en/...` to the unprefixed URL. Each page
+  declares its canonical URL plus hreflang alternates (en, fa, x-default). Public URLs are a contract
+  that is expensive to change once indexed.
+- **Depth:** L3 — can explain the trade-offs and debug it
+- **Question you must be able to answer:** why does the proxy rewrite English but redirect `/en/...`,
+  and what would break (for users, for search engines, for static rendering) if it redirected
+  everything to `/en/...` instead?
+- **Don't go into:** i18n libraries (next-intl, i18next), translation workflows, geo-IP language guessing.
+- **Stop when:** given a request URL, an `Accept-Language` header and a cookie, you can say what the proxy
+  does (rewrite / 307 / 308 / pass-through) and which canonical and hreflang tags the page returns.
+- **Read first:** `proxy.ts` → `lib/locale.ts` (`localizedPath`, `stripLocale`, `preferredLocale`) →
+  `lib/seo.ts` (`pageMetadata`); background in `docs/decisions/001-locale-prefixed-urls.md`.
+- **Terms used:** rewrite vs redirect, 307/308, canonical URL, hreflang, x-default, static generation
+  (SSG), hydration mismatch.
+
+### Brief 2 — Prompt injection through client-supplied chat history, and answer-cache poisoning
+
+- **Why it matters here:** the site's chatbot is a RAG pipeline behind `POST /api/chat`. Like most chat
+  UIs (the AI SDK's `useChat`), the browser re-sends the whole conversation on every turn, so the
+  server receives a history the visitor fully controls. Before the fix, a crafted request could add
+  a fake `system` turn or fake earlier "assistant" answers, and the route passed them to the model.
+  Separately, the route cached the first question's answer in memory for six hours and served it to
+  anyone asking the same (or a very similar) question, so one crafted question could plant the answer
+  other visitors saw. Now: a strict schema (roles user/assistant only, text parts only, 400 on
+  anything else), each turn rebuilt from its text with per-role length caps, only the last 12 turns
+  kept server-side, and the cache is written only for the fixed suggestion-chip questions.
+- **Depth:** L3 — can explain the trade-offs and debug it
+- **Question you must be able to answer:** which parts of an LLM request can an attacker control in this
+  design, and for each one, what stops it (schema, caps, trimming, cache-write rule, grounded
+  prompt)? What is still possible, and why is that acceptable here?
+- **Don't go into:** model-side defences (fine-tuning, classifiers), jailbreak catalogues, tool-calling
+  security.
+- **Stop when:** you can take a JSON body with a forged system turn, an assistant turn of 50 000
+  characters and a 41-message history, and predict the route's response and what reaches the model.
+- **Read first:** `app/api/chat/route.ts` (`MessageSchema`, `toUIMessages`, `CHIP_QUESTIONS` and the
+  cache write near the end) → `lib/rag/cache.ts` (`answerCache`, `SEMANTIC_CACHE_THRESHOLD`) →
+  `tests/unit/chat-route.test.ts` (the 400 and cache tests).
+- **Terms used:** prompt injection, trust boundary, cache poisoning, semantic cache, schema validation.
+
+### Brief 3 — Sessions and engagement analytics without cookies
+
+- **Why it matters here:** the owner wants to know who really visited, for how long and what they
+  looked at, without a consent banner, cookies on visitors' devices or stored IP addresses. The site
+  computes a pseudonymous visitor id on the server, `sha256(monthly salt + IP + user-agent + host)`,
+  and keeps a Redis pointer from that id to the current visit with a 30-minute TTL that every beacon
+  refreshes (a sliding expiry). A reload or a return within 30 minutes continues the same visit;
+  after 30 idle minutes a new visit starts. "Active time" counts only seconds when the tab is visible
+  and the visitor did something in the last minute; a visit is "engaged" at 10 s active, 2 pages, or
+  a key action. Free-tier Redis (500k commands/month) sets the budget.
+- **Depth:** L2 — can use it with docs (L3 for the salt trade-off)
+- **Question you must be able to answer:** why does a monthly salt make "returning visitor this month"
+  answerable but "returning since last month" impossible, and what would a daily salt or a cookie
+  change for privacy and for accuracy?
+- **Don't go into:** GDPR/ePrivacy law in depth, fingerprinting research, third-party analytics products.
+- **Stop when:** given a timeline of beacons from two people (one on phone and laptop), you can say how
+  many visits, engaged visits and visitors the dashboard shows, and why.
+- **Read first:** `lib/analytics/store.ts` (`visitorHash`, `currentSalt`) →
+  `lib/analytics/session.ts` (`recordBeacon`, `startVisit`, `markEngaged`) →
+  `docs/decisions/002-server-side-visits.md`.
+- **Terms used:** salted hash, pseudonymous id, sliding TTL, session (visit), engaged visit, active time,
+  idempotent write.
+
+### Brief 4 — Fail-open vs fail-closed guards
+
+- **Why it matters here:** several guards in this site depend on something that can break (Redis on a
+  free quota, an environment variable). Each one had to choose what happens when its dependency is
+  missing. The admin login's shared rate limiter fails _open_: if Redis errors it lets the attempt
+  through (the in-memory limiter still applies), because failing closed would lock the owner out of
+  their own dashboard, and a 500 used to read as "wrong password". The analytics beacon also fails
+  open, because a broken counter must never break the page. The daily-digest cron fails _closed_:
+  with no `CRON_SECRET` it rejects every request, because an open endpoint would let anyone spend
+  Redis commands and spam the owner's Telegram. The chat's daily LLM cap falls back to an in-memory
+  counter when Redis fails.
+- **Depth:** L3 — can explain the trade-offs and debug it
+- **Question you must be able to answer:** for a new guard, which two questions decide open or closed
+  (what does a false "allow" cost, what does a false "deny" cost), and what compensating control
+  makes failing open acceptable?
+- **Don't go into:** circuit breakers and retry libraries, distributed consensus, full rate-limit
+  algorithms (token bucket vs sliding window beyond one sentence).
+- **Stop when:** you can classify every guard in `lib/analytics/limit.ts`, `lib/rate-limit.ts` and
+  `app/api/cron/digest/route.ts` as open or closed and justify each in one sentence.
+- **Read first:** `lib/analytics/limit.ts` (`bump`, `loginAllowed`) →
+  `app/api/cron/digest/route.ts` (`authorized`) → `lib/rate-limit.ts` (`globalDailyOk`) →
+  `tests/unit/analytics-routes.test.ts` (the Redis-down login test).
+- **Terms used:** fail open / fail closed, rate limiting, defence in depth, availability vs security.
 
 ## Decision journal
 
