@@ -41,11 +41,10 @@ you and the **Free** plan → **Continue** → give it a **Database Name** → *
 On the new resource's page → **Projects** → **Connect Project** → select the portfolio →
 **Connect**.
 
-> Leave **Custom Prefix** empty. A prefix renames the injected variables (e.g.
-> `DB1_KV_REST_API_URL`), and the app looks for the unprefixed names.
-
-Vercel injects the credentials automatically. Either naming scheme works — the app reads
-`UPSTASH_REDIS_REST_URL`/`_TOKEN` or `KV_REST_API_URL`/`_TOKEN`.
+Vercel injects the credentials automatically. Any naming scheme works: the app reads
+`UPSTASH_REDIS_REST_URL`/`_TOKEN` or `KV_REST_API_URL`/`_TOKEN`, and if the connect dialog's
+**Custom Prefix** renamed them (e.g. `DB1_KV_REST_API_URL`) it finds any `…REST_API_URL` /
+`…REST_API_TOKEN` pair.
 
 ### Or do steps 1–2 in one command
 
@@ -55,10 +54,11 @@ vercel link            # run inside the project folder
 vercel install upstash # installs, connects to the linked project, writes .env.local
 ```
 
-### 3. Set a password
+### 3. Set a password (and the digest secret)
 
 Select the **project** → **Settings** → **Environment Variables** → add `ADMIN_PASSWORD`
-for all environments. Generate one with:
+for all environments, and `CRON_SECRET` if you want the daily Telegram digest (it
+doesn't run without one). Generate each with:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"
@@ -67,11 +67,15 @@ node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"
 ### 4. Redeploy
 
 Environment variables only apply to new builds: **Deployments** → newest → **⋯** →
-**Redeploy**. Then open `/admin`.
+**Redeploy**. Then open `/admin` (or `/fa/admin` in Persian) and sign in: the session
+cookie lasts 12 hours, and the same sign-in marks your browser so your own visits aren't
+counted.
 
-Optional: set `ADMIN_SESSION_SECRET` to a separate long random value. It defaults to
-`ADMIN_PASSWORD`, which means changing the password also invalidates existing sessions
-— usually what you want.
+Optional: `ADMIN_SESSION_SECRET`, a separate long random value for signing the session
+cookie. Without it the key is derived from `ADMIN_PASSWORD` with HKDF (the cookie never
+carries anything computed from the password itself), so changing the password signs
+everyone out, which is usually what you want. Set it only if sessions should survive a
+password change; removing `ADMIN_PASSWORD` ends them either way.
 
 **Nothing breaks before you do any of this.** Without the Upstash vars the beacon
 no-ops and `/admin` says analytics isn't connected; without `ADMIN_PASSWORD` the page
@@ -139,9 +143,9 @@ accepted it), `resume_download`, `outbound` (github | repo | linkedin | email | 
 one delegated listener, so every résumé and outbound link on the site is covered
 without touching each component; command-palette links call it directly.
 
-The tracker sends nothing on `/admin` and nothing at all when `navigator.webdriver` is
-true (Playwright, Selenium, headless crawlers). Everything lives in page memory; nothing
-is written to cookies or storage.
+The tracker sends nothing on `/admin` or `/fa/admin`, and nothing at all when
+`navigator.webdriver` is true (Playwright, Selenium, headless crawlers). Everything lives
+in page memory; nothing is written to cookies or storage.
 
 ## Data model (v2, since the deploy that shipped it)
 
@@ -206,9 +210,9 @@ nothing), and a live admin session counts too.
 
 ### The trade-off you chose
 
-A 30-day salt (the Umami model) is what makes "returning visitor" answerable. A
+A monthly salt (the Umami model) is what makes "returning visitor" answerable. A
 24-hour salt (Plausible/Fathom) is more private but makes that metric impossible. The
-cost of 30 days is a longer re-identification window: the pseudonymous id persists for
+cost of a month is a longer re-identification window: the pseudonymous id persists for
 up to a month rather than a day.
 
 Worth being precise about one thing: **"no cookies, so no consent banner" is a
@@ -282,9 +286,10 @@ The dashboard, top to bottom (EN/FA, Persian digits in Persian):
    new/returning and engaged badges. This is the "who really visited" view.
 
 The headline cards (except visitors and returning, which are this month's), the daily
-trend and the active-time buckets follow the range to the day. Pages by active time and sections 4–6 are stored per calendar month, so each is
-labelled with the months it covers: "7 days" on the 3rd includes all of last month. That
-is why the chip/typed card can show more questions than the chat-questions headline card.
+trend and the active-time buckets follow the range to the day. Pages by active time and
+sections 4–6 are stored per calendar month, so each is labelled with the months it
+covers: "7 days" on the 3rd includes all of last month. That is why the chip/typed card
+can show more questions than the chat-questions headline card.
 
 Definitions worth keeping in mind:
 
@@ -302,9 +307,9 @@ Definitions worth keeping in mind:
 
 ## Local development
 
-```bash
-ADMIN_PASSWORD=dev-password npm run build && ADMIN_PASSWORD=dev-password npm start
-```
+Put `ADMIN_PASSWORD=dev-password` in `.env.local`, run `npm run dev`, and open `/admin` on
+the local URL it prints. Next loads `.env.local` itself, so this works the same in
+PowerShell, cmd and bash.
 
 Without Upstash vars set locally, `/admin` renders the "not connected" state — which is
 exactly what production looks like before step 1. With them (e.g. after `vercel env
