@@ -8,6 +8,7 @@ import type { MediaItem } from "@/lib/projects";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
 import { dirOf } from "@/lib/dictionary";
+import { digits } from "@/lib/locale";
 import { track } from "@/lib/analytics/client";
 
 /** Case-study screenshot / video gallery with a keyboard-navigable lightbox. */
@@ -174,7 +175,7 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
                       {items.length > 1 && (
                         <span className="text-white/40">
                           {" "}
-                          · {index! + 1}/{items.length}
+                          · {digits(index! + 1, locale)}/{digits(items.length, locale)}
                         </span>
                       )}
                     </p>

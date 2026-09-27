@@ -10,6 +10,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { ProjectCardView } from "@/components/projects/project-card";
 import { CaseStudySections } from "@/components/projects/case-study";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
+import { digits } from "@/lib/locale";
 
 /**
  * Private workplace agents. Home (`preview`): the same anatomy as Featured —
@@ -103,7 +104,7 @@ export function WorkProjects({ preview = false }: { preview?: boolean }) {
                     <dl className="space-y-4 text-sm">
                       <div>
                         <dt className="eyebrow">{t.projects.year}</dt>
-                        <dd className="mt-1.5">{p.year}</dd>
+                        <dd className="mt-1.5">{digits(p.year, locale)}</dd>
                       </div>
                       <div>
                         <dt className="eyebrow">{t.projects.stack}</dt>

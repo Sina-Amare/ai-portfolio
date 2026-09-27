@@ -24,7 +24,7 @@ beforeAll(() => {
 
 describe("MediaGallery", () => {
   // Three items: with two, "next" and "previous" land on the same image.
-  it("in RTL, ArrowLeft moves to the next image", async () => {
+  it("in RTL, ArrowLeft moves to the next image, counted in Persian digits", async () => {
     const user = userEvent.setup();
     render(
       <LocaleProvider locale="fa">
@@ -33,7 +33,7 @@ describe("MediaGallery", () => {
     );
     await user.click(screen.getByRole("button", { name: "اول" }));
     await user.keyboard("{ArrowLeft}");
-    expect(await screen.findByText(/2\/3/)).toBeInTheDocument();
+    expect(await screen.findByText(/۲\/۳/)).toBeInTheDocument();
   });
 
   it("opens as a modal dialog and hands focus back to its thumbnail on close", async () => {

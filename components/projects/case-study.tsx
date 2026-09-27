@@ -9,6 +9,7 @@ import { ArchDiagram } from "@/components/projects/arch-diagram";
 import { MediaGallery } from "@/components/projects/media-gallery";
 import { Reveal } from "@/components/motion/reveal";
 import { GitHubIcon } from "@/components/icons";
+import { digits } from "@/lib/locale";
 
 /** Project case study with localized structure and content. */
 export function CaseStudy({ project }: { project: Project }) {
@@ -35,7 +36,9 @@ export function CaseStudy({ project }: { project: Project }) {
             {/* Above the fold: plain markup, so the title is visible before (and without) JS. */}
             <div>
               <div className="flex items-center gap-3">
-                <span className="text-accent-text font-mono text-xs">{project.year}</span>
+                <span className="text-accent-text font-mono text-xs">
+                  {digits(project.year, locale)}
+                </span>
                 <span className="eyebrow">{tagline}</span>
               </div>
               <h1 className="text-gradient mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
@@ -59,7 +62,7 @@ export function CaseStudy({ project }: { project: Project }) {
               <dl className="space-y-4 text-sm">
                 <div>
                   <dt className="eyebrow">{p.year}</dt>
-                  <dd className="mt-1.5">{project.year}</dd>
+                  <dd className="mt-1.5">{digits(project.year, locale)}</dd>
                 </div>
                 <div>
                   <dt className="eyebrow">{p.stack}</dt>
@@ -96,7 +99,7 @@ export function CaseStudy({ project }: { project: Project }) {
  *  `level` is the heading level of the section labels (tile titles go one
  *  deeper), so the same blocks can sit under an h3 on /projects#workplace. */
 export function CaseStudySections({ c, level = 2 }: { c: Project["fa"]; level?: 2 | 3 | 4 }) {
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   const p = t.projects;
   const H = `h${level}` as const;
   const Sub = ({ 2: "h3", 3: "h4", 4: "h5" } as const)[level];
@@ -122,7 +125,7 @@ export function CaseStudySections({ c, level = 2 }: { c: Project["fa"]; level?: 
           tabIndex={0}
           className="mt-4 overflow-x-auto pb-2"
         >
-          <ArchDiagram steps={c.architecture} />
+          <ArchDiagram steps={c.architecture} locale={locale} />
         </div>
       </Reveal>
 

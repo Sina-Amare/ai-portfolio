@@ -11,7 +11,7 @@ export type WorkProjectCopy = Project["fa"] & {
 
 export type WorkProject = {
   id: string;
-  year: string;
+  year: number;
   icon: LucideIcon;
   stack: string[];
   en: WorkProjectCopy;
@@ -21,7 +21,7 @@ export type WorkProject = {
 export const workProjects: WorkProject[] = [
   {
     id: "social-research-agent",
-    year: "2025",
+    year: 2025,
     icon: Search,
     stack: ["Python", "LangGraph", "LLM", "Docker"],
     en: {
@@ -107,7 +107,7 @@ export const workProjects: WorkProject[] = [
   },
   {
     id: "business-intelligence-agents",
-    year: "2025",
+    year: 2025,
     icon: BarChart3,
     stack: ["Python", "LangGraph", "MCP", "LLM", "Docker"],
     en: {

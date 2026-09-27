@@ -21,6 +21,17 @@ export const hasLocale = (s: string): s is Locale => (LOCALES as readonly string
 export const toLocale = (s: string): Locale => (hasLocale(s) ? s : "en");
 
 /**
+ * A whole number in the page's digits, with no thousands separator (years,
+ * counters, step numbers): (2025, "fa") → "۲۰۲۵". `pad` zero-pads: (1, "fa", 2) → "۰۱".
+ */
+export function digits(n: number, locale: Locale, pad = 1): string {
+  return new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US", {
+    useGrouping: false,
+    minimumIntegerDigits: pad,
+  }).format(n);
+}
+
+/**
  * Public URL of a bare site path in `locale`. Accepts a query or hash:
  * ("/", fa) → "/fa", ("/#about", fa) → "/fa#about", ("/admin?range=7", fa) → "/fa/admin?range=7".
  */

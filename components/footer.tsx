@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Mail } from "lucide-react";
 import { site } from "@/lib/site";
+import { digits } from "@/lib/locale";
 import { useLocale } from "./locale-provider";
 import { Container } from "./ui/container";
 import { GitHubIcon, LinkedInIcon } from "./icons";
@@ -44,7 +45,7 @@ export function Footer() {
           </div>
           {/* The page is prerendered, so the year is build-time; the client may disagree on Jan 1. */}
           <p className="text-muted text-xs" suppressHydrationWarning>
-            © {year} {site.localName[locale]}. {t.footer.rights}{" "}
+            © {digits(year, locale)} {site.localName[locale]}. {t.footer.rights}{" "}
             <Link
               href={path("/privacy")}
               className="hover:text-text underline-offset-2 hover:underline"

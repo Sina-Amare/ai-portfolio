@@ -1,5 +1,21 @@
 import { describe, it, expect } from "vitest";
-import { hasLocale, localizedPath, preferredLocale, stripLocale, toLocale } from "@/lib/locale";
+import {
+  digits,
+  hasLocale,
+  localizedPath,
+  preferredLocale,
+  stripLocale,
+  toLocale,
+} from "@/lib/locale";
+
+describe("digits", () => {
+  it("writes Persian digits on /fa, with no thousands separator in a year", () => {
+    expect(digits(2025, "fa")).toBe("۲۰۲۵");
+    expect(digits(2025, "en")).toBe("2025");
+    expect(digits(1, "fa", 2)).toBe("۰۱");
+    expect(digits(12, "en", 2)).toBe("12");
+  });
+});
 
 describe("localizedPath", () => {
   it("leaves English unprefixed", () => {

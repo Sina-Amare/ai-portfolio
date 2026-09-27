@@ -8,6 +8,7 @@ import type { Project } from "@/lib/projects";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/locale-provider";
 import { GitHubIcon } from "@/components/icons";
+import { digits } from "@/lib/locale";
 
 export function ProjectCard({
   project,
@@ -24,7 +25,7 @@ export function ProjectCard({
     <ProjectCardView
       href={path(`/projects/${project.slug}`)}
       label={`${project.name} — ${tagline}`}
-      eyebrow={project.year}
+      eyebrow={digits(project.year, locale)}
       name={project.name}
       tagline={tagline}
       summary={locale === "fa" ? project.summaryFa : project.summary}

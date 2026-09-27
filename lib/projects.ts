@@ -12,7 +12,7 @@ export type Project = {
   tagline: string;
   /** Persian tagline (proper nouns / tech terms stay in Latin). */
   taglineFa: string;
-  year: string;
+  year: number;
   stack: string[];
   repo: string;
   featured: boolean;
@@ -49,7 +49,7 @@ export const projects: Project[] = [
     name: "ScrapeGPT",
     tagline: "Self-hosted, AI-assisted web scraping",
     taglineFa: "اسکریپینگ وب با کمک AI، self-hosted",
-    year: "2025",
+    year: 2025,
     stack: ["FastAPI", "PostgreSQL", "LiteLLM", "React", "Playwright"],
     repo: "https://github.com/Sina-Amare/ScrapeGpt",
     featured: true,
@@ -163,7 +163,7 @@ export const projects: Project[] = [
     name: "Aigram",
     tagline: "Telegram, but AI-powered — a self-hosted messenger",
     taglineFa: "تلگرام، ولی با AI — یه مسنجر self-hosted",
-    year: "2025",
+    year: 2025,
     stack: ["Python", "Telethon", "FastAPI", "PWA", "Gemini"],
     repo: "https://github.com/Sina-Amare/Aigram",
     featured: true,
@@ -276,7 +276,7 @@ export const projects: Project[] = [
     name: "PromptAmp",
     tagline: "The prompt amplifier — your keys, any site",
     taglineFa: "تقویت‌کننده prompt — با کلید خودت، توی هر سایتی",
-    year: "2026",
+    year: 2026,
     stack: ["TypeScript", "WXT", "Manifest V3", "Vitest", "Playwright"],
     repo: "https://github.com/Sina-Amare/promptamp",
     featured: true,
@@ -376,7 +376,7 @@ export const projects: Project[] = [
     name: "RubricEval",
     tagline: "A rubric-driven code-evaluation platform",
     taglineFa: "پلتفرم ارزیابی کد بر پایه rubric",
-    year: "2025",
+    year: 2025,
     stack: ["Next.js", "FastAPI", "LiteLLM", "PostgreSQL"],
     repo: "https://github.com/Sina-Amare/github-code-review",
     featured: true,

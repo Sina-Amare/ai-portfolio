@@ -42,6 +42,19 @@ describe("above-the-fold page titles", () => {
 });
 
 describe("case study pipeline", () => {
+  it("numbers the steps and the year in the page's digits", () => {
+    const { container } = render(
+      <LocaleProvider locale="fa">
+        <CaseStudy project={getProject("scrapegpt")!} />
+      </LocaleProvider>,
+    );
+    const steps = screen.getByRole("region", { name: dict.fa.projects.howItWorks });
+    expect(steps).toHaveTextContent("۰۱");
+    expect(steps).not.toHaveTextContent("01");
+    expect(container).toHaveTextContent("۲۰۲۵");
+    expect(container).not.toHaveTextContent("2025");
+  });
+
   it("the sideways-scrolling steps can be reached from the keyboard", () => {
     render(
       <LocaleProvider locale="fa">
