@@ -95,8 +95,8 @@ content/*.md + content/projects/*.md ──(npm run embed)──▶ lib/kb.json 
 The failover ladder (in [`lib/rag/providers.ts`](lib/rag/providers.ts)) tries providers in order and
 only includes ones whose API key is present. It's **language-aware**: English leads with **Groq**
 (Llama 3.3 70B — fastest first-token), then **Gemini 3.1 Flash-Lite → 2.5 Flash-Lite → 2.5 Flash**, then **OpenRouter**
-(Qwen3-Next-80B → Llama-3.3-70B); Persian leads with **Gemini** (stronger Persian) and keeps Groq
-last. Every provider rotates across all of its comma-separated keys before falling through, so total
+(free Nemotron 3 Super → Ultra, reasoning off); Persian leads with **Gemini** (stronger Persian),
+then OpenRouter with Ultra first (its Persian is the more natural), and keeps Groq last. Every provider rotates across all of its comma-separated keys before falling through, so total
 capacity ≈ the sum of your keys. Your API keys are **server-side only** and never reach the browser —
 the client only ever calls our own `/api/chat`.
 

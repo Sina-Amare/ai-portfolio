@@ -17,6 +17,8 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - loop skipped: 2026-09-27 B11 final verification — same workflow. Skips in a row: 6 (same open question).
 - loop skipped: 2026-09-27 B11 review fixes — same workflow. Skips in a row: 7 (asked again in progress.md
   for the next milestone).
+- loop skipped: 2026-09-27 B11f the four owner calls (backstop models, fired wording, chip label,
+  news) — owner said "do them", one report at the end. Skips in a row: 8 (same open question).
 
 ## Terms
 

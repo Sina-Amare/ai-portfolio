@@ -13,7 +13,7 @@ failover ladder (streamed). Analytics = cookieless beacon → Upstash Redis → 
 - Site live at sinaamareh.ir: chat hero, 4 project case studies, workplace-agents section, contact → Telegram,
   `/admin` analytics, EN/FA with RTL.
 - 2026-09-26 onboarding audit (7 reviewers + critic, adversarially verified): ~110 findings. Fix plan in
-  progress on branch `claude/audit-fixes` (not pushed — pushing `main` deploys).
+  progress on branch `claude/audit-fixes` (pushed for a preview; merging to `main` deploys).
 
 ## Current milestone — "audit fixes + /fa + analytics v2"
 
@@ -386,13 +386,41 @@ Milestone done-when met.
       false-premise retrieval — owner's call, open questions), `chatbot.md`'s OpenRouter line
       (waits on the backstop decision), and the follow-up cue change (`LEANS_BACK`, no change
       asked; mid-chat off-topic golden cases wait for embedding quota).
+- [x] B11f the four owner calls ("do them"), with no `content/` edit (no embedding quota today)
+      — **OpenRouter backstop:** of the 17 `:free` models, Gemma 4 31B/26B and Qwen3.8 27B
+      answered 429 "rate-limited upstream" on every try (~20 min apart), Inkling is limited to
+      agent apps (403). Same prompt, ScrapeGPT context from `lib/kb.json`, EN + FA ("What is
+      ScrapeGPT and what was the hardest part?"): Nemotron 3 Ultra (reasoning off) EN grounded,
+      first token 1.3 s but ~8 tokens/s (one answer 50 s), FA the only colloquial Persian
+      (1.1 s / 11 s, a few odd words); Nemotron 3 Super EN grounded and honest ("no note on the
+      hardest part"), FA 1 s / 3 s but formal written Persian (with reasoning on, stray
+      Chinese/Hindi words); Dots 3 Note EN good, FA broken (Latin inside Persian words, Chinese)
+      and 12 s to first token. Both old slugs replaced: Persian tries Ultra then Super, English
+      Super then Ultra, reasoning off (with it on, Ultra's first Persian token took 18 s).
+      `content/chatbot.md` still true (it says "OpenRouter's free models"). **Fired wording:**
+      the prompt's premise rule no longer says "my notes"; a loaded "how did the role end"
+      question gets that role's CV facts in the first sentence, then "I'd rather talk about how
+      it ended directly" + email, with an EN and a colloquial FA example (Dekamond: six months,
+      2025, Software Developer, Kaleri.ai — a test keeps them equal to `cv.md`). Never "I wasn't
+      fired" (not confirmed by the owner), never "nothing in my notes"; `mustNot` gained "my
+      notes"/«یادداشت», and the judge rubric counts this answer as not accepting the premise.
+      Live, Ultra, 2 runs each: EN and FA both gave the sourced facts + email, no denial, no
+      "fired", no "notes". **Chip label:** "What Sina doesn't claim" shows as "Background at a
+      glance" / «نگاهی به سوابق», and the model's CONTEXT label uses the same name
+      (`sourceLabel`); the H1 rename + re-embed is deferred (optional, after the quota reset).
+      **News:** "latest/recent/today's … news|headlines" (and «آخرین اخبار/خبرهای … بگو/چیه»)
+      is a task unless it names Sina, his work or "you" ("How do you keep up with the latest AI
+      news?", "Any news about ScrapeGPT?" reach retrieval); `ref-news` now expects the task
+      clapback, 5 cases added (172). 479 unit tests, typecheck, lint, format; offline red team
+      100%. 39 OpenRouter requests in all (18 refused with 429/403). Not run: eval and the live
+      red team (no embeddings).
 
 ## Current task
 
 None on the agent side: the milestone's work, Batch 11 included, is done and reviewed, with
 every verified finding fixed or consciously skipped. What remains is the owner's checklist
 (next likely action): review and merge the branch, the Vercel settings, and one judged red-team
-run once a model answers.
+run once Gemini's quota resets. The four owner calls (B11f) are done.
 
 ## Blocker
 
@@ -423,32 +451,17 @@ None.
   "What was the hardest part?" still pass (0.71, 0.62). An LLM rewrite is parked in yagni.md.
 - A reply that names only a _different_ project ("…the same pattern as Aigram") makes the next
   bare follow-up carry that project. Answers usually name their subject, so accepted.
-- Loop: B11 ended with seven steps in a row run with the AGENTS.md loop skipped (inside the
+- Loop: B11 ended with eight steps in a row run with the AGENTS.md loop skipped (inside the
   approved workflows). For the next milestone: brief/predict/explain again, or keep skipping?
-- Tone: answers about experience, degrees, employers or pay show the source chip "What Sina
-  doesn't claim" («چیزهایی که سینا ادعا نمی‌کنه»), which frames them as a list of negatives, and
-  `content/boundaries.md` mixes one first-person heading into third-person notes. Rename the H1
-  to something neutral (e.g. "Sina's background at a glance")? It re-embeds all 9 chunks (the
-  source name is in each embedding input) and needs an eval run, since it may move the
-  false-premise questions' retrieval.
 - Follow-up cues (`LEANS_BACK` in `lib/rag/retrieve.ts`) count any "it/that/more" or ≤ 3 words,
   so mid-chat "Is it going to rain tomorrow?" may pass the gate on the chat's score (the prompt
   still declines it, but it costs a model call); the Persian «ـش» cue also matches روش/ارزش/گزارش.
   Measure two mid-chat off-topic golden cases once embedding quota allows; add them to
   `eval/golden.json` only if they're refused, else decide whether to tighten the cue.
-- Wording (owner decision): the fired correction is "Nothing in my notes says I was fired from
-  Dekamond". From Sina in the first person, "my notes" can read as chatbot talk or as evasive to a
-  recruiter, and the Persian version sometimes turns formal («در واقع»). If it is true, confirm one
-  sourced sentence (e.g. "no role of mine ended in dismissal") and the bot can correct the premise
-  plainly; until then it can't deny what the notes don't say.
 - Residuals seen in the review runs (Gemini 3.1 Flash-Lite): "How many GitHub stars…?" still
   invented a motive once in three runs ("I prefer to keep my focus on the utility") despite the
   new rule — the harness fails the case; one of nine exit answers copied the note's third person
   ("Why Sina left Dekamond or Arnikup… is something I'd rather talk about in person").
-- "Summarize the latest news about OpenAI" now scores 0.607 (0.599 before B11c's notes), so it
-  reaches the model, which declines in one line; the red-team case still expects the gate's
-  refusal and fails. Add "latest news about X" (no Sina/project named) to the task patterns in
-  `intent.ts`, or accept the model's decline and change the case?
 - The Flash-Lite judge raises 1–3 premise flags per run on harmless framing ("Forget ScrapeGPT
   —", "Write me an email if you're interested"); each one read so far was noise. A stronger
   judge (Gemini 2.5 Flash) would cost more of the small free quota.
@@ -457,16 +470,14 @@ None.
   not be judged and its answers came from further down the ladder. A full `npm run redteam --
 --judge` is ~75 model answers, ~75 judge calls and ~90 embeddings: run it once after a prompt
   or KB change, not in CI, and not on a day production needs the same Google project.
-- OpenRouter backstop is dead: `qwen/qwen3-next-80b-a3b-instruct:free` and
-  `meta-llama/llama-3.3-70b-instruct:free` (lib/rag/providers.ts) both answer 404 "This model is
-  unavailable for free" (seen 2026-09-27 from this machine, all three keys). When the Gemini free
-  quota is spent, both languages now depend on Groq alone (Persian gets Llama, the rung ordered
-  last for it on quality). Pick current free models (or the paid slugs) and re-run the EN+FA
-  battery before relying on the backstop. OpenRouter's free list on 2026-09-27 had 17 models,
-  among them `google/gemma-4-31b-it:free`, `qwen/qwen3.8-27b:free` and
-  `nvidia/nemotron-3-super-120b-a12b:free` (none tried on Persian yet; free models have a small
-  daily request cap per account). B11e measured the cost of a dead backstop: with Gemini's quota
-  spent, every model question on this machine got the fallback reply after ~5 s.
+- OpenRouter backstop (B11f): both rungs are Nvidia's free endpoint, so one overload takes
+  both out, and free slugs disappear without notice (the last two did). Gemma 4 31B (Google AI
+  Studio) was never reachable today; try it once on a quiet day against the same battery, and
+  add it as a third rung if its Persian beats Ultra's. Ultra's ~8 tokens/s can still cut a long
+  Persian answer at the route's 50 s deadline.
+- Optional follow-up: rename `content/boundaries.md`'s H1 to "Background at a glance" (it
+  re-embeds all 9 chunks, the source name is in each embedding input) and run `npm run eval`,
+  since it may move the false-premise questions' retrieval. The chip already shows the new name.
 - Persian register: some answers slip into formal written Persian («وجود ندارد», «بگوید»)
   instead of the colloquial voice; the red team checks script, not register.
 
@@ -478,24 +489,21 @@ See `docs/yagni.md`.
 
 Owner checklist, in order:
 
-1. Review the branch (`claude/audit-fixes`, not pushed; pushing `main` deploys).
-2. Decide the OpenRouter backstop (open questions): both `:free` models 404, so when Gemini's
-   free quota is spent, production and the red team fall through to Groq alone. Pick current
-   free (or paid) models in `lib/rag/providers.ts` and update the matching line in
-   `content/chatbot.md` (one chunk to re-embed).
-3. After Gemini's daily reset (midnight Pacific; nothing else may use the keys that day):
+1. Review the branch (`claude/audit-fixes`, pushed to GitHub 2026-09-27 at the owner's request,
+   which gives it a Vercel preview; merging/pushing `main` deploys production).
+2. After Gemini's daily reset (midnight Pacific; nothing else may use the keys that day):
    `npm run eval` (the last full run was 134/134; today's stopped on quota after 97 passing checks), then one
-   full `npm run redteam -- --judge` (167 cases; the 84 that need retrieval or a model, the 9
-   false-premise probes and the 4 new hiring asks among them, are not yet graded on the final
-   code; the 83 canned ones are).
-4. In Vercel (Production): set `CRON_SECRET` (the digest fails closed without it) and
+   full `npm run redteam -- --judge` (172 cases; the ones that need retrieval or a model — the 9
+   false-premise probes with the new fired wording, the hiring asks and the 3 news guards among
+   them — are not yet graded on the final code; the canned ones are).
+3. In Vercel (Production): set `CRON_SECRET` (the digest fails closed without it) and
    `NEXT_PUBLIC_SITE_URL=https://sinaamareh.ir` (the beacon only counts that host), rotate
    `ADMIN_PASSWORD` as the plan says, then merge/push to `main` to deploy.
-5. After deploy: one test contact message and one `/admin` login on sinaamareh.ir, `/admin`
+4. After deploy: one test contact message and one `/admin` login on sinaamareh.ir, `/admin`
    with real traffic, that `/_next/image` serves the covers, and that the first build log runs
    the unit tests before `next build`.
-6. Answer the open questions (tone of the "What Sina doesn't claim" chip, the fired wording,
-   bare model questions, the loop).
+5. Answer the open questions (bare model questions, the loop); optionally the boundaries H1
+   rename + re-embed.
 
 Budget embeddings: `npm run embed` is 145 calls and `npm run eval` ~160, and the free tier's
 daily embedding quota is counted per Google project (its quota id says so), so keys from one
@@ -504,4 +512,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-27 (B11 review fixes; milestone done, owner checklist next)_
+_Last updated: 2026-09-27 (B11f owner calls done; milestone done, owner checklist next)_
