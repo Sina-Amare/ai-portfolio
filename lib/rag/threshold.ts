@@ -5,9 +5,15 @@ import type { ScoredChunk } from "./types";
  * we return a deterministic refusal WITHOUT calling the LLM — structurally
  * preventing hallucination on out-of-scope questions.
  *
- * Calibrated for gemini-embedding-001 @768 with RETRIEVAL task types:
- * empirically, in-scope queries score ~0.68–0.79 and out-of-scope ~0.49–0.58,
- * so 0.60 sits in the gap (lowered from 0.62 once greetings got canned replies).
+ * Calibrated for gemini-embedding-001 @768 with RETRIEVAL task types. Measured
+ * by `npm run eval` (2026-09-27, 144 chunks, 96 in-scope / 15 off-topic): in-scope
+ * top scores 0.605–0.796, off-topic 0.499–0.593, so 0.60 sits in a 0.012 gap.
+ * The lowest in-scope ones are false-premise probes the KB now answers ("What
+ * was your PhD thesis about?" 0.605, "Tell me about a project that failed"
+ * 0.625); ordinary questions start at 0.645. The highest off-topic is "Can you
+ * help me debug my Rust code?" 0.593. Raising it would refuse those probes;
+ * lowering it lets coding help through. Pure small talk is answered before it
+ * (intent.ts). The eval's last lines print these numbers; update this comment.
  * Override with RAG_THRESHOLD without re-embedding.
  */
 export const RELEVANCE_THRESHOLD = Number(process.env.RAG_THRESHOLD ?? "0.60");
