@@ -63,6 +63,7 @@ export const pageCopy = {
     notFound: {
       eyebrow: "Error 404",
       title: "Page not found",
+      tabTitle: `Page not found — ${site.localName.en}`,
       body: "The page you're looking for doesn't exist or has moved.",
       home: "Back home",
     },
@@ -272,6 +273,7 @@ export const pageCopy = {
     notFound: {
       eyebrow: "خطای ۴۰۴",
       title: "این صفحه پیدا نشد",
+      tabTitle: `صفحه پیدا نشد — ${site.localName.fa}`,
       body: "ممکنه آدرسش عوض شده باشه یا دیگه وجود نداشته باشه.",
       home: "برگشت به خانه",
     },

@@ -11,6 +11,10 @@ export default function NotFound() {
   const p = pageCopy[locale].notFound;
   return (
     <section className="flex min-h-[72vh] items-center">
+      {/* React hoists this into <head> ahead of the layout's title; a client
+          component can't export metadata (Next's docs give the same way out for
+          global-error). */}
+      <title>{p.tabTitle}</title>
       <Container className="text-center">
         <div className="eyebrow">{p.eyebrow}</div>
         <h1 className="text-gradient mt-4 text-5xl font-semibold tracking-tight">{p.title}</h1>

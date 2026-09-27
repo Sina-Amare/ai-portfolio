@@ -63,11 +63,13 @@ test("unknown pages 404 inside the right language", async ({ page }) => {
   expect(en?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page).toHaveTitle("Page not found — Sina Amareh");
 
   const fa = await page.goto("/fa/nope");
   expect(fa?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "این صفحه پیدا نشد" })).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page).toHaveTitle("صفحه پیدا نشد — سینا آماره");
 });
 
 test.describe("a Persian browser on its first visit", () => {
