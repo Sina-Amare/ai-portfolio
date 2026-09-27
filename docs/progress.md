@@ -115,6 +115,10 @@ checklist to verify.
       CLS on a slow-4G phone load: / 0.012, /fa 0 (the JetBrains Mono swap is not a problem). e2e 20/20
       against `next start`. The 14 screenshots now go through Vercel Image Optimization (the avatar
       already did), a few widths each; check its usage page after deploy (Hobby has a monthly quota).
+      Review follow-up: the first ⌘K shows the dialog's backdrop while cmdk loads (a click or Escape
+      cancels), so it no longer looks dead on a slow network; a video media item must have a poster
+      (the type enforces it: next/image can't resize an .mp4); the static-orb rule is `width < 40rem`,
+      the exact complement of Tailwind's `sm`. e2e 20/20 again.
 - [ ] B9 tests, docs, CI
 - [ ] B10 final verification + report
 
@@ -146,4 +150,4 @@ Start B9 (tests health-5/6/7, chat-10, e2e for /fa + workplace; README, docs/ana
 `/_next/image` serves the covers on Vercel. Owner, before deploying: set `CRON_SECRET` in Vercel (the
 digest cron fails closed without it).
 
-_Last updated: 2026-09-27 (B8 done)_
+_Last updated: 2026-09-27 (B8 done, review follow-up applied)_
