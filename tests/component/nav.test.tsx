@@ -42,7 +42,7 @@ describe("Nav", () => {
     await user.click(toggle);
     // The desktop search button shares the name; the mobile one comes last.
     await user.click(screen.getAllByRole("button", { name: dict.en.nav.command }).at(-1)!);
-    expect(screen.getByPlaceholderText(dict.en.command.placeholder)).toHaveFocus();
+    expect(await screen.findByPlaceholderText(dict.en.command.placeholder)).toHaveFocus();
 
     await user.keyboard("{Escape}");
     expect(toggle).toHaveFocus();

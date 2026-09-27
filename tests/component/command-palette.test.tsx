@@ -5,6 +5,11 @@ import { CommandPalette } from "@/components/command-palette";
 import { LocaleProvider } from "@/components/locale-provider";
 import { dict } from "@/lib/dictionary";
 
+const body = vi.hoisted(() => ({ loaded: false }));
+vi.mock("@/components/command-palette-body", async (importOriginal) => {
+  body.loaded = true;
+  return importOriginal();
+});
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
   useRouter: () => ({ push: vi.fn() }),
@@ -13,6 +18,18 @@ vi.mock("next-themes", () => ({ useTheme: () => ({ setTheme: vi.fn(), resolvedTh
 vi.mock("@/lib/analytics/client", () => ({ track: vi.fn(), linkEvent: vi.fn() }));
 
 describe("CommandPalette", () => {
+  it("loads the palette (cmdk) only when it first opens", async () => {
+    render(
+      <LocaleProvider locale="en">
+        <CommandPalette />
+      </LocaleProvider>,
+    );
+    expect(body.loaded).toBe(false);
+    act(() => void window.dispatchEvent(new Event("toggle-command")));
+    expect(await screen.findByRole("dialog", { name: dict.en.nav.command })).toBeInTheDocument();
+    expect(body.loaded).toBe(true);
+  });
+
   it("opens as a modal dialog and gives focus back to what opened it", async () => {
     const user = userEvent.setup();
     render(
@@ -25,7 +42,7 @@ describe("CommandPalette", () => {
     opener.focus();
     act(() => void window.dispatchEvent(new Event("toggle-command")));
 
-    expect(screen.getByRole("dialog", { name: dict.en.nav.command })).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: dict.en.nav.command })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(dict.en.command.placeholder)).toHaveFocus();
 
     await user.keyboard("{Escape}");
