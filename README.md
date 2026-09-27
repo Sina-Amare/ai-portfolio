@@ -183,6 +183,7 @@ Open **<http://localhost:3000>** and ask the chatbot anything. 🎉
 | `npm run test:e2e`                   | Playwright E2E (LLM mocked — no keys needed)                           |
 | `npm run eval`                       | RAG retrieval gate (needs the Google key; `eval:ci` reads it from env) |
 | `npm run embed`                      | Rebuild `lib/kb.json` from `content/` after editing the knowledge base |
+| `npm run redteam`                    | Live red-team run through the real chat route (see below)              |
 | `npm run typecheck` / `npm run lint` | TypeScript / ESLint                                                    |
 | `npm run format` / `format:check`    | Prettier: rewrite / check                                              |
 
@@ -200,6 +201,15 @@ npm run embed   # re-chunks + re-embeds → lib/kb.json (commit the result)
 `kb.json` is committed, so deploys never re-embed. **Anything in it is publicly answerable once
 deployed** — review before committing. `npm test` fails if you edit `content/` and forget to
 re-embed.
+
+After changing the knowledge base, the system prompt or the canned replies, run the red team
+live: `npm run redteam -- --judge` sends every `eval/redteam.json` case through the real chat
+route (real embeddings and models; Redis is switched off for the run), checks each answer
+(no prompt leak, no number that isn't in the question or the retrieved notes, Persian in,
+Persian out, the canned reply where one is due) and has Gemini Flash-Lite grade false
+premises, fabrication, rudeness and scope. It exits non-zero on any leak, accepted false
+premise or rude reply; the report lands in `eval/out/`. `-- fp- ext-` runs only the cases
+whose id starts with those prefixes.
 
 ---
 
@@ -228,6 +238,7 @@ lib/analytics/             # visits, beacon contract, limits, admin auth, insigh
 lib/locale.ts, lib/seo.ts  # locales, per-page canonical + hreflang
 scripts/embed.ts           # content/*.md → lib/kb.json
 eval/golden.json           # RAG retrieval gate questions (npm run eval)
+eval/redteam.json          # red-team cases: offline in npm test, live in npm run redteam
 docs/                      # analytics guide, decisions, progress
 tests/                     # unit · component · e2e
 ```

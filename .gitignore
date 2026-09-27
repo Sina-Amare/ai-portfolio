@@ -51,6 +51,9 @@ yarn-error.log*
 /scripts/readme-shots.mjs
 /scripts/chat-test.mjs
 
+# live red-team reports (npm run redteam)
+/eval/out/
+
 # vercel
 .vercel
 
