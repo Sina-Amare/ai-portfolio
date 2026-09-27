@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight, Play, X } from "lucide-react";
@@ -66,12 +67,14 @@ export function MediaGallery({ items, label }: { items: MediaItem[]; label: stri
             aria-label={captionOf(m) ?? t.projects.openPreview}
             className="group bg-surface border-border hover:border-accent/50 relative block aspect-video w-full overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            {/* A resized thumbnail; the lightbox below keeps the full-size file.
+                Two columns from sm, beside the 270 px sidebar from lg. */}
+            <Image
               src={m.poster ?? m.src}
               alt={captionOf(m) ?? ""}
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              fill
+              sizes="(min-width: 1180px) 385px, (min-width: 640px) 50vw, 100vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             />
             {m.type === "video" && (
               <span className="absolute inset-0 grid place-items-center">

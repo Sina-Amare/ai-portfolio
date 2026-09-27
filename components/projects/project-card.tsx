@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 import { ArrowUpRight, type LucideIcon } from "lucide-react";
@@ -89,13 +90,16 @@ export function ProjectCardView({
 
       <div className="pointer-events-none relative z-10 flex flex-1 flex-col">
         {cover && (
-          <div className="border-border -mx-6 -mt-6 mb-5 aspect-video overflow-hidden border-b">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+          <div className="border-border relative -mx-6 -mt-6 mb-5 aspect-video overflow-hidden border-b">
+            {/* Resized to the card: the sources are 1440–1600 px wide. Two columns
+                from sm (three on /projects at lg, a little over-served), capped by the
+                1180 px container. */}
+            <Image
               src={cover}
               alt=""
-              loading="lazy"
-              className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
+              fill
+              sizes="(min-width: 1180px) 550px, (min-width: 640px) 50vw, 100vw"
+              className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
             />
           </div>
         )}

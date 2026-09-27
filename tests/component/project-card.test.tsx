@@ -39,4 +39,15 @@ describe("ProjectCard", () => {
     );
     expect(screen.getAllByRole("link")[0]).toHaveAttribute("href", "/fa/projects/scrapegpt");
   });
+
+  it("serves the cover resized to the card, not the full-size file", () => {
+    const { container } = render(
+      <LocaleProvider locale="en">
+        <ProjectCard project={getProject("scrapegpt")!} />
+      </LocaleProvider>,
+    );
+    const img = container.querySelector("img")!;
+    expect(img.getAttribute("srcset")).toContain("/_next/image?url=");
+    expect(img.getAttribute("sizes")).toContain("50vw");
+  });
 });
