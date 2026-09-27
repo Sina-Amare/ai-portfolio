@@ -8,7 +8,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  */
 const { recordBeacon } = vi.hoisted(() => ({ recordBeacon: vi.fn(async () => 5) }));
 
-vi.mock("@upstash/redis", () => ({ Redis: class {} })); // "configured", never called
+// "Configured", and every command fails like an outage or a spent quota. The
+// track tests never reach Redis; the login test below leans on the failure.
+vi.mock("@upstash/redis", () => ({
+  Redis: class {
+    incr = () => Promise.reject(new Error("ERR max requests limit exceeded"));
+  },
+}));
 vi.mock("@/lib/analytics/limit", () => ({
   beaconAllowed: vi.fn(async () => ({ ok: true })),
   chargeBeacon: vi.fn(async () => {}),
@@ -22,7 +28,7 @@ vi.mock("@/lib/analytics/session", async (importOriginal) => ({
 import { POST as track } from "@/app/api/track/route";
 import { POST as login } from "@/app/api/admin/login/route";
 import { createSessionToken } from "@/lib/analytics/auth";
-import { beaconAllowed } from "@/lib/analytics/limit";
+import { beaconAllowed, loginAllowed } from "@/lib/analytics/limit";
 
 const CHROME = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/120 Safari/537.36";
 const ORIGIN = "http://localhost:3000";
@@ -78,6 +84,15 @@ describe("POST /api/track", () => {
     await send(PV, { origin: "https://evil.example" });
     await send({ t: "eng", path: "/", ms: -5 });
     await send("not json");
+    // No Origin at all (a script, not a browser POST).
+    const bare = await track(
+      new Request(`${ORIGIN}/api/track`, {
+        method: "POST",
+        headers: { "user-agent": CHROME },
+        body: JSON.stringify(PV),
+      }),
+    );
+    expect(bare.status).toBe(204);
     await send({ t: "pv", path: "/", referrer: `https://x.com/${"a".repeat(5000)}` });
     expect(recordBeacon).not.toHaveBeenCalled();
     expect(beaconAllowed).not.toHaveBeenCalled(); // not even the rate limiter's INCR
@@ -85,19 +100,51 @@ describe("POST /api/track", () => {
 });
 
 describe("POST /api/admin/login", () => {
-  it("marks the owner's browser for a year at sign-in", async () => {
-    const res = await login(
+  // Each test signs in from its own IP: the in-memory limiter allows 5 per 10 minutes.
+  let n = 0;
+  const signIn = (password: string, ip = `198.51.100.${++n}`) =>
+    login(
       new Request(`${ORIGIN}/api/admin/login`, {
         method: "POST",
-        headers: { origin: ORIGIN, "content-type": "application/json" },
-        body: JSON.stringify({ password: "correct-horse" }),
+        headers: { origin: ORIGIN, "content-type": "application/json", "x-forwarded-for": ip },
+        body: JSON.stringify({ password }),
       }),
     );
+
+  it("answers a wrong password with 401 and no cookie", async () => {
+    const res = await signIn("wrong-horse");
+    expect(res.status).toBe(401);
+    expect(res.headers.getSetCookie()).toEqual([]);
+  });
+
+  it("signs in with an HttpOnly session and marks the owner's browser for a year", async () => {
+    const res = await signIn("correct-horse");
     expect(res.status).toBe(200);
     const cookies = res.headers.getSetCookie();
-    expect(cookies.some((c) => c.startsWith("sa_admin="))).toBe(true);
+    const session = cookies.find((c) => c.startsWith("sa_admin="));
+    expect(session).toContain("HttpOnly");
+    expect(session).toContain("SameSite=Lax");
+    expect(session).toContain("Max-Age=43200");
     const owner = cookies.find((c) => c.startsWith("sa_owner=1;"));
     expect(owner).toContain("HttpOnly");
     expect(owner).toContain("Max-Age=31536000");
+  });
+
+  it("answers 429 past the limit, even to the right password", async () => {
+    const ip = "198.51.100.200";
+    for (let i = 0; i < 5; i++) expect((await signIn("wrong-horse", ip)).status).toBe(401);
+    expect((await signIn("correct-horse", ip)).status).toBe(429);
+    // The shared (Redis) counter refuses on its own too.
+    vi.mocked(loginAllowed).mockResolvedValueOnce(false);
+    expect((await signIn("correct-horse")).status).toBe(429);
+  });
+
+  it("still signs in when Redis is down: the shared limiter fails open, never a 500", async () => {
+    const real =
+      await vi.importActual<typeof import("@/lib/analytics/limit")>("@/lib/analytics/limit");
+    vi.mocked(loginAllowed).mockImplementationOnce(real.loginAllowed);
+    vi.mocked(loginAllowed).mockImplementationOnce(real.loginAllowed);
+    expect((await signIn("wrong-horse")).status).toBe(401); // the form's "wrong password"
+    expect((await signIn("correct-horse")).status).toBe(200);
   });
 });
