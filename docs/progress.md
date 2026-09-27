@@ -424,6 +424,13 @@ bot and Persian possessives; Arnikup/Google fired cases), a shared test timeout 
 tests can't flake the Vercel build, and the Persian name corrected to «سینا آماره» (the earlier
 «سینا عماره» was a guess) with the OG card regenerated.
 
+Live-site browser QA leftovers, fixed on the branch (not deployed yet): the chat input's focus
+glow (~1.2:1) is now the site's 2px double ring, and every focus ring uses `--accent-text` (light
+mode's `--accent` was 2.4:1; now 5.2:1, dark unchanged at 10.9:1); each chat bubble carries its
+own `lang`, so an English answer left on `/fa` after a language switch keeps Inter and Latin
+line-height (and a Persian one on `/` Persian's); 404 pages get a localized tab title through a
+React `<title>` in `not-found.tsx`. The no-JS 404 body stays in `docs/yagni.md`.
+
 ## Blocker
 
 None.
@@ -512,6 +519,11 @@ Owner checklist, in order:
    the unit tests before `next build`.
 4. Answer the open questions (bare model questions, the loop); optionally the boundaries H1
    rename + re-embed.
+5. After the next deploy, the QA leftovers: Tab into the chat box shows the amber ring in both
+   themes; switch language mid-chat and earlier answers keep their own font; `/nope` and
+   `/fa/nope` tab titles read "Page not found — Sina Amareh" / «صفحه پیدا نشد — سینا آماره».
+   Taste call: desktop autofocus now shows that ring on load (it was a faint glow); say if it
+   should appear only once the visitor types or tabs.
 
 Budget embeddings: `npm run embed` is 145 calls and `npm run eval` ~160, and the free tier's
 daily embedding quota is counted per Google project (its quota id says so), so keys from one
@@ -520,4 +532,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-27 (milestone deployed; owner checklist next)_
+_Last updated: 2026-09-27 (live-site QA leftovers fixed on the branch; owner checklist next)_
