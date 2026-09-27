@@ -23,7 +23,15 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run format:check
+      # Fakes standing in for what the Vercel build (vercel.json) hands the same
+      # tests: they must pass without reading any of it.
       - run: npm test
+        env:
+          NODE_ENV: production
+          KV_REST_API_URL: https://ci.invalid
+          KV_REST_API_TOKEN: ci
+          ADMIN_PASSWORD: ci
+          ANALYTICS_RPM: "1"
       - run: npm run build
 
   e2e:
