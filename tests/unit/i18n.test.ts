@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { detectDir, isRTL, ui } from "@/lib/i18n";
+import { detectDir, isRTL, sourceLabel, ui } from "@/lib/i18n";
+import { getKnowledgeBase } from "@/lib/rag/kb";
 import golden from "@/eval/golden.json";
 
 describe("i18n", () => {
@@ -34,6 +35,13 @@ describe("i18n", () => {
     expect(ui.en.suggestions.length).toBeGreaterThan(0);
     expect(ui.fa.suggestions.length).toBeGreaterThan(0);
     expect(ui.fa.dir).toBe("rtl");
+  });
+
+  it("gives every knowledge-base source a Persian chip label", () => {
+    const sources = new Set(getKnowledgeBase().chunks.map((c) => c.source));
+    for (const source of sources) {
+      expect(sourceLabel(source, "fa"), source).not.toBe(source);
+    }
   });
 
   // A chip the retrieval gate refuses would be the bot declining its own

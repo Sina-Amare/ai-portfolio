@@ -26,3 +26,15 @@ The flow is: validate the URL and fetch it (static httpx, escalating to a stealt
 
 ## ScrapeGPT tech stack
 FastAPI, PostgreSQL (async SQLAlchemy + Alembic migrations), httpx and BeautifulSoup/lxml for parsing, optional Playwright/camoufox for JS-heavy pages, LiteLLM for provider-agnostic LLM calls, JWT auth, Prometheus metrics, and a React 18 + Vite + Tailwind frontend. It's the project where Sina's resilience and security engineering show up most clearly.
+
+## ScrapeGPT tests and verification
+ScrapeGPT is tested like production software: its README badge shows 770 passing tests. The last recorded run in the README (from the repo's docs/STATUS.md) was 681 backend tests passing (pytest and pytest-asyncio) and 89 frontend tests passing (React Testing Library), with the frontend typecheck, lint and build also green, plus a live HTTP API end-to-end validation against a real public site that passed 8 of 8 scenarios. Those are the README's last recorded results, not a live number.
+
+## A real ScrapeGPT run
+The README shows a live run against calories.info: in a single pass ScrapeGPT extracted 96 records — every food with its serving size and its calories per 100 g and per serving, each row traceable to its source URL. The quality panel for that run showed 100% progress, 96 records and 100% coverage for every extracted field. Records are paginated server-side and export to CSV, JSON or XLSX in one click.
+
+## ScrapeGPT limitations and what's next
+The README is upfront about what ScrapeGPT doesn't do yet. It is complete for the self-hosted, single-instance workflow, but multi-worker durable crawler recovery is not implemented, and neither are logged-in (authenticated-content) browser sessions. Fresh page analysis needs a real AI provider key. CAPTCHA solving, stealth browser patches, proxy evasion and challenge bypass are deliberate non-goals, not missing features. An older /scrape pipeline stays only for compatibility. Later phases (3 to 6) are planned in the repo's product roadmap document.
+
+## ScrapeGPT logging, auth and licence
+ScrapeGPT uses JWT access and refresh tokens for sign-in, runs robots checks on the sites it fetches, and writes structured logs with correlation IDs (request, user, project and page), with an audit trail for sign-in events and for every reveal of a stored provider key, and secrets redacted from logs. Logs can be JSON for Docker. The code is open source under the MIT licence at github.com/Sina-Amare/scrape-gpt.

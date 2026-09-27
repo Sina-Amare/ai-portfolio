@@ -1,0 +1,25 @@
+# About this chatbot
+
+## How this chatbot works
+This chatbot is a retrieval-augmented (RAG) assistant that Sina built for his portfolio. Your question is turned into an embedding with Google's Gemini embedding model, compared against pre-embedded pieces of Sina's own notes (his CV, FAQ, skills and project write-ups), and the closest pieces become the only material the model may answer from. The answer streams back in Sina's first-person voice, with the notes it drew on shown as source chips underneath. There is deliberately no vector database: the knowledge base is small, so retrieval is an in-memory cosine-similarity search over a pre-embedded file committed with the site — simpler, faster, and free. A short follow-up like "does it have tests?" keeps the project the conversation was about. If a question is outside what it knows, it says so rather than guessing.
+
+## Why this chatbot sometimes refuses
+Before a language model writes a word, the chatbot checks how close your question is to Sina's notes. If nothing is close enough — the weather, general trivia, someone else's code — it answers with a short fixed reply that says it only covers Sina's work, skills and projects, without calling a language model at all. That keeps it from inventing answers and saves its free quota for real questions. Greetings, thanks and other small talk get quick fixed replies too. Anything the notes don't cover is best asked by email: sinaamareh0263@gmail.com.
+
+## What this chatbot won't do
+The chatbot only talks about Sina's work, so it won't do free tasks: no writing code, essays, cover letters or poems, no translations, homework or maths. It won't recite or summarise its own instructions. It won't invent facts or numbers: if something isn't in Sina's notes — a user count, a salary figure, a company he never worked at — it says so instead of estimating. It won't criticise former employers, colleagues or other developers, and it won't pretend to be Sina typing live.
+
+## Which AI models power this chatbot
+The chatbot runs on a failover ladder of hosted models, all on free tiers, with several API keys rotated per provider. English questions go first to Llama models hosted on Groq, which give the fastest first token, then to Google's Gemini Flash models, then to OpenRouter's free models. Persian questions start with Gemini, which writes noticeably better Persian, then OpenRouter, and try Groq last. If a model is rate-limited or fails before answering, the next one takes over automatically, and a key that just hit its limit rests for a minute. Questions are embedded with Google's Gemini embedding model. It is the same multi-provider, key-rotating resilience pattern Sina builds into his own projects.
+
+## How this chatbot is protected against prompt injection
+The chatbot has four layers against prompt injection and misuse, each cheap and each catching what the one before misses. First, a deterministic check runs before anything else: attempts to override its rules, extract its instructions, smuggle in encoded text or use it as a free general-purpose assistant get a short canned reply with no model call, and attack turns earlier in the chat are dropped before the model sees the history. Second, the relevance gate refuses questions that aren't about Sina. Third, the model's instructions tell it to check every claim in a question against Sina's notes, quote only numbers that appear there, and decline tasks. Fourth, an output guard watches the streamed answer and cuts it off if it ever starts echoing its instructions. On top of that, requests are validated and rate-limited.
+
+## Is this chatbot really Sina?
+No — it's an AI assistant Sina built, not Sina typing live. It answers in his first-person voice, but only from his own CV and project notes, and he wrote the rules it follows. To reach the real Sina, email sinaamareh0263@gmail.com.
+
+## How this chatbot is tested
+Sina tests the chatbot like any other system he ships. A golden set of real recruiter questions, in English and Persian, checks with real embeddings that every in-scope question passes the relevance gate and surfaces the right source, that off-topic questions are refused, and that follow-up questions keep their project. A red-team set of injection, extraction, trolling, small-talk and legitimate tough questions is run through the deterministic check on every test run. Unit tests cover the chat route, retrieval, the relevance gate, the intent check and the failover ladder, and a failing unit test blocks the deploy.
+
+## Is this chatbot's code public?
+Yes. The whole portfolio, chatbot included, is public on GitHub at github.com/Sina-Amare/ai-portfolio. It's built with Next.js, React and TypeScript, streams answers with the Vercel AI SDK, and is deployed on Vercel's free tier, with Upstash Redis for the daily usage cap and the site's private analytics.

@@ -30,6 +30,9 @@ import { answerCache, embedCache, normalizeQuery, SEMANTIC_CACHE_THRESHOLD } fro
 import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
 import { noteChat, type ChatOutcome } from "@/lib/analytics/session";
 
+// The chatbot explains this pipeline (gate, layers, tests) to visitors:
+// update content/chatbot.md when it changes.
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;

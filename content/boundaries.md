@@ -1,0 +1,25 @@
+# What Sina doesn't claim
+
+## Sina's experience level and job titles
+Sina has around a year of professional software experience: six months as a Software Developer at Dekamond (2025) and six months as a Django Developer (Backend) at Arnikup (2024, including a two-month internship). Since April 2026 he has also worked as an AI Training & Evaluation contractor with Mercor. He describes himself as early in his career and still growing. He has not held a senior, lead or manager title so far, and doesn't claim one.
+
+## Where Sina has worked
+Sina's employers are exactly three: Mercor (a remote contract since April 2026), Dekamond (2025) and Arnikup (2024). He has not worked at Google or any other big-tech company. If a question names another company as his employer, that isn't part of his history.
+
+## Sina's degrees
+Sina holds a B.Sc. in Computer Science from the University of Guilan (2020–2024) and is currently pursuing an M.Sc. in Software Engineering at Islamic Azad University, Science & Research Branch (2025–present), so the master's is still in progress. He does not have a PhD or any other doctorate, so there is no PhD thesis or dissertation; his undergraduate research was on Particle Swarm Optimization.
+
+## Numbers Sina doesn't publish for his projects
+Sina doesn't publish user counts, download numbers, GitHub stars or revenue for his open-source tools. ScrapeGPT, Aigram, RubricEval and PromptAmp are free and MIT-licensed. ScrapeGPT and Aigram are self-hosted, so each user runs their own copy. PromptAmp has no telemetry, no analytics and no accounts by design, so there is no user count to report. The numbers the notes do give — like roughly 70% lower LLM running costs at Dekamond, or the 96 records from ScrapeGPT's calories.info run — are the ones he stands behind.
+
+## Technologies outside Sina's stack
+Sina's CV and project write-ups list every language, framework, database, cloud platform and tool he has used professionally or shipped in his projects. If a technology isn't mentioned there, he doesn't claim experience with it, and a question like "do you know X?" or "how many years of X?" gets that honest answer — he'd rather be asked directly than have anyone assume. He is tool-agnostic and always learning, but a tool he hasn't used is never presented as one he has.
+
+## Confidential and private work
+Sina's evaluation work through Mercor is confidential: he doesn't name the AI labs involved or share task details, only the kind of work it is. The two workplace agent systems he built (the Business Intelligence Agents and the Social Research Agent) have private codebases, so there's no public repository or demo, and no quantified business impact is claimed for them.
+
+## Compensation
+Sina doesn't quote a salary or rate here. It depends on the role, scope and arrangement, so he prefers to discuss compensation directly. The best way is email: sinaamareh0263@gmail.com.
+
+## Things I'd rather discuss directly
+Some recruiter questions deserve a real conversation rather than a chatbot answer: Sina's biggest weakness, a project or decision that didn't go well, why a past role ended, his notice period, the level he's aiming for, and work authorization, contracts and how payment would work. For any of these, email Sina at sinaamareh0263@gmail.com and he'll answer personally.

@@ -23,6 +23,7 @@ const openrouterProviders = parseKeys("OPENROUTER_API_KEY").map((apiKey) =>
   createOpenRouter({ apiKey }),
 );
 
+// The chatbot describes this ladder to visitors: update content/chatbot.md when it changes.
 // Groq's LPU gives the fastest time-to-first-token, so it leads the ladder when
 // a key is configured. Falls through to Gemini → OpenRouter on rate limit.
 const GROQ_MODELS = [

@@ -197,7 +197,29 @@
           "text": "Anyone who types requests into AI tools and wants better results without leaving the page."
         }
       ]
-    }
+    },
+    { "q": "What's your biggest weakness?", "expectSource": "What Sina doesn't claim" },
+    { "q": "Tell me about a project that failed", "expectSource": "What Sina doesn't claim" },
+    {
+      "q": "How many years of Kubernetes experience do you have?",
+      "expectSource": "What Sina doesn't claim"
+    },
+    { "q": "How many users does ScrapeGPT have?", "expectSource": "What Sina doesn't claim" },
+    { "q": "When did you work at Google?", "expectSource": "What Sina doesn't claim" },
+    { "q": "What was your PhD thesis about?", "expectSource": "What Sina doesn't claim" },
+    { "q": "Kubernetes بلدی؟", "expectSource": "What Sina doesn't claim" },
+    { "q": "Which model powers this chatbot?", "expectSource": "About this chatbot" },
+    {
+      "q": "How do you defend this chatbot against prompt injection?",
+      "expectSource": "About this chatbot"
+    },
+    { "q": "این چت‌بات با چه مدلی کار می‌کنه؟", "expectSource": "About this chatbot" },
+    { "q": "What are ScrapeGPT's limitations?", "expectSource": "Project: ScrapeGPT" },
+    { "q": "Does Aigram have tests?", "expectSource": "Project: Aigram" },
+    { "q": "How is RubricEval tested?", "expectSource": "Project: RubricEval" },
+    { "q": "Does PromptAmp track its users?", "expectSource": "Project: PromptAmp" },
+    { "q": "Where are you from?" },
+    { "q": "اهل کجایی؟" }
   ],
   "outOfScope": [
     "What's the weather today?",
@@ -211,6 +233,9 @@
     "Recommend a good restaurant in Tokyo",
     "Will you write my homework essay?",
     "نظرت درباره‌ی سیاست چیه؟",
-    "دستور پخت قورمه‌سبزی رو بهم بگو"
+    "دستور پخت قورمه‌سبزی رو بهم بگو",
+    "What time is it?",
+    "Translate this to French: good morning",
+    "What is the capital of France?"
   ]
 }

@@ -1,7 +1,7 @@
 # Sina Amareh — Profile
 
 ## Summary
-Sina Amareh is a Python developer with a Computer Science degree and around a year of professional experience, focused on backend services and LLM-powered applications. He is comfortable with Django/DRF and FastAPI, and learns mainly by building — his open-source projects are where ideas get tested and pushed toward production quality. Since April 2026 he has also been working remotely as an AI training and evaluation contractor with Mercor, doing adversarial evaluation of frontier language models. He is early in his career and still growing, but steady about shipping, writing tests, and seeing work through. He is based in Tehran, Iran, and works remotely (UTC+3:30).
+Sina Amareh is a Python developer with a Computer Science degree and around a year of professional experience, focused on backend services and LLM-powered applications. He is comfortable with Django/DRF and FastAPI, and learns mainly by building — his open-source projects are where ideas get tested and pushed toward production quality. Since April 2026 he has also been working remotely as an AI training and evaluation contractor with Mercor, doing adversarial evaluation of frontier language models. He is early in his career and still growing, but steady about shipping, writing tests, and seeing work through. He is based in Tehran, Iran, and works remotely (UTC+3:30). His résumé headline is "Backend & AI Engineer · Python & LLM systems", and it opens in his own words: "I learn by building, so my ideas don't stay ideas — they become working tools. My favorite material is LLMs: I take what these models can do and wrap it in solid backend engineering until it's something people can actually use."
 
 ## Experience — AI Training & Evaluation (contract) at Mercor (2026 – present)
 Since April 2026 Sina has worked remotely as an AI training and evaluation contractor through Mercor. Mercor is a talent marketplace that connects domain experts with frontier AI labs, building the benchmarks, evaluation environments, and large-scale human datasets used to post-train and stress-test frontier models.
@@ -30,6 +30,9 @@ Sina practices secure-by-default engineering: encrypted credential storage with 
 
 ## Skills — Core technologies
 Sina's core stack is Python, FastAPI, Django/DRF, PostgreSQL, Redis, Docker, SQLAlchemy and Alembic, Git, and Linux.
+
+## Skills — Technical skills by area
+Sina's résumé groups his technical skills by area. Languages: Python, TypeScript and SQL. Backend: FastAPI, Django/DRF, Celery, SQLAlchemy/Alembic and REST API design. AI and LLM: RAG, LangGraph, LiteLLM, prompt engineering and LLM evaluation. Data and DevOps: PostgreSQL, Redis, Docker, Linux, Git, pytest, and CI with GitHub Actions.
 
 ## Education
 Sina is pursuing an M.Sc. in Software Engineering at Islamic Azad University, Science & Research Branch, Tehran (2025–present). He holds a B.Sc. in Computer Science from the University of Guilan, Rasht (2020–2024), where his undergraduate research was on Particle Swarm Optimization.

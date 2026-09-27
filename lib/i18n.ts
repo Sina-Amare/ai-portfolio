@@ -29,6 +29,8 @@ export function isRTL(lang: Lang): boolean {
 // Project names stay in Latin, like everywhere else in the Persian UI.
 const FA_SOURCES: Record<string, string> = {
   "About Sina Amareh": "دربارهٔ سینا",
+  "About this chatbot": "دربارهٔ این چت‌بات",
+  "What Sina doesn't claim": "چیزهایی که سینا ادعا نمی‌کنه",
   CV: "رزومه",
   FAQ: "سؤال‌های رایج",
   "How Sina works": "روش کار سینا",
