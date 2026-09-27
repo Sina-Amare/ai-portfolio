@@ -97,6 +97,10 @@ checklist to verify.
       /projects in Persian privacy copy. Already done earlier: ui-1 (B4), hero LocaleToggle (B3), gallery
       RTL arrows (B4). Not done: 40px suggestion chips (30px passes AA's 24px), outside-tap closing
       the mobile menu. e2e 20/20 on `next dev -p 3100` (port 3000 is in a Windows excluded range here).
+      Review follow-up: Ctrl/Cmd+K is ignored while the gallery `<dialog>` is open (the palette opened
+      inert beneath it and froze the lightbox); the mobile menu's Search hands focus to the menu button,
+      so closing the palette lands there, not on `<body>`. Accepted: naming JetBrains Mono directly drops
+      next/font's metric fallback, so Latin mono labels may shift slightly while it loads — measure in B8.
 - [ ] B8 performance
 - [ ] B9 tests, docs, CI
 - [ ] B10 final verification + report
@@ -125,7 +129,7 @@ See `docs/yagni.md`.
 ## Next likely action
 
 Start B8 (web-6 lazy react-markdown matters more now: B6 renders markdown while streaming, so
-the parser is on the chat's hot path). Owner, before deploying: set `CRON_SECRET` in Vercel (the
+the parser is on the chat's hot path; also check CLS from the JetBrains Mono swap). Owner, before deploying: set `CRON_SECRET` in Vercel (the
 digest cron fails closed without it).
 
-_Last updated: 2026-09-27 (B6 done)_
+_Last updated: 2026-09-27 (B6 done, review follow-up applied)_
