@@ -10,15 +10,27 @@
  * dashboard. Both need a counter that is actually shared.
  *
  * Cost is deliberately tiny: one INCR per check, plus an EXPIRE only on the
- * first hit of each window.
+ * first hit of each window (and the month's salt, read once per warm instance).
  */
 import { createHash } from "node:crypto";
 import { windowLimiter } from "@/lib/rate-limit";
-import { redis } from "./store";
+import { currentSalt, monthKey, redis } from "./store";
 
-/** Never key Redis on a raw IP — hash it, we only need equality. */
-export function ipKey(ip: string): string {
-  return createHash("sha256").update(ip).digest("hex").slice(0, 16);
+/**
+ * Never key Redis on a raw IP, nor on a bare hash of one (every IPv4 address
+ * hashes in seconds): salt it with the month's visitor salt, which the beacon
+ * reads anyway. Null when Redis can't give the salt; the caller then skips the
+ * shared counter, as bump() would fail open.
+ */
+async function ipKey(ip: string): Promise<string | null> {
+  const r = redis();
+  if (!r) return null;
+  try {
+    const salt = await currentSalt(r, monthKey());
+    return createHash("sha256").update(`${salt}|${ip}`).digest("hex").slice(0, 16);
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -82,7 +94,8 @@ export async function beaconAllowed(ip: string, day: string): Promise<Gate> {
     return { ok: false, reason: "budget" };
   }
   const minute = Math.floor(Date.now() / 60_000);
-  const perIp = await bump(`an:rl:${ipKey(ip)}:${minute}`, 120);
+  const key = await ipKey(ip);
+  const perIp = key ? await bump(`an:rl:${key}:${minute}`, 120) : 0;
   if (perIp > BEACON_PER_MINUTE) return { ok: false, reason: "ip" };
   return { ok: true };
 }
@@ -121,7 +134,8 @@ export async function loginAllowed(ip: string): Promise<boolean> {
   // the route still applies in that case.
   if (!r) return true;
   const hour = Math.floor(Date.now() / 3_600_000);
-  const perIp = await bump(`an:login:${ipKey(ip)}:${hour}`, 3_700);
+  const key = await ipKey(ip);
+  const perIp = key ? await bump(`an:login:${key}:${hour}`, 3_700) : 0;
   if (perIp > LOGIN_PER_IP_PER_HOUR) return false;
   const global = await bump(`an:login:all:${hour}`, 3_700);
   return global <= LOGIN_GLOBAL_PER_HOUR;

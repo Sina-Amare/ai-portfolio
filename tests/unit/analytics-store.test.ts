@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { createHash } from "node:crypto";
 
 /**
  * The aggregation path is where silent wrongness lives: a visit fans out across
@@ -563,12 +564,15 @@ describe("beacon limits", () => {
     }
   });
 
-  it("never keys rate-limit state on a raw IP", async () => {
+  it("never keys rate-limit state on a raw IP, nor on a bare hash of one", async () => {
     const { beaconAllowed } = await import("@/lib/analytics/limit");
     await beaconAllowed("203.0.113.7", "2026-07-15");
     const keys = [...store.kv.keys()].join(" ");
     expect(keys).toContain("an:rl:");
     expect(keys).not.toContain("203.0.113.7");
+    // Every IPv4 address hashes in seconds, so an unsalted hash is the IP.
+    const bareHash = createHash("sha256").update("203.0.113.7").digest("hex").slice(0, 16);
+    expect(keys).not.toContain(bareHash);
   });
 });
 
