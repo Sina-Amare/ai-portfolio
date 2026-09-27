@@ -103,6 +103,11 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - **Output filter (leak guard)** — a check on what the model _writes_, not on what the visitor asks.
   Here the chat holds back the last 45 streamed characters so a system-prompt heading split across
   chunks is caught before any of it is sent; the cost is those 45 characters arriving one chunk late.
+- **False positive vs false negative (precision vs recall)** — a false positive is a real question the
+  classifier wrongly blocks ("Is Sina a good developer?" got "👍 Anything else?"); a false negative is
+  an attack it lets through to the model. Here the costs are lopsided: a missed attack still meets the
+  system prompt and the leak guard, but a blocked recruiter meets nothing, so the patterns favour
+  precision (fewer false positives) and every probe that misfired became a guard test.
 
 ## Study briefs
 
