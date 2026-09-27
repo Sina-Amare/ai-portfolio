@@ -178,6 +178,9 @@ export function Nav() {
                 type="button"
                 onClick={() => {
                   setOpen(false);
+                  // This button unmounts with the menu; move focus to the menu button
+                  // first so the palette has something to hand focus back to.
+                  menuButton.current?.focus();
                   window.dispatchEvent(new Event("toggle-command"));
                 }}
                 className="text-muted hover:text-text inline-flex items-center gap-2 rounded-lg px-2 py-2.5 text-sm transition-colors"
