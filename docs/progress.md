@@ -140,10 +140,16 @@ checklist to verify.
       prove it. The `Secure` flag on the admin cookies in production is pinned too. 226 tests,
       green under a fake full Vercel env.
 - [ ] B10 final verification + report
+  - [x] B10a full verification — typecheck, lint, format, 227 unit tests, build (every public page ●
+        SSG, ƒ only admin/catch-all/API, Proxy present; home first-load JS 379 KB gzip), e2e 20/20 on
+        `next dev` and `next start`, eval 94/94. Fixed: `PORT=3100 npm run test:e2e` now works
+        (Hyper-V reserves 2941–3040 here); the first /projects cover loads eagerly (it was the lazy
+        LCP image Next warned about). Known dev-only noise: next-themes' inline script logs React's
+        "script tag" console.error when the layout remounts on a language switch (not in production).
 
 ## Current task
 
-B10 — final verification + report (last batch in the execution order).
+B10b — Playwright visual QA matrix, curl checks, final independent review, owner report.
 
 ## Blocker
 
@@ -164,10 +170,11 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B10: production build + `npm start` + e2e, the Playwright visual QA matrix, curl checks,
-final independent review of the branch, then the owner report. After deploy: check that
+B10b: the Playwright visual QA matrix (390/1440 px × dark/light, keyboard, axe), curl checks
+(canonical/hreflang, chat 400/41-turn history, cron 401), final independent review of the branch,
+then the owner report. Local e2e: `PORT=3100 npm run test:e2e`. After deploy: check that
 `/_next/image` serves the covers on Vercel, and that the first Vercel build log shows the unit tests
 running before `next build`. Owner, before deploying: set `CRON_SECRET` in Vercel (the digest cron
 fails closed without it).
 
-_Last updated: 2026-09-27 (B9 done, review fixes in)_
+_Last updated: 2026-09-27 (B10a verification done)_

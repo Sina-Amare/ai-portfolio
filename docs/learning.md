@@ -91,6 +91,10 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   still holds, which is what makes failing open acceptable.
 - **Deploy gate** — a check that must pass before a release goes out. Pushing `main` deploys on
   Vercel whatever GitHub Actions says, so `vercel.json` runs `npm test` inside the build itself.
+- **LCP (Largest Contentful Paint)** — the moment the biggest image or text block in the first screen
+  appears; Google uses it as "the page has loaded". `next/image` lazy-loads by default, which delays an
+  image that _is_ that block. Here the first cover on /projects is the LCP on a laptop screen, so it
+  alone gets `loading="eager"`; eager on every card would waste phones' bandwidth on images below the fold.
 
 ## Study briefs
 
