@@ -40,7 +40,7 @@ checklist to verify.
       Persian), link-based toggle, /privacy linked + counted, dark theme-color. Decision:
       `docs/decisions/001-locale-prefixed-urls.md`. Known cost: page-level 404s render after hydration
       (Next's error shell), status still 404. Local e2e: run with `--workers=2` (dev server times out
-      under 8 parallel workers on this machine). `next dev` re-appends a block to AGENTS.md — revert it.
+      under 8 parallel workers on this machine). `next dev` re-appended a block to AGENTS.md (off since B11a).
       Review follow-up: /privacy now names the `locale` cookie, manifest no longer claims `standalone`,
       the hero's language switch is locked while an answer streams (the nav toggle still drops an
       in-flight turn, like any navigation). `/nope` 404 regression (blank without JS) accepted and
@@ -165,11 +165,26 @@ checklist to verify.
         (VPNs, mobile) split visitors and shared IPs merge them. 231 unit tests, build (same
         route table), e2e 23/23 on `next start`.
 
-Milestone done-when met. Batch 11 (bigger KB + adversarial RAG) is planned to follow separately.
+Milestone done-when met.
+
+## Batch 11 — bigger KB, adversarial-proof RAG, small talk
+
+- [x] B11a owner follow-ups — /fa names Sina «سینا عماره» in tab titles, og/twitter titles,
+      og:site_name, the title template and the footer (the Latin name stays the nav logo and hero
+      chip); /fa years, pipeline step numbers, the lightbox counter and the footer year use Persian
+      digits (`digits()` in lib/locale.ts, Intl.NumberFormat); "How it works" wraps from lg (at
+      1440 px every pipeline overflowed its 782 px column, RubricEval by 276 px) and keeps the
+      one-line keyboard scroller on phones (on wide screens it stays a tab stop with nothing to
+      scroll); `agentRules: false` stops `next dev` rewriting AGENTS.md (checked under Claude
+      Code). 235 unit tests, build, e2e 24/24 on `next start` and `next dev`.
+- [ ] Rest of B11 per the design: KB expansion (chatbot.md, boundaries.md, project READMEs),
+      intent classifier + canned replies, history scrub, leak guard, retrieval carry-forward,
+      red-team harness, then full verification and review.
 
 ## Current task
 
-None on this branch: waiting for the owner's review of `claude/audit-fixes`.
+Batch 11 on `claude/audit-fixes`: B11a done, the rest next. The branch still awaits the owner's
+review before merge.
 
 ## Blocker
 
@@ -183,10 +198,6 @@ None.
 ## Open questions
 
 - Should chat analytics ever store the free-text question? Default: no (topics + chip labels only).
-- Persian pages keep the Latin "Sina Amareh" in tab titles (`پروژه‌ها — Sina Amareh`), the hero
-  chip and the footer, while the /fa home title says «سینا عماره». Keep, or use the Persian name?
-- The "How it works" pipeline scrolls sideways even at 1440 px (ScrapeGPT, both workplace agents),
-  so the last step shows cut off. Keep the single line, or let it wrap on wide screens?
 
 ## Parking lot
 
@@ -199,7 +210,8 @@ without it) and `NEXT_PUBLIC_SITE_URL=https://sinaamareh.ir` (the beacon only co
 rotate `ADMIN_PASSWORD` as the plan says, then merge/push to `main` to deploy. After deploy: one
 test contact message and one `/admin` login on sinaamareh.ir, `/admin` with real traffic, that
 `/_next/image` serves the covers, and that the first build log runs the unit tests before
-`next build`. Then Batch 11. Local e2e: `PORT=3100 npm run test:e2e` (or `PORT=<port>` with
-`next start` already running there, which Playwright reuses — the only way prefetch bugs show).
+`next build`. Meanwhile: the rest of Batch 11. Local e2e: `PORT=3100 npm run test:e2e` (or
+`PORT=<port>` with `next start` already running there, which Playwright reuses — the only way
+prefetch bugs show).
 
-_Last updated: 2026-09-27 (B10c final review fixes; milestone done)_
+_Last updated: 2026-09-27 (B11a owner follow-ups)_
