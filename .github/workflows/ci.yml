@@ -60,7 +60,8 @@ jobs:
           GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
         run: |
           if [ -z "$GOOGLE_GENERATIVE_AI_API_KEY" ]; then
-            echo "No GOOGLE_GENERATIVE_AI_API_KEY secret set — skipping RAG eval."
+            # Still green (forks and PRs have no secrets), but shown on the run summary.
+            echo "::warning title=RAG eval skipped::No GOOGLE_GENERATIVE_AI_API_KEY secret, so the retrieval gate did not run."
             exit 0
           fi
           npm run eval:ci
