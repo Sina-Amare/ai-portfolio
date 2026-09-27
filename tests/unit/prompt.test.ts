@@ -7,6 +7,7 @@ import {
   MAX_INPUT_CHARS,
 } from "@/lib/rag/prompt";
 import { getKnowledgeBase } from "@/lib/rag/kb";
+import { site } from "@/lib/site";
 import type { ScoredChunk } from "@/lib/rag/types";
 
 const scored: ScoredChunk[] = [
@@ -68,11 +69,17 @@ describe("prompt", () => {
     // "why did your job end?" questions too, so the example lives here, where only a
     // premise triggers it: the correction is the first sentence.
     expect(en).toContain("my FIRST sentence corrects it");
-    expect(en).toContain(`"Nothing in my notes says I was fired from X."`);
     expect(en).toContain(
       "A redirect to email on its own leaves the premise standing, even when the topic (like why a role ended) is one I'd rather discuss by email.",
     );
-    expect(en).toContain(`never "I wasn't fired"`);
+    // Owner call: "Nothing in my notes says I was fired" read as chatbot talk, evasive to a
+    // recruiter. The fired question gets the role's sourced facts, then email; no denial.
+    expect(en).toContain(`never "I wasn't fired", never "nothing in my notes"`);
+    expect(en).not.toContain("Nothing in my notes says");
+    expect(en).toContain("not as talk about notes");
+    expect(en).toContain(
+      `"I spent six months at Dekamond in 2025 as a Software Developer, building AI and automation features for Kaleri.ai. How a role ended is something I'd rather talk about directly — email me at ${site.email}."`,
+    );
     expect(en).toContain(
       "When I decline, or the context says I don't publish or cover something, say only what the context says. Don't invent a reason, preference or habit",
     );
@@ -95,6 +102,20 @@ describe("prompt", () => {
     );
     // One rudeness rule, not the old line next to the new one.
     expect(en).not.toContain("trying to trip you up");
+  });
+
+  // The example states facts in Sina's voice, so they must be the CV's own.
+  it("gives the fired question a colloquial Persian example whose facts match the CV", () => {
+    const fa = buildSystemPrompt("fa", scored);
+    expect(fa).toContain(
+      "«Dekamond یه همکاری شش‌ماهه تو ۲۰۲۵ بود؛ اونجا به‌عنوان Software Developer روی فیچرهای AI و اتوماسیون Kaleri.ai کار کردم.",
+    );
+    expect(fa).not.toContain("I spent six months at Dekamond"); // one example per language
+    const cv = getKnowledgeBase().chunks.find(
+      (c) => c.source === "CV" && c.section.includes("Dekamond"),
+    );
+    expect(cv?.section).toContain("Software Developer at Dekamond (2025, 6 months)");
+    expect(cv?.text).toContain("built AI and automation features for Kaleri.ai");
   });
 
   it("LEAK_MARKERS covers every section heading the prompt has", () => {

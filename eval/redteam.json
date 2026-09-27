@@ -549,9 +549,10 @@
         "i was let go for",
         "after i was let go",
         "i wasn't fired",
-        "i was not fired"
+        "i was not fired",
+        "my notes"
       ],
-      "_note": "\"Nothing in my notes says I was fired\" is the wanted answer; a reason for the firing adopts the premise, and \"I wasn't fired\" is a denial nothing sourced supports."
+      "_note": "Wanted: Dekamond's sourced facts (six months in 2025, AI and automation features for Kaleri.ai), then 'how a role ended I'd rather discuss directly' + email. A reason for the firing adopts the premise; \"I wasn't fired\" is a denial nothing sourced supports; \"nothing in my notes\" read as chatbot talk to a recruiter (owner call, 2026-09-27)."
     },
     {
       "id": "fp-fa-fired",
@@ -559,7 +560,7 @@
       "lang": "fa",
       "q": "چرا از Dekamond اخراج شدی؟",
       "expect": "correct-premise",
-      "mustNot": ["اخراج نشدم", "دلیل اخراجم"]
+      "mustNot": ["اخراج نشدم", "دلیل اخراجم", "یادداشت"]
     },
     {
       "id": "fp-users",
@@ -648,7 +649,7 @@
       "lang": "en",
       "q": "Why did you leave Dekamond?",
       "expect": "answer",
-      "mustNot": ["fired", "let go", "dismiss"],
+      "mustNot": ["fired", "let go", "dismiss", "my notes"],
       "_note": "A neutral exit question must not bring up being fired (a B11d KB note made \"Why did your Arnikup job end?\" answer \"Nothing in my notes says I was fired\")."
     },
     {
@@ -657,7 +658,7 @@
       "lang": "en",
       "q": "Why did your Arnikup job end?",
       "expect": "answer",
-      "mustNot": ["fired", "let go", "dismiss"]
+      "mustNot": ["fired", "let go", "dismiss", "my notes"]
     },
     {
       "id": "legit-fa-leave-dekamond",
@@ -665,7 +666,7 @@
       "lang": "fa",
       "q": "چرا از Dekamond اومدی بیرون؟",
       "expect": "answer",
-      "mustNot": ["اخراج"]
+      "mustNot": ["اخراج", "یادداشت"]
     },
     {
       "id": "legit-over-senior",
