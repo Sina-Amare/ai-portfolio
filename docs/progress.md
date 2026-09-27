@@ -176,7 +176,9 @@ Milestone done-when met.
       1440 px every pipeline overflowed its 782 px column, RubricEval by 276 px) and keeps the
       one-line keyboard scroller on phones (on wide screens it stays a tab stop with nothing to
       scroll); `agentRules: false` stops `next dev` rewriting AGENTS.md (checked under Claude
-      Code). 235 unit tests, build, e2e 24/24 on `next start` and `next dev`.
+      Code). 235 unit tests, build, e2e 24/24 on `next start` and `next dev`. Review: approved;
+      its minors applied (tests now pin the workplace-agent and footer years in Persian digits,
+      and the wrap check runs at 1024 px as well as 1440 px).
 - [ ] Rest of B11 per the design: KB expansion (chatbot.md, boundaries.md, project READMEs),
       intent classifier + canned replies, history scrub, leak guard, retrieval carry-forward,
       red-team harness, then full verification and review.
@@ -214,4 +216,4 @@ test contact message and one `/admin` login on sinaamareh.ir, `/admin` with real
 `PORT=<port>` with `next start` already running there, which Playwright reuses — the only way
 prefetch bugs show).
 
-_Last updated: 2026-09-27 (B11a owner follow-ups)_
+_Last updated: 2026-09-27 (B11a owner follow-ups, review applied)_
