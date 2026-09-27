@@ -15,6 +15,12 @@ describe("next.config", () => {
       "Referrer-Policy": "strict-origin-when-cross-origin",
     });
   });
+
+  it("doesn't let the router guess routes, which the /en rewrite breaks", () => {
+    // With it on, English one-segment links (/projects, /privacy) prefetch as
+    // /[lang]=projects and 404 in production (not in dev, which doesn't prefetch).
+    expect(nextConfig.experimental?.optimisticRouting).toBe(false);
+  });
 });
 
 describe("vercel.json", () => {

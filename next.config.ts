@@ -3,6 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
   poweredByHeader: false,
+  experimental: {
+    // The router learns "/[lang]" from /fa and then guesses that English /projects
+    // and /privacy are that route too, so their prefetch 404s (the proxy rewrites
+    // them to /en/...). Ask the server for each route instead.
+    optimisticRouting: false,
+  },
   // Baseline hardening on every route. No CSP yet: the inline JSON-LD and theme
   // script would need nonces (parked in docs/yagni.md).
   async headers() {
