@@ -43,7 +43,8 @@ describe("red team, offline", () => {
 
   for (const c of cases) {
     it(`${c.id}: ${c.expect}${c.intent ? ` (${c.intent})` : ""}`, () => {
-      const intent = classifyIntent(c.q);
+      // A case with history is a follow-up, as in the route.
+      const intent = classifyIntent(c.q, !!c.history);
       if (c.expect === "clapback" || c.expect === "smalltalk") {
         expect(intent, c.q).toBe(c.intent);
         // Clapbacks answer misuse or insults; small talk is conversation.

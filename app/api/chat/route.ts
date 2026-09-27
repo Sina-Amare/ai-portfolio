@@ -246,8 +246,9 @@ export async function POST(req: Request) {
   // Layer 1 (lib/rag/intent.ts): injection, prompt extraction, encoded text and
   // free-ChatGPT tasks get a clapback; small talk a warm reply, but only when it
   // is the whole message ("hey, what did you build at Dekamond?" reaches RAG).
-  // No embedding, no LLM, and a greeting never trips the relevance gate.
-  const intent = classifyIntent(question);
+  // No embedding, no LLM, and a greeting never trips the relevance gate. After
+  // the first turn, "yes" may answer the last reply's question, so it goes on.
+  const intent = classifyIntent(question, !firstTurn);
   if (intent) {
     note(isAttack(intent) ? "refused" : "smalltalk");
     return cannedResponse(cannedReply(intent, lang, seed));

@@ -211,6 +211,24 @@ describe("POST /api/chat", () => {
     expect(streamText).not.toHaveBeenCalled();
   });
 
+  // Replies end with offers ("Want to hear how I built it?"); "yes" takes one up.
+  it("sends a follow-up 'yes' to the model, not the ack reply", async () => {
+    const { text } = await callChat({
+      messages: [
+        userMessage("What did Sina build at Dekamond?"),
+        {
+          id: "a1",
+          role: "assistant",
+          parts: [{ type: "text", text: "RAG systems. Want to hear how I built them?" }],
+        },
+        userMessage("yes"),
+      ],
+      lang: "en",
+    });
+    expect(streamText).toHaveBeenCalledTimes(1);
+    expect(text).toContain("Sina built");
+  });
+
   // "bye" used to match the greeting pattern and got "Hey! 👋".
   it("says goodbye to 'bye', not hello", async () => {
     const { text } = await callChat({ messages: [userMessage("bye")], lang: "en" });

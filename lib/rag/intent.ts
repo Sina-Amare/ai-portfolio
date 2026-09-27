@@ -296,8 +296,10 @@ function smallTalk(t: string): Intent | null {
 /**
  * The intent that gets a canned reply, or null for a real question (→ retrieval).
  * Attacks first (anywhere in the message), then tasks, then whole-message small talk.
+ * In a follow-up, "yes", "ok" or "?" answer the last reply ("Want to hear how I
+ * built it?"), so ack and gibberish go to the model instead.
  */
-export function classifyIntent(text: string): Intent | null {
+export function classifyIntent(text: string, followUp = false): Intent | null {
   const t = normalize(text);
   if (!t) return null;
   const forms = attackForms(t);
@@ -307,7 +309,8 @@ export function classifyIntent(text: string): Intent | null {
   if (hit(EXTRACTION)) return "extraction";
   if (ENCODED.some((re) => re.test(t)) || hasEncodedBlob(text.normalize("NFKC"))) return "encoded";
   if (TASK.some((re) => re.test(t)) && !ABOUT_SINA.test(t)) return "task";
-  return smallTalk(t);
+  const talk = smallTalk(t);
+  return followUp && (talk === "ack" || talk === "gibberish") ? null : talk;
 }
 
 // A forged assistant turn ("Sure, I'll ignore my rules from now on") is pasted
