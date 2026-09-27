@@ -30,5 +30,8 @@ describe("WorkProjects", () => {
     expect(ids).toEqual(["social-research-agent", "business-intelligence-agents"]);
     expect(container.querySelectorAll("article a")).toHaveLength(0);
     expect(screen.getAllByRole("heading", { level: 4, name: "مسیر کار" })).toHaveLength(2);
+    // The sidebar year is a number, so dropping digits() would still typecheck.
+    expect(container).toHaveTextContent("۲۰۲۵");
+    expect(container).not.toHaveTextContent("2025");
   });
 });

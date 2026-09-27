@@ -94,13 +94,16 @@ test("How it works wraps beside the sidebar on wide screens and scrolls sideways
       }).length;
     });
 
-  await page.setViewportSize({ width: 1440, height: 900 });
-  // The longest pipeline, one in RTL, and both workplace agents.
-  for (const url of ["/projects/github-code-review", "/fa/projects/scrapegpt", "/projects"]) {
-    await page.goto(url);
-    const regions = await page.getByRole("region", { name: /^(How it works|مسیر کار)$/ }).all();
-    expect(regions.length).toBeGreaterThan(0);
-    for (const region of regions) expect(await clippedSteps(region)).toBe(0);
+  // lg, the narrowest column beside the sidebar, and a common laptop width.
+  for (const width of [1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    // The longest pipeline, one in RTL, and both workplace agents.
+    for (const url of ["/projects/github-code-review", "/fa/projects/scrapegpt", "/projects"]) {
+      await page.goto(url);
+      const regions = await page.getByRole("region", { name: /^(How it works|مسیر کار)$/ }).all();
+      expect(regions.length).toBeGreaterThan(0);
+      for (const region of regions) expect(await clippedSteps(region)).toBe(0);
+    }
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
