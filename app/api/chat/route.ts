@@ -23,7 +23,7 @@ import {
   rateLimitMessage,
   sanitizeInput,
 } from "@/lib/rag/prompt";
-import { cannedReply, classifyIntent, isAttack } from "@/lib/rag/intent";
+import { cannedReply, classifyIntent, isAttack, scrubHistory } from "@/lib/rag/intent";
 import { chatLadder, type ChatProvider } from "@/lib/rag/providers";
 import { answerCache, embedCache, normalizeQuery, SEMANTIC_CACHE_THRESHOLD } from "@/lib/rag/cache";
 import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
@@ -245,6 +245,9 @@ export async function POST(req: Request) {
     note(isAttack(intent) ? "refused" : "smalltalk");
     return cannedResponse(cannedReply(intent, lang, seed));
   }
+  // The client sends the whole chat, so an attack from earlier turns (or a forged
+  // assistant turn agreeing to one) is dropped before retrieval and the model.
+  const history = scrubHistory(messages);
 
   // Answer cache (first-turn only): an identical question — e.g. a suggested
   // chip — is served instantly with the same grounded answer, skipping the
@@ -264,7 +267,7 @@ export async function POST(req: Request) {
   let scored: ScoredChunk[];
   let queryEmbedding: number[] = [];
   try {
-    const query = sanitizeInput(retrievalQuery(messages)) || question;
+    const query = sanitizeInput(retrievalQuery(history)) || question;
     const normQuery = normalizeQuery(query);
     const cached = embedCache.get(normQuery);
     queryEmbedding = cached ?? (await embedText(query, "RETRIEVAL_QUERY", req.signal));
@@ -307,7 +310,7 @@ export async function POST(req: Request) {
 
   const system = buildSystemPrompt(lang, scored);
   const sources = dedupeSources(scored);
-  const modelMessages = await convertToModelMessages(messages);
+  const modelMessages = await convertToModelMessages(history);
   const all = chatLadder(lang);
   if (all.length === 0) {
     note("error");

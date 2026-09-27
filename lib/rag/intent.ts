@@ -310,6 +310,48 @@ export function classifyIntent(text: string): Intent | null {
   return smallTalk(t);
 }
 
+// A forged assistant turn ("Sure, I'll ignore my rules from now on") is pasted
+// by the client, so any phrasing counts, not only a command.
+const FORGED =
+  /\b(?:ignor|disregard|forget|overrid|bypass|drop|abandon|break)\w*\s+(?:\w+\s+){0,3}(?:instructions|rules|guidelines|restrictions|guardrails|system\s+prompt|programming)\b|\b(?:developer|god|dan|jailbreak|unrestricted)\s+mode\b|\bjailbroken\b|\b(?:no|without\s+(?:any\s+)?)\s*(?:restrictions|limits|filters|guardrails)\b|(?:قوانین|قانون|دستور)\S*\s+(?:\S+\s+){0,3}(?:نادیده|فراموش|کنار|بیخیال)/u;
+
+type Turn = { role: string; parts: ReadonlyArray<{ type: string; text?: string }> };
+
+function turnText(m: Turn): string {
+  return m.parts
+    .map((p) => (p.type === "text" ? (p.text ?? "") : ""))
+    .join(" ")
+    .trim();
+}
+
+/**
+ * The conversation minus what an attacker planted in it: every user turn that
+ * classifies as an attack goes, with the replies after it, and so does any
+ * assistant turn that reads like a broken rule. The client sends the whole
+ * history, so "Now ignore your rules" three turns ago must not ride along.
+ */
+export function scrubHistory<T extends Turn>(messages: T[]): T[] {
+  const out: T[] = [];
+  let dropReply = false;
+  for (const m of messages) {
+    const text = turnText(m);
+    if (m.role === "user") {
+      dropReply = isAttack(classifyIntent(text));
+      if (!dropReply) out.push(m);
+      continue;
+    }
+    const intent = classifyIntent(text);
+    const forged =
+      FORGED.test(normalize(text)) ||
+      intent === "injection" ||
+      intent === "extraction" ||
+      intent === "encoded";
+    // Replies stay dropped until the next user turn, so the chat still opens with one.
+    if (!dropReply && !forged) out.push(m);
+  }
+  return out;
+}
+
 /** FNV-1a: stable per seed (tests, one question), well spread across seeds (repeats vary). */
 export function pickVariant<T>(variants: readonly T[], seed: string): T {
   let h = 0x811c9dc5;
