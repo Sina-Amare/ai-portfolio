@@ -59,6 +59,14 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - **Bidi isolation** — wrapping a left-to-right fragment so a right-to-left sentence can't reorder
   its neutral characters. Here `/projects` inside Persian text displayed as `projects/`; `⁦…⁩`
   (or `dir="ltr"` on an element, as on chat code) isolates it.
+- **Code splitting / lazy loading** — shipping a module in its own file that the browser downloads
+  only when it is needed. Here the markdown parser loads with the first chat answer and cmdk with the
+  first ⌘K, which cut the home page's first-load JS from 436 to 380 KB gzipped. Cost: a short wait the
+  first time; the chat shows plain text meanwhile.
+- **Paint vs compositing (animation cost)** — animating `transform`/`opacity` only moves layers the
+  GPU already has; animating `background-position` (the headline sheen) re-paints pixels every frame,
+  and a `filter: blur()` on a moving layer is re-run by the GPU every frame. Measure with a trace
+  (Paint and DrawFrame events per second) rather than guessing.
 
 ## Study briefs
 

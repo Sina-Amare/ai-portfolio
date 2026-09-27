@@ -101,13 +101,26 @@ checklist to verify.
       inert beneath it and froze the lightbox); the mobile menu's Search hands focus to the menu button,
       so closing the palette lands there, not on `<body>`. Accepted: naming JetBrains Mono directly drops
       next/font's metric fallback, so Latin mono labels may shift slightly while it loads — measure in B8.
-- [ ] B8 performance
+- [x] B8 performance — measured on the production build (`.next/diagnostics/route-bundle-stats.json`,
+      gzip; Playwright traces on a 390 px @3x, 4x-CPU-throttled phone profile). First-load JS: home
+      436 → 380 KB, /privacy and /admin −15 KB (cmdk), /projects 258 → 248 and case studies 237 → 228
+      (cmdk out, next/image's client code in). react-markdown loads with the
+      first answer (plain text meanwhile, warmed on send) (web-6); cmdk loads on the first ⌘K, the
+      layout keeps only the shortcut listener (web-7). Covers + gallery thumbnails via next/image: four
+      home covers 205 KB → ~45 KB on desktop, ~100 KB on a 3x phone; lightbox keeps the full file
+      (web-15). Motion (web-8): the endless sheen repainted the headline ~45×/s forever → 3 passes;
+      orb `blur(80px)` was redone by the GPU every frame (scroll ~25 fps) → same glow drawn with
+      gradient stops (mean pixel diff < 1/255), orbs still on phones: idle phone page 0 frames after
+      the sheen, scroll ~52 fps. While the sheen runs (first 21 s) it now paints at full frame rate.
+      CLS on a slow-4G phone load: / 0.012, /fa 0 (the JetBrains Mono swap is not a problem). e2e 20/20
+      against `next start`. The 14 screenshots now go through Vercel Image Optimization (the avatar
+      already did), a few widths each; check its usage page after deploy (Hobby has a monthly quota).
 - [ ] B9 tests, docs, CI
 - [ ] B10 final verification + report
 
 ## Current task
 
-B8 — performance (next in the execution order: B8 → B9 → B10).
+B9 — tests, docs, CI (next in the execution order: B9 → B10).
 
 ## Blocker
 
@@ -128,8 +141,9 @@ See `docs/yagni.md`.
 
 ## Next likely action
 
-Start B8 (web-6 lazy react-markdown matters more now: B6 renders markdown while streaming, so
-the parser is on the chat's hot path; also check CLS from the JetBrains Mono swap). Owner, before deploying: set `CRON_SECRET` in Vercel (the
+Start B9 (tests health-5/6/7, chat-10, e2e for /fa + workplace; README, docs/analytics.md,
+`.env.example` incl. the B2/B7 variables; CI gate in `vercel.json`). B10: after deploy, check that
+`/_next/image` serves the covers on Vercel. Owner, before deploying: set `CRON_SECRET` in Vercel (the
 digest cron fails closed without it).
 
-_Last updated: 2026-09-27 (B6 done, review follow-up applied)_
+_Last updated: 2026-09-27 (B8 done)_
