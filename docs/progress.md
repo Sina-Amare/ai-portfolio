@@ -498,22 +498,26 @@ See `docs/yagni.md`.
 
 Owner checklist, in order:
 
-0. **Live chat outage (found 2026-09-27 ~15:50 UTC, after the deploy):** every retrieval question
-   answers "Sorry — I couldn't answer just now" because `gemini-embedding-001` returns 429
-   `EmbedContentRequestsPerDayPerProjectPerModel-FreeTier` (limit 1000/day per Google project).
-   Production's key evidently shares the Google project with the local `.env.local` keys, and the
-   day's eval/red-team runs used it up. Canned replies and every page still work. Fix: create a
-   Gemini key in a **new** Google project (AI Studio → Get API key → Create API key in new
-   project), put it first in Vercel's `GOOGLE_GENERATIVE_AI_API_KEY`, redeploy; keep local and
-   production keys in separate projects from now on. Otherwise it recovers at 07:00 UTC.
-1. Vercel → Settings → Environment Variables (Production): rotate `ADMIN_PASSWORD` (the owner
-   has the new value), add `CRON_SECRET` (the digest fails closed without it), then Redeploy.
-   `NEXT_PUBLIC_SITE_URL` is optional: the live site already resolves to `https://sinaamareh.ir`.
-2. After Gemini's daily reset (midnight Pacific; nothing else may use the keys that day):
-   `npm run eval` (the last full run was 134/134; today's stopped on quota after 97 passing checks), then one
-   full `npm run redteam -- --judge` (172 cases; the ones that need retrieval or a model — the 9
-   false-premise probes with the new fired wording, the hiring asks and the 3 news guards among
-   them — are not yet graded on the final code; the canned ones are).
+0. **Live chat outage (2026-09-27 ~15:50 UTC):** retrieval answers fail because production's
+   Gemini key shares a Google project with the local keys and the day's evals used its 1000/day
+   embedding quota. The owner made a key in a **new** project (the first new project was
+   "denied access" by Google; the second works): embeddings 200, 3.1 Flash-Lite 200. New
+   projects can't use Gemini 2.5, so the ladder is now 3.1 Flash-Lite → 3.5 Flash-Lite → 3.6
+   Flash at `thinkingLevel: "minimal"` (commit 9aa9aa2). Verified with that key: `npm run eval`
+   134/134 (gap 0.012) and a judged red-team run of the `fp-`/`legit-` cases, 58/61 with every
+   hard gate at 0 (the 3 misses: two judge-strictness calls, one mild unsourced framing — "I
+   don't follow rigid instructions" on the Mercor question). **Owner:** put the new key in
+   Vercel's `GOOGLE_GENERATIVE_AI_API_KEY` (Production) — on its own, so local testing can never
+   drain production again — and keep the old keys only in `.env.local`. The key is deliberately
+   not written to `.env.local`.
+1. Same Vercel screen: rotate `ADMIN_PASSWORD` (the owner has the new value) and add `CRON_SECRET`
+   (the digest fails closed without it). Then deploy: push `main` (see below) — Vercel builds
+   with the new env. `NEXT_PUBLIC_SITE_URL` is optional (the site already resolves to
+   `https://sinaamareh.ir`).
+2. Deploy the branch: `git checkout main && git merge --ff-only claude/audit-fixes && git push
+origin main` (the agent's permission to push `main` was withdrawn after the first deploy). The
+   remaining unjudged red-team classes (multi-turn, no-leak, the rest) can run on a later day
+   with `npm run redteam -- --judge` (≈1 run per day fits the free quota).
 3. After the env change: one test contact message and one `/admin` login on sinaamareh.ir, `/admin`
    with real traffic, that `/_next/image` serves the covers, and that the first build log runs
    the unit tests before `next build`.
@@ -532,4 +536,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-27 (live-site QA leftovers fixed on the branch; owner checklist next)_
+_Last updated: 2026-09-27 (new production key verified; ladder moved to Gemini 3.x; owner deploys next)_
