@@ -205,11 +205,12 @@ re-embed.
 After changing the knowledge base, the system prompt or the canned replies, run the red team
 live: `npm run redteam -- --judge` sends every `eval/redteam.json` case through the real chat
 route (real embeddings and models; Redis is switched off for the run), checks each answer
-(no prompt leak, no number that isn't in the question or the retrieved notes, Persian in,
-Persian out, the canned reply where one is due) and has Gemini Flash-Lite grade false
-premises, fabrication, rudeness and scope. It exits non-zero on any leak, accepted false
-premise or rude reply; the report lands in `eval/out/`. `-- fp- ext-` runs only the cases
-whose id starts with those prefixes.
+(no prompt leak, no number that isn't in what the visitor typed or the retrieved notes, no
+invented motive for a decline, Persian in, Persian out, the canned reply where one is due)
+and has Gemini Flash-Lite grade false premises, fabrication, rudeness and scope. It exits
+non-zero on any leak (a leak-guard trip counts), accepted false premise, rude reply or
+answer the judge couldn't grade; without `--judge`, rudeness isn't checked. The report
+lands in `eval/out/`. `-- fp- ext-` runs only the cases whose id starts with those prefixes.
 
 ---
 

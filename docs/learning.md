@@ -13,6 +13,7 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   (the owner is asked in progress.md whether the loop should change).
 - loop skipped: 2026-09-27 B11d live red-team runner — same workflow. Skips in a row: 4 (same open
   question in progress.md).
+- loop skipped: 2026-09-27 B11d review fixes — same workflow. Skips in a row: 5 (same open question).
 
 ## Terms
 
@@ -135,6 +136,14 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   alternate: "What stack did you use?" after Aigram gets Aigram's stack from the chat reading, and
   "What are your salary expectations?" after Aigram gets the email pointer from its own. The cost is
   a second embedding call on every follow-up turn (in parallel, so no extra wait, but double quota).
+- **Where a rule lives in a RAG bot (prompt vs knowledge base)** — a sentence in a knowledge-base note
+  reaches every question that retrieves that note, not only the one it was written for. Here the
+  past-roles note once said "the honest first answer is 'nothing in my notes says I was fired'", and
+  the neutral "Why did your Arnikup job end?" (same note, top of the ranking) got exactly that line —
+  a hint of something negative nobody asked about. The example moved into the system prompt's
+  false-premise rule, which fires only when a question carries a premise; the note keeps plain facts.
+  The cost: the prompt rule alone is weaker on a small model (the first run without the note left
+  "Why were you fired?" with only "email me"), so it now spells out the first sentence.
 
 ## Study briefs
 
