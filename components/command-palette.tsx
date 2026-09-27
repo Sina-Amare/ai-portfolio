@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics/client";
 
 // cmdk (~15 KB gz) loads on the first open, not with every page.
-const CommandPaletteBody = dynamic(
-  () => import("./command-palette-body").then((m) => m.CommandPaletteBody),
-  { ssr: false },
+const CommandPaletteBody = lazy(() =>
+  import("./command-palette-body").then((m) => ({ default: m.CommandPaletteBody })),
 );
 
 export function CommandPalette() {
@@ -26,11 +24,14 @@ export function CommandPalette() {
       if (el instanceof HTMLElement && !el.closest("[cmdk-dialog]")) returnTo.current = el;
       setOpen((o) => !o);
     };
-    // Escape and outside clicks are handled by the dialog itself.
+    // The dialog handles Escape and outside clicks itself; Escape here only
+    // matters while cmdk is still loading.
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         toggle();
+      } else if (e.key === "Escape") {
+        setOpen(false);
       }
     };
     document.addEventListener("keydown", onKey);
@@ -51,6 +52,22 @@ export function CommandPalette() {
     }
   }, [open]);
 
+  const close = () => setOpen(false);
   // Mounted only while open: closing unmounts the dialog, as Radix does anyway.
-  return open ? <CommandPaletteBody onClose={() => setOpen(false)} /> : null;
+  // On the first open, the dialog's backdrop (same classes) shows at once, so
+  // ⌘K doesn't look dead on a slow network; a click on it cancels, as it will
+  // once the dialog is there.
+  return open ? (
+    <Suspense
+      fallback={
+        <div
+          data-palette-loading
+          onClick={close}
+          className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm"
+        />
+      }
+    >
+      <CommandPaletteBody onClose={close} />
+    </Suspense>
+  ) : null;
 }

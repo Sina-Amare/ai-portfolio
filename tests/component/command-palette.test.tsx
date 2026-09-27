@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CommandPalette } from "@/components/command-palette";
 import { LocaleProvider } from "@/components/locale-provider";
@@ -18,15 +18,26 @@ vi.mock("next-themes", () => ({ useTheme: () => ({ setTheme: vi.fn(), resolvedTh
 vi.mock("@/lib/analytics/client", () => ({ track: vi.fn(), linkEvent: vi.fn() }));
 
 describe("CommandPalette", () => {
-  it("loads the palette (cmdk) only when it first opens", async () => {
+  it("loads the palette (cmdk) only when it first opens, behind a backdrop meanwhile", async () => {
     render(
       <LocaleProvider locale="en">
         <CommandPalette />
       </LocaleProvider>,
     );
     expect(body.loaded).toBe(false);
+    const loading = () => document.querySelector("[data-palette-loading]");
     act(() => void window.dispatchEvent(new Event("toggle-command")));
+    // cmdk is still on its way: the backdrop shows at once; a click or Escape cancels.
+    fireEvent.click(loading()!);
+    expect(loading()).toBeNull();
+    act(() => void window.dispatchEvent(new Event("toggle-command")));
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(loading()).toBeNull();
+
+    act(() => void window.dispatchEvent(new Event("toggle-command")));
+    expect(loading()).not.toBeNull();
     expect(await screen.findByRole("dialog", { name: dict.en.nav.command })).toBeInTheDocument();
+    expect(loading()).toBeNull();
     expect(body.loaded).toBe(true);
   });
 
