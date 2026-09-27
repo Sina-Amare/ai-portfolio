@@ -61,8 +61,10 @@ describe("retrievalQuery", () => {
   });
 
   it("recognises Persian and old spellings, and names from the reply", () => {
-    const fa = chat(["user", "ای‌گرام چیه؟"], ["assistant", "…"], ["user", "a"], ["user", "b"]);
-    expect(retrievalQuery(fa)).toBe("Aigram a b");
+    for (const name of ["ای‌گرام", "آیگرام", "آی‌گرام"]) {
+      const fa = chat(["user", `${name} چیه؟`], ["assistant", "…"], ["user", "a"], ["user", "b"]);
+      expect(retrievalQuery(fa), name).toBe("Aigram a b");
+    }
     const reply = chat(
       ["user", "Your code review bot?"],
       ["assistant", "That's github-code-review."],
@@ -72,15 +74,54 @@ describe("retrievalQuery", () => {
     );
   });
 
-  it("carries nothing when the turns already name one, or the last mention is ambiguous", () => {
+  it("carries nothing when the turns already name one, or every mention is ambiguous", () => {
     const named = chat(["user", "What is Aigram?"], ["user", "And ScrapeGPT's tests?"]);
     expect(retrievalQuery(named)).toBe("What is Aigram? And ScrapeGPT's tests?");
     const both = chat(
-      ["user", "What is ScrapeGPT?"],
+      ["user", "ScrapeGPT or Aigram?"],
       ["assistant", "ScrapeGPT rotates keys, like Aigram."],
       ["user", "Nice."],
       ["user", "Tests?"],
     );
     expect(retrievalQuery(both)).toBe("Nice. Tests?");
+  });
+
+  it("skips a reply that cross-references, and keeps the project the visitor named", () => {
+    const q = retrievalQuery(
+      chat(
+        ["user", "What is Aigram?"],
+        ["assistant", "Aigram rotates keys the way I did at Dekamond."],
+        ["user", "What stack?"],
+        ["assistant", "Python and FastAPI."],
+        ["user", "Tests?"],
+      ),
+    );
+    expect(q).toBe("Aigram What stack? Tests?");
+  });
+
+  it("carries nothing older than the last two exchanges", () => {
+    const q = retrievalQuery(
+      chat(
+        ["user", "What is Aigram?"],
+        ["assistant", "Aigram is my Telegram client."],
+        ["user", "Where did you study?"],
+        ["assistant", "At the University of Guilan."],
+        ["user", "Any awards?"],
+        ["assistant", "Yes, a few."],
+        ["user", "What's your notice period?"],
+      ),
+    );
+    expect(q).toBe("Any awards? What's your notice period?");
+  });
+
+  it("keeps the question being asked whole after a long pasted turn", () => {
+    const pasted = "We need a backend engineer. ".repeat(21).trim(); // 587 chars
+    const q = retrievalQuery(chat(["user", pasted], ["user", "What about PromptAmp?"]));
+    expect(q.endsWith(" What about PromptAmp?")).toBe(true);
+    expect(q.length).toBeLessThanOrEqual(200 + 1 + "What about PromptAmp?".length);
+    const long = "x".repeat(590);
+    expect(retrievalQuery(chat(["user", "What is Aigram?"], ["user", long]))).toBe(
+      `What is A ${long}`,
+    );
   });
 });
