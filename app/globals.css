@@ -411,7 +411,7 @@ body {
 }
 /* Reduced motion, and phones (battery): the glow stays, the drift stops, so an
    idle page draws no frames at all. */
-@media (prefers-reduced-motion: reduce), (max-width: 640px) {
+@media (prefers-reduced-motion: reduce), (width < 40rem) {
   .bg-orb {
     animation: none;
     will-change: auto;
