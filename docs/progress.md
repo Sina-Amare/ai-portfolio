@@ -171,7 +171,7 @@ Milestone done-when met.
 
 ## Batch 11 — bigger KB, adversarial-proof RAG, small talk
 
-- [x] B11a owner follow-ups — /fa names Sina «سینا عماره» in tab titles, og/twitter titles,
+- [x] B11a owner follow-ups — /fa names Sina «سینا آماره» in tab titles, og/twitter titles,
       og:site_name, the title template and the footer (the Latin name stays the nav logo and hero
       chip); /fa years, pipeline step numbers, the lightbox counter and the footer year use Persian
       digits (`digits()` in lib/locale.ts, Intl.NumberFormat); "How it works" wraps from lg (at
@@ -417,32 +417,12 @@ Milestone done-when met.
 
 ## Current task
 
-**PAUSED by the owner (2026-09-27 ~13:15 UTC) — resume here.** The four owner calls (B11f) are
-committed (up to `c09c847`) and reviewed; the review's fix step was stopped midway. Resume steps:
-
-1. B11f review fixes (the stopped step; its partial edit is in `git stash` as
-   "paused: partial fix:owner-calls review fixes (lib/rag/intent.ts)" — inspect, then apply or
-   drop it and redo):
-   - major: the news-task pattern (`lib/rag/intent.ts` ~244) sends questions about Sina's own
-     workplace agents / this chatbot to the "not a free ChatGPT" clapback — extend `ABOUT_SINA`
-     (social research, business intelligence, BI agents, workplace agents, chatbot, this site/bot,
-     his/him) or the news regex's negative lookahead; add guard cases.
-   - major: the Persian news pattern only exempts «خودت|شما»; exempt any noun with the possessive
-     -ت/-هات (e.g. «آخرین خبرت», «اخبارت») so FA matches EN's "your" guard; add guard cases.
-   - minor: role-ended rule — add red-team cases fp-fired-arnikup and fp-fired-unknown-employer
-     ("Why were you fired from Google?").
-   - minor: fp-fired mustNot += "fired", "let go"; fp-fa-fired mustNot += «اخراج», «در واقع».
-2. Persian name: the owner's name is **«سینا آماره»**, not «سینا عماره». Fix all 14 occurrences
-   in 8 files (lib/site.ts, lib/page-copy.ts ×2, lib/dictionary.ts, lib/rag/intent.ts,
-   scripts/og-fa.mjs ×2, tests/unit/seo.test.ts ×3, tests/e2e/i18n.spec.ts ×3) and regenerate the
-   Persian OG image with `scripts/og-fa.mjs`. No content/ change, so no re-embed.
-3. Checks (typecheck, lint, format, test, build, `PORT=3100 npm run test:e2e`), then fast-forward
-   `main` to the branch and push `main` (the owner asked for the push; production deploys from
-   `main`). Watch the deploy, then verify the live site (pages, /fa, head tags, chat small talk +
-   a RAG answer + a jailbreak, /admin loads).
-
-Note: `claude/audit-fixes` is already on GitHub (pushed by an agent at `c09c847`, which gives it a
-Vercel preview). `main` is untouched, so production still runs the old code.
+None on the agent side. The milestone (B0–B11 plus the four owner calls) is done, reviewed and
+deployed: `main` was fast-forwarded to `claude/audit-fixes` and pushed on 2026-09-27 at the owner's
+request. Final steps that day: the B11f review fixes (news pattern yields to his agents, this
+bot and Persian possessives; Arnikup/Google fired cases), a shared test timeout so lazy-chunk
+tests can't flake the Vercel build, and the Persian name corrected to «سینا آماره» (the earlier
+«سینا عماره» was a guess) with the OG card regenerated.
 
 ## Blocker
 
@@ -511,20 +491,18 @@ See `docs/yagni.md`.
 
 Owner checklist, in order:
 
-1. Review the branch (`claude/audit-fixes`, pushed to GitHub 2026-09-27 at the owner's request,
-   which gives it a Vercel preview; merging/pushing `main` deploys production).
+1. Vercel → Settings → Environment Variables (Production): rotate `ADMIN_PASSWORD` (the owner
+   has the new value), add `CRON_SECRET` (the digest fails closed without it), then Redeploy.
+   `NEXT_PUBLIC_SITE_URL` is optional: the live site already resolves to `https://sinaamareh.ir`.
 2. After Gemini's daily reset (midnight Pacific; nothing else may use the keys that day):
    `npm run eval` (the last full run was 134/134; today's stopped on quota after 97 passing checks), then one
    full `npm run redteam -- --judge` (172 cases; the ones that need retrieval or a model — the 9
    false-premise probes with the new fired wording, the hiring asks and the 3 news guards among
    them — are not yet graded on the final code; the canned ones are).
-3. In Vercel (Production): set `CRON_SECRET` (the digest fails closed without it) and
-   `NEXT_PUBLIC_SITE_URL=https://sinaamareh.ir` (the beacon only counts that host), rotate
-   `ADMIN_PASSWORD` as the plan says, then merge/push to `main` to deploy.
-4. After deploy: one test contact message and one `/admin` login on sinaamareh.ir, `/admin`
+3. After the env change: one test contact message and one `/admin` login on sinaamareh.ir, `/admin`
    with real traffic, that `/_next/image` serves the covers, and that the first build log runs
    the unit tests before `next build`.
-5. Answer the open questions (bare model questions, the loop); optionally the boundaries H1
+4. Answer the open questions (bare model questions, the loop); optionally the boundaries H1
    rename + re-embed.
 
 Budget embeddings: `npm run embed` is 145 calls and `npm run eval` ~160, and the free tier's
@@ -534,4 +512,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-27 (paused by the owner mid B11f review fixes — see Current task)_
+_Last updated: 2026-09-27 (milestone deployed; owner checklist next)_
