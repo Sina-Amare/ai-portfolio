@@ -238,6 +238,13 @@ const TASK: RegExp[] = [
   /(?<!\p{L})کد\s+(?:\S+\s+){0,4}بنویس(?:ید|ین)?(?!\p{L})/u,
   /ترجمه\s?(?:ش\s)?کن(?:ید|ین)?(?!\p{L})/u,
   /\b(?:baram|barayam|vasam)\s+(?:\w+\s+){0,4}(?:benevis|besaz|hal\s*kon|tarjome\s*kon)\b|\btarjome\s*(?:sh\s+)?kon\b/u,
+  // A news feed: "Summarize the latest news about OpenAI", "can you give me today's
+  // AI headlines?". Any other "you" makes it about him ("how do you keep up with the
+  // latest AI news?"), and so does a name in ABOUT_SINA ("latest news on ScrapeGPT?").
+  /^(?![^]*\byou(?:rs?|rself)?\b(?<!\b(?:can|could|would|will)\s+you))[^]*\b(?:(?:latest|recent|newest|breaking|today'?s)\s+(?:\w+\s+){0,2}(?:news|headlines)|news\s+today)\b/u,
+  // «آخرین اخبار هوش مصنوعی رو بگو», «آخرین خبرهای OpenAI چیه؟», not «… دنبال می‌کنی؟»
+  // or «آخرین خبرها از خودت چیه؟».
+  /(?:آخرین|تازه\s?ترین|جدید\s?ترین)\s+(?:\S+\s+)?(?:اخبار|خبر(?:ها|های)?)(?!\p{L})(?:(?!خودت|شما)[^?؟])*?(?<!\p{L})(?:بگو|چیه|چیا|خلاصه\s?کن|بفرست)(?:ید|ین)?(?!\p{L})/u,
 ];
 
 /**

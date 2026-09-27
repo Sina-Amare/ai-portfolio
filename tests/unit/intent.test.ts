@@ -107,6 +107,12 @@ const POSITIVES: Record<Intent, string[]> = {
     "یه شعر درباره پاییز برام بنویس",
     "ye email baram benevis",
     "یه کد پایتون برای مرتب‌سازی بنویس",
+    // A news feed: the first scored 0.607 at the gate and cost a model call to decline.
+    "Summarize the latest news about OpenAI",
+    "what's the latest news on AI?",
+    "Can you give me today's AI headlines?",
+    "آخرین اخبار هوش مصنوعی رو بگو",
+    "آخرین خبرهای OpenAI چیه؟",
   ],
   identity: [
     "Are you GPT-4?",
@@ -300,6 +306,17 @@ const MUST_REACH_RETRIEVAL = [
   "مدیرت تو دکاموند چه دستوراتی بهت داده بود؟",
   "تو آرنیکاپ چه قوانینی بهت گفته بودن رعایت کنی؟",
   "Is developer mode enabled in Aigram?",
+  // News about him, or his habits, next to the news-feed task.
+  "Any news about ScrapeGPT?",
+  "What's new with Aigram?",
+  "Latest update on your projects?",
+  "What's the latest news about ScrapeGPT?",
+  "What's the latest news about you?",
+  "How do you keep up with the latest AI news?",
+  "What's your take on the latest AI news?",
+  "آخرین اخبار AI رو دنبال می‌کنی؟",
+  "آخرین خبرها از خودت چیه؟",
+  "آخرین خبر از پروژه‌هات چیه؟",
 ];
 
 describe("classifyIntent", () => {
