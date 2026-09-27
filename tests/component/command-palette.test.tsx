@@ -32,4 +32,19 @@ describe("CommandPalette", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(opener).toHaveFocus();
   });
+
+  it("ignores Ctrl+K while a native modal dialog (the gallery lightbox) is open", async () => {
+    const user = userEvent.setup();
+    render(
+      <LocaleProvider locale="en">
+        <dialog open>
+          <button type="button">inside lightbox</button>
+        </dialog>
+        <CommandPalette />
+      </LocaleProvider>,
+    );
+    screen.getByRole("button", { name: "inside lightbox" }).focus();
+    await user.keyboard("{Control>}k{/Control}");
+    expect(screen.queryByPlaceholderText(dict.en.command.placeholder)).toBeNull();
+  });
 });

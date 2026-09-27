@@ -29,6 +29,10 @@ export function CommandPalette() {
 
   useEffect(() => {
     const toggle = () => {
+      // A native modal <dialog> (the gallery lightbox) sits in the top layer and
+      // makes the rest of the page inert: the palette would open unseen and
+      // unreachable, and Radix's body pointer-events:none would freeze the lightbox.
+      if (document.querySelector("dialog[open]")) return;
       const el = document.activeElement;
       if (el instanceof HTMLElement && !el.closest("[cmdk-dialog]")) returnTo.current = el;
       setOpen((o) => !o);
