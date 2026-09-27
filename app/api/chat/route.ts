@@ -13,7 +13,7 @@ import { z } from "zod";
 import { detectDir, ui, type Lang } from "@/lib/i18n";
 import { getKnowledgeBase } from "@/lib/rag/kb";
 import { embedText } from "@/lib/rag/embed";
-import { retrieve, RETRIEVAL_TOP_K } from "@/lib/rag/retrieve";
+import { messageText, retrievalQuery, retrieve, RETRIEVAL_TOP_K } from "@/lib/rag/retrieve";
 import { isInScope } from "@/lib/rag/threshold";
 import type { ScoredChunk } from "@/lib/rag/types";
 import {
@@ -117,34 +117,11 @@ function toUIMessages(messages: z.infer<typeof MessageSchema>[]): UIMessage[] {
   return first < 0 ? [] : out.slice(first);
 }
 
-function userText(m: UIMessage): string {
-  return (m.parts ?? [])
-    .filter((p): p is { type: "text"; text: string } => p.type === "text")
-    .map((p) => p.text)
-    .join(" ")
-    .trim();
-}
-
 function lastUserText(messages: UIMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].role === "user") return userText(messages[i]);
+    if (messages[i].role === "user") return messageText(messages[i]);
   }
   return "";
-}
-
-/**
- * Build the retrieval query from the last up-to-two user turns, so short
- * follow-ups ("and the challenges?", "tell me more") still retrieve the right
- * context instead of embedding to nothing and getting wrongly refused.
- */
-function retrievalQuery(messages: UIMessage[]): string {
-  const turns: string[] = [];
-  for (let i = messages.length - 1; i >= 0 && turns.length < 2; i--) {
-    if (messages[i].role !== "user") continue;
-    const t = userText(messages[i]);
-    if (t) turns.unshift(t);
-  }
-  return turns.join(" ");
 }
 
 function dedupeSources(scored: ScoredChunk[]): Source[] {

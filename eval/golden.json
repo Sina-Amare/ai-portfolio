@@ -133,7 +133,71 @@
     { "q": "کجا درس خوندی؟" },
     { "q": "سبک کاریت چطوریه؟" },
     { "q": "از هوش مصنوعی توی کارت چطور استفاده می‌کنی؟" },
-    { "q": "حقوق مدنظرت چقدره؟" }
+    { "q": "حقوق مدنظرت چقدره؟" },
+    {
+      "q": "Does it have tests?",
+      "expectSource": "Project: Aigram",
+      "history": [
+        { "role": "user", "text": "What is Aigram?" },
+        {
+          "role": "assistant",
+          "text": "Aigram is a self-hosted web client for my own Telegram account with an AI layer built in: summarize a chat, translate, generate images and handle voice notes without leaving the conversation."
+        },
+        { "role": "user", "text": "What stack did you use?" },
+        {
+          "role": "assistant",
+          "text": "Python on Telethon, a FastAPI backend serving a vanilla-JS PWA on the same asyncio loop, with Gemini as the primary provider and OpenRouter as the fallback."
+        }
+      ]
+    },
+    {
+      "q": "What would you do differently?",
+      "expectSource": "Project: Aigram",
+      "history": [
+        { "role": "user", "text": "Tell me about Aigram" },
+        {
+          "role": "assistant",
+          "text": "Aigram turns my own Telegram account into a self-hosted AI messenger, with a co-pilot in every chat."
+        },
+        { "role": "user", "text": "What was the hardest part?" },
+        {
+          "role": "assistant",
+          "text": "Keeping the account safe: a single audited module is the only place that writes to Telegram, with FloodWait-safe pacing."
+        }
+      ]
+    },
+    {
+      "q": "محدودیت‌هاش چیه؟",
+      "expectSource": "Project: ScrapeGPT",
+      "history": [
+        { "role": "user", "text": "ScrapeGPT چیه؟" },
+        {
+          "role": "assistant",
+          "text": "ScrapeGPT یه ابزار استخراج داده از وب با کمک AI هست که خودم ساختم؛ مدل سلکتورها رو پیشنهاد می‌ده و برنامه اون‌ها رو روی HTML واقعی چک و درست می‌کنه."
+        },
+        { "role": "user", "text": "سخت‌ترین بخشش چی بود؟" },
+        {
+          "role": "assistant",
+          "text": "اینکه وقتی حدس مدل اشتباهه هم داده برگرده: سلکتورها دوباره روی صفحهٔ واقعی اجرا می‌شن و اگه نخورن، ساده‌تر می‌شن."
+        }
+      ]
+    },
+    {
+      "q": "Is it free?",
+      "expectSource": "Project: PromptAmp",
+      "history": [
+        { "role": "user", "text": "What is PromptAmp?" },
+        {
+          "role": "assistant",
+          "text": "PromptAmp is my browser extension that turns a rough draft into an engineered prompt inside any text field, using your own API key."
+        },
+        { "role": "user", "text": "Who is it for?" },
+        {
+          "role": "assistant",
+          "text": "Anyone who types requests into AI tools and wants better results without leaving the page."
+        }
+      ]
+    }
   ],
   "outOfScope": [
     "What's the weather today?",

@@ -72,7 +72,8 @@ cleanly with **no LLM call**, so it never makes things up.
 Browser ── React UI (useChat) ──▶ /api/chat  (Node serverless route)
                                      1. validate + rate-limit; canned reply for greeting/abuse (no LLM)
                                      2. exact answer cache (first question) ▶ instant, no embed, no LLM
-                                     3. embed the question (Gemini, 768-dim, key-rotated + cached)
+                                     3. embed the question (Gemini, 768-dim, key-rotated + cached),
+                                        with the one before it; a follow-up keeps its project
                                      4. cosine vs kb.json (in-memory, <1ms)
                                      5. semantic answer cache (a paraphrase) ▶ instant, no LLM
                                      6. THRESHOLD GATE ─ below 0.60? ▶ instant refusal, NO LLM call
