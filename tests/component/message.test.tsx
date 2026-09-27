@@ -81,6 +81,18 @@ describe("Message", () => {
     expect(container.querySelector("pre")).toHaveAttribute("dir", "ltr");
   });
 
+  it("tags each message with its own language, not the page's", () => {
+    // After a language switch, an English answer stays on the Persian page.
+    const { container } = render(
+      <div lang="fa" data-locale="fa">
+        <Message message={mkMessage("assistant", "I built ScrapeGPT.")} sourcesLabel="منابع" />
+        <Message message={mkMessage("user", "ScrapeGPT چیه؟")} sourcesLabel="منابع" />
+      </div>,
+    );
+    expect(container.querySelector('.chat-msg[lang="en"]')).toHaveTextContent("I built ScrapeGPT.");
+    expect(container.querySelector('.chat-msg[lang="fa"]')).toHaveTextContent("ScrapeGPT چیه؟");
+  });
+
   it("renders Persian assistant text right-to-left", () => {
     const { container } = render(
       <Message message={mkMessage("assistant", "سلام دنیا")} sourcesLabel="Sources" />,

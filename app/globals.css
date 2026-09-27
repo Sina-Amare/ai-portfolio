@@ -488,6 +488,31 @@ body {
   line-height: 1.5;
 }
 
+/* A chat message is set in its own language, not the page's (message.tsx sets
+   lang from its text): an English answer left on /fa after a language switch
+   keeps the Latin face and rhythm, a Persian one on / gets Persian's. "Inter" is
+   named, not var(--font-sans), whose Arial fallback has Arabic glyphs and would
+   draw the Persian copy label (see --font-mono). */
+.chat-msg[lang="en"] {
+  font-family: "Inter", var(--font-fa), system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+.chat-msg[lang="en"] p {
+  line-height: inherit;
+}
+.chat-msg[lang="en"] :is(h3, h4) {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  letter-spacing: -0.02em;
+}
+.chat-msg[lang="fa"] {
+  font-weight: 450;
+  letter-spacing: normal;
+}
+.chat-msg[lang="fa"] p {
+  line-height: 2;
+}
+
 /* Typing indicator + streaming caret */
 @keyframes blink {
   0%,

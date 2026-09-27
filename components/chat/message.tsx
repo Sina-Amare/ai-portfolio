@@ -41,6 +41,9 @@ export const Message = memo(function Message({
   const isUser = message.role === "user";
   const text = textOf(message);
   const dir = detectDir(text);
+  // The message's own language, so its font and line-height follow it rather than
+  // the page's (earlier answers stay on screen after a language switch).
+  const lang = dir === "rtl" ? "fa" : "en";
   const sources = isUser ? [] : uniqueSourcesOf(message);
   const plain = <p className="whitespace-pre-wrap">{text}</p>;
 
@@ -64,7 +67,9 @@ export const Message = memo(function Message({
     >
       <div
         dir={dir}
+        lang={lang}
         className={cn(
+          "chat-msg",
           // min-w-0 lets the flex item shrink; overflow-wrap:anywhere breaks long
           // unbreakable tokens (URLs, paths) instead of overflowing the chat.
           "min-w-0 text-[15px] leading-relaxed wrap-anywhere",
@@ -99,7 +104,7 @@ export const Message = memo(function Message({
                   dir === "ltr" && "font-mono",
                 )}
               >
-                {sourceLabel(s, dir === "rtl" ? "fa" : "en")}
+                {sourceLabel(s, lang)}
               </span>
             ))}
           </div>
