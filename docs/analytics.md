@@ -58,7 +58,12 @@ vercel install upstash # installs, connects to the linked project, writes .env.l
 
 Select the **project** → **Settings** → **Environment Variables** → add `ADMIN_PASSWORD`
 for all environments, and `CRON_SECRET` if you want the daily Telegram digest (it
-doesn't run without one). Generate each with:
+doesn't run without one). Also set `NEXT_PUBLIC_SITE_URL=https://sinaamareh.ir` for
+Production: the beacon only counts visits whose `Origin` is that host, and without it the
+site URL falls back to Vercel's production domain; if that is the `vercel.app` alias,
+every visit is silently dropped. (The contact form
+and the login also accept the host they were sent to, so they work on previews.)
+Generate each secret with:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"
