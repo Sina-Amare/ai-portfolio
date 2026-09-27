@@ -14,6 +14,7 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
 - loop skipped: 2026-09-27 B11d live red-team runner — same workflow. Skips in a row: 4 (same open
   question in progress.md).
 - loop skipped: 2026-09-27 B11d review fixes — same workflow. Skips in a row: 5 (same open question).
+- loop skipped: 2026-09-27 B11 final verification — same workflow. Skips in a row: 6 (same open question).
 
 ## Terms
 
