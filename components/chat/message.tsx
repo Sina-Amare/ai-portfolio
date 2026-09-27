@@ -1,11 +1,14 @@
 "use client";
 
-import { memo, useState } from "react";
+import { lazy, memo, Suspense, useState } from "react";
 import type { UIMessage } from "ai";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { detectDir, sourceLabel } from "@/lib/i18n";
-import { Markdown } from "./markdown";
+
+// react-markdown + remark-gfm (~46 KB gz) stay out of the page's first load:
+// most visitors never ask. ChatHero warms the chunk when a question is sent.
+const Markdown = lazy(() => import("./markdown").then((m) => ({ default: m.Markdown })));
 
 type TextPart = { type: "text"; text: string };
 type SourcesPart = { type: "data-sources"; data: { source: string; section: string }[] };
@@ -39,6 +42,7 @@ export const Message = memo(function Message({
   const text = textOf(message);
   const dir = detectDir(text);
   const sources = isUser ? [] : uniqueSourcesOf(message);
+  const plain = <p className="whitespace-pre-wrap">{text}</p>;
 
   async function copy() {
     try {
@@ -74,7 +78,14 @@ export const Message = memo(function Message({
           dir === "rtl" && "font-fa",
         )}
       >
-        {isUser ? <p className="whitespace-pre-wrap">{text}</p> : <Markdown content={text} />}
+        {isUser ? (
+          plain
+        ) : (
+          // Until the markdown chunk arrives, the answer shows as plain text.
+          <Suspense fallback={plain}>
+            <Markdown content={text} />
+          </Suspense>
+        )}
 
         {sources.length > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5">

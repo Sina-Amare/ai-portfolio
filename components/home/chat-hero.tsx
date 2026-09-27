@@ -102,6 +102,7 @@ export function ChatHero() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
     setInput("");
+    void import("@/components/chat/markdown"); // warm the chunk while the answer is on its way
     track("chat_ask", (t.suggestions as readonly string[]).includes(v) ? "chip" : "typed");
     void sendMessage({ text: v }, { body: { lang } });
   }

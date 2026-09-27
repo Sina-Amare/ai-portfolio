@@ -97,11 +97,11 @@ describe("ChatHero", () => {
     expect(screen.getByRole("log")).toHaveAttribute("aria-busy", "true");
   });
 
-  it("renders the streaming answer as markdown, with throttled updates", () => {
+  it("renders the streaming answer as markdown, with throttled updates", async () => {
     status = "streaming";
     messages = [chatting[0], { ...chatting[1], parts: [{ type: "text", text: "**Hel**" }] }];
     render(hero());
-    expect(screen.getByText("Hel").tagName).toBe("STRONG");
+    expect((await screen.findByText("Hel")).tagName).toBe("STRONG");
     expect(chatOptions.experimental_throttle).toBeGreaterThan(0);
     messages = chatting;
   });

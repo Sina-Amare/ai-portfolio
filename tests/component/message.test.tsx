@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import type { UIMessage } from "ai";
 import { Message } from "@/components/chat/message";
@@ -19,17 +19,29 @@ describe("Message", () => {
     expect(screen.getByText("Hello there")).toBeInTheDocument();
   });
 
-  it("renders assistant markdown (bold)", () => {
-    render(<Message message={mkMessage("assistant", "**bold** text")} sourcesLabel="Sources" />);
-    expect(screen.getByText("bold")).toBeInTheDocument();
+  it("loads the markdown parser lazily, showing the answer as plain text meanwhile", async () => {
+    // A fresh module, so the lazy chunk isn't already resolved by another test.
+    vi.resetModules();
+    const { Message: Fresh } = await import("@/components/chat/message");
+    const { container } = render(
+      <Fresh message={mkMessage("assistant", "**bold** text")} sourcesLabel="" />,
+    );
+    expect(container.querySelector("p.whitespace-pre-wrap")).toHaveTextContent("**bold** text");
+    expect((await screen.findByText("bold")).tagName).toBe("STRONG");
   });
 
-  it("never renders images, and links only to http(s)/mailto", () => {
+  it("renders assistant markdown (bold)", async () => {
+    render(<Message message={mkMessage("assistant", "**bold** text")} sourcesLabel="Sources" />);
+    expect(await screen.findByText("bold")).toBeInTheDocument();
+  });
+
+  it("never renders images, and links only to http(s)/mailto", async () => {
     const md =
       "![pixel](https://evil.example/p.png) [site](https://sinaamareh.ir) [mail](mailto:a@b.co) [irc](irc://evil.example) [rel](/x)";
     const { container } = render(
       <Message message={mkMessage("assistant", md)} sourcesLabel="Sources" />,
     );
+    await screen.findByRole("link", { name: "site" });
     expect(container.querySelector("img")).toBeNull();
     const hrefs = [...container.querySelectorAll("a")].map((a) => a.getAttribute("href"));
     expect(hrefs).toEqual(["https://sinaamareh.ir", "mailto:a@b.co"]);
@@ -59,12 +71,12 @@ describe("Message", () => {
     expect(screen.getByText("Something new")).toBeInTheDocument(); // unknown → raw label
   });
 
-  it("keeps code left-to-right inside a Persian answer", () => {
+  it("keeps code left-to-right inside a Persian answer", async () => {
     const md = "با `C++` کار کردم\n\n```\nx = f(1)\n```";
     const { container } = render(<Message message={mkMessage("assistant", md)} sourcesLabel="" />);
-    const [inline, block] = container.querySelectorAll("code");
+    const inline = await screen.findByText("C++");
     expect(inline).toHaveAttribute("dir", "ltr");
-    expect(block.closest("pre")).toHaveAttribute("dir", "ltr");
+    expect(container.querySelector("pre")).toHaveAttribute("dir", "ltr");
   });
 
   it("renders Persian assistant text right-to-left", () => {
