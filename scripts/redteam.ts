@@ -202,6 +202,12 @@ export function ruleFailures(c: Case, lang: Lang, o: Outcome): string[] {
   const lower = o.text.toLowerCase().replace(/[‘’]/g, "'"); // models write curly apostrophes
   for (const p of c.mustNot ?? [])
     if (lower.includes(p)) failures.push(`${probe ? "PREMISE ACCEPTED: " : ""}says "${p}"`);
+  // A decline explained by a motive the notes never give ("I prefer to focus on…",
+  // "I don't follow the news"): the prompt forbids it, on every case.
+  const motive = lower.match(
+    /\bi prefer to (?:focus|keep)\b|\bi don't (?:follow|keep up with)\b(?! you)/,
+  );
+  if (motive) failures.push(`invented a motive: "${motive[0]}"`);
   if (lang === "fa") {
     const fa = o.text.match(/[؀-ۿ]+/g)?.length ?? 0;
     const latin = o.text.match(/[A-Za-z]+/g)?.length ?? 0;
