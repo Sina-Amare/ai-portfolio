@@ -1,7 +1,18 @@
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import type { Breakdown } from "@/lib/analytics/store";
-import type { Insights, RecentVisit } from "@/lib/analytics/insights";
+import {
+  CONV_MAX,
+  CONV_SHOWN,
+  type Conversation,
+  type Conversations,
+  type Insights,
+  type RecentVisit,
+} from "@/lib/analytics/insights";
+import type { ChatLogEntry } from "@/lib/analytics/session";
 import { SECTION_PAGE, SECTIONS } from "@/lib/analytics/beacon";
+import { sourceLabel } from "@/lib/i18n";
+import { isAttack, type Intent } from "@/lib/rag/intent";
 import { cn } from "@/lib/utils";
 import { localizedPath, type Locale } from "@/lib/locale";
 import { pageCopy } from "@/lib/page-copy";
@@ -282,7 +293,18 @@ function Badge({ accent, children }: { accent?: boolean; children: React.ReactNo
 const sectionOrder = (s: string) => (SECTIONS as readonly string[]).indexOf(s);
 
 /** One visit: where from, on what, how long, the pages in order, what was seen and done. */
-function Visit({ v, f, p }: { v: RecentVisit; f: Fmt; p: Copy }) {
+function Visit({
+  v,
+  f,
+  p,
+  chat,
+}: {
+  v: RecentVisit;
+  f: Fmt;
+  p: Copy;
+  /** The visit's conversation below, when it chatted. */
+  chat?: { href: string; turns: number };
+}) {
   const where = v.city && v.city !== "Unknown" ? f.city(v.city) : f.country(v.country);
   const propLabel = (prop: string) =>
     labelOf({ ...p.targets, ...p.langNames, chip: p.chip, typed: p.typed }, prop);
@@ -335,14 +357,236 @@ function Visit({ v, f, p }: { v: RecentVisit; f: Fmt; p: Copy }) {
         </div>
       )}
       {actions.length > 0 && <p className="text-text mt-2 text-xs">{actions.join(" · ")}</p>}
+      {chat && (
+        <a
+          href={chat.href}
+          className="text-accent-text mt-2 inline-block text-xs underline underline-offset-2"
+        >
+          {p.viewChat} · {f.n(chat.turns)} {chat.turns === 1 ? p.question : p.questions}
+        </a>
+      )}
     </li>
   );
 }
 
-export function Dashboard({ data, locale }: { data: Insights; locale: Locale }) {
+/** What a turn's badge says: attacks apart from other refusals. */
+const kindOf = (t: ChatLogEntry) =>
+  isAttack((t.intent ?? null) as Intent | null) ? "attack" : t.outcome;
+
+/**
+ * One exchange: the visitor's question, then the reply as it was shown. Plain
+ * text with its line breaks, never rendered as HTML or markdown.
+ */
+function Turn({ t, f, p, locale }: { t: ChatLogEntry; f: Fmt; p: Copy; locale: Locale }) {
+  const kind = kindOf(t);
+  const said =
+    "mt-1 rounded-xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap wrap-break-word";
+  return (
+    <li className="space-y-2 py-3 first:pt-0 last:pb-0">
+      <div>
+        <div className="text-muted text-[11px]">{p.visitorSaid}</div>
+        <p dir="auto" className={cn(said, "bg-accent-soft text-text")}>
+          {t.question}
+        </p>
+      </div>
+      <div>
+        <div className="text-muted text-[11px]">{p.botSaid}</div>
+        <p dir="auto" className={cn(said, "border-border text-text border")}>
+          {t.reply}
+        </p>
+      </div>
+      <div className="text-muted flex flex-wrap items-center gap-1.5 text-[11px]">
+        <Badge accent={kind === "attack"}>{labelOf(p.badges, kind)}</Badge>
+        {t.partial && <Badge accent>{p.partial}</Badge>}
+        {t.intent && (
+          <span dir="ltr" className="font-mono">
+            {t.intent}
+          </span>
+        )}
+        {t.sources?.map((s) => (
+          <span key={s} className="border-border rounded-full border px-2 py-0.5" dir="auto">
+            {sourceLabel(s, locale)}
+          </span>
+        ))}
+        {t.provider && (
+          <span dir="ltr" className="font-mono">
+            {t.provider}
+          </span>
+        )}
+        <span>
+          {t.ms < 1000 ? `${f.n(Math.round(t.ms))}${p.ms}` : `${f.n(t.ms / 1000)}${p.sec}`}
+        </span>
+        <span>{f.ago(t.at)}</span>
+      </div>
+    </li>
+  );
+}
+
+/** One visit's chat: who (from the visit record), then every exchange in order. */
+function Chat({
+  c,
+  f,
+  p,
+  locale,
+  open,
+}: {
+  c: Conversation;
+  f: Fmt;
+  p: Copy;
+  locale: Locale;
+  open: boolean;
+}) {
+  const v = c.visit;
+  const first = c.turns[0]!;
+  const n = c.turns.length;
+  const kinds = new Map<string, number>();
+  for (const t of c.turns) kinds.set(kindOf(t), (kinds.get(kindOf(t)) ?? 0) + 1);
+  const where = !v
+    ? p.noVisit
+    : v.city && v.city !== "Unknown"
+      ? f.city(v.city)
+      : f.country(v.country);
+
+  return (
+    <li id={`chat-${c.id}`} className="scroll-mt-24 py-3 first:pt-0 last:pb-0">
+      <details open={open} className="group">
+        <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1.5 [&::-webkit-details-marker]:hidden">
+          <ChevronDown
+            aria-hidden
+            className="text-muted h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
+          />
+          <span className="text-sm font-medium" dir="auto">
+            {where}
+          </span>
+          <span className="text-muted text-xs">{f.ago(first.at)}</span>
+          <span className="text-muted text-xs">
+            {f.n(n)} {n === 1 ? p.question : p.questions}
+          </span>
+          <span className="ms-auto flex flex-wrap gap-1.5">
+            {[...kinds].map(([kind, count]) => (
+              <Badge key={kind} accent={kind === "attack"}>
+                {labelOf(p.badges, kind)}
+                {count > 1 && ` ×${f.n(count)}`}
+              </Badge>
+            ))}
+          </span>
+          <span className="text-muted flex w-full flex-wrap gap-x-3 gap-y-1 ps-7 text-xs">
+            {v && (
+              <span>
+                {labelOf(p.deviceNames, v.device)} · {v.browser === "Other" ? p.unknown : v.browser}
+              </span>
+            )}
+            {v && (
+              <span dir="auto">
+                {!v.referrer || v.referrer === "Direct" ? p.direct : v.referrer}
+              </span>
+            )}
+            <span>{labelOf(p.langNames, v?.lang || first.lang)}</span>
+          </span>
+        </summary>
+        <ol className="divide-border mt-3 divide-y ps-7">
+          {c.turns.map((t, i) => (
+            <Turn key={i} t={t} f={f} p={p} locale={locale} />
+          ))}
+        </ol>
+      </details>
+    </li>
+  );
+}
+
+/**
+ * Who asked the assistant what, grouped by visit: a closed section, so a
+ * glance at the dashboard never puts visitors' words on screen.
+ */
+function ChatLog({
+  chats,
+  range,
+  f,
+  p,
+  locale,
+  href,
+  openChat,
+}: {
+  chats: Conversations;
+  /** The dashboard's range: past the 30 kept days, say so. */
+  range: number;
+  f: Fmt;
+  p: Copy;
+  locale: Locale;
+  href: (conv: number, chat?: string) => string;
+  openChat?: string;
+}) {
+  const more = Math.min(CONV_MAX, chats.limit + CONV_SHOWN);
+  return (
+    <section id="conversations" className="scroll-mt-24 pt-6">
+      <details open={Boolean(openChat) || chats.limit > CONV_SHOWN} className="group">
+        <summary className="flex cursor-pointer list-none flex-wrap items-baseline justify-between gap-2 [&::-webkit-details-marker]:hidden">
+          <h2 className="eyebrow inline-flex items-center gap-2">
+            <ChevronDown
+              aria-hidden
+              className="h-3.5 w-3.5 transition-transform group-open:rotate-180"
+            />
+            {p.convTitle}
+            {chats.list.length > 0 && (
+              <>
+                {" · "}
+                {/* "2+" keeps its plus on the right in Persian too. */}
+                <bdi dir="ltr">
+                  {f.n(chats.list.length)}
+                  {chats.more && "+"}
+                </bdi>
+              </>
+            )}
+          </h2>
+          <span className="text-muted text-xs">{p.convHint}</span>
+        </summary>
+        <Card className="mt-4">
+          {range > chats.days && <p className="text-muted mb-3 text-xs">{p.convCapped}</p>}
+          {chats.list.length === 0 ? (
+            <p className="text-muted text-sm">{chats.degraded ? p.datastore : p.convNone}</p>
+          ) : (
+            <ul className="divide-border divide-y">
+              {chats.list.map((c) => (
+                <Chat key={c.id} c={c} f={f} p={p} locale={locale} open={c.id === openChat} />
+              ))}
+            </ul>
+          )}
+          {chats.more && chats.limit < CONV_MAX && (
+            <a
+              href={`${href(more)}#conversations`}
+              className="text-accent-text mt-4 inline-block text-xs underline underline-offset-2"
+            >
+              {p.convMore}
+            </a>
+          )}
+        </Card>
+      </details>
+    </section>
+  );
+}
+
+export function Dashboard({
+  data,
+  locale,
+  chats,
+  openChat,
+}: {
+  data: Insights;
+  locale: Locale;
+  chats?: Conversations;
+  /** A conversation to show open (the visit log links to it). */
+  openChat?: string;
+}) {
   const p = pageCopy[locale].admin;
   const f = formatters(locale, data.at);
   const k = data.kpis;
+  // Plain links (no JS): the server renders the linked conversation open.
+  const chatHref = (conv: number, chat?: string) =>
+    localizedPath(
+      `/admin?range=${data.range}${conv > CONV_SHOWN ? `&conv=${conv}` : ""}${chat ? `&chat=${encodeURIComponent(chat)}` : ""}`,
+      locale,
+    );
+  const turnsOf = new Map(chats?.list.filter((c) => c.visit).map((c) => [c.id, c.turns.length]));
 
   if (data.degraded) {
     return (
@@ -557,12 +801,37 @@ export function Dashboard({ data, locale }: { data: Insights; locale: Locale }) 
           ) : (
             <ul className="divide-border divide-y">
               {data.recent.map((v) => (
-                <Visit key={v.id} v={v} f={f} p={p} />
+                <Visit
+                  key={v.id}
+                  v={v}
+                  f={f}
+                  p={p}
+                  chat={
+                    chats && turnsOf.has(v.id)
+                      ? {
+                          href: `${chatHref(chats.limit, v.id)}#chat-${v.id}`,
+                          turns: turnsOf.get(v.id)!,
+                        }
+                      : undefined
+                  }
+                />
               ))}
             </ul>
           )}
         </Card>
       </section>
+
+      {chats && (
+        <ChatLog
+          chats={chats}
+          range={data.range}
+          f={f}
+          p={p}
+          locale={locale}
+          href={chatHref}
+          openChat={openChat}
+        />
+      )}
 
       <p className="text-muted text-xs leading-relaxed">{p.note}</p>
     </div>

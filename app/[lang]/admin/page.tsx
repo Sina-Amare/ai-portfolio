@@ -5,7 +5,7 @@ import { Dashboard } from "@/components/analytics/dashboard";
 import { LoginForm } from "@/components/analytics/login-form";
 import { SignOut } from "@/components/analytics/sign-out";
 import { ADMIN_COOKIE, adminConfigured, verifySessionToken } from "@/lib/analytics/auth";
-import { getInsights } from "@/lib/analytics/insights";
+import { CONV_MAX, CONV_SHOWN, getConversations, getInsights } from "@/lib/analytics/insights";
 import { analyticsEnabled } from "@/lib/analytics/store";
 import { toLocale } from "@/lib/locale";
 import { pageCopy } from "@/lib/page-copy";
@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ lang: string }>;
-  searchParams: Promise<{ range?: string }>;
+  searchParams: Promise<{ range?: string; conv?: string; chat?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -33,8 +33,15 @@ export default async function AdminPage({ params, searchParams }: Props) {
   const authed = verifySessionToken((await cookies()).get(ADMIN_COOKIE)?.value);
   // Only accept known ranges — the value sizes a Redis pipeline, so an arbitrary
   // ?range=100000 would turn one page load into a huge command burst.
-  const requested = Number((await searchParams).range);
+  const query = await searchParams;
+  const requested = Number(query.range);
   const range = ALLOWED_RANGES.includes(requested) ? requested : 30;
+  // Conversations shown: each costs a visit-record read, so clamp it the same way.
+  const conv = Math.min(CONV_MAX, Math.max(CONV_SHOWN, Math.floor(Number(query.conv)) || 0));
+  const [data, chats] =
+    authed && analyticsEnabled()
+      ? await Promise.all([getInsights(range), getConversations(range, conv)])
+      : [null, null];
 
   return (
     <section className="pt-28 pb-24 sm:pt-32">
@@ -58,8 +65,8 @@ export default async function AdminPage({ params, searchParams }: Props) {
               <SignOut />
             </div>
 
-            {analyticsEnabled() ? (
-              <Dashboard data={await getInsights(range)} locale={locale} />
+            {data && chats ? (
+              <Dashboard data={data} chats={chats} openChat={query.chat} locale={locale} />
             ) : (
               <div className="glass rounded-[var(--radius-card)] p-6">
                 <h2 className="text-base font-semibold">{p.disconnected}</h2>

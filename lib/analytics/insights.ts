@@ -357,6 +357,8 @@ export type Conversations = {
   list: Conversation[];
   /** Older conversations exist in the range. */
   more: boolean;
+  /** How many were asked for. */
+  limit: number;
   /** Days actually read: transcripts only live CHAT_LOG_DAYS. */
   days: number;
   degraded: boolean;
@@ -391,7 +393,7 @@ export async function getConversations(
 ): Promise<Conversations> {
   const span = Math.min(days, CHAT_LOG_DAYS);
   const r = redis();
-  if (!r) return { list: [], more: false, days: span, degraded: false };
+  if (!r) return { list: [], more: false, limit, days: span, degraded: false };
   try {
     const byId = new Map<string, Conversation>();
     let lone = 0;
@@ -425,8 +427,8 @@ export async function getConversations(
         if (visits[i]) c.visit = toRecent(c.id, asHash(visits[i]));
       });
     }
-    return { list, more: byId.size > limit, days: span, degraded: false };
+    return { list, more: byId.size > limit, limit, days: span, degraded: false };
   } catch {
-    return { list: [], more: false, days: span, degraded: true };
+    return { list: [], more: false, limit, days: span, degraded: true };
   }
 }
