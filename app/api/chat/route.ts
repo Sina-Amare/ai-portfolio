@@ -28,7 +28,7 @@ import { cannedReply, classifyIntent, isAttack, scrubHistory } from "@/lib/rag/i
 import { chatLadder, type ChatProvider } from "@/lib/rag/providers";
 import { answerCache, embedCache, normalizeQuery, SEMANTIC_CACHE_THRESHOLD } from "@/lib/rag/cache";
 import { getClientIp, globalDailyOk, rateLimit } from "@/lib/rate-limit";
-import { noteChat, type ChatOutcome } from "@/lib/analytics/session";
+import { noteChat, type ChatOutcome, type ChatTurn } from "@/lib/analytics/session";
 
 // The chatbot explains this pipeline (gate, layers, tests) to visitors:
 // update content/chatbot.md when it changes.
@@ -184,8 +184,12 @@ function chatStreamResponse(stream: ReadableStream) {
   });
 }
 
+/** A reply's chips, as source labels. */
+const labels = (sources: Source[]) => [...new Set(sources.map((s) => s.source))];
+
 export async function POST(req: Request) {
-  const deadline = Date.now() + DEADLINE_MS;
+  const t0 = Date.now();
+  const deadline = t0 + DEADLINE_MS;
   let raw: unknown;
   try {
     raw = await req.json();
@@ -207,17 +211,28 @@ export async function POST(req: Request) {
   // it stays with the toggle.
   const lang: Lang = detectDir(question) === "rtl" ? "fa" : parsed.data.lang;
 
-  // Abuse protection: per-IP rate limit.
+  // Abuse protection: per-IP rate limit. Not logged: a flood would fill /admin's log.
   const rl = rateLimit(getClientIp(req));
   if (!rl.ok) return cannedResponse(rateLimitMessage(lang));
 
   if (!question) return badRequest("Empty message");
 
-  // /admin gets each turn's outcome, topic (the KB source retrieval leaned on
-  // most) and chip-or-typed. Never the question text.
+  // /admin gets each turn once, on every path that replies: its outcome, topic (the
+  // KB source retrieval leaned on most) and chip-or-typed as aggregates, and the
+  // question with the reply exactly as shown, kept 30 days (decision 003).
   const chip = CHIP_QUESTIONS.has(normalizeQuery(question));
   let topic: string | undefined;
-  const note = (outcome: ChatOutcome) => noteChat(req, { outcome, topic, chip });
+  const note = (outcome: ChatOutcome, reply: string, turn: Partial<ChatTurn> = {}) => {
+    try {
+      noteChat(
+        req,
+        { outcome, topic, chip },
+        { question, reply, lang, ms: Date.now() - t0, ...turn },
+      );
+    } catch {
+      // Analytics never breaks the chat, least of all mid-stream.
+    }
+  };
 
   // Canned wordings rotate: the same question gets the same one, a repeat later
   // in the chat gets another.
@@ -230,8 +245,9 @@ export async function POST(req: Request) {
   // the first turn, "yes" may answer the last reply's question, so it goes on.
   const intent = classifyIntent(question, !firstTurn);
   if (intent) {
-    note(isAttack(intent) ? "refused" : "smalltalk");
-    return cannedResponse(cannedReply(intent, lang, seed));
+    const reply = cannedReply(intent, lang, seed);
+    note(isAttack(intent) ? "refused" : "smalltalk", reply, { intent });
+    return cannedResponse(reply);
   }
   // The client sends the whole chat, so an attack from earlier turns (or a forged
   // assistant turn agreeing to one) is dropped before retrieval and the model.
@@ -245,7 +261,7 @@ export async function POST(req: Request) {
     const hit = answerCache.get(cacheKey);
     if (hit) {
       topic = hit.sources[0]?.source;
-      note("cached");
+      note("cached", hit.text, { sources: labels(hit.sources) });
       return cachedResponse(hit.text, hit.sources);
     }
   }
@@ -278,7 +294,7 @@ export async function POST(req: Request) {
       RETRIEVAL_TOP_K,
     ));
   } catch {
-    note("error");
+    note("error", errorMessage(lang));
     return cannedResponse(errorMessage(lang));
   }
 
@@ -290,7 +306,7 @@ export async function POST(req: Request) {
     const near = answerCache.findSimilar(queryEmbedding, SEMANTIC_CACHE_THRESHOLD, `${lang}:`);
     if (near) {
       topic = near.sources[0]?.source;
-      note("cached");
+      note("cached", near.text, { sources: labels(near.sources) });
       return cachedResponse(near.text, near.sources);
     }
   }
@@ -300,15 +316,17 @@ export async function POST(req: Request) {
   // already handled with a fast canned reply above, so this only fires for
   // genuinely out-of-scope questions.
   if (score < RELEVANCE_THRESHOLD) {
-    note("refused"); // no topic: the nearest chunk of an off-topic question is noise
-    return cannedResponse(cannedReply("offtopic", lang, seed));
+    const reply = cannedReply("offtopic", lang, seed);
+    // No topic: the nearest chunk of an off-topic question is noise.
+    note("refused", reply, { intent: "offtopic" });
+    return cannedResponse(reply);
   }
   topic = scored[0]?.chunk.source;
 
   // Global daily cap on LLM calls, checked last so cache hits, small talk and
   // refusals never spend it. Past it, say so honestly — the question is fine.
   if (!(await globalDailyOk())) {
-    note("capped");
+    note("capped", busyMessage(lang));
     return cannedResponse(busyMessage(lang));
   }
 
@@ -317,7 +335,7 @@ export async function POST(req: Request) {
   const modelMessages = await convertToModelMessages(history);
   const all = chatLadder(lang);
   if (all.length === 0) {
-    note("error");
+    note("error", errorMessage(lang));
     return cannedResponse(errorMessage(lang));
   }
   // Cooled rungs go last rather than away: skipped while anything else works,
@@ -330,12 +348,14 @@ export async function POST(req: Request) {
     execute: async ({ writer }) => {
       const id = "0";
       let started = false;
+      let shown = ""; // everything the visitor has been sent, for the log
       const send = (delta: string) => {
         if (!started) {
           writer.write({ type: "text-start", id });
           started = true;
         }
         writer.write({ type: "text-delta", id, delta });
+        shown += delta;
       };
 
       for (const provider of ladder) {
@@ -407,7 +427,8 @@ export async function POST(req: Request) {
             const clapback = cannedReply("extraction", lang, seed);
             send(started ? `\n\n${clapback}` : clapback);
             writer.write({ type: "text-end", id });
-            note("refused"); // no sources, no cache write
+            // No sources, no cache write.
+            note("refused", shown, { intent: "extraction", provider: provider.id });
             return;
           }
           if (held) send(held);
@@ -420,7 +441,7 @@ export async function POST(req: Request) {
 
             if (!isCompleteFinish(finishReason)) {
               writer.write({ type: "error", errorText: errorMessage(lang) });
-              note("error");
+              note("error", shown, { provider: provider.id, partial: true });
               return;
             }
 
@@ -430,7 +451,7 @@ export async function POST(req: Request) {
             if (firstTurn && full.trim() && CHIP_QUESTIONS.has(normalizeQuery(question))) {
               answerCache.set(cacheKey, { text: full, sources, embedding: queryEmbedding });
             }
-            note("answered");
+            note("answered", shown, { sources: labels(sources), provider: provider.id });
             return; // success
           }
           // Provider produced no text → fall through to the next one.
@@ -438,7 +459,7 @@ export async function POST(req: Request) {
           if (started) {
             writer.write({ type: "text-end", id });
             writer.write({ type: "error", errorText: errorMessage(lang) });
-            note("error");
+            note("error", shown, { provider: provider.id, partial: true });
             return; // partial answer already sent — stop here
           }
           failure = err; // No text yet → try the next provider in the ladder.
@@ -450,7 +471,7 @@ export async function POST(req: Request) {
       }
 
       // Every provider failed before producing text → graceful fallback.
-      note("error");
+      note("error", errorMessage(lang));
       if (!started) {
         const eid = "err";
         writer.write({ type: "text-start", id: eid });

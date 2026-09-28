@@ -496,6 +496,13 @@ describe("POST /api/chat", () => {
     expect(partial.text).toBe("At Dekamond I ");
     expect(extractErrors(partial.raw).join(" ")).toContain("couldn't answer");
     expect(partial.raw).not.toContain("data-sources");
+    // /admin's log keeps what was shown, marked as cut off.
+    expect(vi.mocked(noteChat).mock.calls).toHaveLength(1);
+    expect(vi.mocked(noteChat).mock.calls[0]![2]).toMatchObject({
+      reply: "At Dekamond I ",
+      partial: true,
+      provider: "mock",
+    });
   });
 
   it("stops the ladder at the overall deadline and still writes the fallback", async () => {
@@ -627,7 +634,63 @@ describe("POST /api/chat", () => {
     expect(streamText).toHaveBeenCalledTimes(2);
   });
 
-  it("reports each turn's outcome, topic and chip-or-typed to analytics, never the text", async () => {
+  it("logs each turn once, with the question and the reply exactly as the visitor saw it", async () => {
+    const answer = await callChat({ messages: [userMessage(CHIP)], lang: "en" });
+    const cached = await callChat({ messages: [userMessage(CHIP)], lang: "en" });
+    const canned = await callChat({ messages: [userMessage("thanks!")], lang: "en" });
+    const offTopic = await callChat({
+      messages: [userMessage("What's the weather today?")],
+      lang: "en",
+    });
+    const turns = vi.mocked(noteChat).mock.calls.map(([, , turn]) => turn!);
+    expect(turns).toHaveLength(4);
+    expect(turns[0]).toMatchObject({
+      question: CHIP,
+      reply: answer.text,
+      lang: "en",
+      sources: ["CV"],
+      provider: "mock",
+    });
+    expect(turns[0]!.reply).toBe("Sina built RAG systems.");
+    expect(turns[0]!.ms).toBeGreaterThanOrEqual(0);
+    expect(turns[1]).toMatchObject({ question: CHIP, reply: cached.text, sources: ["CV"] });
+    expect(turns[1]!.provider).toBeUndefined(); // no model ran
+    expect(turns[2]).toMatchObject({ question: "thanks!", reply: canned.text, intent: "thanks" });
+    expect(turns[3]).toMatchObject({ reply: offTopic.text, intent: "offtopic" });
+  });
+
+  it("logs the busy reply and the all-providers-failed fallback too", async () => {
+    vi.mocked(globalDailyOk).mockResolvedValueOnce(false);
+    const busy = await callChat({ messages: [userMessage("What stack at Dekamond?")], lang: "en" });
+    vi.mocked(chatLadder).mockReturnValueOnce([]);
+    const failed = await callChat({ messages: [userMessage("What did you build?")], lang: "en" });
+    expect(
+      vi.mocked(noteChat).mock.calls.map(([, note, turn]) => [note.outcome, turn!.reply]),
+    ).toEqual([
+      ["capped", busy.text],
+      ["error", failed.text],
+    ]);
+  });
+
+  it("answers normally when logging throws, mid-stream included", async () => {
+    vi.mocked(noteChat).mockImplementation(() => {
+      throw new Error("redis down");
+    });
+    try {
+      const answer = await callChat({ messages: [userMessage(CHIP)], lang: "en" });
+      expect(answer.text).toBe("Sina built RAG systems.");
+      expect(answer.raw).toContain("data-sources");
+      expect(extractErrors(answer.raw)).toHaveLength(0);
+      const cached = await callChat({ messages: [userMessage(CHIP)], lang: "en" });
+      expect(cached.text).toBe("Sina built RAG systems.");
+      const canned = await callChat({ messages: [userMessage("thanks!")], lang: "en" });
+      expect(cannedVariants("thanks", "en")).toContain(canned.text);
+    } finally {
+      vi.mocked(noteChat).mockReset();
+    }
+  });
+
+  it("reports each turn's outcome, topic and chip-or-typed to analytics", async () => {
     await callChat({ messages: [userMessage(CHIP)], lang: "en" });
     await callChat({ messages: [userMessage(CHIP)], lang: "en" }); // now from the cache
     await callChat({ messages: [userMessage("What's the weather today?")], lang: "en" });

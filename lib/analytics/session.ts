@@ -325,7 +325,7 @@ export type ChatTurn = {
   /** The reply as shown: the model's answer, a cached one or a canned reply. */
   reply: string;
   lang: string;
-  /** The canned reply's intent (lib/rag/intent.ts), or "offtopic" / "busy". */
+  /** A canned reply's name in lib/rag/intent.ts: its intent, or "offtopic". */
   intent?: string;
   /** Source labels of the answer's chips. */
   sources?: string[];
