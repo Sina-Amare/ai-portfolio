@@ -494,6 +494,16 @@ None.
   "Where are you from?") gets the _off-topic_ reply during an outage. Would "I can't answer that
   right now, try again or email me" be the better reply below the lexical gate? (One branch in
   the route; off-topic questions would then get it too.) A FA→EN term map is parked in yagni.md.
+- Keyword fallback, the other side (review 2026-09-28, offline probes): an off-topic question
+  made of words the notes use passes the 0.50 gate and costs one model call during an outage (the
+  prompt still keeps the model on the notes). "How does Redis work?" 1.20, "How do I learn
+  Python?" 1.13, "What is the best programming language?" 0.98, "What is a vector database?"
+  0.83, "Who won the World Cup?" 0.53; after "What is Aigram's tech stack?": "Who won?" 1.85,
+  "Football scores?" 0.57, "Best pizza?" 0.52. Tried: gating a follow-up on its own words only
+  (95/111 in-scope pass, stops only "Best pizza?"), and a score that ignores repeated words
+  (92–94/111, gap 0.012, stops World Cup and football, not the tech ones). Adding them to the
+  golden set can't help: they score like in-scope questions (median 1.22). Kept as is. Stricter
+  would be answering only questions that name a project, employer or chip during an outage.
 - Should `/admin`'s outcome counts split blocked attacks from off-topic refusals? Both are
   "refused" in the aggregates; the Conversations section already badges attacks apart.
 - A follow-up "yes" after an attack's clapback reaches the model without the offer: the attack
@@ -604,4 +614,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-28 (keyword fallback for embedding outages + "Do you save my chats?" in the KB, on `main`, not pushed)_
+_Last updated: 2026-09-28 (keyword fallback for embedding outages + "Do you save my chats?" in the KB + review follow-ups: kb.json records the embed template, fallback leaks measured; on `main`, not pushed)_

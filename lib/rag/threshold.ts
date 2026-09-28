@@ -34,6 +34,10 @@ export const RELEVANCE_THRESHOLD = Number(process.env.RAG_THRESHOLD ?? "0.60");
  * from?" (stop words only) and two follow-ups whose words match nothing. The
  * expected source is in the top 5 for 54/59.
  * tests/unit/lexical.test.ts keeps every off-topic case under it.
+ * ponytail: keywords can't tell "How does Redis work?" (1.20) from "Do you use
+ * Redis?", so off-topic questions made of words the notes use pass and reach the
+ * model (which the prompt keeps on the notes), during outages only. Measured
+ * leaks and alternatives: docs/progress.md, open questions.
  */
 export const LEXICAL_THRESHOLD = 0.5;
 
