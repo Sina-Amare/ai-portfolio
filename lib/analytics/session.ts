@@ -13,14 +13,16 @@
  *  - `an:d:<day>`, `an:m:<month>`, `an:seen:<month>` and `an:recent` on the day's
  *    first visit or first chat, which is the only moment each can be created
  *    (a month's first visit is also its day's first);
- *  - `an:ret:<month>` with every add, because it is created later than the rest.
+ *  - `an:ret:<month>` with every add, because it is created later than the rest;
+ *  - `an:chat:<day>` 30 days, when the day's first chat turn creates it.
  */
 import { randomBytes } from "node:crypto";
 import { after } from "next/server";
 import type { Redis } from "@upstash/redis";
 import { isOwner } from "./auth";
 import { KEY_EVENTS, pageKind, type Beacon, type EngageBeacon } from "./beacon";
-import { isBotRequest } from "./collect";
+import { getClientIp } from "@/lib/rate-limit";
+import { isBotRequest, siteHost } from "./collect";
 import {
   collecting,
   currentSalt,
@@ -317,16 +319,70 @@ export function countable(req: Request): boolean {
 export type ChatOutcome = "answered" | "refused" | "cached" | "error" | "smalltalk" | "capped";
 export type ChatNote = { outcome: ChatOutcome; topic?: string; chip: boolean };
 
-/** Chat records per day. Past it this instance stops writing: a flood of refusals can't spend the month. */
+/** One chat turn as the visitor saw it, for /admin's Conversations. */
+export type ChatTurn = {
+  question: string;
+  /** The reply as shown: the model's answer, a cached one or a canned reply. */
+  reply: string;
+  lang: string;
+  /** The canned reply's intent (lib/rag/intent.ts), or "offtopic" / "busy". */
+  intent?: string;
+  /** Source labels of the answer's chips. */
+  sources?: string[];
+  /** The ladder rung that answered. */
+  provider?: string;
+  /** From the request's arrival to the reply's last word. */
+  ms: number;
+  /** An error ended the reply after part of it was sent. */
+  partial?: boolean;
+};
+/** One stored turn: a JSON element of `an:chat:<day>`, newest first. */
+export type ChatLogEntry = ChatTurn & {
+  at: number;
+  outcome: ChatOutcome;
+  /** The visit the turn belongs to, "" when none was found. */
+  sid: string;
+};
+/** The request fields the beacon hashes, so a turn finds the asker's visit. */
+type Asker = { ip: string; userAgent: string; host: string };
+
+/**
+ * Chat records per day, shared through the day's `chat` counter. Past it this
+ * instance stops writing: a flood of refusals can't spend the month. It also caps
+ * each day's transcript list, so no LTRIM is needed.
+ */
 const CHAT_RECORDS_PER_DAY = 300;
+/** Transcripts are kept 30 days (docs/decisions/003-chat-transcripts.md). */
+export const CHAT_LOG_DAYS = 30;
+const REPLY_MAX = 4000;
 let chatFullDay = "";
 
 /**
- * One chat turn as aggregates only: the outcome, the knowledge-base source the
- * answer leaned on most (its topic) and whether it was a suggestion chip. The
- * question text is never stored. Never throws.
+ * The visit a chat turn belongs to: the beacon's own hash and pointer. A plain
+ * GET, so a chat doesn't stretch the visit (its beacons do). "" when there is none.
  */
-export async function recordChat(c: ChatNote, now = new Date()): Promise<void> {
+async function visitOf(r: Redis, who: Asker, now: Date): Promise<string> {
+  const salt = await currentSalt(r, monthKey(now));
+  const sid = await r.get<string>(K.sessionOf(visitorHash(salt, who.ip, who.userAgent, who.host)));
+  return sid ? String(sid) : "";
+}
+
+/**
+ * One chat turn: outcome, topic (the knowledge-base source the answer leaned on
+ * most) and chip-or-typed as monthly aggregates, plus, when `log` is given, the
+ * question and reply in the day's transcript list. Never throws.
+ *
+ * Budget: 3–4 commands per turn for the aggregates (+2 on the day's first), plus 2
+ * for the transcript (the visit pointer GET and the LPUSH; +1 EXPIRE on the day's
+ * first, +1–3 on a cold instance's salt read). At the 300-turn daily cap that is
+ * ~1.8k commands a day, ~55k a month worst case (of Upstash's free 500k); ~20 turns
+ * a day is ~3.6k a month.
+ */
+export async function recordChat(
+  c: ChatNote,
+  log?: { turn: ChatTurn; who: Asker },
+  now = new Date(),
+): Promise<void> {
   const r = redis();
   const day = dayKey(now);
   if (!r || chatFullDay === day) return;
@@ -338,6 +394,18 @@ export async function recordChat(c: ChatNote, now = new Date()): Promise<void> {
       return;
     }
     const p = r.pipeline();
+    if (log) {
+      const { turn, who } = log;
+      const entry: ChatLogEntry = {
+        ...turn,
+        question: turn.question.slice(0, REPLY_MAX),
+        reply: turn.reply.slice(0, REPLY_MAX),
+        at: now.getTime(),
+        outcome: c.outcome,
+        sid: await visitOf(r, who, now),
+      };
+      p.lpush(K.chat(day), entry); // [0] the list's new length
+    }
     p.hincrby(m, `chat:${c.outcome}`, 1);
     p.hincrby(m, `ask:${c.chip ? "chip" : "typed"}`, 1);
     if (c.topic) p.hincrby(m, `topic:${c.topic}`, 1);
@@ -346,16 +414,27 @@ export async function recordChat(c: ChatNote, now = new Date()): Promise<void> {
       p.expire(K.day(day), DAY_TTL);
       p.expire(m, MONTH_TTL);
     }
-    await p.exec();
+    const res = (await p.exec()) as unknown[];
+    // Only a list this push created gets its TTL: expiry counts from the day's first turn.
+    if (log && num(res[0]) === 1) await r.expire(K.chat(day), CHAT_LOG_DAYS * 86_400);
   } catch {
     // Analytics never breaks the chat.
   }
 }
 
-/** Record a chat outcome after the response is sent, never in its way. */
-export function noteChat(req: Request, c: ChatNote): void {
+/**
+ * Record a chat turn after the response is sent, never in its way. Skipped with
+ * the rest of analytics: outside production, for bots and in the owner's browser.
+ */
+export function noteChat(req: Request, c: ChatNote, turn?: ChatTurn): void {
   try {
-    if (countable(req)) after(() => recordChat(c));
+    if (!countable(req)) return;
+    const who = {
+      ip: getClientIp(req),
+      userAgent: req.headers.get("user-agent") ?? "",
+      host: siteHost(req),
+    };
+    after(() => recordChat(c, turn && { turn, who }));
   } catch {
     // Outside a request (unit tests): nothing to record.
   }

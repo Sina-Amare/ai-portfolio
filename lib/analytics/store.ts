@@ -3,7 +3,8 @@
  * commands/month, and — unlike Neon/Supabase/Turso — no idle pause, which
  * matters for a low-traffic portfolio that may go days without a visit).
  *
- * What is stored: aggregate counters only. A visitor is represented by
+ * What is stored: aggregate counters, 90-day visit records and 30-day chat
+ * transcripts (lib/analytics/session.ts). A visitor is represented by
  * sha256(monthlySalt + ip + user-agent + host) — the raw IP is never written
  * anywhere, and once a month's salt expires the hashes cannot be recomputed.
  *
@@ -105,6 +106,8 @@ export const K = {
   ret: (m: string) => `an:ret:${m}`,
   recent: "an:recent",
   since: "an:since",
+  /** The day's chat turns (question, reply, visit), newest first; 30 days. */
+  chat: (d: string) => `an:chat:${d}`,
   // v1's per-pageview counter: no longer written, still read for days before v2.
   // (v1's other keys expire on their own within 400 days.)
   views: (d: string) => `an:v:${d}`,

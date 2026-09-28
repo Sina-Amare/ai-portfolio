@@ -8,7 +8,7 @@
  * quota returns a degraded, empty result and /admin shows a notice.
  */
 import { SECTION_PAGE, SECTIONS, type Section } from "./beacon";
-import { BUCKET_LABELS } from "./session";
+import { BUCKET_LABELS, CHAT_LOG_DAYS, type ChatLogEntry } from "./session";
 import {
   type Breakdown,
   dayKey,
@@ -337,5 +337,96 @@ export async function getInsights(
     };
   } catch {
     return emptyInsights(days, now, true, true);
+  }
+}
+
+/** Conversations shown by default; `?conv=` asks for more, up to CONV_MAX. */
+export const CONV_SHOWN = 50;
+export const CONV_MAX = 200;
+
+/** One visit's chat, or one turn whose visit wasn't found. */
+export type Conversation = {
+  /** The visit id, or `turn-<n>` for a turn without one. */
+  id: string;
+  visit: RecentVisit | null;
+  /** Oldest first. */
+  turns: ChatLogEntry[];
+};
+export type Conversations = {
+  /** Newest conversation first. */
+  list: Conversation[];
+  /** Older conversations exist in the range. */
+  more: boolean;
+  /** Days actually read: transcripts only live CHAT_LOG_DAYS. */
+  days: number;
+  degraded: boolean;
+};
+
+function asEntry(x: unknown): ChatLogEntry | null {
+  // Upstash parses JSON elements itself; a string is one it couldn't.
+  if (typeof x === "string") {
+    try {
+      x = JSON.parse(x);
+    } catch {
+      return null;
+    }
+  }
+  const e = x as ChatLogEntry | null;
+  return e && typeof e.question === "string" && typeof e.reply === "string" ? e : null;
+}
+
+/**
+ * The newest `limit` chat conversations in the last `days` (at most the 30 days
+ * transcripts are kept), grouped by visit. Reads a week of day lists per round
+ * trip, newest first, and stops once it knows more than `limit` conversations,
+ * then one visit record per conversation. Never throws.
+ *
+ * ponytail: a conversation crossing a week boundary at the very end of the list
+ * can miss its older turns; read one more week if that ever shows.
+ */
+export async function getConversations(
+  days = 30,
+  limit = CONV_SHOWN,
+  now = new Date(),
+): Promise<Conversations> {
+  const span = Math.min(days, CHAT_LOG_DAYS);
+  const r = redis();
+  if (!r) return { list: [], more: false, days: span, degraded: false };
+  try {
+    const byId = new Map<string, Conversation>();
+    let lone = 0;
+    for (let i = 0; i < span && byId.size <= limit; i += 7) {
+      const p = r.pipeline();
+      for (let j = i; j < Math.min(i + 7, span); j++) {
+        const d = new Date(now);
+        d.setUTCDate(d.getUTCDate() - j);
+        p.lrange(K.chat(dayKey(d)), 0, -1);
+      }
+      for (const list of (await p.exec()) as unknown[]) {
+        for (const raw of Array.isArray(list) ? list : []) {
+          const e = asEntry(raw);
+          if (!e) continue;
+          const id = e.sid || `turn-${lone++}`;
+          const c = byId.get(id) ?? { id, visit: null, turns: [] };
+          c.turns.push(e);
+          byId.set(id, c);
+        }
+      }
+    }
+    const list = [...byId.values()].slice(0, limit);
+    for (const c of list) c.turns.reverse();
+
+    const linked = list.filter((c) => !c.id.startsWith("turn-"));
+    if (linked.length) {
+      const p = r.pipeline();
+      for (const c of linked) p.hgetall(K.sess(c.id));
+      const visits = (await p.exec()) as unknown[];
+      linked.forEach((c, i) => {
+        if (visits[i]) c.visit = toRecent(c.id, asHash(visits[i]));
+      });
+    }
+    return { list, more: byId.size > limit, days: span, degraded: false };
+  } catch {
+    return { list: [], more: false, days: span, degraded: true };
   }
 }

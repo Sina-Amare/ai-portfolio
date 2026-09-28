@@ -17,12 +17,18 @@
 import { sameOrigin } from "@/lib/http";
 import { getClientIp } from "@/lib/rate-limit";
 import { parseBeacon } from "@/lib/analytics/beacon";
-import { browserFrom, cityFrom, deviceFrom, geoFrom, localTimeFrom } from "@/lib/analytics/collect";
+import {
+  browserFrom,
+  cityFrom,
+  deviceFrom,
+  geoFrom,
+  localTimeFrom,
+  siteHost,
+} from "@/lib/analytics/collect";
 import { beaconAllowed, chargeBeacon } from "@/lib/analytics/limit";
 import { countable, recordBeacon } from "@/lib/analytics/session";
 import { dayKey } from "@/lib/analytics/store";
 import { projects } from "@/lib/projects";
-import { site } from "@/lib/site";
 
 export const runtime = "nodejs";
 
@@ -31,14 +37,6 @@ const noContent = () => new Response(null, { status: 204 });
 const SLUGS = projects.map((p) => p.slug);
 /** A real beacon is a few hundred bytes; anything bigger isn't parsed. */
 const MAX_BODY = 4096;
-
-function siteHost(req: Request): string {
-  try {
-    return new URL(site.url).hostname;
-  } catch {
-    return req.headers.get("host") ?? "localhost";
-  }
-}
 
 export async function POST(req: Request) {
   if (!countable(req)) return noContent();

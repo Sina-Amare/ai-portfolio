@@ -8,6 +8,19 @@
  * JS, and every request still passes the isbot user-agent check below.
  */
 import { isbot } from "isbot";
+import { site } from "@/lib/site";
+
+/**
+ * The site's own hostname. It is part of the visitor hash, so the beacon and the
+ * chat log must agree on it for a chat turn to find its visit.
+ */
+export function siteHost(req: Request): string {
+  try {
+    return new URL(site.url).hostname;
+  } catch {
+    return req.headers.get("host") ?? "localhost";
+  }
+}
 
 /**
  * City, as "Amsterdam, NL". Kept as one label rather than a separate region
