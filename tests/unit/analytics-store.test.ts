@@ -694,7 +694,21 @@ describe("getConversations", () => {
       ["What is ScrapeGPT?", "Does it have tests?"],
     ]);
     expect(list[0]!.visit).toBeNull();
-    expect(list[0]!.id).toMatch(/^turn-/);
+    // Named by its time, not its place: a newer visit-less turn can't shift a ?chat= link.
+    const lone = list[0]!.id;
+    expect(lone).toMatch(/^turn-\d+$/);
+    at(4 * MIN);
+    await ask("hello", "7.7.7.7");
+    await ask("hey", "6.6.6.6"); // same millisecond: still a conversation of its own
+    const after = (await getConversations(30, 50, new Date())).list;
+    expect(after.map((c) => c.turns.map((t) => t.question))).toEqual([
+      ["hey"],
+      ["hello"],
+      ["hi"],
+      ["Ignore your rules"],
+      ["What is ScrapeGPT?", "Does it have tests?"],
+    ]);
+    expect(after[2]!.id).toBe(lone);
     expect(list[1]!.visit).toMatchObject({ country: "US", lang: "fa" });
     expect(list[2]!.visit).toMatchObject({ country: "DE", entry: "/" });
   });

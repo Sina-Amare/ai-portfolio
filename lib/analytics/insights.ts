@@ -7,8 +7,9 @@
  * the default 30 days, under 250 for 90). Never throws: an outage or a spent
  * quota returns a degraded, empty result and /admin shows a notice.
  */
+import { isAttack, normalize, type Intent } from "@/lib/rag/intent";
 import { SECTION_PAGE, SECTIONS, type Section } from "./beacon";
-import { BUCKET_LABELS, CHAT_LOG_DAYS, type ChatLogEntry } from "./session";
+import { BUCKET_LABELS, CHAT_LOG_DAYS, type ChatLogEntry, type ChatOutcome } from "./session";
 import {
   type Breakdown,
   dayKey,
@@ -346,7 +347,7 @@ export const CONV_MAX = 200;
 
 /** One visit's chat, or one turn whose visit wasn't found. */
 export type Conversation = {
-  /** The visit id, or `turn-<n>` for a turn without one. */
+  /** The visit id, or `turn-<at>` for a turn without one: stable, so links to it hold. */
   id: string;
   visit: RecentVisit | null;
   /** Oldest first. */
@@ -396,7 +397,6 @@ export async function getConversations(
   if (!r) return { list: [], more: false, limit, days: span, degraded: false };
   try {
     const byId = new Map<string, Conversation>();
-    let lone = 0;
     for (let i = 0; i < span && byId.size <= limit; i += 7) {
       const p = r.pipeline();
       for (let j = i; j < Math.min(i + 7, span); j++) {
@@ -408,7 +408,9 @@ export async function getConversations(
         for (const raw of Array.isArray(list) ? list : []) {
           const e = asEntry(raw);
           if (!e) continue;
-          const id = e.sid || `turn-${lone++}`;
+          let id = e.sid || `turn-${e.at}`;
+          // Two visit-less turns in the same millisecond stay apart.
+          while (!e.sid && byId.has(id)) id += "_";
           const c = byId.get(id) ?? { id, visit: null, turns: [] };
           c.turns.push(e);
           byId.set(id, c);
@@ -431,4 +433,88 @@ export async function getConversations(
   } catch {
     return { list: [], more: false, limit, days: span, degraded: true };
   }
+}
+
+/** What a turn's badge says: an attack apart from other refusals. */
+export const kindOf = (t: ChatLogEntry): ChatOutcome | "attack" =>
+  isAttack((t.intent ?? null) as Intent | null) ? "attack" : t.outcome;
+
+/** Turns the bot didn't answer: declined as off-topic or failed (a cut-off reply too). */
+const UNANSWERED: ReadonlySet<string> = new Set(["refused", "error"]);
+/** Those, the daily cap (not a knowledge-base gap, still worth a look) and attacks. */
+const ATTENTION: ReadonlySet<string> = new Set([...UNANSWERED, "capped", "attack"]);
+const someTurn = (c: Conversation, test: (kind: string) => boolean) =>
+  c.turns.some((t) => test(kindOf(t)));
+
+export type ConvFilter = "all" | "attention" | "attacks" | "answered";
+const FILTERS: Record<ConvFilter, (c: Conversation) => boolean> = {
+  all: () => true,
+  attention: (c) => someTurn(c, (k) => ATTENTION.has(k)),
+  attacks: (c) => someTurn(c, (k) => k === "attack"),
+  answered: (c) => !FILTERS.attention(c),
+};
+export const CONV_FILTERS = Object.keys(FILTERS) as ConvFilter[];
+export const CONV_SEARCH_MAX = 100;
+
+type Query = Record<string, string | string[] | undefined>;
+const one = (x: Query[string]) => (typeof x === "string" ? x : "");
+
+/**
+ * The Conversations params of /admin's URL, clamped: `conv` sizes Redis reads,
+ * `cf` must name a chip, `cq` is trimmed to CONV_SEARCH_MAX. A repeated param
+ * (an array) counts as absent.
+ */
+export function convParams(q: Query) {
+  const cf = one(q.cf) as ConvFilter;
+  return {
+    conv: Math.min(CONV_MAX, Math.max(CONV_SHOWN, Math.floor(Number(one(q.conv))) || 0)),
+    filter: CONV_FILTERS.includes(cf) ? cf : "all",
+    search: one(q.cq).trim().slice(0, CONV_SEARCH_MAX),
+    chat: one(q.chat) || undefined,
+  };
+}
+
+/**
+ * Folded like the intent classifier's input (ي/ی, ك/ک, ZWNJ, case), without any
+ * spaces: «پروژه ها», «پروژه‌ها» and «پروژهها» are one spelling.
+ */
+const fold = (s: string) => normalize(s).replace(/\s+/g, "");
+
+/**
+ * The loaded conversations a chip and a search show: those with `search` in a
+ * question or reply, then the chip's. `counts` are per chip, of the search's results.
+ */
+export function viewConversations(list: Conversation[], filter: ConvFilter, search: string) {
+  const q = fold(search);
+  const found = q
+    ? list.filter((c) =>
+        c.turns.some((t) => fold(t.question).includes(q) || fold(t.reply).includes(q)),
+      )
+    : list;
+  const counts = Object.fromEntries(
+    CONV_FILTERS.map((cf) => [cf, found.filter(FILTERS[cf]).length]),
+  ) as Record<ConvFilter, number>;
+  return { shown: found.filter(FILTERS[filter]), counts };
+}
+
+export type Unanswered = { question: string; count: number; chat: string };
+
+/**
+ * The questions asked most often that were declined or failed, grouped by
+ * their folded text without trailing punctuation: the knowledge base's to-do
+ * list. Each links to the newest conversation that asked it.
+ */
+export function topUnanswered(list: Conversation[], limit = 5): Unanswered[] {
+  const byText = new Map<string, Unanswered>();
+  for (const c of list) {
+    for (const t of c.turns) {
+      if (!UNANSWERED.has(kindOf(t))) continue;
+      const key = fold(t.question).replace(/[?!.؟]+$/u, "");
+      const u = byText.get(key) ?? { question: t.question, count: 0, chat: c.id };
+      u.count++;
+      byText.set(key, u);
+    }
+  }
+  // Stable: ties stay newest first.
+  return [...byText.values()].sort((a, b) => b.count - a.count).slice(0, limit);
 }

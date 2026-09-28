@@ -61,8 +61,9 @@ export function foldArabicLetters(s: string): string {
  * The form every pattern sees: full-width letters and ligatures folded (NFKC),
  * zero-width and bidi marks gone (so «می‌تونی» matches «میتونی» and "ig​nore"
  * matches "ignore"), curly apostrophes straightened, Persian letters, lowercase.
+ * /admin's conversation search folds text the same way.
  */
-function normalize(s: string): string {
+export function normalize(s: string): string {
   return foldArabicLetters(
     s
       .normalize("NFKC")

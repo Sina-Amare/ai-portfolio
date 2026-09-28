@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { Dashboard } from "@/components/analytics/dashboard";
 import type { Conversations, Insights } from "@/lib/analytics/insights";
 
@@ -252,6 +252,190 @@ describe("Dashboard", () => {
         "href",
         `/fa/admin?range=90&chat=${visit.id}#chat-${visit.id}`,
       );
+    });
+
+    describe("chips, search and the unanswered list", () => {
+      const tehran = "2026-09-26_def";
+      const four: Conversations = {
+        ...chats,
+        limit: 100,
+        list: [
+          chats.list[0]!, // answered + an attack
+          {
+            id: tehran,
+            visit: null,
+            turns: [
+              {
+                at: AT - 2 * 3_600_000,
+                sid: tehran,
+                question: "Is it raining in Tehran?",
+                reply: "I only talk about Sina's work.",
+                outcome: "refused",
+                intent: "offtopic",
+                lang: "en",
+                ms: 3,
+              },
+              {
+                at: AT - 3_600_000,
+                sid: tehran,
+                question: "is it raining in tehran",
+                reply: "Something went wrong.",
+                outcome: "error",
+                lang: "en",
+                ms: 5000,
+              },
+            ],
+          },
+          chats.list[1]!, // small talk only
+          {
+            id: "turn-1",
+            visit: null,
+            turns: [
+              {
+                at: AT - 4 * 3_600_000,
+                sid: "",
+                question: "حقوق مدنظرت چقدره؟",
+                reply: "اینو بهتره مستقیم بپرسی.",
+                outcome: "refused",
+                intent: "offtopic",
+                lang: "fa",
+                ms: 4,
+              },
+            ],
+          },
+        ],
+      };
+      const chip = (name: RegExp | string) =>
+        within(screen.getByRole("navigation", { name: "Filter conversations" })).getByRole("link", {
+          name,
+        });
+
+      it("filters by chip, with counts, and every link keeps range, loaded count and chip", () => {
+        render(<Dashboard data={insights} chats={four} convFilter="attention" locale="en" />);
+        expect(section().querySelector("details")).toHaveAttribute("open");
+        expect(chip("All 4")).toHaveAttribute("href", "/admin?range=30&conv=100#conversations");
+        expect(chip("Needs attention 3")).toHaveAttribute("aria-current", "page");
+        expect(chip("Needs attention 3")).toHaveAttribute(
+          "href",
+          "/admin?range=30&conv=100&cf=attention#conversations",
+        );
+        expect(chip("Attacks 1")).not.toHaveAttribute("aria-current");
+        expect(chip("Answered 1")).toHaveAttribute(
+          "href",
+          "/admin?range=30&conv=100&cf=answered#conversations",
+        );
+        // Small talk only: answered, so not in "needs attention".
+        expect(document.getElementById("chat-turn-0")).toBeNull();
+        expect(document.getElementById(`chat-${visit.id}`)).not.toBeNull();
+        expect(document.getElementById(`chat-${tehran}`)).not.toBeNull();
+        expect(document.getElementById("chat-turn-1")).not.toBeNull();
+        expect(screen.getByRole("link", { name: "Show more" })).toHaveAttribute(
+          "href",
+          "/admin?range=30&conv=150&cf=attention#conversations",
+        );
+        // The search form carries the same state as hidden fields: a GET, no JS.
+        const form = screen.getByRole("search");
+        expect(form).toHaveAttribute("action", "/admin#conversations");
+        expect(form).toHaveAttribute("method", "get");
+        const hidden = [...form.querySelectorAll<HTMLInputElement>("input[type=hidden]")];
+        expect(hidden.map((i) => [i.name, i.value])).toEqual([
+          ["range", "30"],
+          ["conv", "100"],
+          ["cf", "attention"],
+        ]);
+      });
+
+      it("says when a chip has nothing", () => {
+        render(
+          <Dashboard
+            data={insights}
+            chats={four}
+            convSearch="hi"
+            convFilter="attacks"
+            locale="en"
+          />,
+        );
+        expect(screen.getByText("No conversation matches.")).toBeInTheDocument();
+      });
+
+      it("searches questions and replies case-insensitively and opens the matches", () => {
+        render(<Dashboard data={insights} chats={four} convSearch="TEHRAN" locale="en" />);
+        expect(section().querySelector("details")).toHaveAttribute("open");
+        expect(screen.getByText(/^1 match/)).toBeInTheDocument();
+        expect(document.querySelectorAll("#conversations ul > li[id^=chat-]")).toHaveLength(1);
+        expect(document.querySelector(`#chat-${tehran} details`)).toHaveAttribute("open");
+        // Chip counts are of the matches, and the chips keep the search.
+        expect(chip("All 1")).toHaveAttribute(
+          "href",
+          "/admin?range=30&conv=100&cq=TEHRAN#conversations",
+        );
+        expect(chip("Attacks 0")).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: "Clear" })).toHaveAttribute(
+          "href",
+          "/admin?range=30&conv=100#conversations",
+        );
+        expect(screen.getByRole("searchbox")).toHaveValue("TEHRAN");
+      });
+
+      it("lists the most-asked unanswered questions, each linking to its conversation", () => {
+        render(<Dashboard data={insights} chats={{ ...four, limit: 50 }} locale="en" />);
+        // Inside the closed section, like every visitor's word.
+        expect(section().querySelector("details")).not.toHaveAttribute("open");
+        const todo = screen.getByRole("heading", {
+          name: "Top unanswered questions",
+        }).parentElement!;
+        const links = within(todo).getAllByRole("link");
+        expect(links.map((a) => a.textContent)).toEqual([
+          "Is it raining in Tehran?",
+          "حقوق مدنظرت چقدره؟",
+        ]);
+        expect(links[0]).toHaveAttribute("href", `/admin?range=30&chat=${tehran}#chat-${tehran}`);
+        expect(links[0]!.nextSibling).toHaveTextContent("×2");
+        expect(todo).not.toHaveTextContent("Ignore your rules"); // attacks aren't KB gaps
+      });
+
+      it("keeps ?chat= deep links working under a chip", () => {
+        render(
+          <Dashboard
+            data={insights}
+            chats={four}
+            convFilter="attention"
+            openChat={tehran}
+            locale="en"
+          />,
+        );
+        expect(document.querySelector(`#chat-${tehran} details`)).toHaveAttribute("open");
+        expect(document.querySelector(`#chat-${visit.id} details`)).not.toHaveAttribute("open");
+      });
+
+      it("points each chevron by its own details, not an open one around it", () => {
+        render(<Dashboard data={insights} chats={four} locale="en" />);
+        // A bare `group-open:` matches ANY open .group ancestor: the open section
+        // turned every closed conversation's chevron up.
+        expect(section().querySelectorAll('[class*="group-open:"]')).toHaveLength(0);
+        expect(section().querySelector("details")).toHaveClass("group/log");
+        expect(section().querySelector("summary svg")).toHaveClass("group-open/log:rotate-180");
+        for (const li of section().querySelectorAll("li[id^=chat-]")) {
+          expect(li.querySelector("details")).toHaveClass("group/chat");
+          expect(li.querySelector("summary svg")).toHaveClass("group-open/chat:rotate-180");
+        }
+      });
+
+      it("speaks Persian: chips, matches and counts in Persian digits, Arabic ي folded", () => {
+        render(<Dashboard data={insights} chats={four} convSearch="بپرسي" locale="fa" />);
+        expect(screen.getByText(/^۱ نتیجه/)).toBeInTheDocument();
+        const nav = screen.getByRole("navigation", { name: "فیلتر گفت‌وگوها" });
+        expect(within(nav).getByRole("link", { name: "همه ۱" })).toHaveAttribute(
+          "href",
+          `/fa/admin?range=30&conv=100&cq=${encodeURIComponent("بپرسي")}#conversations`,
+        );
+        expect(within(nav).getByRole("link", { name: "حمله‌ها ۰" })).toBeInTheDocument();
+        expect(
+          screen.getByRole("heading", { name: "سؤال‌های بی‌جواب پرتکرار" }),
+        ).toBeInTheDocument();
+        expect(screen.getByText("×۲")).toBeInTheDocument();
+        expect(screen.getByRole("search")).toHaveAttribute("action", "/fa/admin#conversations");
+      });
     });
 
     it("still shows conversations that loaded when the insights read failed", () => {

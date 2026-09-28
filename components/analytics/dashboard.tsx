@@ -2,17 +2,22 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import type { Breakdown } from "@/lib/analytics/store";
 import {
+  CONV_FILTERS,
   CONV_MAX,
+  CONV_SEARCH_MAX,
   CONV_SHOWN,
+  type ConvFilter,
   type Conversation,
   type Conversations,
   type Insights,
+  kindOf,
   type RecentVisit,
+  topUnanswered,
+  viewConversations,
 } from "@/lib/analytics/insights";
 import type { ChatLogEntry } from "@/lib/analytics/session";
 import { SECTION_PAGE, SECTIONS } from "@/lib/analytics/beacon";
 import { sourceLabel } from "@/lib/i18n";
-import { isAttack, type Intent } from "@/lib/rag/intent";
 import { cn } from "@/lib/utils";
 import { localizedPath, type Locale } from "@/lib/locale";
 import { pageCopy } from "@/lib/page-copy";
@@ -369,10 +374,6 @@ function Visit({
   );
 }
 
-/** What a turn's badge says: attacks apart from other refusals. */
-const kindOf = (t: ChatLogEntry) =>
-  isAttack((t.intent ?? null) as Intent | null) ? "attack" : t.outcome;
-
 /**
  * One exchange: the visitor's question, then the reply as it was shown. Plain
  * text with its line breaks, never rendered as HTML or markdown.
@@ -449,11 +450,13 @@ function Chat({
 
   return (
     <li id={`chat-${c.id}`} className="scroll-mt-24 py-3 first:pt-0 last:pb-0">
-      <details open={open} className="group">
+      {/* A named group: a bare `group-open:` also matches the open section around it,
+          so every closed conversation's chevron pointed up. */}
+      <details open={open} className="group/chat">
         <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1.5 [&::-webkit-details-marker]:hidden">
           <ChevronDown
             aria-hidden
-            className="text-muted h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
+            className="text-muted h-4 w-4 shrink-0 transition-transform group-open/chat:rotate-180"
           />
           <span className="text-sm font-medium" dir="auto">
             {where}
@@ -495,9 +498,13 @@ function Chat({
   );
 }
 
+/** A link back to /admin with the Conversations state it names; the rest default. */
+type AdminHref = (o: { conv?: number; cf?: ConvFilter; cq?: string; chat?: string }) => string;
+
 /**
  * Who asked the assistant what, grouped by visit: a closed section, so a
- * glance at the dashboard never puts visitors' words on screen.
+ * glance at the dashboard never puts visitors' words on screen. Chips, search
+ * and "show more" are plain links and a GET form: they work without JS.
  */
 function ChatLog({
   chats,
@@ -507,6 +514,8 @@ function ChatLog({
   locale,
   href,
   openChat,
+  filter,
+  search,
 }: {
   chats: Conversations;
   /** The dashboard's range: past the 30 kept days, say so. */
@@ -514,18 +523,26 @@ function ChatLog({
   f: Fmt;
   p: Copy;
   locale: Locale;
-  href: (conv: number, chat?: string) => string;
+  href: AdminHref;
   openChat?: string;
+  filter: ConvFilter;
+  search: string;
 }) {
-  const more = Math.min(CONV_MAX, chats.limit + CONV_SHOWN);
+  const { shown, counts } = viewConversations(chats.list, filter, search);
+  const todo = topUnanswered(chats.list);
+  const state = { conv: chats.limit, cf: filter, cq: search };
+  const pill = "rounded-full border px-3 py-1.5 text-xs transition-colors";
   return (
     <section id="conversations" className="scroll-mt-24 pt-6">
-      <details open={Boolean(openChat) || chats.limit > CONV_SHOWN} className="group">
+      <details
+        open={Boolean(openChat || search) || chats.limit > CONV_SHOWN || filter !== "all"}
+        className="group/log"
+      >
         <summary className="flex cursor-pointer list-none flex-wrap items-baseline justify-between gap-2 [&::-webkit-details-marker]:hidden">
           <h2 className="eyebrow inline-flex items-center gap-2">
             <ChevronDown
               aria-hidden
-              className="h-3.5 w-3.5 transition-transform group-open:rotate-180"
+              className="h-3.5 w-3.5 transition-transform group-open/log:rotate-180"
             />
             {p.convTitle}
             {chats.list.length > 0 && (
@@ -541,20 +558,112 @@ function ChatLog({
           </h2>
           <span className="text-muted text-xs">{p.convHint}</span>
         </summary>
+        {todo.length > 0 && (
+          <Card className="mt-4">
+            <h3 className="eyebrow">{p.unansweredTitle}</h3>
+            <p className="text-muted mt-1 text-xs leading-relaxed">{p.unansweredHint}</p>
+            <ol className="mt-3 space-y-2">
+              {todo.map((u, i) => (
+                <li key={i} className="flex items-baseline gap-3 text-sm">
+                  <a
+                    href={`${href({ conv: chats.limit, chat: u.chat })}#chat-${u.chat}`}
+                    dir="auto"
+                    className="decoration-border min-w-0 truncate underline underline-offset-4 hover:decoration-current"
+                  >
+                    {u.question}
+                  </a>
+                  <span className="text-muted ms-auto shrink-0 text-xs tabular-nums">
+                    ×{f.n(u.count)}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </Card>
+        )}
         <Card className="mt-4">
           {range > chats.days && <p className="text-muted mb-3 text-xs">{p.convCapped}</p>}
           {chats.list.length === 0 ? (
             <p className="text-muted text-sm">{chats.degraded ? p.datastore : p.convNone}</p>
           ) : (
-            <ul className="divide-border divide-y">
-              {chats.list.map((c) => (
-                <Chat key={c.id} c={c} f={f} p={p} locale={locale} open={c.id === openChat} />
-              ))}
-            </ul>
+            <>
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <nav aria-label={p.convFilterLabel} className="flex flex-wrap gap-1.5">
+                  {CONV_FILTERS.map((cf) => (
+                    <a
+                      key={cf}
+                      href={`${href({ ...state, cf })}#conversations`}
+                      aria-current={cf === filter ? "page" : undefined}
+                      className={cn(
+                        pill,
+                        cf === filter
+                          ? "border-accent/50 text-text bg-accent/10"
+                          : "text-muted hover:text-text border-border hover:border-accent/40",
+                      )}
+                    >
+                      {p.convFilters[cf]} <span className="tabular-nums">{f.n(counts[cf])}</span>
+                    </a>
+                  ))}
+                </nav>
+                <form
+                  role="search"
+                  method="get"
+                  action={`${localizedPath("/admin", locale)}#conversations`}
+                  className="flex gap-2"
+                >
+                  <input type="hidden" name="range" value={range} />
+                  {chats.limit > CONV_SHOWN && (
+                    <input type="hidden" name="conv" value={chats.limit} />
+                  )}
+                  {filter !== "all" && <input type="hidden" name="cf" value={filter} />}
+                  {/* 16px on phones: iOS zooms into a smaller input on focus. */}
+                  <input
+                    type="search"
+                    name="cq"
+                    defaultValue={search}
+                    maxLength={CONV_SEARCH_MAX}
+                    placeholder={p.convSearchHint}
+                    aria-label={p.convSearch}
+                    dir="auto"
+                    className="text-text border-border focus:border-accent/60 min-w-0 flex-1 rounded-full border bg-transparent px-3 py-1.5 text-base sm:w-60 sm:text-xs"
+                  />
+                  <button type="submit" className={cn(pill, "text-text border-border")}>
+                    {p.convSearchButton}
+                  </button>
+                </form>
+              </div>
+              {search && (
+                <p className="text-muted mb-3 text-xs">
+                  {f.n(shown.length)} {shown.length === 1 ? p.match : p.matches} ·{" "}
+                  <a
+                    href={`${href({ ...state, cq: "" })}#conversations`}
+                    className="text-accent-text underline underline-offset-2"
+                  >
+                    {p.convClear}
+                  </a>
+                </p>
+              )}
+              {shown.length === 0 ? (
+                <p className="text-muted text-sm">{p.convNoMatch}</p>
+              ) : (
+                <ul className="divide-border divide-y">
+                  {shown.map((c) => (
+                    <Chat
+                      key={c.id}
+                      c={c}
+                      f={f}
+                      p={p}
+                      locale={locale}
+                      // A search opens its matches: the text searched for is inside.
+                      open={c.id === openChat || Boolean(search)}
+                    />
+                  ))}
+                </ul>
+              )}
+            </>
           )}
           {chats.more && chats.limit < CONV_MAX && (
             <a
-              href={`${href(more)}#conversations`}
+              href={`${href({ ...state, conv: Math.min(CONV_MAX, chats.limit + CONV_SHOWN) })}#conversations`}
               className="text-accent-text mt-4 inline-block text-xs underline underline-offset-2"
             >
               {p.convMore}
@@ -571,22 +680,30 @@ export function Dashboard({
   locale,
   chats,
   openChat,
+  convFilter = "all",
+  convSearch = "",
 }: {
   data: Insights;
   locale: Locale;
   chats?: Conversations;
   /** A conversation to show open (the visit log links to it). */
   openChat?: string;
+  /** The Conversations chip (`?cf=`) and search (`?cq=`), already clamped. */
+  convFilter?: ConvFilter;
+  convSearch?: string;
 }) {
   const p = pageCopy[locale].admin;
   const f = formatters(locale, data.at);
   const k = data.kpis;
   // Plain links (no JS): the server renders the linked conversation open.
-  const chatHref = (conv: number, chat?: string) =>
-    localizedPath(
-      `/admin?range=${data.range}${conv > CONV_SHOWN ? `&conv=${conv}` : ""}${chat ? `&chat=${encodeURIComponent(chat)}` : ""}`,
-      locale,
-    );
+  const chatHref: AdminHref = ({ conv = CONV_SHOWN, cf = "all", cq = "", chat }) => {
+    const q = new URLSearchParams({ range: String(data.range) });
+    if (conv > CONV_SHOWN) q.set("conv", String(conv));
+    if (cf !== "all") q.set("cf", cf);
+    if (cq) q.set("cq", cq);
+    if (chat) q.set("chat", chat);
+    return localizedPath(`/admin?${q}`, locale);
+  };
   const turnsOf = new Map(chats?.list.filter((c) => c.visit).map((c) => [c.id, c.turns.length]));
   // Read separately, so a failed insights read doesn't hide conversations that loaded.
   const chatLog = chats && (
@@ -598,6 +715,8 @@ export function Dashboard({
       locale={locale}
       href={chatHref}
       openChat={openChat}
+      filter={convFilter}
+      search={convSearch}
     />
   );
 
@@ -825,7 +944,7 @@ export function Dashboard({
                   chat={
                     chats && turnsOf.has(v.id)
                       ? {
-                          href: `${chatHref(chats.limit, v.id)}#chat-${v.id}`,
+                          href: `${chatHref({ conv: chats.limit, chat: v.id })}#chat-${v.id}`,
                           turns: turnsOf.get(v.id)!,
                         }
                       : undefined

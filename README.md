@@ -146,7 +146,7 @@ message. Keys stay on the server: the browser only ever calls `/api/chat`.
 ## Analytics and the Conversations log
 
 <p align="center">
-  <img src="docs/screenshots/admin.png" alt="The Conversations section of /admin, expanded, with sample data: a visit from Amsterdam via linkedin.com with two questions about ScrapeGPT and the assistant's replies, each tagged Answered with its source, model and latency; below it collapsed visits from Berlin (tagged From cache and Attack), London (Persian) and one turn whose visit was not recorded" width="85%"><br>
+  <img src="docs/screenshots/admin.png" alt="The Conversations section of /admin, expanded, with sample data: a Top unanswered questions list (Do you have experience with Rust? asked three times, then hobbies, a Persian question and relocation), filter chips All, Needs attention (selected), Attacks and Answered with counts beside a search box, and a visit from Amsterdam opened to show an answered ScrapeGPT question and a declined off-topic one; below it collapsed visits tagged Attack, Declined and Failed" width="85%"><br>
   <sub>The Conversations section, expanded. Sample data: this was rendered from a local test
   fixture, not from real visitors.</sub>
 </p>

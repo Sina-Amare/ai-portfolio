@@ -433,7 +433,16 @@ insights read no longer hides conversations that loaded. Then README rewritten a
 current code (four-layer defence, the ladder as in `providers.ts`, analytics with the
 Conversations log, 500 tests, the one-Google-project-per-environment lesson, a mermaid chat
 path) and `docs/screenshots/` refreshed: 8 PNGs on `next start`, one live chat answer, `/admin`
-from a sample fixture rendered by a temporary page that was deleted, not committed. Earlier
+from a sample fixture rendered by a temporary page that was deleted, not committed. Then
+Conversations review tools (owner: "good UI/UX"): a "Top unanswered questions" list (declined
+or failed; attacks and the daily cap aside; grouped by folded text, linking to the conversation),
+chips All · Needs attention · Attacks · Answered with counts (`?cf=`), and a Persian-aware search
+over questions and replies (`?cq=`, the intent classifier's `normalize`, spaces ignored so «می
+خوام» finds «می‌خوام»); all over the already-loaded conversations, plain links + a GET form
+(checked with JS off on `next start`), params clamped in `convParams`. A visit-less turn's id is
+now `turn-<at>`, not its position, so a link to it can't shift. Fixed: a closed conversation's
+chevron pointed up whenever the section was open (`group-open:` matched the outer `<details>`;
+now named groups). `admin.png` re-shot from fake fixture data. Earlier
 note: The milestone (B0–B11 plus the four owner calls) is done, reviewed and
 deployed: `main` was fast-forwarded to `claude/audit-fixes` and pushed on 2026-09-27 at the owner's
 request. Final steps that day: the B11f review fixes (news pattern yields to his agents, this
@@ -566,4 +575,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-28 (chat transcripts in /admin, README + screenshots, on `main`, not pushed)_
+_Last updated: 2026-09-28 (Conversations chips, search and unanswered list in /admin, on `main`, not pushed)_

@@ -322,6 +322,22 @@ The dashboard, top to bottom (EN/FA, Persian digits in Persian):
    as plain text with its line breaks (never rendered as HTML or markdown), with its
    outcome, canned intent, source chips, model and latency. "Show more" adds 50 (up to
    200, `?conv=`). Transcripts live 30 days, so a 90-day range says it shows the last 30.
+   Inside it, all computed from the conversations loaded (50–200, not the whole range; no
+   extra Redis reads):
+   - **Top unanswered questions**: the 5 questions most often declined as off-topic or
+     failed (attacks and the daily limit aside: neither is a gap in the knowledge base),
+     grouped by their folded text, each linking to the newest conversation that asked it:
+     the knowledge base's to-do list.
+   - **Chips** (`?cf=`): All · Needs attention (any turn declined, failed, cut off, capped
+     or an attack) · Attacks · Answered (none of those), each with its count.
+   - **Search** (`?cq=`, up to 100 characters): conversations whose question or reply
+     contains the text, folded like the chat's intent classifier (case, Arabic ي/ك,
+     ZWNJ) and with spaces ignored, so «می خوام» and «میخوام» find «می‌خوام»; matches
+     open, and chip counts are of the matches.
+
+   Chips, search and "show more" are plain links and a GET form that keep range, `conv`,
+   `cf` and `cq`; `?chat=` links (the unanswered list, the visit log) keep range and
+   `conv` and open the All view. All of it works without JS.
 
 The headline cards (except visitors and returning, which are this month's), the daily
 trend and the active-time buckets follow the range to the day. Pages by active time and
