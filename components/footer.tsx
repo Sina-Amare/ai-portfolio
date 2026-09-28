@@ -20,12 +20,14 @@ export function Footer() {
   return (
     <footer className="border-border mt-24 border-t">
       <Container className="flex flex-col gap-8 py-12 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-sm">
+        <div className="max-w-md">
           <div className="text-heading font-mono text-sm font-semibold">
             sina<span className="text-accent">.</span>amareh
           </div>
           <p className="text-muted mt-3 text-sm leading-relaxed">{t.footer.tagline}</p>
-          <p className="text-muted mt-4 text-xs">{t.footer.builtWith}</p>
+          {/* Balanced wrapping: otherwise the column strands the last word («می‌شه.»)
+              alone on a second line. */}
+          <p className="text-muted mt-4 text-xs text-balance">{t.footer.builtWith}</p>
         </div>
 
         <div className="flex flex-col gap-4 sm:items-end">
