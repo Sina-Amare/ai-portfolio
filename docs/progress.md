@@ -5,8 +5,8 @@ case studies, a contact form and private analytics — deployed free on Vercel.
 
 **Architecture (3 lines):** Next.js 16 App Router on Vercel Hobby; routes live in `app/[lang]`, `proxy.ts`
 serves English unprefixed and Persian at `/fa` (all public pages static). `/api/chat` = zod → rate limit →
-in-memory cosine retrieval over committed `lib/kb.json` → relevance gate → Groq/Gemini/OpenRouter
-failover ladder (streamed). Analytics = cookieless beacon → Upstash Redis → `/admin` + Telegram digest.
+in-memory cosine retrieval over committed `lib/kb.json` (BM25 keyword fallback if embedding fails) →
+relevance gate → Groq/Gemini/OpenRouter failover ladder (streamed). Analytics = cookieless beacon → Upstash Redis → `/admin` + Telegram digest.
 
 ## Done so far
 
@@ -417,7 +417,26 @@ Milestone done-when met.
 
 ## Current task
 
-2026-09-28, done on `main` (not pushed): **chat transcripts in `/admin`** (owner: "who asked
+2026-09-28, done on `main` (not pushed): **keyword fallback for embedding outages** (incident
+2026-09-27: the embedding quota ran out and every question got the error reply, though the answer
+ladder worked). When the embedding call throws (quota, every key refused, a timeout), `/api/chat`
+retrieves with BM25 over the same chunks (`lib/rag/lexical.ts`: the classifier's folding, English
+and Finglish stop words, plural stemming, Latin terms + project/employer aliases + a Persian
+chip's English twin; Persian words are dropped, the notes are English), gates at
+`LEXICAL_THRESHOLD` 0.50 and runs the usual ladder. The classifier still runs first; the semantic
+cache is skipped and chip answers aren't cached in fallback; the route warns
+`[chat] embedding failed → lexical fallback: <message>` and logs the turn with
+`retrieval: "lexical"` ("Keyword fallback" badge in Conversations). Calibrated offline with
+`npm run eval:lexical` (no API calls): off-topic 0–0.488, lowest in-scope above it 0.518, 98/111
+in-scope pass, expected source in the top 5 for 54/59; `npm test` keeps every off-topic golden
+case under the gate. `content/chatbot.md` now answers "Do you save my chats?" (decision 003) and
+mentions the fallback; `npm run embed` now re-embeds only changed chunks (3 calls this time).
+`npm run eval` 136/136 (gap 0.012, two new golden cases). Live smoke on `next start` with a broken
+embedding key: "What is ScrapeGPT?" and «ScrapeGPT چیه؟» answered by OpenRouter from the ScrapeGPT
+notes, "What is the capital of Peru?" refused in 1.6 s, "Do you save my chats?" answered from the
+new section.
+
+Earlier the same day, **chat transcripts in `/admin`** (owner: "who asked
 what from the chatbot and the response"). Every replied chat turn is stored in
 `an:chat:<day>` (30-day TTL, capped by the 300-turns-a-day chat counter): question, reply as
 shown (≤ 4,000 chars), outcome, canned intent, source labels, language, model, latency, cut-off
@@ -468,10 +487,13 @@ None.
 
 ## Open questions
 
-- Chat transcripts (decision 003): should the bot be able to answer "Do you store my chats?"
-  (one sentence in `content/chatbot.md` → `npm run embed` + `npm run eval`)? Today the
-  notice and `/privacy` say it, the knowledge base doesn't. And should a visitor be able to
-  get one chat deleted before its 30 days (needs an admin delete; parked in yagni.md)?
+- Chat transcripts (decision 003): should a visitor be able to get one chat deleted before its
+  30 days (needs an admin delete; parked in yagni.md)? (The bot now answers "Do you save my
+  chats?" from `content/chatbot.md`.)
+- Keyword fallback: an in-scope question the keywords can't match (9 Persian golden questions,
+  "Where are you from?") gets the _off-topic_ reply during an outage. Would "I can't answer that
+  right now, try again or email me" be the better reply below the lexical gate? (One branch in
+  the route; off-topic questions would then get it too.) A FA→EN term map is parked in yagni.md.
 - Should `/admin`'s outcome counts split blocked attacks from off-topic refusals? Both are
   "refused" in the aggregates; the Conversations section already badges attacks apart.
 - A follow-up "yes" after an attack's clapback reaches the model without the offer: the attack
@@ -568,11 +590,18 @@ origin main` (the agent's permission to push `main` was withdrawn after the firs
    there under that visit, and the visit log links to it. Your own chats (admin browser)
    are not logged, by design. Check the line under the chat box on `/` and `/fa`.
 
-Budget embeddings: `npm run embed` is 145 calls and `npm run eval` ~160, and the free tier's
+7. After deploying the keyword fallback: nothing to configure. Ask the live bot "Do you save
+   my chats?" (vector path, new section). On the next embedding outage, `/admin`
+   Conversations shows answered turns with a "Keyword fallback" badge and the Vercel logs a
+   `[chat] embedding failed → lexical fallback` line per question; answer the fallback open
+   question above.
+
+Budget embeddings: `npm run embed` now costs one call per changed chunk (`-- --full`: ~147) and
+`npm run eval` ~160, and the free tier's
 daily embedding quota is counted per Google project (its quota id says so), so keys from one
 project share it; all three keys ran out after ~3 embeds and ~8 evals in one day. If production
 uses the same project, the live chat can't embed until the reset either. Local e2e:
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-28 (Conversations chips, search and unanswered list in /admin, on `main`, not pushed)_
+_Last updated: 2026-09-28 (keyword fallback for embedding outages + "Do you save my chats?" in the KB, on `main`, not pushed)_

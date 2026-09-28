@@ -105,9 +105,11 @@ flowchart TD
   AC -->|hit| C2["Cached grounded answer"]
   AC -->|miss| EMB["Embed the question (Gemini, 768-dim)<br/>plus a chat-aware query on follow-ups"]
   EMB --> RET["Cosine over lib/kb.json in memory<br/>top 6 chunks"]
+  EMB -.->|embedding call fails| LEX["Keyword fallback (BM25)<br/>same chunks, top 6"]
+  LEX --> L2
   RET --> SC{"Paraphrase of a cached answer?<br/>(similarity 0.94+)"}
   SC -->|yes| C2
-  SC -->|no| L2{"Layer 2: relevance gate<br/>best score below 0.60?"}
+  SC -->|no| L2{"Layer 2: relevance gate<br/>best score below 0.60?<br/>(0.50 for keywords)"}
   L2 -->|yes| C3["Polite refusal, no LLM call"]
   L2 -->|no| CAP{"Site-wide daily LLM cap reached?"}
   CAP -->|yes| C4["Honest 'busy today' reply"]
@@ -119,10 +121,13 @@ flowchart TD
 ```
 
 The knowledge base is markdown in [`content/`](content/). `npm run embed` chunks and embeds it
-into [`lib/kb.json`](lib/kb.json) (146 chunks, `gemini-embedding-001` at 768 dimensions), which
+into [`lib/kb.json`](lib/kb.json) (147 chunks, `gemini-embedding-001` at 768 dimensions), which
 is committed, so a deploy never re-embeds and retrieval is a plain in-memory cosine scan: no
 vector database. Earlier attack turns are scrubbed from the history before retrieval and the
-model, and a follow-up like "Does it have tests?" keeps the project the chat was about.
+model, and a follow-up like "Does it have tests?" keeps the project the chat was about. If the
+embedding call fails (the day's quota spent, every key refused, a timeout), retrieval falls back
+to keyword search over the same chunks ([`lib/rag/lexical.ts`](lib/rag/lexical.ts), BM25) with
+its own gate, so the answer ladder still runs; `/admin` flags those turns "Keyword fallback".
 
 ### Provider ladder
 
@@ -248,6 +253,7 @@ Open <http://localhost:3000> and ask the chatbot something.
 | `npm run test:e2e`                | Playwright E2E (LLM mocked, no keys needed)                                 |
 | `npm run embed`                   | Rebuild `lib/kb.json` from `content/` (commit the result)                   |
 | `npm run eval`                    | RAG retrieval gate (needs the Google key; `eval:ci` reads it from the env)  |
+| `npm run eval:lexical`            | Same golden set through the keyword fallback, offline (no key, no calls)    |
 | `npm run redteam`                 | Live red-team run through the real chat route (`-- --judge` adds the judge) |
 | `npm run lint` / `typecheck`      | ESLint / TypeScript                                                         |
 | `npm run format` / `format:check` | Prettier: rewrite / check                                                   |
@@ -261,15 +267,17 @@ running on that port, Playwright reuses it.
 
 ## Testing
 
-- **`npm test`: 500 Vitest tests in 39 files** (at the time of writing) for the chat route with
+- **`npm test`: 527 Vitest tests in 41 files** (at the time of writing) for the chat route with
   realistic stream mocks, the intent classifier, retrieval, prompt rules, analytics, admin auth,
   routing/SEO and the components. It also checks every red-team case offline and that
   `lib/kb.json` still matches `content/`.
 - **`npm run test:e2e`**: Playwright specs for the home page, chat, command palette and `/fa`
   routing, with the LLM mocked and axe accessibility scans.
-- **`npm run eval`**: the retrieval gate on a golden set of 109 in-scope and 19 off-topic
+- **`npm run eval`**: the retrieval gate on a golden set of 111 in-scope and 19 off-topic
   questions (some asked mid-chat). In-scope ones must pass the 0.60 gate and, where the case
   names one, find their expected source in the top 5; off-topic ones must be refused.
+  `npm run eval:lexical` runs the same set through the keyword fallback with no API calls, and
+  `npm test` keeps every off-topic case under its 0.50 gate.
 - **`npm run redteam`**: all 174 red-team cases live through the real route. It fails on a
   prompt leak, a number that isn't in the question or the retrieved notes, an invented motive
   for a decline, or a Persian question that doesn't get a Persian answer; `--judge` adds a Gemini grader for
@@ -280,8 +288,9 @@ environment, the build, the E2E suite and the RAG eval (skipped with a warning w
 secret is set). On Vercel, `vercel.json` runs `npm test` before `next build`, so a failing unit
 test blocks the deploy.
 
-The eval and the red team call real models and embeddings. On the free tier, budget them: a full
-`npm run embed` is about 145 embedding calls and `npm run eval` about 160.
+The eval and the red team call real models and embeddings. On the free tier, budget them:
+`npm run embed` only embeds chunks whose text changed (`-- --full` redoes all ~147) and
+`npm run eval` is about 160 calls.
 
 ---
 

@@ -21,8 +21,24 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   news) — owner said "do them", one report at the end. Skips in a row: 8 (same open question).
 - loop skipped: 2026-09-28 chat transcripts in /admin — owner asked to just build it. Skips in a
   row: 9 (the loop question in progress.md is still open).
+- loop skipped: 2026-09-28 keyword fallback for embedding outages — run inside a scripted
+  workflow, one report at the end. Skips in a row: 10 (same open question).
 
 ## Terms
+
+- **Graceful degradation / fallback retrieval** — when one dependency fails, keep the feature
+  working at lower quality instead of failing whole. Here, when the Gemini embedding call fails
+  (the 2026-09-27 quota outage), the chat route retrieves by keywords (BM25 over the same
+  `lib/kb.json` chunks) and still runs the answer ladder, behind its own relevance gate (0.50).
+  The cost: keyword search can't read meaning, so 13 of 111 golden in-scope questions (mostly
+  Persian) get the off-topic reply during an outage, and the fallback needs its own threshold,
+  word lists and eval. Choose differently when the degraded answer could be wrong in a harmful way
+  (then fail closed).
+- **BM25** — the classic keyword-ranking formula: a word counts more the rarer it is across all
+  chunks (IDF), with diminishing returns for repeats and a penalty for long chunks. Here
+  "ScrapeGPT" (in 20 of 147 chunks) outweighs "work" (in 51). The fallback divides each chunk's
+  BM25 score by the question's total IDF, so the gate reads "how much of the question this chunk
+  covers" and an unknown word ("Japan") pulls the score toward 0.
 
 - **Data retention + transparency notice** — how long stored personal data lives, and telling
   people at the moment they give it. Here chat questions and replies expire 30 days after the
@@ -335,6 +351,31 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   `lib/rag/prompt.ts` (`TRICKY QUESTIONS`).
 - **Terms used:** LLM-as-a-judge, rubric, false premise, grounding, false positive, flaky
   evaluator.
+
+### Brief 8 — Graceful degradation: keyword retrieval when embeddings are down
+
+- **Why it matters here:** on 2026-09-27 the embedding model's free daily quota (1,000 calls per
+  Google project) ran out, and every real question got "Sorry, I couldn't answer" — even though
+  the chat models on Groq and OpenRouter still worked, because the route gave up _before_ the
+  answer ladder. Groq and OpenRouter have no embedding model compatible with `lib/kb.json`'s
+  vectors. Now a failed embedding call switches to keyword search over the same chunks
+  (`lib/rag/lexical.ts`, BM25), with its own relevance gate (0.50, calibrated offline by
+  `npm run eval:lexical`: every off-topic golden question stays under it, 98 of 111 in-scope pass),
+  and the answer ladder runs as usual. Persian questions reach the English notes only through
+  Latin words, project names and chip twins, which is where most of the 13 misses are.
+- **Depth:** L2 — can use it with docs
+- **Question you must be able to answer:** why does the fallback need its _own_ threshold instead
+  of reusing the 0.60 cosine gate, and what would go wrong if Persian words were counted in the
+  keyword query?
+- **Don't go into:** hybrid ranking (blending BM25 with vectors on every query), learned sparse
+  retrieval (SPLADE), stemming libraries, search engines (Elasticsearch, Postgres full-text).
+- **Stop when:** you can run `npm run eval:lexical`, read the off-topic score list and the
+  suggested threshold, and explain why "What time is it?" needed "time" in the stop-word list.
+- **Read first:** `app/api/chat/route.ts` (the retrieval `try/catch`) → `lib/rag/lexical.ts`
+  (`tokenize`, `lexicalRetrieve`) → `lib/rag/threshold.ts` (`LEXICAL_THRESHOLD`) →
+  `scripts/golden.ts` (`lexicalEval`) → `tests/unit/lexical.test.ts`.
+- **Terms used:** graceful degradation, fallback, BM25, IDF, stop words, stemming, recall@k,
+  relevance gate.
 
 ## Decision journal
 

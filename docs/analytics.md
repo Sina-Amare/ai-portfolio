@@ -182,7 +182,7 @@ created with `SET NX`, so tabs opened at the same moment share one visit.
 | `an:seen:<month>` | distinct visitors                                                                                                                                                                                                | 400 days         |
 | `an:ret:<month>`  | visitors with 2+ visits                                                                                                                                                                                          | 400 days         |
 | `an:since`        | first day of v2 data (one date, nothing personal)                                                                                                                                                                | none             |
-| `an:chat:<day>`   | the day's chat turns, newest first, one JSON element each: question, reply as shown (≤ 4,000 chars), outcome, canned intent, source labels, language, answering model, latency, cut-off flag, visit id           | 30 days          |
+| `an:chat:<day>`   | the day's chat turns, newest first, one JSON element each: question, reply as shown (≤ 4,000 chars), outcome, canned intent, source labels, language, answering model, latency, cut-off/fallback flags, visit id | 30 days          |
 
 A visit counts as **engaged** once it has ≥ 10 s of active time, ≥ 2 different pages, or a
 key event (chat question, contact message, résumé download, outbound link, gallery open).
@@ -193,7 +193,9 @@ answer leaned on, chip-or-typed) and, since decision 003, also kept as a transcr
 in `an:chat:<day>`. The route logs once on every path that replies (canned intent,
 off-topic, busy, cache hit, model answer, error fallback), after the response via
 `after()`; a streamed answer is logged as sent, and one cut off by an error is marked
-partial. Only the per-IP rate-limit reply isn't logged (a flood would fill the log). The
+partial; one retrieved by keywords because the embedding call failed carries
+`retrieval: "lexical"` ("Keyword fallback" in Conversations). Only the per-IP rate-limit
+reply isn't logged (a flood would fill the log). The
 turn finds its visit the way a beacon does: same monthly-salted hash of IP, user agent
 and site host, then a plain `GET` of the visit pointer (a chat doesn't extend the visit);
 no visit found → the turn is kept with an empty visit id. The v1 per-pageview keys
