@@ -231,6 +231,7 @@ export const pageCopy = {
       visitorSaid: "Visitor",
       botSaid: "Assistant",
       partial: "Cut off",
+      lexical: "Keyword fallback",
       badges: {
         answered: "Answered",
         cached: "From cache",
@@ -480,6 +481,7 @@ export const pageCopy = {
       visitorSaid: "بازدیدکننده",
       botSaid: "دستیار",
       partial: "نیمه‌کاره",
+      lexical: "جست‌وجوی کلیدواژه‌ای",
       badges: {
         answered: "جواب داده شد",
         cached: "از حافظه",

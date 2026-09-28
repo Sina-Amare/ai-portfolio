@@ -160,6 +160,7 @@ describe("Dashboard", () => {
               lang: "en",
               sources: ["Project: ScrapeGPT"],
               provider: "gemini-3.1-flash-lite#0",
+              retrieval: "lexical",
               ms: 2400,
             },
             {
@@ -221,6 +222,8 @@ describe("Dashboard", () => {
       expect(header).toHaveTextContent("Attack");
       expect(screen.getByText("Visit not recorded")).toBeInTheDocument();
       expect(screen.getByText("gemini-3.1-flash-lite#0")).toBeInTheDocument();
+      // Answered while embeddings were down: retrieval fell back to keywords.
+      expect(screen.getAllByText("Keyword fallback")).toHaveLength(1);
       expect(screen.getByText("2.4s")).toBeInTheDocument();
       expect(screen.getByText("12 ms")).toBeInTheDocument(); // a canned reply, not "0s"
       expect(screen.getByRole("link", { name: "Show more" })).toHaveAttribute(
@@ -246,6 +249,7 @@ describe("Dashboard", () => {
       expect(section()).toHaveTextContent("۲ سؤال");
       expect(screen.getByText("۲٫۴ ثانیه")).toBeInTheDocument();
       expect(screen.getByText("پروژه: ScrapeGPT")).toBeInTheDocument();
+      expect(screen.getByText("جست‌وجوی کلیدواژه‌ای")).toBeInTheDocument();
       expect(screen.getByText("بازدید ثبت نشده")).toBeInTheDocument();
       expect(screen.getByText(/پس این‌جا ۳۰ روز آخر/)).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "گفت‌وگو · ۲ سؤال" })).toHaveAttribute(

@@ -17,22 +17,15 @@
 import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { UIMessage } from "ai";
 import { SEMANTIC_CACHE_THRESHOLD } from "../lib/rag/cache";
 import { cosineNormalized } from "../lib/rag/cosine";
 import { embedText } from "../lib/rag/embed";
-import { sanitizeInput } from "../lib/rag/prompt";
-import { rankTurn, retrievalQuery } from "../lib/rag/retrieve";
-import { RELEVANCE_THRESHOLD } from "../lib/rag/threshold";
+import { rankTurn } from "../lib/rag/retrieve";
+import { LEXICAL_THRESHOLD, RELEVANCE_THRESHOLD } from "../lib/rag/threshold";
 import type { KBChunk, KnowledgeBase } from "../lib/rag/types";
+import { lexicalEval, pickLexicalThreshold, turnQueries, type Golden, type Turn } from "./golden";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-
-type Turn = { role: "user" | "assistant"; text: string };
-type Golden = {
-  inScope: { q: string; expectSource?: string; history?: Turn[] }[];
-  outOfScope: (string | { q: string; history: Turn[] })[];
-};
 
 /** [suggestion chip, the same question about a different project]. */
 const NEAR_MISS_PAIRS: [string, string][] = [
@@ -46,13 +39,7 @@ const NEAR_MISS_PAIRS: [string, string][] = [
 
 /** The top 5 and gate score the chat route gets for this question after these turns. */
 async function rank(chunks: KBChunk[], q: string, history: Turn[] = []) {
-  const messages: UIMessage[] = [...history, { role: "user" as const, text: q }].map((t, i) => ({
-    id: String(i),
-    role: t.role,
-    parts: [{ type: "text", text: t.role === "user" ? sanitizeInput(t.text) : t.text.trim() }],
-  }));
-  const question = sanitizeInput(q);
-  const conversation = sanitizeInput(retrievalQuery(messages)) || question;
+  const { question, conversation } = turnQueries(q, history);
   const [alone, chat] = await Promise.all([
     embedText(question, "RETRIEVAL_QUERY"),
     conversation === question ? null : embedText(conversation, "RETRIEVAL_QUERY"),
@@ -60,10 +47,64 @@ async function rank(chunks: KBChunk[], q: string, history: Turn[] = []) {
   return rankTurn(chunks, question, alone, chat, 5);
 }
 
+/**
+ * `npm run eval:lexical`: the same golden set through the classifier and the
+ * keyword fallback the route uses when embeddings fail. No API calls. Every
+ * off-topic question that reaches retrieval must stay under LEXICAL_THRESHOLD;
+ * in-scope misses are reported, not failed (it is the degraded mode).
+ */
+function lexicalReport(kb: KnowledgeBase, golden: Golden) {
+  const rows = lexicalEval(kb.chunks, golden);
+  console.log(`Lexical fallback eval · threshold=${LEXICAL_THRESHOLD} · ${kb.count} chunks\n`);
+  for (const r of rows) {
+    const top = r.sources[0] ? `  → ${r.sources[0]}` : "";
+    const found = !r.expectSource || r.sources.includes(r.expectSource);
+    const ok = r.inScope ? r.score >= LEXICAL_THRESHOLD && found : r.score < LEXICAL_THRESHOLD;
+    const reading = r.intent ? `canned:${r.intent}` : r.score.toFixed(3);
+    console.log(`${ok ? "✓" : "✗"} ${r.inScope ? "IN " : "OUT"} ${reading}  ${r.label}${top}`);
+  }
+
+  const inRows = rows.filter((r) => r.inScope);
+  const outRows = rows.filter((r) => !r.inScope && !r.intent);
+  const expecting = inRows.filter((r) => r.expectSource);
+  const recalled = expecting.filter((r) => r.sources.includes(r.expectSource!)).length;
+  const scores = inRows.map((r) => r.score).sort((a, b) => a - b);
+  const at = (p: number) => scores[Math.min(scores.length - 1, Math.floor(p * scores.length))];
+  const passing = (t: number) => inRows.filter((r) => r.score >= t).length;
+  const suggested = pickLexicalThreshold(rows);
+  const f = (n: number) => n.toFixed(3);
+
+  console.log(`\nrecall@5 of the expected source: ${recalled}/${expecting.length}`);
+  console.log(
+    `in-scope (${inRows.length}): min ${f(scores[0])} · p25 ${f(at(0.25))} · median ${f(at(0.5))} · max ${f(at(1))}` +
+      ` · ${inRows.filter((r) => r.score === 0).length} with no keyword match`,
+  );
+  console.log(
+    `off-topic reaching retrieval (${outRows.length}): ` +
+      outRows
+        .map((r) => r.score)
+        .sort((a, b) => b - a)
+        .map(f)
+        .join(" "),
+  );
+  console.log(`caught by the classifier first: ${rows.filter((r) => r.intent).length}`);
+  console.log(
+    `suggested threshold ${f(suggested)} → ${passing(suggested)}/${inRows.length} in-scope pass` +
+      ` · current ${LEXICAL_THRESHOLD} → ${passing(LEXICAL_THRESHOLD)}/${inRows.length}`,
+  );
+  const leaks = outRows.filter((r) => r.score >= LEXICAL_THRESHOLD);
+  if (leaks.length) {
+    console.log("\nOff-topic past the lexical gate:\n" + leaks.map((r) => r.label).join("\n"));
+    process.exit(1);
+  }
+}
+
 async function main() {
   const kb = JSON.parse(await readFile(join(ROOT, "lib", "kb.json"), "utf8")) as KnowledgeBase;
-  const goldenPath = process.argv[2] ?? join(ROOT, "eval", "golden.json");
+  const args = process.argv.slice(2);
+  const goldenPath = args.find((a) => !a.startsWith("--")) ?? join(ROOT, "eval", "golden.json");
   const golden = JSON.parse(await readFile(goldenPath, "utf8")) as Golden;
+  if (args.includes("--lexical")) return lexicalReport(kb, golden);
 
   let pass = 0;
   const failures: string[] = [];

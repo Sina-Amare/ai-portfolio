@@ -335,6 +335,8 @@ export type ChatTurn = {
   ms: number;
   /** An error ended the reply after part of it was sent. */
   partial?: boolean;
+  /** The embedding call failed, so retrieval fell back to keyword search. */
+  retrieval?: "lexical";
 };
 /** One stored turn: a JSON element of `an:chat:<day>`, newest first. */
 export type ChatLogEntry = ChatTurn & {

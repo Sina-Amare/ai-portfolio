@@ -13,8 +13,9 @@ import { z } from "zod";
 import { detectDir, ui, type Lang } from "@/lib/i18n";
 import { getKnowledgeBase } from "@/lib/rag/kb";
 import { embedText } from "@/lib/rag/embed";
+import { lexicalTurn } from "@/lib/rag/lexical";
 import { messageText, rankTurn, retrievalQuery, RETRIEVAL_TOP_K } from "@/lib/rag/retrieve";
-import { RELEVANCE_THRESHOLD } from "@/lib/rag/threshold";
+import { LEXICAL_THRESHOLD, RELEVANCE_THRESHOLD } from "@/lib/rag/threshold";
 import type { ScoredChunk } from "@/lib/rag/types";
 import {
   buildSystemPrompt,
@@ -222,12 +223,21 @@ export async function POST(req: Request) {
   // question with the reply exactly as shown, kept 30 days (decision 003).
   const chip = CHIP_QUESTIONS.has(normalizeQuery(question));
   let topic: string | undefined;
+  // Set when the embedding call failed and retrieval fell back to keywords.
+  let lexical = false;
   const note = (outcome: ChatOutcome, reply: string, turn: Partial<ChatTurn> = {}) => {
     try {
       noteChat(
         req,
         { outcome, topic, chip },
-        { question, reply, lang, ms: Date.now() - t0, ...turn },
+        {
+          question,
+          reply,
+          lang,
+          ms: Date.now() - t0,
+          ...(lexical && { retrieval: "lexical" as const }),
+          ...turn,
+        },
       );
     } catch {
       // Analytics never breaks the chat, least of all mid-stream.
@@ -269,6 +279,8 @@ export async function POST(req: Request) {
   // Retrieve from the knowledge base with the question alone and, after the
   // first turn, the conversation-aware query too (in parallel), so a follow-up
   // keeps its project and a change of topic still finds its own notes.
+  const chunks = getKnowledgeBase().chunks;
+  const conversation = sanitizeInput(retrievalQuery(history)) || question;
   let scored: ScoredChunk[];
   let score: number;
   let queryEmbedding: number[] = [];
@@ -280,29 +292,32 @@ export async function POST(req: Request) {
     return embedding;
   };
   try {
-    const conversation = sanitizeInput(retrievalQuery(history)) || question;
     const [alone, chat] = await Promise.all([
       embedQuery(question),
       conversation === question ? null : embedQuery(conversation),
     ]);
     queryEmbedding = alone;
-    ({ scored, score } = rankTurn(
-      getKnowledgeBase().chunks,
-      question,
-      alone,
-      chat,
-      RETRIEVAL_TOP_K,
-    ));
-  } catch {
-    note("error", errorMessage(lang));
-    return cannedResponse(errorMessage(lang));
+    ({ scored, score } = rankTurn(chunks, question, alone, chat, RETRIEVAL_TOP_K));
+  } catch (err) {
+    if (req.signal.aborted) {
+      note("error", errorMessage(lang));
+      return cannedResponse(errorMessage(lang));
+    }
+    // Embeddings down (the day's quota spent, every key refused, a timeout): the
+    // answer ladder may still work, so retrieve by keywords over the same chunks,
+    // behind their own gate (incident 2026-09-27). Status and message only.
+    const message = err instanceof Error ? err.message.replace(/\s+/g, " ") : "unknown error";
+    console.warn(`[chat] embedding failed → lexical fallback: ${message}`);
+    lexical = true;
+    ({ scored, score } = lexicalTurn(chunks, question, conversation, RETRIEVAL_TOP_K));
   }
 
   // Semantic answer cache (first-turn only): a *paraphrase* of an already-
   // answered question — e.g. "what is ScrapeGPT" vs "tell me about ScrapeGPT" —
   // is served from the same grounded answer, instantly, with no LLM call. The
   // high threshold keeps it to genuine restatements, never a different question.
-  if (readCache) {
+  // The lexical fallback has no vector to compare.
+  if (readCache && !lexical) {
     const near = answerCache.findSimilar(queryEmbedding, SEMANTIC_CACHE_THRESHOLD, `${lang}:`);
     if (near) {
       topic = near.sources[0]?.source;
@@ -314,8 +329,8 @@ export async function POST(req: Request) {
   // Relevance gate — instant refusal for clearly off-topic asks, NO LLM call,
   // so latency and the LLM quota are protected. Greetings/small-talk were
   // already handled with a fast canned reply above, so this only fires for
-  // genuinely out-of-scope questions.
-  if (score < RELEVANCE_THRESHOLD) {
+  // genuinely out-of-scope questions. Keyword scores have their own scale.
+  if (score < (lexical ? LEXICAL_THRESHOLD : RELEVANCE_THRESHOLD)) {
     const reply = cannedReply("offtopic", lang, seed);
     // No topic: the nearest chunk of an off-topic question is noise.
     note("refused", reply, { intent: "offtopic" });
@@ -448,7 +463,13 @@ export async function POST(req: Request) {
             // Sources go LAST so the "thinking" indicator stays until real text
             // arrives (avoids an empty message during the model's time-to-first-token).
             writer.write({ type: "data-sources", id: "sources", data: sources });
-            if (firstTurn && full.trim() && CHIP_QUESTIONS.has(normalizeQuery(question))) {
+            // A keyword-grounded answer isn't pinned for hours after embeddings recover.
+            if (
+              !lexical &&
+              firstTurn &&
+              full.trim() &&
+              CHIP_QUESTIONS.has(normalizeQuery(question))
+            ) {
               answerCache.set(cacheKey, { text: full, sources, embedding: queryEmbedding });
             }
             note("answered", shown, { sources: labels(sources), provider: provider.id });

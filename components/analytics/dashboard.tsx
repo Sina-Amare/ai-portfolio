@@ -399,6 +399,7 @@ function Turn({ t, f, p, locale }: { t: ChatLogEntry; f: Fmt; p: Copy; locale: L
       <div className="text-muted flex flex-wrap items-center gap-1.5 text-[11px]">
         <Badge accent={kind === "attack"}>{labelOf(p.badges, kind)}</Badge>
         {t.partial && <Badge accent>{p.partial}</Badge>}
+        {t.retrieval === "lexical" && <Badge>{p.lexical}</Badge>}
         {t.intent && (
           <span dir="ltr" className="font-mono">
             {t.intent}

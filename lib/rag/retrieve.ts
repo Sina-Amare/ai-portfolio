@@ -53,7 +53,7 @@ const ALIASES: [string, RegExp][] = [
   ["Mercor", /mercor|مرکور/i],
 ];
 
-function entitiesIn(text: string): string[] {
+export function entitiesIn(text: string): string[] {
   return ALIASES.filter(([, re]) => re.test(text)).map(([name]) => name);
 }
 
@@ -129,10 +129,26 @@ export function rankTurn(
   conversation: number[] | null,
   k: number,
 ): { scored: ScoredChunk[]; score: number } {
-  const own = retrieve(chunks, alone, k);
+  return mergeTurn(
+    question,
+    retrieve(chunks, alone, k),
+    conversation && retrieve(chunks, conversation, k),
+    k,
+  );
+}
+
+/**
+ * `rankTurn`'s merge and gate reading over two finished rankings, so the lexical
+ * fallback (lib/rag/lexical.ts) treats a follow-up exactly as the embeddings do.
+ */
+export function mergeTurn(
+  question: string,
+  own: ScoredChunk[],
+  chat: ScoredChunk[] | null,
+  k: number,
+): { scored: ScoredChunk[]; score: number } {
   const top = (r: ScoredChunk[]) => r[0]?.score ?? 0;
-  if (!conversation) return { scored: own, score: top(own) };
-  const chat = retrieve(chunks, conversation, k);
+  if (!chat) return { scored: own, score: top(own) };
   const leans = isFollowUp(question);
   const [first, second] = leans ? [chat, own] : [own, chat];
   const scored: ScoredChunk[] = [];

@@ -16,6 +16,7 @@
     "embed": "tsx --env-file=.env.local scripts/embed.ts",
     "eval": "tsx --env-file=.env.local scripts/rag-eval.ts",
     "eval:ci": "tsx scripts/rag-eval.ts",
+    "eval:lexical": "tsx scripts/rag-eval.ts --lexical",
     "redteam": "tsx --env-file=.env.local scripts/redteam.ts"
   },
   "dependencies": {
