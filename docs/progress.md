@@ -425,8 +425,11 @@ flag and the anonymous visit id (the beacon's own hash → visit pointer; no IP,
 Logged after the response with `after()` on every path that replies except the per-IP rate
 limit; skipped outside production, for bots and for the owner. `/admin` has a closed-by-default
 "Conversations" section (grouped by visit, plain escaped text, Attack badge, "show more" to 200) and the visit log links to it. Visitors are told under the chat box and on `/privacy`
-(EN/FA). Decision 003; yagni.md row replaced (redaction / per-chat delete parked). Cost: +2
-Redis commands a turn (~55k/month worst case at the cap). Earlier note: The milestone (B0–B11 plus the four owner calls) is done, reviewed and
+(EN/FA). Decision 003; yagni.md row replaced (redaction / per-chat delete parked). Cost: +3
+Redis commands a turn (~64k/month worst case at the cap). Review fixes: the list's 30-day TTL is an
+`EXPIRE NX` in the same pipeline on every turn (one failed call can't leave a day without it), the
+leak-guard log text is tested, a conversation's header shows its latest turn, and a failed
+insights read no longer hides conversations that loaded. Earlier note: The milestone (B0–B11 plus the four owner calls) is done, reviewed and
 deployed: `main` was fast-forwarded to `claude/audit-fixes` and pushed on 2026-09-27 at the owner's
 request. Final steps that day: the B11f review fixes (news pattern yields to his agents, this
 bot and Persian possessives; Arnikup/Google fired cases), a shared test timeout so lazy-chunk

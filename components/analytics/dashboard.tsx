@@ -458,7 +458,8 @@ function Chat({
           <span className="text-sm font-medium" dir="auto">
             {where}
           </span>
-          <span className="text-muted text-xs">{f.ago(first.at)}</span>
+          {/* The latest turn's time: the list is ordered by it. */}
+          <span className="text-muted text-xs">{f.ago(c.turns[n - 1]!.at)}</span>
           <span className="text-muted text-xs">
             {f.n(n)} {n === 1 ? p.question : p.questions}
           </span>
@@ -587,13 +588,28 @@ export function Dashboard({
       locale,
     );
   const turnsOf = new Map(chats?.list.filter((c) => c.visit).map((c) => [c.id, c.turns.length]));
+  // Read separately, so a failed insights read doesn't hide conversations that loaded.
+  const chatLog = chats && (
+    <ChatLog
+      chats={chats}
+      range={data.range}
+      f={f}
+      p={p}
+      locale={locale}
+      href={chatHref}
+      openChat={openChat}
+    />
+  );
 
   if (data.degraded) {
     return (
-      <Card className="p-6">
-        <h2 className="text-base font-semibold">{p.datastore}</h2>
-        <p className="text-muted mt-2 text-sm leading-relaxed">{p.datastoreBody}</p>
-      </Card>
+      <div className="space-y-4">
+        <Card className="p-6">
+          <h2 className="text-base font-semibold">{p.datastore}</h2>
+          <p className="text-muted mt-2 text-sm leading-relaxed">{p.datastoreBody}</p>
+        </Card>
+        {chatLog}
+      </div>
     );
   }
 
@@ -821,17 +837,7 @@ export function Dashboard({
         </Card>
       </section>
 
-      {chats && (
-        <ChatLog
-          chats={chats}
-          range={data.range}
-          f={f}
-          p={p}
-          locale={locale}
-          href={chatHref}
-          openChat={openChat}
-        />
-      )}
+      {chatLog}
 
       <p className="text-muted text-xs leading-relaxed">{p.note}</p>
     </div>
