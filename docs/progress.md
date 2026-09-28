@@ -429,7 +429,12 @@ limit; skipped outside production, for bots and for the owner. `/admin` has a cl
 Redis commands a turn (~64k/month worst case at the cap). Review fixes: the list's 30-day TTL is an
 `EXPIRE NX` in the same pipeline on every turn (one failed call can't leave a day without it), the
 leak-guard log text is tested, a conversation's header shows its latest turn, and a failed
-insights read no longer hides conversations that loaded. Earlier note: The milestone (B0–B11 plus the four owner calls) is done, reviewed and
+insights read no longer hides conversations that loaded. Then README rewritten against the
+current code (four-layer defence, the ladder as in `providers.ts`, analytics with the
+Conversations log, 500 tests, the one-Google-project-per-environment lesson, a mermaid chat
+path) and `docs/screenshots/` refreshed: 8 PNGs on `next start`, one live chat answer, `/admin`
+from a sample fixture rendered by a temporary page that was deleted, not committed. Earlier
+note: The milestone (B0–B11 plus the four owner calls) is done, reviewed and
 deployed: `main` was fast-forwarded to `claude/audit-fixes` and pushed on 2026-09-27 at the owner's
 request. Final steps that day: the B11f review fixes (news pattern yields to his agents, this
 bot and Persian possessives; Arnikup/Google fired cases), a shared test timeout so lazy-chunk
@@ -561,4 +566,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-28 (chat transcripts in /admin, on `main`, not pushed)_
+_Last updated: 2026-09-28 (chat transcripts in /admin, README + screenshots, on `main`, not pushed)_
