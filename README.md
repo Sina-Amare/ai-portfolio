@@ -115,7 +115,7 @@ flowchart TD
   L3 --> LAD["streamText over the provider ladder"]
   LAD --> L4["Layer 4: leak guard on the stream"]
   L4 --> OUT["Streamed answer + source chips"]
-  OUT -.-> LOG["After the response: the turn is logged for /admin<br/>(production only; never the owner or bots)"]
+  C1 & C2 & C3 & C4 & OUT -.-> LOG["After the response, every reply except a rate-limit<br/>is logged for /admin (production only; never the owner or bots)"]
 ```
 
 The knowledge base is markdown in [`content/`](content/). `npm run embed` chunks and embeds it
