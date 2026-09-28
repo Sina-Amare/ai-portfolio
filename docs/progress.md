@@ -417,7 +417,16 @@ Milestone done-when met.
 
 ## Current task
 
-None on the agent side. The milestone (B0–B11 plus the four owner calls) is done, reviewed and
+2026-09-28, done on `main` (not pushed): **chat transcripts in `/admin`** (owner: "who asked
+what from the chatbot and the response"). Every replied chat turn is stored in
+`an:chat:<day>` (30-day TTL, capped by the 300-turns-a-day chat counter): question, reply as
+shown (≤ 4,000 chars), outcome, canned intent, source labels, language, model, latency, cut-off
+flag and the anonymous visit id (the beacon's own hash → visit pointer; no IP, no cookie).
+Logged after the response with `after()` on every path that replies except the per-IP rate
+limit; skipped outside production, for bots and for the owner. `/admin` has a closed-by-default
+"Conversations" section (grouped by visit, plain escaped text, Attack badge, "show more" to 200) and the visit log links to it. Visitors are told under the chat box and on `/privacy`
+(EN/FA). Decision 003; yagni.md row replaced (redaction / per-chat delete parked). Cost: +2
+Redis commands a turn (~55k/month worst case at the cap). Earlier note: The milestone (B0–B11 plus the four owner calls) is done, reviewed and
 deployed: `main` was fast-forwarded to `claude/audit-fixes` and pushed on 2026-09-27 at the owner's
 request. Final steps that day: the B11f review fixes (news pattern yields to his agents, this
 bot and Persian possessives; Arnikup/Google fired cases), a shared test timeout so lazy-chunk
@@ -442,8 +451,12 @@ None.
 
 ## Open questions
 
-- Should chat analytics ever store the free-text question? Default: no (topics + chip labels only).
-- Should `/admin` count blocked attacks apart from off-topic refusals? Today both are "refused".
+- Chat transcripts (decision 003): should the bot be able to answer "Do you store my chats?"
+  (one sentence in `content/chatbot.md` → `npm run embed` + `npm run eval`)? Today the
+  notice and `/privacy` say it, the knowledge base doesn't. And should a visitor be able to
+  get one chat deleted before its 30 days (needs an admin delete; parked in yagni.md)?
+- Should `/admin`'s outcome counts split blocked attacks from off-topic refusals? Both are
+  "refused" in the aggregates; the Conversations section already badges attacks apart.
 - A follow-up "yes" after an attack's clapback reaches the model without the offer: the attack
   turn and its reply are scrubbed, so "yes" alone likely gets the off-topic refusal. Accepted for
   now (the visitor was attacking); carry-forward doesn't change it (the clapback naming
@@ -533,6 +546,11 @@ origin main` (the agent's permission to push `main` was withdrawn after the firs
    Taste call: desktop autofocus now shows that ring on load (it was a faint glow); say if it
    should appear only once the visitor types or tabs.
 
+6. After deploying the chat transcripts: ask the live bot one question from a normal
+   (non-admin) browser, then in `/admin` open "Conversations": the question and reply are
+   there under that visit, and the visit log links to it. Your own chats (admin browser)
+   are not logged, by design. Check the line under the chat box on `/` and `/fa`.
+
 Budget embeddings: `npm run embed` is 145 calls and `npm run eval` ~160, and the free tier's
 daily embedding quota is counted per Google project (its quota id says so), so keys from one
 project share it; all three keys ran out after ~3 embeds and ~8 evals in one day. If production
@@ -540,4 +558,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-27 (new production key verified; ladder moved to Gemini 3.x; owner deploys next)_
+_Last updated: 2026-09-28 (chat transcripts in /admin, on `main`, not pushed)_

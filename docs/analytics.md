@@ -4,8 +4,9 @@ A self-hosted, cookieless analytics panel at `/admin` that answers "who really v
 how long did they actually engage, what did they look at and what did they do": visits
 (not raw page views), engaged visits, active time, how far people get through each
 page, their actions (chat questions, résumé, outbound links, contact), where they came
-from, and a log of the last 50 visits. Runs entirely on free tiers — no third-party
-script, no data leaving your own infrastructure.
+from, a log of the last 50 visits, and what each visit asked the chatbot and what it
+answered (kept 30 days). Runs entirely on free tiers — no third-party script, no data
+leaving your own infrastructure.
 
 ## Why not just use Vercel Web Analytics?
 
@@ -113,7 +114,14 @@ time. (`ANALYTICS_DAILY_MAX`, a beacon count, is no longer read.)
 Reading is cheap by comparison: a 30-day `/admin` load is about 90 commands (one hash
 per day, one per month touched, two set sizes, 50 visit records; under 250 at 90 days),
 and the daily digest about 210 (it reads up to 200 visit records to find yesterday's),
-so ~6.5k a month.
+so ~6.5k a month. The Conversations section adds one `LRANGE` per day read (a week per
+round trip, newest first, stopping once it has enough) plus one visit record per
+conversation shown: ~60 commands for 50 conversations.
+
+A chat turn costs 5–6 commands: 3–4 for the aggregates and 2 for the transcript (the
+visit pointer `GET` and the `LPUSH`; an `EXPIRE` on the day's first). The day's shared
+`chat` counter stops all chat writes after 300 turns, so the worst case is ~1.8k
+commands a day (~55k a month) and a day's transcript list never holds more than 300.
 
 ## What the browser sends (`components/analytics/tracker.tsx`)
 
@@ -172,14 +180,23 @@ created with `SET NX`, so tabs opened at the same moment share one visit.
 | `an:seen:<month>` | distinct visitors                                                                                                                                                                                                | 400 days         |
 | `an:ret:<month>`  | visitors with 2+ visits                                                                                                                                                                                          | 400 days         |
 | `an:since`        | first day of v2 data (one date, nothing personal)                                                                                                                                                                | none             |
+| `an:chat:<day>`   | the day's chat turns, newest first, one JSON element each: question, reply as shown (≤ 4,000 chars), outcome, canned intent, source labels, language, answering model, latency, cut-off flag, visit id           | 30 days          |
 
 A visit counts as **engaged** once it has ≥ 10 s of active time, ≥ 2 different pages, or a
 key event (chat question, contact message, résumé download, outbound link, gallery open).
 The pages must differ, which is stricter than GA4: reloading one page 20 s later is a
-second page view, not engagement. Chat
-turns are stored as outcome, topic (the knowledge-base source the answer leaned on) and
-chip-or-typed only — never the question. The v1 per-pageview keys (`an:v`, `an:u`,
-`an:path`, …) are no longer written; days before `an:since` still read `an:v`.
+second page view, not engagement. A chat turn
+is counted in the month's aggregates (outcome, topic = the knowledge-base source the
+answer leaned on, chip-or-typed) and, since decision 003, also kept as a transcript entry
+in `an:chat:<day>`. The route logs once on every path that replies (canned intent,
+off-topic, busy, cache hit, model answer, error fallback), after the response via
+`after()`; a streamed answer is logged as sent, and one cut off by an error is marked
+partial. Only the per-IP rate-limit reply isn't logged (a flood would fill the log). The
+turn finds its visit the way a beacon does: same monthly-salted hash of IP, user agent
+and site host, then a plain `GET` of the visit pointer (a chat doesn't extend the visit);
+no visit found → the turn is kept with an empty visit id. The v1 per-pageview keys
+(`an:v`, `an:u`, `an:path`, …) are no longer written; days before `an:since` still read
+`an:v`.
 
 Nothing is written outside production (`ANALYTICS_IN_DEV=1` opts in locally), from bots,
 or from the owner's browser: admin login sets a year-long `sa_owner` cookie (it grants
@@ -207,9 +224,13 @@ nothing), and a live admin session counts too.
   fingerprint. The header never touches the device.
 - **Referrers are reduced to a bare hostname** (`google.com`), never the full URL,
   which keeps search queries and tracking parameters out of storage.
-- **Chat questions are never stored.** A turn is recorded as its outcome, its topic (the
-  knowledge-base source the answer leaned on) and chip-or-typed. The question itself goes
-  only to the LLM providers that answer it, which the privacy page names.
+- **Chat questions and replies are kept 30 days, and visitors are told.** The owner asked
+  to see who asked what (decision 003). Each turn is stored with its visit id, never an
+  IP or a name, expires 30 days after the day's first chat, and is readable only behind
+  the admin login. A muted line under the chat box ("Chats are saved for 30 days to
+  improve the assistant · Privacy") and the privacy page say so, and ask visitors not to
+  share sensitive personal information. The question also goes to the LLM providers
+  that answer it, which the privacy page names.
 - **Bots are dropped** before any write, via `isbot`, the tracker staying silent in
   automated browsers (`navigator.webdriver`), and the fact that the beacon only
   fires from a real browser executing JS. This matters more than it sounds: Plausible
@@ -290,7 +311,15 @@ The dashboard, top to bottom (EN/FA, Persian digits in Persian):
    cities, devices, browsers, language, and the local hour/weekday.
 7. **Recent visits**, the last 50: when, where, device and browser, source, language,
    active time, the pages in order, sections seen (with dwell) and actions, with
-   new/returning and engaged badges. This is the "who really visited" view.
+   new/returning and engaged badges. This is the "who really visited" view. A visit that
+   chatted links to its conversation below.
+8. **Conversations** (closed by default, so a glance at the dashboard never shows
+   visitors' words): the newest 50 chats in the range, newest first, one per visit — when,
+   where, device and browser, source, language, number of questions and outcome badges
+   (an attack apart from other refusals). Opening one shows each question, then the reply
+   as plain text with its line breaks (never rendered as HTML or markdown), with its
+   outcome, canned intent, source chips, model and latency. "Show more" adds 50 (up to
+   200, `?conv=`). Transcripts live 30 days, so a 90-day range says it shows the last 30.
 
 The headline cards (except visitors and returning, which are this month's), the daily
 trend and the active-time buckets follow the range to the day. Pages by active time and

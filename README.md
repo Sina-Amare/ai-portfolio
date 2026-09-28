@@ -58,7 +58,8 @@ cleanly with **no LLM call**, so it never makes things up.
 - **Self-hosted analytics at `/admin`** — cookieless for visitors, no raw IPs, free-tier Redis:
   real visits (30-minute sessions, so a quick return isn't a new visit), engaged visits, active
   time, how far people get through each page, what they did (chat topics, résumé, links,
-  contact), where they came from, and a log of recent visits, plus a daily Telegram digest. How it
+  contact), where they came from, a log of recent visits, and each visit's chat with the assistant
+  (questions and replies, kept 30 days and disclosed under the chat box), plus a daily Telegram digest. How it
   works and how to read it: [`docs/analytics.md`](docs/analytics.md).
 - **Tested** — Vitest unit/component/route tests, Playwright E2E specs (LLM mocked), a check that
   `lib/kb.json` still matches `content/`, and a RAG retrieval gate (100% refusal on

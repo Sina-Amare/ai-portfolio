@@ -19,8 +19,16 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   for the next milestone).
 - loop skipped: 2026-09-27 B11f the four owner calls (backstop models, fired wording, chip label,
   news) — owner said "do them", one report at the end. Skips in a row: 8 (same open question).
+- loop skipped: 2026-09-28 chat transcripts in /admin — owner asked to just build it. Skips in a
+  row: 9 (the loop question in progress.md is still open).
 
 ## Terms
+
+- **Data retention + transparency notice** — how long stored personal data lives, and telling
+  people at the moment they give it. Here chat questions and replies expire 30 days after the
+  day's first chat (a Redis TTL, so deletion needs no job), and the line under the chat box says
+  so before anyone types. The cost of a short window is less history to learn from; a longer one
+  holds the most sensitive data (free text) longer than the question it answers needs.
 
 - **Canonical URL** — the one URL a page tells search engines is "the real one". Here: every page used to
   point at the homepage, so Google treated project pages as duplicates.

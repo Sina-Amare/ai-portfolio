@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -23,7 +24,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 const CHAT_STORAGE_KEY = "sina-chat:v1";
 
 export function ChatHero() {
-  const { locale, t: dt } = useLocale();
+  const { locale, t: dt, path } = useLocale();
   const lang = locale as Lang;
   const [input, setInput] = useState("");
   // "New chat" unmounts the focused button; the fresh input takes focus instead
@@ -75,6 +76,15 @@ export function ChatHero() {
   const isStreaming = status === "submitted" || status === "streaming";
   const active = messages.length > 0;
   const lastIsAssistant = messages[messages.length - 1]?.role === "assistant";
+  // Under the chat box: chats are stored (decision 003), and where that's explained.
+  const savedNotice = (
+    <p dir={dir} className={cn("text-muted mt-2 text-center text-xs", dir === "rtl" && "font-fa")}>
+      {t.savedNotice} ·{" "}
+      <Link href={path("/privacy")} className="hover:text-text underline underline-offset-2">
+        {t.privacy}
+      </Link>
+    </p>
+  );
 
   // A transient mid-stream drop (flaky network / provider hiccup) now surfaces as
   // an error instead of a silent half-answer. Auto-retry ONCE so a one-off cutoff
@@ -237,6 +247,7 @@ export function ChatHero() {
                 large
                 autoFocus
               />
+              {savedNotice}
               {status === "ready" && lastIsAssistant && (
                 <div className="mt-2 flex">
                   <button
@@ -265,6 +276,7 @@ export function ChatHero() {
               large
               autoFocus={refocus}
             />
+            {savedNotice}
             <div className="mt-5 flex flex-col items-center gap-4">
               <Suggestions items={t.suggestions} onPick={send} dir={dir} />
               <LocaleToggle />

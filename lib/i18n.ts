@@ -74,6 +74,8 @@ export const ui = {
     copy: "Copy",
     copied: "Copied",
     poweredBy: "Live RAG over my CV · multi-provider failover",
+    savedNotice: "Chats are saved for 30 days to improve the assistant",
+    privacy: "Privacy",
     suggestions: [
       "What is ScrapeGPT?",
       "What problems did your workplace agents solve?",
@@ -101,6 +103,8 @@ export const ui = {
     copy: "کپی",
     copied: "کپی شد",
     poweredBy: "RAG روی رزومه و پروژه‌هام · جابه‌جایی خودکار بین سرویس‌ها",
+    savedNotice: "گفت‌وگوها ۳۰ روز نگه داشته می‌شن تا دستیار بهتر بشه",
+    privacy: "حریم خصوصی",
     suggestions: [
       "ScrapeGPT چیه؟",
       "ایجنت‌های کاری چه مشکلی رو حل کردن؟",

@@ -48,6 +48,24 @@ describe("ChatHero", () => {
     expect(screen.getByRole("group")).not.toHaveAttribute("inert");
   });
 
+  it("says under the chat box that chats are kept 30 days, with the privacy page a click away", () => {
+    status = "ready";
+    const { unmount } = render(hero());
+    expect(screen.getByText(/Chats are saved for 30 days/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
+    unmount();
+
+    messages = [];
+    render(
+      <LocaleProvider locale="fa">
+        <ChatHero />
+      </LocaleProvider>,
+    );
+    expect(screen.getByText(/گفت‌وگوها ۳۰ روز نگه داشته می‌شن/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "حریم خصوصی" })).toHaveAttribute("href", "/fa/privacy");
+    messages = chatting;
+  });
+
   it("notes a question as a chip or typed for analytics", () => {
     messages = [];
     status = "ready";
