@@ -763,7 +763,11 @@ describe("POST /api/chat", () => {
         expect(res.raw).not.toContain("data-sources");
         expect(extractErrors(res.raw)).toHaveLength(0);
         expect(warn).toHaveBeenCalledWith(expect.stringContaining("[chat] leak-guard"));
-        expect(vi.mocked(noteChat).mock.calls.at(-1)![1].outcome).toBe("refused");
+        const [, note, logged] = vi.mocked(noteChat).mock.calls.at(-1)!;
+        expect(note.outcome).toBe("refused");
+        // The log keeps what the visitor saw, never the held-back prompt echo.
+        expect(logged).toMatchObject({ reply: res.text, intent: "extraction" });
+        expect(logged!.reply).not.toContain("GROUND");
       } finally {
         warn.mockRestore();
       }
