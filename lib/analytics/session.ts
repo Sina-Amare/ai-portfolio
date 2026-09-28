@@ -14,7 +14,7 @@
  *    first visit or first chat, which is the only moment each can be created
  *    (a month's first visit is also its day's first);
  *  - `an:ret:<month>` with every add, because it is created later than the rest;
- *  - `an:chat:<day>` 30 days, when the day's first chat turn creates it.
+ *  - `an:chat:<day>` 30 days from the day's first chat turn (EXPIRE NX on every turn).
  */
 import { randomBytes } from "node:crypto";
 import { after } from "next/server";
@@ -372,11 +372,11 @@ async function visitOf(r: Redis, who: Asker, now: Date): Promise<string> {
  * most) and chip-or-typed as monthly aggregates, plus, when `log` is given, the
  * question and reply in the day's transcript list. Never throws.
  *
- * Budget: 3–4 commands per turn for the aggregates (+2 on the day's first), plus 2
- * for the transcript (the visit pointer GET and the LPUSH; +1 EXPIRE on the day's
- * first, +1–3 on a cold instance's salt read). At the 300-turn daily cap that is
- * ~1.8k commands a day, ~55k a month worst case (of Upstash's free 500k); ~20 turns
- * a day is ~3.6k a month.
+ * Budget: 3–4 commands per turn for the aggregates (+2 on the day's first), plus 3
+ * for the transcript (the visit pointer GET, the LPUSH and its EXPIRE NX; +1–3 on a
+ * cold instance's salt read). At the 300-turn daily cap that is ~2.1k commands a
+ * day, ~64k a month worst case (of Upstash's free 500k); ~20 turns a day is ~4.2k a
+ * month.
  */
 export async function recordChat(
   c: ChatNote,
@@ -404,7 +404,10 @@ export async function recordChat(
         outcome: c.outcome,
         sid: await visitOf(r, who, now),
       };
-      p.lpush(K.chat(day), entry); // [0] the list's new length
+      p.lpush(K.chat(day), entry);
+      // Every turn, NX: expiry still counts from the day's first turn, and one failed
+      // call can't leave a day's transcripts without their 30-day TTL.
+      p.expire(K.chat(day), CHAT_LOG_DAYS * 86_400, "nx");
     }
     p.hincrby(m, `chat:${c.outcome}`, 1);
     p.hincrby(m, `ask:${c.chip ? "chip" : "typed"}`, 1);
@@ -414,9 +417,7 @@ export async function recordChat(
       p.expire(K.day(day), DAY_TTL);
       p.expire(m, MONTH_TTL);
     }
-    const res = (await p.exec()) as unknown[];
-    // Only a list this push created gets its TTL: expiry counts from the day's first turn.
-    if (log && num(res[0]) === 1) await r.expire(K.chat(day), CHAT_LOG_DAYS * 86_400);
+    await p.exec();
   } catch {
     // Analytics never breaks the chat.
   }

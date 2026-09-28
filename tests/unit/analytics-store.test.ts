@@ -125,9 +125,10 @@ const { store, FakeRedis } = vi.hoisted(() => {
       // A negative stop counts from the end, like Redis (-1 = the last element).
       return (store.lists.get(k) ?? []).slice(start, stop + 1 || undefined);
     }
-    async expire(k: string, seconds: number) {
+    async expire(k: string, seconds: number, option?: string) {
       alive(k);
       if (!exists(k)) return 0; // EXPIRE on a missing key does nothing
+      if (option?.toLowerCase() === "nx" && store.ttl.has(k)) return 0;
       store.ttl.set(k, Date.now() + seconds * 1000);
       return 1;
     }
@@ -575,6 +576,22 @@ describe("chat transcripts", () => {
     ]);
   });
 
+  it("re-arms the 30-day TTL on a later turn when the first turn's EXPIRE failed", async () => {
+    const expire = vi
+      .spyOn(FakeRedis.prototype, "expire")
+      .mockRejectedValueOnce(new Error("Upstash blip"));
+    try {
+      await recordChat(answered, log()); // its pipeline throws after the LPUSH
+      expect(store.lists.get(DAY)).toHaveLength(1);
+      expect(store.ttl.has(DAY)).toBe(false);
+    } finally {
+      expire.mockRestore();
+    }
+    at(MIN);
+    await recordChat(answered, log());
+    expect(store.ttl.get(DAY)).toBe(T0 + MIN + 30 * 86_400_000);
+  });
+
   it("truncates a long reply and never stores the raw IP", async () => {
     await recordChat(answered, log({ reply: "x".repeat(9000) }));
     const [entry] = store.lists.get(DAY) as unknown as { reply: string }[];
@@ -595,14 +612,14 @@ describe("chat transcripts", () => {
     expect(store.lists.has("an:chat:2026-10-25")).toBe(false);
   });
 
-  it("spends 6 commands on a turn inside a visit", async () => {
+  it("spends 7 commands on a turn inside a visit", async () => {
     await recordBeacon(visitor(), pv("/"));
     await recordChat(answered, log()); // the day's first: its EXPIREs, plus the salt
     const names = ["get", "set", "lpush", "hincrby", "expire"] as const;
     const spies = names.map((n) => vi.spyOn(FakeRedis.prototype, n));
     try {
       await recordChat(answered, log());
-      expect(spies.reduce((a, s) => a + s.mock.calls.length, 0)).toBe(6);
+      expect(spies.reduce((a, s) => a + s.mock.calls.length, 0)).toBe(7);
     } finally {
       spies.forEach((s) => s.mockRestore());
     }

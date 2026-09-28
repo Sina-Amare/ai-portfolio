@@ -118,10 +118,12 @@ so ~6.5k a month. The Conversations section adds one `LRANGE` per day read (a we
 round trip, newest first, stopping once it has enough) plus one visit record per
 conversation shown: ~60 commands for 50 conversations.
 
-A chat turn costs 5–6 commands: 3–4 for the aggregates and 2 for the transcript (the
-visit pointer `GET` and the `LPUSH`; an `EXPIRE` on the day's first). The day's shared
-`chat` counter stops all chat writes after 300 turns, so the worst case is ~1.8k
-commands a day (~55k a month) and a day's transcript list never holds more than 300.
+A chat turn costs 6–7 commands: 3–4 for the aggregates and 3 for the transcript (the
+visit pointer `GET`, the `LPUSH` and an `EXPIRE … NX` in the same pipeline, so the
+30-day TTL still counts from the day's first turn but one failed call can't leave the
+list without it). The day's shared `chat` counter stops all chat writes after 300
+turns, so the worst case is ~2.1k commands a day (~64k a month) and a day's
+transcript list never holds more than 300.
 
 ## What the browser sends (`components/analytics/tracker.tsx`)
 
