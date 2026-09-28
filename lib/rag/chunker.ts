@@ -6,6 +6,17 @@ const HEADING_RE = /^(#{1,6})\s+(.*)$/;
 
 export type SourceDoc = { id: string; source: string; text: string };
 
+/** What the embedding model reads for one chunk: the text plus a context breadcrumb. */
+const embedInput = (source: string, section: string, text: string) =>
+  `Owner: ${OWNER} — portfolio assistant knowledge.\nSource: ${source} › ${section}\n\n${text}`;
+
+/**
+ * The embed input's shape, stored in lib/kb.json: `npm run embed` keeps a
+ * committed embedding only while this is unchanged (it re-embeds every chunk
+ * after an edit here).
+ */
+export const EMBED_TEMPLATE = embedInput("{source}", "{section}", "{text}");
+
 /** Rough token estimate (chars / 4) for sizing chunks. */
 export function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4);
@@ -30,7 +41,7 @@ export function chunkDocument(doc: SourceDoc): ParsedChunk[] {
     source: doc.source,
     section,
     text,
-    embedInput: `Owner: ${OWNER} — portfolio assistant knowledge.\nSource: ${doc.source} › ${section}\n\n${text}`,
+    embedInput: embedInput(doc.source, section, text),
   });
 
   const push = (text: string, section: string) => {

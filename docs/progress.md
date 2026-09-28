@@ -596,7 +596,7 @@ origin main` (the agent's permission to push `main` was withdrawn after the firs
    `[chat] embedding failed → lexical fallback` line per question; answer the fallback open
    question above.
 
-Budget embeddings: `npm run embed` now costs one call per changed chunk (`-- --full`: ~147) and
+Budget embeddings: `npm run embed` now costs one call per changed chunk (a changed chunker template or `-- --full`: ~147) and
 `npm run eval` ~160, and the free tier's
 daily embedding quota is counted per Google project (its quota id says so), so keys from one
 project share it; all three keys ran out after ~3 embeds and ~8 evals in one day. If production

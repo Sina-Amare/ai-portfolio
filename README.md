@@ -289,7 +289,7 @@ secret is set). On Vercel, `vercel.json` runs `npm test` before `next build`, so
 test blocks the deploy.
 
 The eval and the red team call real models and embeddings. On the free tier, budget them:
-`npm run embed` only embeds chunks whose text changed (`-- --full` redoes all ~147) and
+`npm run embed` only embeds chunks whose text changed (a new chunker template or `-- --full` redoes all ~147) and
 `npm run eval` is about 160 calls.
 
 ---

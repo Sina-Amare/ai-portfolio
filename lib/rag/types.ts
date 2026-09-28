@@ -21,6 +21,8 @@ export type KnowledgeBase = {
   model: string;
   dim: number;
   version: number;
+  /** The chunker's EMBED_TEMPLATE the embeddings were made from. */
+  template: string;
   count: number;
   chunks: KBChunk[];
 };
