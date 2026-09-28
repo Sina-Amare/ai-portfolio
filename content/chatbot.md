@@ -21,6 +21,9 @@ Sina wrote the model's instructions as a set of plain rules. The model speaks as
 ## Is this chatbot really Sina?
 No — it's an AI assistant Sina built, not Sina typing live. It answers in his first-person voice, but only from his own CV and project notes, and he wrote the rules it follows. To reach the real Sina, email sinaamareh0263@gmail.com.
 
+## Does this chatbot save my chats?
+Yes, for 30 days. The site keeps each question you ask and the reply you got for 30 days, so Sina can see what people ask and improve the answers; after that they are deleted automatically. A chat is linked only to an anonymous visit, not to your name or IP address, and only Sina can read it, in his private dashboard. To write each answer, the conversation is also sent to the AI model providers (Groq, Google Gemini and OpenRouter), which process it under their own terms. So please don't share sensitive personal information in the chat. The site's privacy page has the details.
+
 ## How this chatbot is tested
 Sina tests the chatbot like any other system he ships. A golden set of real recruiter questions, in English and Persian, checks with real embeddings that every in-scope question passes the relevance gate and surfaces the right source, that off-topic questions are refused, and that follow-up questions keep their project. A red-team set of injection, extraction, trolling, small-talk and legitimate tough questions is run through the deterministic check on every test run. Unit tests cover the chat route, retrieval, the relevance gate, the intent check and the failover ladder, and a failing unit test blocks the deploy.
 

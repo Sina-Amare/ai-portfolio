@@ -384,6 +384,14 @@
       "expectSource": "About this chatbot"
     },
     {
+      "q": "Do you save my chats?",
+      "expectSource": "About this chatbot"
+    },
+    {
+      "q": "چت‌هام ذخیره می‌شه؟",
+      "expectSource": "About this chatbot"
+    },
+    {
       "q": "What are ScrapeGPT's limitations?",
       "expectSource": "Project: ScrapeGPT"
     },
