@@ -136,9 +136,9 @@ providers whose key is set. The order depends on the answer's language:
 
 | Order | English                                                | Persian                                                |
 | ----- | ------------------------------------------------------ | ------------------------------------------------------ |
-| 1     | **Groq**: Llama 3.3 70B → Llama 3.1 8B                 | **Gemini** 3.1 Flash-Lite → 3.5 Flash-Lite → 3.6 Flash |
-| 2     | **Gemini** 3.1 Flash-Lite → 3.5 Flash-Lite → 3.6 Flash | **OpenRouter** (free): Nemotron 3 Ultra → Super        |
-| 3     | **OpenRouter** (free): Nemotron 3 Super → Ultra        | **Groq**: Llama 3.3 70B → Llama 3.1 8B                 |
+| 1     | **Groq**: GPT-OSS 120B → Qwen3.8 27B                   | **Gemini** 3.1 Flash-Lite → 3.5 Flash-Lite → 3.6 Flash |
+| 2     | **Gemini** 3.1 Flash-Lite → 3.5 Flash-Lite → 3.6 Flash | **OpenRouter** (free): Nemotron 3 Ultra → 3.5 Super    |
+| 3     | **OpenRouter** (free): Nemotron 3.5 Super → 3 Ultra    | **Groq**: GPT-OSS 120B → Qwen3.8 27B                   |
 
 English leads with Groq for the fastest first token; Persian leads with Gemini, whose Persian is
 better. Each model is tried on every comma-separated key before the next model (the starting
@@ -180,7 +180,7 @@ How it works and how to read the numbers honestly: [`docs/analytics.md`](docs/an
 | Language         | **TypeScript** · **React 19**                                                                                 |
 | Styling          | **Tailwind CSS v4** (CSS-first `@theme`) · **Motion**                                                         |
 | Chat / streaming | **Vercel AI SDK v6** (`ai`, `@ai-sdk/react`, `@ai-sdk/groq`, `@ai-sdk/google`, `@openrouter/ai-sdk-provider`) |
-| Models           | **Groq** (Llama) · **Google Gemini** (chat + embeddings) · **OpenRouter** (free Nemotron)                     |
+| Models           | **Groq** (GPT-OSS, Qwen) · **Google Gemini** (chat + embeddings) · **OpenRouter** (free Nemotron)             |
 | Retrieval        | In-memory cosine over a committed `kb.json`, exact + semantic answer cache                                    |
 | Validation       | **zod**                                                                                                       |
 | Analytics        | **Upstash Redis** (REST, free tier) · Vercel cron for the daily digest                                        |

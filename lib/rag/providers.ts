@@ -26,9 +26,11 @@ const openrouterProviders = parseKeys("OPENROUTER_API_KEY").map((apiKey) =>
 // The chatbot describes this ladder to visitors: update content/chatbot.md when it changes.
 // Groq's LPU gives the fastest time-to-first-token, so it leads the ladder when
 // a key is configured. Falls through to Gemini → OpenRouter on rate limit.
+// Groq retired both Llama models (404 on 2026-11-11); GPT-OSS 120B and Qwen3.8 27B answered
+// a grounded English probe in 0.2–0.4 s, and each model keeps its own free daily counter.
 const GROQ_MODELS = [
-  { id: "llama-3.3-70b-versatile", label: "Llama 3.3 70B · Groq" },
-  { id: "llama-3.1-8b-instant", label: "Llama 3.1 8B · Groq" },
+  { id: "openai/gpt-oss-120b", label: "GPT-OSS 120B · Groq" },
+  { id: "qwen/qwen3.8-27b", label: "Qwen3.8 27B · Groq" },
 ];
 const GEMINI_MODELS = [
   // 3.1 Flash-Lite leads: noticeably better Persian than 2.5 (verified against
@@ -47,13 +49,15 @@ const GEMINI_MODELS = [
 // 8 tokens/s (one English answer took 50 s, the route's whole deadline), so English tries
 // Super first: grounded English, streams far faster (a Persian answer in 3 s), but formal
 // Persian. Reasoning off: with it on, Ultra's first Persian token took 18 s.
+// OpenRouter dropped the free Nemotron 3 Super slug (gone from its model list on 2026-11-11);
+// Nemotron 3.5 Super answered the same grounded English probe in 0.8 s.
 const NEMOTRON_ULTRA = {
   id: "nvidia/nemotron-3-ultra-550b-a55b:free",
   label: "Nemotron 3 Ultra · OpenRouter",
 };
 const NEMOTRON_SUPER = {
-  id: "nvidia/nemotron-3-super-120b-a12b:free",
-  label: "Nemotron 3 Super · OpenRouter",
+  id: "nvidia/nemotron-3.5-super-vl:free",
+  label: "Nemotron 3.5 Super · OpenRouter",
 };
 const OPENROUTER_MODELS: Record<Lang, { id: string; label: string }[]> = {
   en: [NEMOTRON_SUPER, NEMOTRON_ULTRA],
@@ -80,7 +84,7 @@ function rotate<T>(arr: T[], by: number): [T, number][] {
  * from Sina's CV). Each model is tried across every configured key before
  * falling to the next; total capacity ≈ the sum of all keys.
  *
- * The order is language-aware: Llama (Groq) is fast but weak at Persian, while
+ * The order is language-aware: Groq's models are fast but weaker at Persian, while
  * Gemini handles Persian well. So Persian leads with Gemini and keeps Groq as a
  * last resort; English leads with Groq for the fastest first-token.
  */
