@@ -23,6 +23,9 @@ Written so any entry can be pasted into a tutor chat that cannot see this repo.
   row: 9 (the loop question in progress.md is still open).
 - loop skipped: 2026-09-28 keyword fallback for embedding outages — run inside a scripted
   workflow, one report at the end. Skips in a row: 10 (same open question).
+- loop skipped: 2026-11-11 replace retired ladder models (Groq's Llama 3.3 70B and 3.1 8B, OpenRouter's
+  free Nemotron 3 Super) — owner said "fix it", one report at the end. Skips in a row: 11 (same open
+  question).
 
 ## Terms
 

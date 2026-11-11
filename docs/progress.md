@@ -14,6 +14,11 @@ relevance gate → Groq/Gemini/OpenRouter failover ladder (streamed). Analytics 
   `/admin` analytics, EN/FA with RTL.
 - 2026-09-26 onboarding audit (7 reviewers + critic, adversarially verified): ~110 findings. Fix plan in
   progress on branch `claude/audit-fixes` (pushed for a preview; merging to `main` deploys).
+- 2026-11-11 ladder repair: Groq retired both Llama models (404) and OpenRouter dropped the free Nemotron 3
+  Super slug, so every English question hit three dead rungs first. Groq now runs GPT-OSS 120B → Qwen3.8 27B
+  (0.2–0.4 s on a grounded probe, separate free counters) and OpenRouter's English backstop is Nemotron 3.5
+  Super (0.8 s). The three Gemini models, the embedding model and Nemotron 3 Ultra were checked and still
+  answer. `content/chatbot.md` re-embedded (1 chunk), eval 136/136, 528 tests.
 
 ## Current milestone — "audit fixes + /fa + analytics v2"
 
@@ -614,4 +619,4 @@ uses the same project, the live chat can't embed until the reset either. Local e
 `PORT=3100 npm run test:e2e` (or `PORT=<port>` with `next start` already running there, which
 Playwright reuses — the only way prefetch bugs show).
 
-_Last updated: 2026-09-28 (keyword fallback for embedding outages + "Do you save my chats?" in the KB + review follow-ups: kb.json records the embed template, fallback leaks measured; on `main`, not pushed)_
+_Last updated: 2026-11-11 (ladder repair: retired Groq Llama models and OpenRouter's free Nemotron 3 Super replaced; merged and pushed to `main` on the owner's explicit "review, merge, push")_
